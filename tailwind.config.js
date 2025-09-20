@@ -1,6 +1,26 @@
 // tailwind.config.js
 module.exports = {
   content: ["./src/**/*.{html,ts}"],
+  
+  safelist: [
+  // PRIMARY
+  'bg-primary', 'bg-primary2', 'bg-primary3', 'bg-primaryLight', 'bg-primaryDark',
+  'hover:bg-primary', 'hover:bg-primary2', 'hover:bg-primary3', 'hover:bg-primaryLight', 'hover:bg-primaryDark',
+  'text-primary', 'text-primary2', 'text-primary3', 'text-primaryLight', 'text-primaryDark',
+  'border-primary', 'border-primary2', 'border-primary3', 'border-primaryLight', 'border-primaryDark',
+
+  // SECONDARY
+  'bg-secondary', 'bg-secondary2', 'bg-secondary3', 'bg-secondaryLight', 'bg-secondaryDark',
+  'hover:bg-secondary', 'hover:bg-secondary2', 'hover:bg-secondary3', 'hover:bg-secondaryLight', 'hover:bg-secondaryDark',
+  'text-secondary', 'text-secondary2', 'text-secondary3', 'text-secondaryLight', 'text-secondaryDark',
+  'border-secondary', 'border-secondary2', 'border-secondary3', 'border-secondaryLight', 'border-secondaryDark',
+
+  'bg-confirm', 'bg-confirm2', 'bg-confirm3', 'bg-confirmLight', 'bg-confirmDark',
+
+
+  // Repetir igual para confirm, accent, success, error, warning, text
+  // ...
+],
   theme: {
     container: {
       center: true,
@@ -23,68 +43,69 @@ module.exports = {
         warningHover: "#A65353",
         
          // === PRIMARY (verde esmeralda) ===
-    primary: "#50C878",
-    primary2: "#66D18A",   // más claro
-    primary3: "#3CA15E",   // más oscuro
-    primaryLight: "#A1E6BE",
-    primaryDark: "#2B6D41",
-    primaryHover: "#336343",
+        primary: "#50C878",
+        'primary2': "#66D18A",   // más claro
+        'primary3': "#3CA15E",   // más oscuro
+        'primaryLight': "#A1E6BE",
+        'primaryDark': "#2B6D41",
+        'primaryHover': "#336343",
 
-    // === SECONDARY (azul) ===
-    secondary: "#3A6EBF",
-    secondary2: "#5A8DD4",
-    secondary3: "#2D5694",
-    secondaryLight: "#A7C6EB",
-    secondaryDark: "#1C3258",
-    secondaryHover: "#2A5298",
 
-    // === CONFIRM (rosa fuerte) ===
-    confirm: "#C83A6E",
-    confirm2: "#D65A88",
-    confirm3: "#9F2C56",
-    confirmLight: "#E89AB9",
-    confirmDark: "#661934",
-    confirmHover: "#9F2C56",
+        // === SECONDARY (azul) ===
+        secondary: "#3A6EBF",
+        secondary2: "#5A8DD4",
+        secondary3: "#2D5694",
+        secondaryLight: "#A7C6EB",
+        secondaryDark: "#1C3258",
+        secondaryHover: "#2A5298",
 
-    // === ACCENT (amarillo oro) ===
-    accent: "#F5C623",
-    accent2: "#F8D250",
-    accent3: "#C79E1B",
-    accentLight: "#FBE69A",
-    accentDark: "#7C6511",
-    accentHover: "#C79E1B",
+        // === CONFIRM (rosa fuerte) ===
+        confirm: "#C83A6E",
+        confirm2: "#D65A88",
+        confirm3: "#9F2C56",
+        confirmLight: "#E89AB9",
+        confirmDark: "#661934",
+        confirmHover: "#9F2C56",
 
-    // === SUCCESS (verde estándar) ===
-    success: "#4CAF50",
-    success2: "#6BC770",
-    success3: "#3A8F3E",
-    successLight: "#A5D6A7",
-    successDark: "#1E4620",
-    successHover: "#3A8F3E",
+        // === ACCENT (amarillo oro) ===
+        accent: "#F5C623",
+        accent2: "#F8D250",
+        accent3: "#C79E1B",
+        accentLight: "#FBE69A",
+        accentDark: "#7C6511",
+        accentHover: "#C79E1B",
 
-    // === ERROR (rojo intenso) ===
-    error: "#CC1E2C",
-    error2: "#E04A58",
-    error3: "#9E1622",
-    errorLight: "#F199A0",
-    errorDark: "#5C0C11",
-    errorHover: "#9E1622",
+        // === SUCCESS (verde estándar) ===
+        success: "#4CAF50",
+        success2: "#6BC770",
+        success3: "#3A8F3E",
+        successLight: "#A5D6A7",
+        successDark: "#1E4620",
+        successHover: "#3A8F3E",
 
-    // === WARNING (rojo pálido) ===
-    warning: "#D66F6F",
-    warning2: "#E08B8B",
-    warning3: "#A65353",
-    warningLight: "#F1B5B5",
-    warningDark: "#632D2D",
-    warningHover: "#A65353",
+        // === ERROR (rojo intenso) ===
+        error: "#CC1E2C",
+        error2: "#E04A58",
+        error3: "#9E1622",
+        errorLight: "#F199A0",
+        errorDark: "#5C0C11",
+        errorHover: "#9E1622",
 
-    // === TEXT ===
-    text: "#2F2F2F",
-    text2: "#4A4A4A", // más claro
-    text3: "#1A1A1A", // más oscuro
-    textLight: "#6B6B6B",
-    textDark: "#0D0D0D",
-    textHover: "#1A1A1A",
+        // === WARNING (rojo pálido) ===
+        warning: "#D66F6F",
+        warning2: "#E08B8B",
+        warning3: "#A65353",
+        warningLight: "#F1B5B5",
+        warningDark: "#632D2D",
+        warningHover: "#A65353",
+
+        // === TEXT ===
+        text: "#2F2F2F",
+        text2: "#4A4A4A", // más claro
+        text3: "#1A1A1A", // más oscuro
+        textLight: "#6B6B6B",
+        textDark: "#0D0D0D",
+        textHover: "#1A1A1A",
 
       },
       backgroundImage: {

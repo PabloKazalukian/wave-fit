@@ -1,0 +1,12 @@
+<label class="flex items-center gap-2 cursor-pointer select-none font-inter relative">
+  <!-- Checkbox oculto -->
+  <input type="checkbox" [formControl]="control" class="hidden peer" />
+
+  <!-- Checkmark -->
+  <span
+    class="relative flex-center w-5 h-5 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-sm peer-checked:before:font-bold"
+  ></span>
+
+  <!-- Texto -->
+  <span class="text-sm text-white">{{ text }}</span>
+</label>
