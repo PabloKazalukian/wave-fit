@@ -4,8 +4,10 @@ import { FormControlsOf } from '../../../shared/utils/form-types.util';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CheckboxComponent } from '../../../shared/components/ui/checkbox/checkbox';
 import { BtnComponent } from '../../../shared/components/ui/btn/btn';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { Router } from '@angular/router';
+import { Alert } from '../../../shared/components/ui/alert/alert';
+import { Loading } from '../../../shared/components/ui/loading/loading';
 
 type LoginFormType = FormControlsOf<LoginWithCredentials>;
 export interface LoginWithCredentials {
@@ -22,6 +24,8 @@ export interface LoginWithCredentials {
         CheckboxComponent,
         ReactiveFormsModule,
         BtnComponent,
+        Alert,
+        Loading,
     ],
     standalone: true,
     templateUrl: './login.html',
@@ -54,17 +58,24 @@ export class Login implements OnInit {
 
     onSubmit(): void {
         this.loading = true;
-        // this.login = null;
-        if (this.authSvc.login(this.identifierControl.value, this.passwordControl.value)) {
-            this.login = true;
-            this.router.navigate(['/home']);
-        } else {
-            this.login = false;
-        }
-    }    
+        // this.login = false;
+        this.login = null;
+        setTimeout(() => {
+            if (this.authSvc.login(this.identifierControl.value, this.passwordControl.value)) {
+                this.loading = false;
+                this.login = true;
+                this.router.navigate(['/home']);
+            } else {
+                this.loading = false;
+                this.login = false;
+            }
+        }, 1000);
+    }
+
     loginWithGoogle(): void {
         window.location.href = 'http://wavefit.test/auth/google/redirect';
     }
+
     get identifierControl(): FormControl<string> {
         return this.contactForm.get('identifier')! as FormControl<string>;
     }

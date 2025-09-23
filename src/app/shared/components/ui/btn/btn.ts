@@ -23,7 +23,7 @@ const VALID_COLORS = [
 export class BtnComponent {
     @Input() text: string = '';
     @Input() isDisabled: boolean = false;
-    @Input() variant: 'basic' | 'raised' | 'stroked' | 'outline' | 'ghost' = 'basic';
+    @Input() variant: 'basic' | 'raised' | 'stroked' | 'flat' | 'outline' | 'ghost' = 'basic';
     @Input() color: string = 'primary';
     @Input() routerLink?: string;
     @Input() buttonType: 'button' | 'submit' | 'reset' = 'button';
@@ -35,7 +35,7 @@ export class BtnComponent {
     }
 
     get baseClasses(): string {
-        return 'w-full h-9 rounded-md flex-center font-sm transition-colors focus:outline-none focus:ring-0';
+        return 'w-full h-9 rounded-lg flex-center font-sm transition-colors focus:outline-none focus:ring-0';
     }
 
     get variantClasses(): string {
@@ -48,6 +48,8 @@ export class BtnComponent {
                 return `bg-${this.color} text-white font-semibold shadow-md hover:bg-${cleanColor}Hover`;
             case 'stroked':
                 return `border border-surface hover:bg-${cleanColor}-hover-faint`;
+            case 'flat':
+                return `bg-${color3} text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
             case 'outline':
                 return `border border-${cleanColor} hover:bg-${cleanColor}-hover-faint hover:text-white`;
             case 'ghost':

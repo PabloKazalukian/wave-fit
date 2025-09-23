@@ -13,9 +13,15 @@ module.exports = {
   'bg-secondary', 'bg-secondary2', 'bg-secondary3', 'bg-secondaryLight', 'bg-secondaryDark',
   'hover:bg-secondary', 'hover:bg-secondary2', 'hover:bg-secondary3', 'hover:bg-secondaryLight', 'hover:bg-secondaryDark',
   'text-secondary', 'text-secondary2', 'text-secondary3', 'text-secondaryLight', 'text-secondaryDark',
-  'border-secondary', 'border-secondary2', 'border-secondary3', 'border-secondaryLight', 'border-secondaryDark',
+  'border-secondary', 'border-secondary2', 'border-secondary3', 'border-secondaryLight', 'border-secondaryDark', 'text-secondaryText',
 
   'bg-confirm', 'bg-confirm2', 'bg-confirm3', 'bg-confirmLight', 'bg-confirmDark',
+
+
+  'bg-error', 'bg-error2', 'bg-error3', 'bg-errorLight', 'bg-errorDark',
+  'hover:bg-error', 'hover:bg-error2', 'hover:bg-error3', 'hover:bg-errorLight', 'hover:bg-errorDark',
+  'text-error', 'text-error2', 'text-error3', 'text-errorLight', 'text-errorDark',
+  'border-error', 'border-error2', 'border-error3', 'border-errorLight', 'border-errorDark',
 
 
   // Repetir igual para confirm, accent, success, error, warning, text
@@ -55,9 +61,10 @@ module.exports = {
         secondary: "#3A6EBF",
         secondary2: "#5A8DD4",
         secondary3: "#2D5694",
-        secondaryLight: "#A7C6EB",
+        secondaryLight: "#A1C6EB",
         secondaryDark: "#1C3258",
         secondaryHover: "#2A5298",
+        secondaryText: "#66aaf9",
 
         // === CONFIRM (rosa fuerte) ===
         confirm: "#C83A6E",

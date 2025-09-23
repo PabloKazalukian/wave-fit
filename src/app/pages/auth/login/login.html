@@ -1,13 +1,13 @@
 <div class="flex flex-wrap gap-5 justify-center items-center min-h-screen">
   <div
-    class="flex flex-col items-center justify-center border-2 border-background4 bg-background mt-8 p-8 rounded-3xl shadow-lg space-y-6"
+    class="flex flex-col items-center justify-center border-2 border-background4 bg-background mt-8 p-8 rounded-3xl shadow-lg space-y-6 w-80"
   >
+    @if (login !== true){
     <img src="/icons/logo4.svg" alt="Wave Fit Logo" class="h-24 w-24" />
     <form class="space-y-" (ngSubmit)="onSubmit()" [formGroup]="contactForm">
       <div class="text-center login-title">
         <h3 class="text-3xl mb-8">Inicie sesión</h3>
       </div>
-      @if (loading === false){
       <div class="">
         <app-input
           [label]="'Email o nombre de usuario'"
@@ -26,43 +26,59 @@
         ></app-input>
       </div>
 
-      <div class="login-form__actions">
-        <div class="login-form__credentials mb-3">
-          <div class="login-form__credentials-checkbox">
+      <div class="mb-12">
+        <div class="mb-3">
+          <div class="">
             <app-checkbox [text]="'Recordarme'" [control]="rememberControl"></app-checkbox>
           </div>
         </div>
       </div>
+      @if (loading === true){
+      <div class="flex justify-center items-center">
+        <div class="h-24 w-24">
+          <app-loading [color]="'primary'"></app-loading>
+        </div>
+      </div>
+
+      } @else{
 
       <div class="">
-        <app-btn
-          [text]="'Iniciar sesión'"
-          [color]="'primary3'"
-          [variant]="'raised'"
-          [buttonType]="'submit'"
-          [isDisabled]="contactForm.invalid"
-          class="text-md text-error"
-        ></app-btn>
+        @if( this.login === false ){
+
+        <div>
+          <app-alert [type]="'error'" [message]="'Credenciales incorrectas'"></app-alert>
+        </div>
+        }
+        <div class="">
+          <app-btn
+            [text]="'Iniciar sesión'"
+            [color]="'primary3'"
+            [variant]="'raised'"
+            [buttonType]="'submit'"
+            [isDisabled]="contactForm.invalid"
+            class="text-md text-error"
+          ></app-btn>
+        </div>
+
+        <!-- Divider -->
+        <div class="flex items-center w-full my-3">
+          <div class="flex-1 h-px bg-primary"></div>
+          <span class="mx-2 whitespace-nowrap text-gray-400 text-sm">o continuar con</span>
+          <div class="flex-1 h-px bg-primary"></div>
+        </div>
+
+        <!-- Botón Google -->
+        <button
+          type="button"
+          (click)="loginWithGoogle()"
+          class="w-full h-10 flex items-center justify-center gap-2 rounded-md bg-white text-gray-800 font-semibold font-sans shadow hover:bg-gray-100 transition cursor-pointer"
+        >
+          <img src="/images/Google__G__logo.svg" alt="Google logo" class="w-5 h-5" />
+          Iniciar con Google
+        </button>
       </div>
-
-      <!-- Divider -->
-      <div class="flex items-center w-full my-5">
-        <div class="flex-1 h-px bg-surface"></div>
-        <span class="mx-4 whitespace-nowrap text-gray-400 text-sm">o continuar con</span>
-        <div class="flex-1 h-px bg-surface"></div>
-      </div>
-
-      <!-- Botón Google -->
-      <button
-        type="button"
-        (click)="loginWithGoogle()"
-        class="w-full h-10 flex items-center justify-center gap-2 rounded-md bg-white text-gray-800 font-semibold font-sans shadow hover:bg-gray-100 transition cursor-pointer"
-      >
-        <img src="/images/Google__G__logo.svg" alt="Google logo" class="w-5 h-5" />
-        Iniciar sesión con Google
-      </button>
-
       }
     </form>
+    }
   </div>
 </div>

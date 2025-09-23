@@ -1,0 +1,12 @@
+<div
+  class="w-full h-full border-[0.25em] border-transparent rounded-full animate-spin"
+  [ngClass]="{
+    'border-t-primary': color === 'primary',
+    'border-t-secondary': color === 'secondary',
+    'border-t-accent': color === 'accent',
+    'border-t-error': color === 'error',
+    'border-t-success': color === 'success',
+    'border-t-surface': color === 'surface',
+    'border-t-confirm': color === 'confirm'
+  }"
+></div>

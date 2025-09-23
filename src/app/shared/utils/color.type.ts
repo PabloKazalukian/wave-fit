@@ -5,5 +5,6 @@ export type COLOR_VALUES =
     | 'confirm'
     | 'surface'
     | 'success'
+    | 'warning'
     | 'error'
     | 'text';
