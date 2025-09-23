@@ -63,7 +63,7 @@ export class Login implements OnInit {
         }
     }    
     loginWithGoogle(): void {
-        window.location.href = 'http://wavefit.test/auth/google/redirect';
+        window.location.href = 'https://wavefit.test/auth/google/redirect';
     }
     get identifierControl(): FormControl<string> {
         return this.contactForm.get('identifier')! as FormControl<string>;
