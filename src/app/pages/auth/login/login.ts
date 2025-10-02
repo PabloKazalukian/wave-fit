@@ -8,6 +8,7 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { Router } from '@angular/router';
 import { Alert } from '../../../shared/components/ui/alert/alert';
 import { Loading } from '../../../shared/components/ui/loading/loading';
+import { CredentialsService } from '../../../core/services/auth/credentials.service';
 
 type LoginFormType = FormControlsOf<LoginWithCredentials>;
 export interface LoginWithCredentials {
@@ -36,10 +37,22 @@ export class Login implements OnInit {
     login!: boolean | null;
     loading: boolean = false;
 
-    constructor(private authSvc: AuthService, private router: Router) {}
+    constructor(
+        private authSvc: AuthService,
+        private router: Router,
+        private credentialsSvc: CredentialsService
+    ) {}
 
     ngOnInit(): void {
         this.contactForm = this.initForm();
+        const credentials = this.credentialsSvc.getCredentials();
+        if (credentials.remember) {
+            this.contactForm.patchValue({
+                identifier: credentials.identifier ?? '',
+                password: credentials.password ?? '',
+                remember: credentials.remember,
+            });
+        }
     }
 
     initForm(): FormGroup<LoginFormType> {
@@ -64,6 +77,13 @@ export class Login implements OnInit {
             if (this.authSvc.login(this.identifierControl.value, this.passwordControl.value)) {
                 this.loading = false;
                 this.login = true;
+                if (this.contactForm.get('remember')?.value) {
+                    this.credentialsSvc.saveCredentials({
+                        remember: this.contactForm.get('remember')?.value ?? false,
+                        identifier: this.contactForm.get('identifier')?.value ?? '',
+                        password: this.contactForm.get('password')?.value ?? '',
+                    });
+                }
                 this.router.navigate(['/home']);
             } else {
                 this.loading = false;
@@ -73,7 +93,7 @@ export class Login implements OnInit {
     }
 
     loginWithGoogle(): void {
-        window.location.href = 'http://wavefit.test/auth/google/redirect';
+        window.location.href = 'https://wavefit.test/auth/google/redirect';
     }
 
     get identifierControl(): FormControl<string> {
