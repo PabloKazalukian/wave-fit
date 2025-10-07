@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TextLink } from './text-link';
+import { MacroNutrients } from './macro-nutrients';
 
-describe('TextLink', () => {
-  let component: TextLink;
-  let fixture: ComponentFixture<TextLink>;
+describe('MacroNutrients', () => {
+  let component: MacroNutrients;
+  let fixture: ComponentFixture<MacroNutrients>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TextLink]
+      imports: [MacroNutrients]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TextLink);
+    fixture = TestBed.createComponent(MacroNutrients);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

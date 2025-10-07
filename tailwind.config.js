@@ -39,6 +39,13 @@ module.exports = {
       },
     },
     extend: {
+      backgroundImage: {
+        'gradient-left-right': 'linear-gradient(to right, #121212, #151C17)',
+        'gradient-bottom-left-top-right': 'linear-gradient(to top right, #121212, #295538)',        
+        'gradient-background-1': 'linear-gradient(to bottom, #121212 15%, #151C17 80%,#18231C 95%, #1B2B20 100%)',
+        
+
+      },
       colors: {
 
         background: '#121212',
@@ -108,20 +115,18 @@ module.exports = {
 
         // === TEXT ===
         text: "#2F2F2F",
-        text2: "#4A4A4A", // más claro
+        text2: "#979797", // más claro
         text3: "#1A1A1A", // más oscuro
         textLight: "#6B6B6B",
         textDark: "#0D0D0D",
         textHover: "#1A1A1A",
 
       },
-      backgroundImage: {
-        'gradient-left-right': 'linear-gradient(to right, #121212, #151C17)',
-        'gradient-bottom-left-top-right': 'linear-gradient(to top right, #121212, #295538)',        
-        'gradient-background-1': 'linear-gradient(to bottom, #121212 15%, #151C17 80%,#18231C 95%, #1B2B20 100%)',
-        
-
+      fontFamily: {
+        sans: ['Lato', 'sans-serif'],
+        heading: ['Work Sans', 'sans-serif'],
       },
+      
     },
   },
   plugins: [require('@tailwindcss/forms')],

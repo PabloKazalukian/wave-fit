@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal, computed } from '@angular/core';
-import { tap, switchMap, Observable } from 'rxjs';
+import { tap, switchMap, Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -12,6 +12,9 @@ export class AuthService {
     // Signals de estado
     user = signal<any | null>(this.getStoredUser());
     token = signal<string | null>(this.getStoredToken());
+    // isAuthenticated = signal<boolean>(this.getAuthenticated());
+    private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.getAuthenticated());
+    isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
     isAuthenticated = computed(() => this.token() !== null);
 
     // Login local (mock)
@@ -22,6 +25,8 @@ export class AuthService {
             this.user.set(userData);
             this.token.set('fake-token'); // simula un token válido
             localStorage.setItem(this.tokenKey, this.token()!);
+            this.isAuthenticatedSubject.next(true);
+
             return true;
         }
         return false;
@@ -32,6 +37,7 @@ export class AuthService {
         localStorage.removeItem(this.tokenKey);
         this.user.set(null);
         this.token.set(null);
+        this.isAuthenticatedSubject.next(false);
     }
 
     // Llamada al backend con RxJS, resultado impacta en Signals
@@ -53,6 +59,10 @@ export class AuthService {
     // Helpers privados
     private getStoredUser() {
         return JSON.parse(localStorage.getItem(this.storageKey) || 'null');
+    }
+
+    private getAuthenticated() {
+        return this.token() !== null;
     }
 
     private getStoredToken() {

@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { Alert } from '../../../shared/components/ui/alert/alert';
 import { Loading } from '../../../shared/components/ui/loading/loading';
 import { CredentialsService } from '../../../core/services/auth/credentials.service';
+import { WaveLogoTextComponent } from '../../../shared/components/ui/logos/wave-logo-text/wave-logo-text';
 
 type LoginFormType = FormControlsOf<LoginWithCredentials>;
 export interface LoginWithCredentials {
@@ -27,6 +28,7 @@ export interface LoginWithCredentials {
         BtnComponent,
         Alert,
         Loading,
+        WaveLogoTextComponent,
     ],
     standalone: true,
     templateUrl: './login.html',

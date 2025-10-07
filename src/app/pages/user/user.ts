@@ -5,7 +5,7 @@ import { BtnComponent } from '../../shared/components/ui/btn/btn';
 
 @Component({
     selector: 'app-user',
-    imports: [CommonModule, FormsModule, BtnComponent],
+    imports: [CommonModule, FormsModule],
     standalone: true,
     templateUrl: './user.html',
     styleUrl: './user.css',
@@ -54,9 +54,5 @@ export class User {
         // Por ahora, console log o nada, ya que no implementar dialogo
         console.log(`Abrir dialogo para agregar plato a ${mealType}`);
         // En futuro: Abrir modal con platos user o crear nuevo
-    }
-
-    logout() {
-        // Implementar logout
     }
 }

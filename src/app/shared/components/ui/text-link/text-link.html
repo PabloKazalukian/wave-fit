@@ -1,1 +1,11 @@
-<p>text-link works!</p>
+@if (isExternal) {
+<a class="textLink transition-colors duration-200" [ngClass]="'text-' + color" [href]="routerLink" target="_blank"
+    rel="noopener noreferrer" (click)="warnBeforeLeaving($event)">
+    {{ text }}
+</a>
+} @else {
+<a class="textLink transition-colors duration-200" [routerLink]="routerLink"
+    [ngClass]="['text-' + color, 'hover:text-' + color + '-hover']">
+    {{ text }}
+</a>
+}
