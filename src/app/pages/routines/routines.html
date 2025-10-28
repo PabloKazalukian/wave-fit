@@ -1,0 +1,32 @@
+<div class="container mx-auto px-4 py-4 ">
+    <div class="text-primary  bg-background2 py-8 rounded-xl">
+        <h1 class="text-5xl font-bold text-center ">Wave-Fit - Rutinas</h1>
+        <p class="text-center text-lg mt-4">Podes seleccionar o crear tu rutina deacuerdo a tus necesidades.</p>
+        <div class="flex justify-center items-center mt-6 space-x-4">
+        </div>
+    </div>
+
+    <div class="flex flex-wrap justify-center mt-8 gap-8 bg-background rounded-xl p-6">
+        <div class="flex flex-col items-center">
+            <p class="text-2xl mb-4">Rutinas disponibles:</p>
+            <div class="w-32 h-32">
+                <app-select [placeholder]="'metodos de pago'" [text]="'Elige una opcion:'" [options]="options"
+                    [control]="selectControl"></app-select>
+                <p>
+                    {{this.selectControl.value}}
+                    this.selectControl.value
+                </p>
+            </div>
+            <!-- Chart futuro -->
+        </div>
+        <!-- <p class="mt-4">Consumidas: {{ consumedCalories }} / 1800</p> -->
+    </div>
+    <div class="flex flex-col items-start">
+        <p class="text-2xl mb-4">Rutinas de ejercicios:</p>
+
+    </div>
+</div>
+<!-- Fecha con flechas -->
+<div class="flex justify-center items-center mt-8 space-x-4">
+
+</div>

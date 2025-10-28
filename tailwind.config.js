@@ -115,8 +115,8 @@ module.exports = {
 
         // === TEXT ===
         text: "#2F2F2F",
-        text2: "#979797", // más claro
-        text3: "#1A1A1A", // más oscuro
+        text2: "#adadad", // más claro
+        text3: "#e5e5e5", // más oscuro
         textLight: "#6B6B6B",
         textDark: "#0D0D0D",
         textHover: "#1A1A1A",

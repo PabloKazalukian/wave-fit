@@ -10,6 +10,6 @@ import { WaveLogoTextComponent } from '../../shared/components/ui/logos/wave-log
     standalone: true,
     templateUrl: './home.html',
     styleUrl: './home.css',
-    imports: [BtnComponent, WaveLogoTextComponent],
+    imports: [WaveLogoTextComponent],
 })
 export class Home {}
