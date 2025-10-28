@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Select, SelectType } from '../../shared/components/ui/select/select';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FormControlsOf } from '../../shared/utils/form-types.util';
+import { BtnComponent } from '../../shared/components/ui/btn/btn';
+import { UserService } from '../../core/services/user/user.service';
 
 interface FilterSearch {
     option: string;
@@ -10,7 +12,7 @@ type selectFormType = FormControlsOf<FilterSearch>;
 
 @Component({
     selector: 'app-routines',
-    imports: [Select],
+    imports: [Select, BtnComponent],
     standalone: true,
     templateUrl: './routines.html',
     styleUrl: './routines.css',
@@ -25,6 +27,8 @@ export class Routines implements OnInit {
     selectForm!: FormGroup<selectFormType>;
     showSelected: string = '';
 
+    constructor(private svcUser: UserService) {}
+
     ngOnInit(): void {
         this.selectForm = this.initForm();
 
@@ -37,6 +41,13 @@ export class Routines implements OnInit {
     initForm(): FormGroup<selectFormType> {
         return new FormGroup<selectFormType>({
             option: new FormControl('', { nonNullable: true }),
+        });
+    }
+
+    createRoutine() {
+        console.log('Crear nueva rutina');
+        this.svcUser.getAllUsers().subscribe((result) => {
+            console.log('Usuarios:', result.data);
         });
     }
 

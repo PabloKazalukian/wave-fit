@@ -19,6 +19,5 @@ export class Select {
     @Input() label!: string;
     @Input() placeholder: string = '';
     @Input() options: SelectType[] = [];
-    @Input() isDisabled: boolean = false;
     @Input() control!: FormControl<string | null>;
 }
