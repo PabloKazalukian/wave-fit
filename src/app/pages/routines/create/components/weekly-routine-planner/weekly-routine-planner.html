@@ -1,0 +1,16 @@
+<div class="planner">
+    <div class="days-row" role="list">
+
+        @for (d of days; track d) {
+        <app-week-day-cell [day]="d" [workoutOptions]="workoutOptions" (kindChange)="onToggleKind(d, $event)"
+            (typeSelect)="onSelectWorkoutType(d, $event)" (routineSelect)="onSelectRoutine(d, $event)">
+        </app-week-day-cell>
+        }
+
+    </div>
+
+    <div class="actions">
+        <app-btn text="Guardar plan" (click)="savePlan('Mi rutina','desc')">
+        </app-btn>
+    </div>
+</div>

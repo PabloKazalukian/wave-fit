@@ -1,0 +1,30 @@
+<!-- week-day-cell.html -->
+<div class="day-cell" [class.rest]="day.kind === 'REST'" [class.expanded]="day.expanded" role="listitem"
+    aria-label="Day {{day.day}}">
+    <div class="day-header">
+        <div class="day-number">Día {{ day.day }}</div>
+
+        <div class="kind-select">
+            <select [value]="day.kind" (change)="onKindChange($any($event.target).value)">
+                <option value="WORKOUT">Ejercicio</option>
+                <option value="REST">Descanso</option>
+            </select>
+        </div>
+    </div>
+    @if (day.kind === 'WORKOUT') {
+
+
+    <div class="day-body">
+        <!-- <app-select [text]="'Elige tipo'" [options]="workoutOptions"
+            [control]=""
+            (change)="$event ? onTypeChange($event.target.value) : null"></app-select> -->
+
+        <<div class="routines-list">
+            @if (routines$ | async; as routines) {
+            <app-routine-list-box [items]="routines" (pick)="onRoutinePick($event)">
+            </app-routine-list-box>
+            }
+    </div>
+</div>
+}
+</div>

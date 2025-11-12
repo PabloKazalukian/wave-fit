@@ -1,0 +1,20 @@
+<div class="bg-background p-16">
+    <div>
+        <app-input [label]="'Nombre de tu rutina semanal:'" [type]="'text'"
+            [placeholder]="'Ingresa un nombre para tu rutina semanal'" [control]="nameControl"></app-input>
+        <app-input [label]="'Descripción: '" [type]="'text'" [placeholder]="'Ingresa un nombre para tu rutina semanal'"
+            [control]="descriptionControl"></app-input>
+    </div>
+
+    <div>
+
+
+        <p>Primero diseña la distribucion de los dias de ejercicio </p>
+        <app-select [placeholder]="'metodos de pago'" [text]="'Elige una opcion:'" [options]="options"
+            [control]="selectControl"></app-select>
+        <app-btn [text]="'Confirmar'" [variant]="'raised'" [color]="'primaryDark'" (click)="onSubmit()"></app-btn>
+    </div>
+    <div>
+        <app-weekly-routine-planner></app-weekly-routine-planner>
+    </div>
+</div>

@@ -1,11 +1,7 @@
 import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-
-export interface SelectType {
-    name: string;
-    value: number | string;
-}
+import { SelectType } from '../../../interfaces/input.interface';
 
 @Component({
     selector: 'app-select',
@@ -14,7 +10,7 @@ export interface SelectType {
     templateUrl: './select.html',
     styleUrl: './select.css',
 })
-export class Select {
+export class FormSelectComponent {
     @Input() text: string = '';
     @Input() label!: string;
     @Input() placeholder: string = '';

@@ -1,39 +1,48 @@
 import { Component, OnInit } from '@angular/core';
-import { Select, SelectType } from '../../shared/components/ui/select/select';
+import { FormSelectComponent } from '../../shared/components/ui/select/select';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FormControlsOf } from '../../shared/utils/form-types.util';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { UserService } from '../../core/services/user/user.service';
+import { RoutinesServices } from '../../core/services/routines/routines.service';
+import { SelectType, SelectTypeInput } from '../../shared/interfaces/input.interface';
 
-interface FilterSearch {
-    option: string;
-}
-type selectFormType = FormControlsOf<FilterSearch>;
+type selectFormType = FormControlsOf<SelectTypeInput>;
 
 @Component({
     selector: 'app-routines',
-    imports: [Select, BtnComponent],
+    imports: [FormSelectComponent, BtnComponent],
     standalone: true,
     templateUrl: './routines.html',
     styleUrl: './routines.css',
 })
 export class Routines implements OnInit {
     options: SelectType[] = [
-        { name: 'Opción 1', value: '1' },
-        { name: 'Opción 2', value: '2' },
-        { name: 'Opción 3', value: '3' },
+        { name: '1/7', value: '1' },
+        { name: '2/7', value: '2' },
+        { name: '3/7', value: '3' },
+        { name: '4/7', value: '4' },
+        { name: '5/7', value: '5' },
+        { name: '6/7', value: '6' },
+        { name: '7/7', value: '7' },
     ];
+
+    routinesPlans: any[] = [];
 
     selectForm!: FormGroup<selectFormType>;
     showSelected: string = '';
 
-    constructor(private svcUser: UserService) {}
+    constructor(private svcUser: UserService, private svcRoutines: RoutinesServices) {}
 
     ngOnInit(): void {
         this.selectForm = this.initForm();
 
+        this.svcRoutines.getRoutinesPlans().subscribe((result) => {
+            console.log('Rutinas:', result.data);
+            this.routinesPlans = result.data.routinePlans;
+        });
         // this.options =
-        this.selectControl.valueChanges.subscribe((newValue) => {
+        this.selectControl.valueChanges.subscribe((newValue: string) => {
             this.showSelected = newValue;
         });
     }
