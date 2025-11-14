@@ -1,17 +1,9 @@
-.day-cell{
-  width: 13%;
-  min-width: 120px;
-  margin: 0 6px;
-  padding: 12px;
-  border-radius: 10px;
-  background: var(--surface);
-  transition: transform .18s ease, box-shadow .18s ease, opacity .18s;
-}
-.day-cell.rest {
+
+.rest {
   opacity: 0.45;
   filter: grayscale(40%);
 }
-.day-cell.expanded {
+.expanded {
   transform: translateY(-6px) scale(1.04);
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   z-index: 5;
@@ -27,5 +19,3 @@
 .day-header{ display:flex; justify-content:space-between; align-items:center; }
 .day-number{ font-weight:700; font-size:0.95rem; }
 .kind-select select { background:transparent; border-radius:6px; padding:6px; }
-.day-body { margin-top:10px; }
-.routines-list { margin-top:8px; }

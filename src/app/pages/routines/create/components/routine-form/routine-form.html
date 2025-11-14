@@ -6,15 +6,18 @@
             [control]="descriptionControl"></app-input>
     </div>
 
+    @if(!show) {
     <div>
-
-
         <p>Primero diseña la distribucion de los dias de ejercicio </p>
         <app-select [placeholder]="'metodos de pago'" [text]="'Elige una opcion:'" [options]="options"
             [control]="selectControl"></app-select>
         <app-btn [text]="'Confirmar'" [variant]="'raised'" [color]="'primaryDark'" (click)="onSubmit()"></app-btn>
     </div>
+    }
+    @if(show) {
     <div>
-        <app-weekly-routine-planner></app-weekly-routine-planner>
+        <app-btn [text]="'Cambiar'" [variant]="'raised'" [color]="'accent'" (click)="onRestart()"></app-btn>
+        <app-weekly-routine-planner [distribution]="selectControl.value"></app-weekly-routine-planner>
     </div>
+    }
 </div>

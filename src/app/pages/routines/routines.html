@@ -18,7 +18,7 @@
                 <p>No hay rutinas semanales disponibles.</p>
                 <div class="w-full flex items-center justify-center">
 
-                    <app-btn [text]="'Crear una Rutina semanal'" [variant]="'raised'" [color]="'secondaryDark'"
+                    <app-btn [text]="'Iniciar una Rutina semanal'" [variant]="'raised'" [color]="'secondaryDark'"
                         (click)="createRoutine()"></app-btn>
                 </div>
             </div>
@@ -56,9 +56,17 @@
         <!-- <app-btn [text]="'Crear algo magico'" [variant]="'raised'" [color]="'primaryDark'"
             (click)="createRoutine()"></app-btn> -->
 
-
-
     </div>
+
+    <div class="flex flex-col items-start">
+        <p class="text-2xl mb-4">Lista de ejercicios:</p>
+        @for (item of exercises(); track $index) {
+        <div class="grid">
+            <p>{{item.name}} | {{item.category}} </p>
+        </div>
+        }
+    </div>
+
 </div>
 <!-- Fecha con flechas -->
 <div class="flex justify-center items-center mt-8 space-x-4">

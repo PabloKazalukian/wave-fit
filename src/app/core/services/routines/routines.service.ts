@@ -36,6 +36,25 @@ export class RoutinesServices {
                 handleGraphqlError(this.authSvc)
             );
     }
+    getRoutinesByCategory(category: string): Observable<any> {
+        console.log(category);
+        return this.apollo
+            .query({
+                query: gql`
+                    query {
+                        routinesByCategory(input: { category: "${category}" }) {
+                            id
+                            title
+                            type
+                        }
+                    }
+                `,
+            })
+            .pipe(
+                map((res) => res.data),
+                handleGraphqlError(this.authSvc)
+            );
+    }
 
     createRoutinePlan(data: any): Observable<any> {
         return this.apollo.mutate({

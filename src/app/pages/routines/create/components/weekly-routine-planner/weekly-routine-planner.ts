@@ -1,9 +1,7 @@
 // weekly-routine-planner.component.ts
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, Input, OnChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
-// import { DayPlan, DayIndex } from './types';
-// import { RoutinesService } from './routines.service';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { DayIndex, DayPlan } from '../../../../../shared/interfaces/routines.interface';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
@@ -17,9 +15,11 @@ import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
     imports: [WeekDayCellComponent, BtnComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WeeklyRoutinePlannerComponent implements OnInit {
+export class WeeklyRoutinePlannerComponent implements OnInit, OnChanges {
     // distribución: la podrías calcular a partir de un input del padre
+    @Input({ required: true }) distribution: string = '0/7';
     distributionControl = new FormControl('2/7');
+    routineDay = [];
     days: DayPlan[] = [];
     selectedDay$ = new BehaviorSubject<DayIndex | null>(null);
 
@@ -34,9 +34,11 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
     constructor(private routinesSvc: RoutinesServices) {}
 
     ngOnInit() {
-        this.initDaysFromDistribution(this.distributionControl.value);
-        console.log('Inicializando días con distribución:', this.distributionControl.value);
-        this.distributionControl.valueChanges.subscribe((v) => this.initDaysFromDistribution(v));
+        this.initDaysFromDistribution(this.distribution);
+    }
+
+    ngOnChanges() {
+        this.initDaysFromDistribution(this.distribution);
     }
 
     private initDaysFromDistribution(dist: string | null) {
