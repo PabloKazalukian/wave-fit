@@ -19,7 +19,6 @@ export class Header implements OnInit {
     ngOnInit() {
         this.authSvc.isAuthenticated$.subscribe({
             next: (res) => {
-                console.log(res);
                 this.show = res;
             },
             error: (err) => {},

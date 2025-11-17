@@ -22,9 +22,9 @@ export class Callback implements OnInit {
             }
         });
 
-        this.authSvc.getUser().subscribe((user) => {
-            console.log(user);
-        });
+        // this.authSvc.getUser().subscribe((user) => {
+        //     console.log(user);
+        // });
         /* this.http.get('http://localhost:8000/api/protected', {
         headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
       });

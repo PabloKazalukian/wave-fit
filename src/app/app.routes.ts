@@ -13,6 +13,11 @@ export const routes: Routes = [
         canActivate: [authGuard],
     },
     {
+        path: 'routines',
+        loadChildren: () =>
+            import('./pages/routines/routines.routes').then((m) => m.ROUTINES_ROUTES),
+    },
+    {
         path: 'auth',
         loadChildren: () => import('./pages/auth/auth.routes').then((m) => m.AUTH_ROUTES),
     },

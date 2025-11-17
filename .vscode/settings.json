@@ -1,0 +1,13 @@
+{
+  "workbench.colorTheme": "One Dark Pro",
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.formatOnSave": true,
+
+  // Angular: mantener íconos por defecto
+  "material-icon-theme.files.associations": {
+    "**/*.component.ts": "angular-component",
+    "**/*.service.ts": "angular-service",
+    "**/*.module.ts": "angular-module"
+  }
+}
+

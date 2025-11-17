@@ -1,0 +1,21 @@
+
+.rest {
+  opacity: 0.45;
+  filter: grayscale(40%);
+}
+.expanded {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 5;
+}
+.days-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+.day-header{ display:flex; justify-content:space-between; align-items:center; }
+.day-number{ font-weight:700; font-size:0.95rem; }
+.kind-select select { background:transparent; border-radius:6px; padding:6px; }

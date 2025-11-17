@@ -76,21 +76,42 @@ export class Login implements OnInit {
         // this.login = false;
         this.login = null;
         setTimeout(() => {
-            if (this.authSvc.login(this.identifierControl.value, this.passwordControl.value)) {
-                this.loading = false;
-                this.login = true;
-                if (this.contactForm.get('remember')?.value) {
-                    this.credentialsSvc.saveCredentials({
-                        remember: this.contactForm.get('remember')?.value ?? false,
-                        identifier: this.contactForm.get('identifier')?.value ?? '',
-                        password: this.contactForm.get('password')?.value ?? '',
-                    });
-                }
-                this.router.navigate(['/home']);
-            } else {
-                this.loading = false;
-                this.login = false;
-            }
+            // if (
+            this.authSvc.login(this.identifierControl.value, this.passwordControl.value).subscribe({
+                next: (result) => {
+                    this.loading = false;
+                    this.login = false;
+                    if (this.contactForm.get('remember')?.value) {
+                        this.credentialsSvc.saveCredentials({
+                            remember: this.contactForm.get('remember')?.value ?? false,
+                            identifier: this.contactForm.get('identifier')?.value ?? '',
+                            password: this.contactForm.get('password')?.value ?? '',
+                        });
+                    }
+                    this.router.navigate(['/home']);
+                    console.log(result);
+                },
+                error: (error) => {
+                    this.loading = false;
+                    this.login = false;
+                    console.error('There was an error sending the query', error);
+                },
+            });
+            // ) {
+            // this.loading = false;
+            // this.login = true;
+            // if (this.contactForm.get('remember')?.value) {
+            //     this.credentialsSvc.saveCredentials({
+            //         remember: this.contactForm.get('remember')?.value ?? false,
+            //         identifier: this.contactForm.get('identifier')?.value ?? '',
+            //         password: this.contactForm.get('password')?.value ?? '',
+            //     });
+            // }
+            // this.router.navigate(['/home']);
+            // } else {
+            //     this.loading = false;
+            //     this.login = false;
+            // }
         }, 1000);
     }
 

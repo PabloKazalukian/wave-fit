@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 import { Header } from './shared/components/layout/header/header';
 import { Footer } from './shared/components/layout/footer/footer';
+import { AuthService } from './core/services/auth/auth.service';
 
 @Component({
     selector: 'app-root',
@@ -9,4 +10,17 @@ import { Footer } from './shared/components/layout/footer/footer';
     imports: [RouterOutlet, Header, Footer],
     templateUrl: './app.html',
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+    constructor(private authStateSvc: AuthService, private router: Router) {}
+    ngOnInit(): void {
+        this.authStateSvc.me().subscribe({
+            next: (user) => {
+                // console.log('Usuario autenticado:', user);
+            },
+            error: (err) => {
+                console.log('No autenticado, redirigiendo a login.', err);
+                this.router.navigate(['/auth/login']);
+            },
+        });
+    }
+}

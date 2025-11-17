@@ -1,0 +1,25 @@
+<div class="bg-surface mx-2 my-8 rounded-md transition-transform duration-200 ease-in-out  day-cell flex-col gap-8 items-start"
+    [class.rest]="day.kind === 'REST'" role="listitem" aria-label="Day {{day.day}}" (click)="onExpandToggle($event)">
+    <div class="flex gap-4 items-center mb-8">
+        <div class="font-bold text-[0.95rem]">Día {{ day.day }}</div>
+        <div class="flex items-center">
+            <app-select [text]="'Tipo de día:'" [options]="options" [control]="selectControl"></app-select>
+        </div>
+    </div>
+    @if (day.kind === 'WORKOUT') {
+
+
+    <div class="day-body flex items-center justify-center">
+        <!-- <app-select [text]="'Elige tipo'" [options]="workoutOptions"
+            [control]=""
+            (change)="$event ? onTypeChange($event.target.value) : null"></app-select> -->
+
+        <div class="routines-list">
+            @if (routines$ | async; as routines) {
+            <app-routine-list-box [items]="routines" (pick)="onRoutinePick($event)">
+            </app-routine-list-box>
+            }
+        </div>
+    </div>
+    }
+</div>

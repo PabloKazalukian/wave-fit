@@ -3,6 +3,8 @@ module.exports = {
   content: ["./src/**/*.{html,ts}"],
   
   safelist: [
+  'p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'p-8',
+    'px-3', 'px-4', 'px-5', 'px-6', 'px-8',
   // PRIMARY
   'bg-primary', 'bg-primary2', 'bg-primary3', 'bg-primaryLight', 'bg-primaryDark',
   'hover:bg-primary', 'hover:bg-primary2', 'hover:bg-primary3', 'hover:bg-primaryLight', 'hover:bg-primaryDark',
@@ -115,8 +117,8 @@ module.exports = {
 
         // === TEXT ===
         text: "#2F2F2F",
-        text2: "#979797", // más claro
-        text3: "#1A1A1A", // más oscuro
+        text2: "#adadad", // más claro
+        text3: "#e5e5e5", // más oscuro
         textLight: "#6B6B6B",
         textDark: "#0D0D0D",
         textHover: "#1A1A1A",

@@ -35,7 +35,7 @@ export class BtnComponent {
     }
 
     get baseClasses(): string {
-        return 'w-full h-9 rounded-lg flex-center font-sm transition-colors focus:outline-none focus:ring-0';
+        return 'w-full rounded-lg  font-sm transition-colors focus:outline-none focus:ring-0 px-3 py-2 text-center';
     }
 
     get variantClasses(): string {

@@ -1,71 +1,160 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, signal, computed } from '@angular/core';
-import { tap, switchMap, Observable, BehaviorSubject } from 'rxjs';
+import { Apollo, gql } from 'apollo-angular';
+import { tap, Observable, BehaviorSubject, catchError, map, of } from 'rxjs';
+import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
+
+export interface LoginResponse {
+    data: any;
+    loading: boolean;
+}
+
+export interface MeResponse {
+    me: {
+        id: string;
+        email: string;
+        role: string;
+    };
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     private storageKey = 'auth_user';
     private tokenKey = 'token';
 
-    constructor(private http: HttpClient) {}
+    constructor(private apollo: Apollo) {}
 
     // Signals de estado
     user = signal<any | null>(this.getStoredUser());
     token = signal<string | null>(this.getStoredToken());
-    // isAuthenticated = signal<boolean>(this.getAuthenticated());
+
     private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.getAuthenticated());
     isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
     isAuthenticated = computed(() => this.token() !== null);
 
-    // Login local (mock)
-    login(username: string, password: string): boolean {
-        if (username === 'admin' && password === '1234') {
-            const userData = { username };
-            localStorage.setItem(this.storageKey, JSON.stringify(userData));
-            this.user.set(userData);
-            this.token.set('fake-token'); // simula un token válido
-            localStorage.setItem(this.tokenKey, this.token()!);
-            this.isAuthenticatedSubject.next(true);
+    private userIdSubject = new BehaviorSubject<string | null>(this.user()?.id || null);
+    user$ = this.userIdSubject.asObservable();
 
-            return true;
-        }
-        return false;
+    login(identifier: string, password: string) {
+        return this.apollo
+            .mutate<{ login: string }>({
+                mutation: gql`
+                    mutation Login($identifier: String!, $password: String!) {
+                        login(identifier: $identifier, password: $password)
+                    }
+                `,
+                variables: { identifier, password },
+            })
+            .pipe(
+                tap((res) => {
+                    const token = res.data?.login;
+                    if (!token) throw new Error('Token no recibido');
+
+                    this.token.set(token);
+                    localStorage.setItem(this.tokenKey, token);
+                    this.isAuthenticatedSubject.next(true);
+                }),
+                map(() => true),
+                catchError((err) => {
+                    return of(false);
+                })
+            );
+    }
+
+    me(): Observable<MeResponse['me'] | undefined> {
+        return this.apollo
+            .query<{ me: MeResponse['me'] }>({
+                query: gql`
+                    query Me {
+                        me {
+                            id
+                            email
+                            role
+                        }
+                    }
+                `,
+                fetchPolicy: 'no-cache',
+            })
+            .pipe(
+                tap(({ data }) => {
+                    this.user.set({
+                        id: data?.me.id || null,
+                        email: data?.me.email || null,
+                        role: data?.me.role || null,
+                    });
+                    this.setStoredUser(this.user());
+                }),
+                handleGraphqlError(this), // ahora correctamente tipado
+                map((res) => {
+                    return res.data?.me;
+                })
+            );
     }
 
     logout(): void {
-        localStorage.removeItem(this.storageKey);
+        this.clearSession();
+    }
+
+    saveToken(s: string) {}
+
+    // ✅ --- Helpers ---
+    private getStoredUser(): any | null {
+        const data = localStorage.getItem(this.storageKey);
+        console.log('Stored user data:', data);
+        return data ? JSON.parse(data) : null;
+    }
+
+    private setStoredUser(user: any): void {
+        localStorage.setItem(this.storageKey, JSON.stringify(user));
+    }
+
+    private getStoredToken(): string | null {
+        return localStorage.getItem(this.tokenKey);
+    }
+
+    private getAuthenticated(): boolean {
+        return !!this.getStoredToken();
+    }
+
+    private clearSession() {
         localStorage.removeItem(this.tokenKey);
+        localStorage.removeItem(this.storageKey);
         this.user.set(null);
         this.token.set(null);
         this.isAuthenticatedSubject.next(false);
     }
 
-    // Llamada al backend con RxJS, resultado impacta en Signals
-    getUser(): Observable<string> {
-        return this.http.get('https://wavefit.test/sanctum/csrf-cookie').pipe(
-            switchMap(() =>
-                this.http.get('https://wavefit.test/api/user', {
-                    headers: { Authorization: `Bearer ${this.token()}` },
-                })
-            ),
-            tap((data: any) => {
-                this.user.set(data);
-            })
-        );
-    }
+    // checkAuth(): Promise<void> {
+    //     const token = localStorage.getItem('token');
+    //     if (!token) {
+    //         console.log('No token found, clearing session.');
+    //         this.user.set(null);
+    //         return Promise.resolve();
+    //     }
 
-    saveToken(s: string) {}
-
-    // Helpers privados
-    private getStoredUser() {
-        return JSON.parse(localStorage.getItem(this.storageKey) || 'null');
-    }
-
-    private getAuthenticated() {
-        return this.token() !== null;
-    }
-
-    private getStoredToken() {
-        return localStorage.getItem(this.tokenKey);
-    }
+    //     return new Promise((resolve) => {
+    //         this.apollo
+    //             .watchQuery({
+    //                 query: gql`
+    //                     query Me {
+    //                         me {
+    //                             id
+    //                             email
+    //                             role
+    //                         }
+    //                     }
+    //                 `,
+    //             })
+    //             .valueChanges.subscribe({
+    //                 next: (res) => {
+    //                     this.user.set(res);
+    //                     resolve();
+    //                 },
+    //                 error: () => {
+    //                     localStorage.removeItem('token');
+    //                     this.user.set(null);
+    //                     resolve();
+    //                 },
+    //             });
+    //     });
+    // }
 }
