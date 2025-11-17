@@ -3,23 +3,23 @@ import { authGuard } from './core/auth-guard';
 
 export const routes: Routes = [
     {
+        path: 'auth',
+        loadChildren: () => import('./pages/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+    },
+    {
         path: '',
         loadComponent: () => import('./pages/home/home').then((m) => m.Home),
-        canActivate: [authGuard],
+        // canActivate: [authGuard],
     },
     {
         path: 'user',
         loadComponent: () => import('./pages/user/user').then((m) => m.User),
-        canActivate: [authGuard],
+        // canActivate: [authGuard],
     },
     {
         path: 'routines',
         loadChildren: () =>
             import('./pages/routines/routines.routes').then((m) => m.ROUTINES_ROUTES),
-    },
-    {
-        path: 'auth',
-        loadChildren: () => import('./pages/auth/auth.routes').then((m) => m.AUTH_ROUTES),
     },
     { path: '**', redirectTo: '' },
 ];

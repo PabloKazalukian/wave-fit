@@ -2,6 +2,8 @@ import { Injectable, signal, computed } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { tap, Observable, BehaviorSubject, catchError, map, of } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
+import { environment } from '../../../../environments/environments';
+import { LoginWithGoogle } from '../../../shared/interfaces/auth.interface';
 
 export interface LoginResponse {
     data: any;
@@ -18,6 +20,7 @@ export interface MeResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+    private API_URL = environment.graphqlUri;
     private storageKey = 'auth_user';
     private tokenKey = 'token';
 
@@ -96,6 +99,36 @@ export class AuthService {
 
     saveToken(s: string) {}
 
+    loginWithGoogle(code: string, codeVerifier: string) {
+        // return true;
+        return this.apollo
+            .mutate<{ loginWithGoogle: LoginWithGoogle }>({
+                mutation: gql`
+                    mutation LoginWithGoogle($code: String!, $codeVerifier: String!) {
+                        loginWithGoogle(code: $code, codeVerifier: $codeVerifier) {
+                            access_token
+                        }
+                    }
+                `,
+                variables: {
+                    code,
+                    codeVerifier,
+                },
+            })
+            .pipe(
+                handleGraphqlError(this),
+                tap((res) => {
+                    console.log(res);
+                    const token = res.data?.loginWithGoogle.access_token;
+                    if (!token) throw new Error('Token no recibido');
+
+                    this.token.set(token);
+                    localStorage.setItem(this.tokenKey, token);
+                    this.isAuthenticatedSubject.next(true);
+                })
+            );
+    }
+
     // ✅ --- Helpers ---
     private getStoredUser(): any | null {
         const data = localStorage.getItem(this.storageKey);
@@ -122,39 +155,4 @@ export class AuthService {
         this.token.set(null);
         this.isAuthenticatedSubject.next(false);
     }
-
-    // checkAuth(): Promise<void> {
-    //     const token = localStorage.getItem('token');
-    //     if (!token) {
-    //         console.log('No token found, clearing session.');
-    //         this.user.set(null);
-    //         return Promise.resolve();
-    //     }
-
-    //     return new Promise((resolve) => {
-    //         this.apollo
-    //             .watchQuery({
-    //                 query: gql`
-    //                     query Me {
-    //                         me {
-    //                             id
-    //                             email
-    //                             role
-    //                         }
-    //                     }
-    //                 `,
-    //             })
-    //             .valueChanges.subscribe({
-    //                 next: (res) => {
-    //                     this.user.set(res);
-    //                     resolve();
-    //                 },
-    //                 error: () => {
-    //                     localStorage.removeItem('token');
-    //                     this.user.set(null);
-    //                     resolve();
-    //                 },
-    //             });
-    //     });
-    // }
 }

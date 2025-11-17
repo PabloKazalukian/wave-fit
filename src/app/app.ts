@@ -10,17 +10,17 @@ import { AuthService } from './core/services/auth/auth.service';
     imports: [RouterOutlet, Header, Footer],
     templateUrl: './app.html',
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
     constructor(private authStateSvc: AuthService, private router: Router) {}
     ngOnInit(): void {
-        this.authStateSvc.me().subscribe({
-            next: (user) => {
-                // console.log('Usuario autenticado:', user);
-            },
-            error: (err) => {
-                console.log('No autenticado, redirigiendo a login.', err);
-                this.router.navigate(['/auth/login']);
-            },
-        });
+        // this.authStateSvc.me().subscribe({
+        //     next: (user) => {
+        //         // console.log('Usuario autenticado:', user);
+        //     },
+        //     error: (err) => {
+        //         console.log('No autenticado, redirigiendo a login.', err);
+        //         this.router.navigate(['/auth/login']);
+        //     },
+        // });
     }
 }

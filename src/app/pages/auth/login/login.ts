@@ -10,6 +10,8 @@ import { Alert } from '../../../shared/components/ui/alert/alert';
 import { Loading } from '../../../shared/components/ui/loading/loading';
 import { CredentialsService } from '../../../core/services/auth/credentials.service';
 import { WaveLogoTextComponent } from '../../../shared/components/ui/logos/wave-logo-text/wave-logo-text';
+import { environment } from '../../../../environments/environments';
+import { generatePkcePair } from '../../../shared/utils/pkce.utils';
 
 type LoginFormType = FormControlsOf<LoginWithCredentials>;
 export interface LoginWithCredentials {
@@ -89,7 +91,6 @@ export class Login implements OnInit {
                         });
                     }
                     this.router.navigate(['/home']);
-                    console.log(result);
                 },
                 error: (error) => {
                     this.loading = false;
@@ -97,26 +98,26 @@ export class Login implements OnInit {
                     console.error('There was an error sending the query', error);
                 },
             });
-            // ) {
-            // this.loading = false;
-            // this.login = true;
-            // if (this.contactForm.get('remember')?.value) {
-            //     this.credentialsSvc.saveCredentials({
-            //         remember: this.contactForm.get('remember')?.value ?? false,
-            //         identifier: this.contactForm.get('identifier')?.value ?? '',
-            //         password: this.contactForm.get('password')?.value ?? '',
-            //     });
-            // }
-            // this.router.navigate(['/home']);
-            // } else {
-            //     this.loading = false;
-            //     this.login = false;
             // }
         }, 1000);
     }
 
-    loginWithGoogle(): void {
-        window.location.href = 'https://wavefit.test/auth/google/redirect';
+    async loginWithGoogle(): Promise<void> {
+        const { code_verifier, code_challenge } = await generatePkcePair();
+
+        sessionStorage.setItem('pkce_verifier', code_verifier);
+
+        const params = new URLSearchParams({
+            client_id: environment.client_id,
+            // redirect_uri: 'http://localhost:3000/auth/google/callback',
+            redirect_uri: 'http://localhost:4200/auth/callback',
+            response_type: 'code',
+            scope: 'openid email profile',
+            code_challenge: code_challenge,
+            code_challenge_method: 'S256',
+        });
+
+        window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
     }
 
     get identifierControl(): FormControl<string> {

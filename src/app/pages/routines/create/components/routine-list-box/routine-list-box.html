@@ -10,7 +10,7 @@
         </app-btn>
         @if (show) {
         <div class="flex flex-col">
-            <app-routine-exercise-form></app-routine-exercise-form>
+            <app-routine-exercise-form [categoryExercise]="selectControl.value"></app-routine-exercise-form>
         </div>
         }
     </div>
@@ -18,13 +18,13 @@
     <ul role="listbox" tabindex="0" class="listbox">
         <p>{{routinesDays}}</p>
 
-        @for (item of items; track item.id) {
+        <!-- @for (item of items; track item.id) {
         <li role="option" (click)="pickId(item.id)" (keydown.enter)="pickId(item.id)" tabindex="0"
             [attr.aria-selected]="item.id === selected">
             <div class="title">{{ item.title }}</div>
             <div class="meta">{{ item.durationMinutes }} min • {{ item.difficulty }}</div>
         </li>
-        }
+        } -->
     </ul>
     }
 </div>

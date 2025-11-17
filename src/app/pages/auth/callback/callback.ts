@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
     selector: 'app-callback',
@@ -10,24 +11,26 @@ import { AuthService } from '../../../core/services/auth/auth.service';
     styleUrl: './callback.css',
 })
 export class Callback implements OnInit {
-    constructor(private router: ActivatedRoute, private authSvc: AuthService) {}
+    constructor(
+        private routerActivaded: ActivatedRoute,
+        private authSvc: AuthService,
+        private http: HttpClient,
+        private router: Router
+    ) {}
 
     ngOnInit(): void {
-        this.router.queryParams.subscribe((params) => {
-            console.log(params);
-            const token = params['token'];
-            console.log(token);
-            if (token !== null) {
-                this.authSvc.saveToken(token);
-            }
-        });
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const codeVerifier = sessionStorage.getItem('pkce_verifier');
+        console.log('Authorization code:', code);
+        console.log('Code verifier from session storage:', codeVerifier);
 
-        // this.authSvc.getUser().subscribe((user) => {
-        //     console.log(user);
-        // });
-        /* this.http.get('http://localhost:8000/api/protected', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
-      });
-      */
+        if (!code || !codeVerifier) return;
+
+        this.authSvc.loginWithGoogle(code, codeVerifier).subscribe(({ data }: any) => {
+            // const token: string = data.loginWithGoogle;
+
+            this.router.navigate(['/home']);
+        });
     }
 }

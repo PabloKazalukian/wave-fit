@@ -9,7 +9,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
-import { RoutineExerciseForm } from '../../routine-exercise-form/routine-exercise-form';
+import { RoutineExerciseForm } from '../../../../exercises/exercises/components/routine-exercise-form/routine-exercise-form';
 
 type ExerciseType = FormControlsOf<SelectTypeInput>;
 
