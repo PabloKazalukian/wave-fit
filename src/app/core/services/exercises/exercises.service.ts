@@ -38,4 +38,28 @@ export class ExercisesService {
                 map((res) => res.data!.exercises)
             );
     }
+
+    createExercise(exercise: Partial<Exercise>): Observable<Exercise> {
+        return this.apollo
+            .mutate<{ createExercise: Exercise }>({
+                mutation: gql`
+                    mutation CreateExercise($input: ExerciseInput!) {
+                        createExercise(input: $input) {
+                            id
+                            name
+                            category
+                            usesWeight
+                        }`,
+                variables: { input: exercise },
+            })
+            .pipe(
+                map((res) => {
+                    const newExercise = res.data?.createExercise;
+                    if (newExercise) {
+                        this.exercises.set([...this.exercises(), newExercise]);
+                    }
+                    return newExercise!;
+                })
+            );
+    }
 }

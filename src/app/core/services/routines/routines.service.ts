@@ -12,9 +12,7 @@ export class RoutinesServices {
     constructor(private apollo: Apollo, private authSvc: AuthService) {}
 
     getRoutinesPlans(): Observable<any> {
-        this.authSvc.user$.subscribe((userId) => {
-            console.log('User ID from AuthService:', userId);
-        });
+        this.authSvc.user$.subscribe((userId) => {});
         return this.apollo.query({
             query: gql`
                 query {
@@ -31,13 +29,9 @@ export class RoutinesServices {
             .query({
                 query: gql``,
             })
-            .pipe(
-                map((res) => console.log(res)),
-                handleGraphqlError(this.authSvc)
-            );
+            .pipe(handleGraphqlError(this.authSvc));
     }
     getRoutinesByCategory(category: string): Observable<any> {
-        console.log(category);
         return this.apollo
             .query({
                 query: gql`

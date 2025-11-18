@@ -3,13 +3,17 @@ import { Component, Input, Output, EventEmitter, OnInit, inject, DestroyRef } fr
 import { RoutineDay, RoutineSummary } from '../../../../../shared/interfaces/routines.interface';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
 import { FormControlsOf } from '../../../../../shared/utils/form-types.util';
-import { SelectType, SelectTypeInput } from '../../../../../shared/interfaces/input.interface';
+import {
+    options,
+    SelectType,
+    SelectTypeInput,
+} from '../../../../../shared/interfaces/input.interface';
 import { NgClass } from '@angular/common';
 import { FormControl, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
-import { RoutineExerciseForm } from '../../../../exercises/exercises/components/routine-exercise-form/routine-exercise-form';
+import { RoutineExerciseForm } from '../../../../exercises/components/routine-exercise-form/routine-exercise-form';
 
 type ExerciseType = FormControlsOf<SelectTypeInput>;
 
@@ -58,18 +62,7 @@ export class RoutineListBoxComponent implements OnInit {
 
     show: boolean = false;
 
-    options: SelectType[] = [
-        { name: 'chest', value: 'CHEST' },
-        { name: 'back', value: 'BACK' },
-        { name: 'legs', value: 'LEGS' },
-        { name: 'legs_front', value: 'LEGS_FRONT' },
-        { name: 'legs_posterior', value: 'LEGS_POSTERIOR' },
-        { name: 'biceps', value: 'BICEPS' },
-        { name: 'triceps', value: 'TRICEPS' },
-        { name: 'shoulders', value: 'SHOULDERS' },
-        { name: 'core', value: 'CORE' },
-        { name: 'cardio', value: 'CARDIO' },
-    ];
+    options = options;
 
     selected?: string;
     constructor(private routinesSvc: RoutinesServices) {}

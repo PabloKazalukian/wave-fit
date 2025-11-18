@@ -22,14 +22,13 @@ export class Callback implements OnInit {
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         const codeVerifier = sessionStorage.getItem('pkce_verifier');
-        console.log('Authorization code:', code);
-        console.log('Code verifier from session storage:', codeVerifier);
 
         if (!code || !codeVerifier) return;
 
         this.authSvc.loginWithGoogle(code, codeVerifier).subscribe(({ data }: any) => {
             // const token: string = data.loginWithGoogle;
 
+            // sessionStorage.removeItem('pkce_verifier');
             this.router.navigate(['/home']);
         });
     }

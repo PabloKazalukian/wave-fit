@@ -7,12 +7,10 @@ export function handleGraphqlError<T>(authSvc: AuthService): OperatorFunction<T,
     return catchError((error) => {
         if (CombinedGraphQLErrors.is(error)) {
             // TypeScript now knows `error` is a `CombinedGraphQLErrors` object
-            console.log('errosin', error);
             const [errors] = formattedGraphQLErrors(error);
 
             console.log(errors);
             if (errors.message === 'Unauthorized') {
-                console.warn('Sesión expirada o token inválido. Cerrando sesión...');
                 authSvc.logout();
                 throwError(() => new Error('UNAUTHORIZED'));
             }

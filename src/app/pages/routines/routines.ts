@@ -52,7 +52,6 @@ export class Routines implements OnInit {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (data) => {
-                    console.log('lista de ejercicios:', data);
                     if (data!) this.exercises.set(data);
                 },
                 error: (err) => {},
@@ -62,7 +61,6 @@ export class Routines implements OnInit {
             .getRoutinesPlans()
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((result) => {
-                console.log('Rutinas:', result.data);
                 this.routinesPlans = result.data.routinePlans;
             });
 
@@ -83,9 +81,7 @@ export class Routines implements OnInit {
         this.svcUser
             .getAllUsers()
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((result) => {
-                console.log('Usuarios:', result.data);
-            });
+            .subscribe((result) => {});
     }
 
     get selectControl(): FormControl<string> {

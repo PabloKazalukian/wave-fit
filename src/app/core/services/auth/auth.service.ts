@@ -116,15 +116,19 @@ export class AuthService {
                 },
             })
             .pipe(
-                handleGraphqlError(this),
                 tap((res) => {
-                    console.log(res);
                     const token = res.data?.loginWithGoogle.access_token;
+                    console.log(token);
                     if (!token) throw new Error('Token no recibido');
 
                     this.token.set(token);
                     localStorage.setItem(this.tokenKey, token);
                     this.isAuthenticatedSubject.next(true);
+                }),
+                handleGraphqlError(this),
+                catchError((err) => {
+                    console.error(err);
+                    return of(false);
                 })
             );
     }
@@ -132,7 +136,6 @@ export class AuthService {
     // ✅ --- Helpers ---
     private getStoredUser(): any | null {
         const data = localStorage.getItem(this.storageKey);
-        console.log('Stored user data:', data);
         return data ? JSON.parse(data) : null;
     }
 

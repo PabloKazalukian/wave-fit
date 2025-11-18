@@ -1,0 +1,12 @@
+<p>routine-exercise-create works!</p>
+<div class="bg-background p-16">
+    <div>
+        <app-input [label]="'Nombre de tu rutina semanal:'" [type]="'text'"
+            [placeholder]="'Ingresa un nombre para tu rutina semanal'" [control]="nameControl"></app-input>
+        <app-input [label]="'Descripción: '" [type]="'text'" [placeholder]="'Ingresa un nombre para tu rutina semanal'"
+            [control]="descriptionControl"></app-input>
+        <app-select [placeholder]="'Seleccione'" [text]="'Elige una opcion:'" [options]="options"
+            [control]="selectControl"></app-select>
+        <app-checkbox [text]="'¿Usa peso?'" [control]="usesWeightControl"></app-checkbox>
+    </div>
+</div>

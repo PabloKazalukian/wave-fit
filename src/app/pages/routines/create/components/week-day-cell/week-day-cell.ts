@@ -65,7 +65,6 @@ export class WeekDayCellComponent implements OnInit {
         this.selectControl.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((newValue) => {
-                console.log('Nuevo valor select día:', newValue);
                 this.onKindChange(newValue as 'REST' | 'WORKOUT');
             });
         this.selectControl.setValue(this.day.kind);
@@ -78,18 +77,16 @@ export class WeekDayCellComponent implements OnInit {
     }
 
     onKindChange(kind: 'REST' | 'WORKOUT') {
-        console.log();
         this.kindChange.emit(kind);
     }
 
     onTypeChange(type: string) {
         this.typeSelect.emit(type);
-        // lazy load routines
+
         this.routines$ = this.routinesSvc.getRoutinesByType(type);
     }
 
     onRoutinePick(id: string) {
-        console.log(id);
         this.routineSelect.emit(id);
     }
     onExpandToggle(event: MouseEvent): void {
@@ -103,8 +100,4 @@ export class WeekDayCellComponent implements OnInit {
     get selectControl(): FormControl<string> {
         return this.selectForm.get('option') as FormControl<string>;
     }
-
-    // get selectedRoutineControl(): FormSelectComponent {
-    //   new FormControl(day.workoutType || null)
-    // }
 }

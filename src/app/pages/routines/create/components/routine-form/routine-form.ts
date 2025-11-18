@@ -57,9 +57,7 @@ export class RoutineForm implements OnInit {
                     this.userId = result?.id || '';
                     this.routineForm.patchValue({ createdBy: this.userId });
                 },
-                error: (err) => {
-                    console.log(err);
-                },
+                error: (err) => {},
             });
     }
 
