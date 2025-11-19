@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormInputComponent } from '../../../shared/components/ui/input/input';
 import { FormControlsOf } from '../../../shared/utils/form-types.util';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,6 +12,7 @@ import { CredentialsService } from '../../../core/services/auth/credentials.serv
 import { WaveLogoTextComponent } from '../../../shared/components/ui/logos/wave-logo-text/wave-logo-text';
 import { environment } from '../../../../environments/environments';
 import { generatePkcePair } from '../../../shared/utils/pkce.utils';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type LoginFormType = FormControlsOf<LoginWithCredentials>;
 export interface LoginWithCredentials {
@@ -37,6 +38,8 @@ export interface LoginWithCredentials {
     styleUrl: './login.css',
 })
 export class Login implements OnInit {
+    private destroyRef = inject(DestroyRef);
+
     contactForm!: FormGroup<LoginFormType>;
     login!: boolean | null;
     loading: boolean = false;
@@ -79,25 +82,28 @@ export class Login implements OnInit {
         this.login = null;
         setTimeout(() => {
             // if (
-            this.authSvc.login(this.identifierControl.value, this.passwordControl.value).subscribe({
-                next: (result) => {
-                    this.loading = false;
-                    this.login = false;
-                    if (this.contactForm.get('remember')?.value) {
-                        this.credentialsSvc.saveCredentials({
-                            remember: this.contactForm.get('remember')?.value ?? false,
-                            identifier: this.contactForm.get('identifier')?.value ?? '',
-                            password: this.contactForm.get('password')?.value ?? '',
-                        });
-                    }
-                    this.router.navigate(['/home']);
-                },
-                error: (error) => {
-                    this.loading = false;
-                    this.login = false;
-                    console.error('There was an error sending the query', error);
-                },
-            });
+            this.authSvc
+                .login(this.identifierControl.value, this.passwordControl.value)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                    next: (result) => {
+                        this.loading = false;
+                        this.login = false;
+                        if (this.contactForm.get('remember')?.value) {
+                            this.credentialsSvc.saveCredentials({
+                                remember: this.contactForm.get('remember')?.value ?? false,
+                                identifier: this.contactForm.get('identifier')?.value ?? '',
+                                password: this.contactForm.get('password')?.value ?? '',
+                            });
+                        }
+                        this.router.navigate(['/home']);
+                    },
+                    error: (error) => {
+                        this.loading = false;
+                        this.login = false;
+                        console.error('There was an error sending the query', error);
+                    },
+                });
             // }
         }, 1000);
     }

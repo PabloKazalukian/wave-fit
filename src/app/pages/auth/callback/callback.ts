@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { HttpClient } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
     selector: 'app-callback',
@@ -11,6 +12,8 @@ import { HttpClient } from '@angular/common/http';
     styleUrl: './callback.css',
 })
 export class Callback implements OnInit {
+    private destroyRef = inject(DestroyRef);
+
     constructor(
         private routerActivaded: ActivatedRoute,
         private authSvc: AuthService,
@@ -25,11 +28,15 @@ export class Callback implements OnInit {
 
         if (!code || !codeVerifier) return;
 
-        this.authSvc.loginWithGoogle(code, codeVerifier).subscribe(({ data }: any) => {
-            // const token: string = data.loginWithGoogle;
+        // .pipe(takeUntilDestroyed(this.destroyRef))
+        this.authSvc
+            .loginWithGoogle(code, codeVerifier)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(({ data }: any) => {
+                // const token: string = data.loginWithGoogle;
 
-            // sessionStorage.removeItem('pkce_verifier');
-            this.router.navigate(['/home']);
-        });
+                // sessionStorage.removeItem('pkce_verifier');
+                this.router.navigate(['/home']);
+            });
     }
 }

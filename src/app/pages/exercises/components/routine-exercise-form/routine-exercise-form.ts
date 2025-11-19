@@ -54,7 +54,6 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (value) => {
-                    console.log(value);
                     const valueFiltered: Exercise[] = value.filter(
                         (v) => v.category === this.categoryExercise
                     );
@@ -83,14 +82,17 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
             }
 
             this.loading.set(true);
-            this.exerciseSvc.getExercises().subscribe({
-                next: (value) => {
-                    const filtered = value.filter((e) => e.category === newCategory);
-                    this.exercises.set(filtered);
-                    this.loading.set(false);
-                },
-                error: () => this.loading.set(false),
-            });
+            this.exerciseSvc
+                .getExercises()
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                    next: (value) => {
+                        const filtered = value.filter((e) => e.category === newCategory);
+                        this.exercises.set(filtered);
+                        this.loading.set(false);
+                    },
+                    error: () => this.loading.set(false),
+                });
         }
     }
 

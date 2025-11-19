@@ -39,17 +39,20 @@ export class ExercisesService {
             );
     }
 
-    createExercise(exercise: Partial<Exercise>): Observable<Exercise> {
+    createExercise(exercise: Exercise): Observable<Exercise> {
+        console.log('Creating exercise:', exercise);
         return this.apollo
             .mutate<{ createExercise: Exercise }>({
                 mutation: gql`
-                    mutation CreateExercise($input: ExerciseInput!) {
-                        createExercise(input: $input) {
+                    mutation CreateExercise($input: CreateExerciseInput!) {
+                        createExercise(createExerciseInput: $input) {
                             id
                             name
                             category
                             usesWeight
-                        }`,
+                        }
+                    }
+                `,
                 variables: { input: exercise },
             })
             .pipe(

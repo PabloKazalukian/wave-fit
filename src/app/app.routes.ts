@@ -7,9 +7,14 @@ export const routes: Routes = [
         loadChildren: () => import('./pages/auth/auth.routes').then((m) => m.AUTH_ROUTES),
     },
     {
-        path: '',
-        loadComponent: () => import('./pages/home/home').then((m) => m.Home),
-        // canActivate: [authGuard],
+        path: 'exercise',
+        redirectTo: 'exercises',
+        pathMatch: 'full',
+    },
+    {
+        path: 'exercises',
+        loadChildren: () =>
+            import('./pages/exercises/exercises.routes').then((m) => m.EXERCISES_ROUTES),
     },
     {
         path: 'user',

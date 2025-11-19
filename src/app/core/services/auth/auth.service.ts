@@ -118,7 +118,6 @@ export class AuthService {
             .pipe(
                 tap((res) => {
                     const token = res.data?.loginWithGoogle.access_token;
-                    console.log(token);
                     if (!token) throw new Error('Token no recibido');
 
                     this.token.set(token);

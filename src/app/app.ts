@@ -20,11 +20,8 @@ export class AppComponent {
                 // Evitamos "/callback"
                 if (!currentUrl.startsWith('/auth/callback')) {
                     this.authStateSvc.me().subscribe({
-                        next: (user) => {
-                            console.log('Usuario autenticado:', user);
-                        },
+                        next: (user) => {},
                         error: (err) => {
-                            console.log('No autenticado, redirigiendo a login.', err);
                             this.router.navigate(['/auth/login']);
                         },
                     });
