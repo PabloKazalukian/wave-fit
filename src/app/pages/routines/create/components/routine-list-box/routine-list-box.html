@@ -2,7 +2,7 @@
     <app-select [placeholder]="'Seleccione'" [text]="'Elige una opcion:'" [options]="options"
         [control]="selectControl"></app-select>
 
-    @if ( routinesDays.length === 0 && isSearchedRoutines ){
+    @if ( routinesDays().length === 0 && isSearchedRoutines ){
     <div class="flex flex-col md:flex-row gap-12">
         <p>No hay Rutinas</p>
     </div>
@@ -18,9 +18,11 @@
     </app-btn>
     }
     } @else {
-
+    @for (r of routinesDays(); track r) {
+    <!-- <app-routine-list-item [routineDay]="r" (deleted)="onDeleteRoutine -->
     <ul role="listbox" tabindex="0" class="listbox">
-        <p>{{routinesDays}}</p>
+        <p>{{r.title}}</p>
     </ul>
+    }
     }
 </div>

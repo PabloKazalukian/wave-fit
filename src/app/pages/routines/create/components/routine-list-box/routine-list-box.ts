@@ -1,5 +1,14 @@
 // routine-list-box.component.ts
-import { Component, Input, Output, EventEmitter, OnInit, inject, DestroyRef } from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    OnInit,
+    inject,
+    DestroyRef,
+    signal,
+} from '@angular/core';
 import { RoutineDay, RoutineSummary } from '../../../../../shared/interfaces/routines.interface';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
 import { FormControlsOf } from '../../../../../shared/utils/form-types.util';
@@ -14,6 +23,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
 import { RoutineExerciseForm } from '../../../../exercises/components/routine-exercise-form/routine-exercise-form';
+import { ExerciseCategory } from '../../../../../shared/interfaces/exercise.interface';
 
 type ExerciseType = FormControlsOf<SelectTypeInput>;
 
@@ -57,7 +67,9 @@ export class RoutineListBoxComponent implements OnInit {
     @Output() pick = new EventEmitter<string>();
     @Output() categorySelected = new EventEmitter<string>();
     exerciseForm!: FormGroup<ExerciseType>;
-    routinesDays: RoutineDay[] = [];
+    routinesDays = signal<RoutineDay[]>([]);
+    // exercises = signal<Exercise[]>([]);
+
     isSearchedRoutines: boolean = false;
 
     show: boolean = false;
@@ -72,15 +84,22 @@ export class RoutineListBoxComponent implements OnInit {
         this.exerciseForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (newValue) => {
                 this.isSearchedRoutines = true;
-                if (newValue.option)
-                    this.routinesSvc.getRoutinesByCategory(newValue.option).subscribe({
-                        next: (value) => {
-                            this.routinesDays = value.routinesByCategory;
-                        },
-                        error: (err) => {
-                            console.log(err);
-                        },
-                    });
+                console.log(newValue.option);
+                const exerCat = ExerciseCategory;
+                if (newValue.option !== undefined)
+                    if (Object.keys(exerCat).includes(newValue.option)) {
+                        this.routinesSvc
+                            .getRoutinesByCategory(newValue.option as ExerciseCategory)
+                            .subscribe({
+                                next: (value) => {
+                                    this.routinesDays.set(value.routinesByCategory);
+                                    console.log(value.routinesByCategory);
+                                },
+                                error: (err) => {
+                                    console.log(err);
+                                },
+                            });
+                    }
                 this.categorySelected.emit(newValue.option);
             },
             error: (err) => {},

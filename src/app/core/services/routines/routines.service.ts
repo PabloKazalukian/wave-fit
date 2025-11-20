@@ -8,6 +8,7 @@ import {
     RoutineDayCreate,
     RoutineDayCreateSend,
 } from '../../../shared/interfaces/routines.interface';
+import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -35,18 +36,19 @@ export class RoutinesServices {
             })
             .pipe(handleGraphqlError(this.authSvc));
     }
-    getRoutinesByCategory(category: string): Observable<any> {
+    getRoutinesByCategory(category: ExerciseCategory): Observable<any> {
         return this.apollo
             .query({
                 query: gql`
-                    query {
-                        routinesByCategory(input: { category: "${category}" }) {
+                    query GetRoutines($category: ExerciseCategory!) {
+                        routinesByCategory(input: { category: $category }) {
                             id
                             title
                             type
                         }
                     }
                 `,
+                variables: { category },
             })
             .pipe(
                 map((res) => res.data),
