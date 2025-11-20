@@ -4,13 +4,16 @@
 </div>
 } @else {
 <div class="bg-background2">
+    <app-btn [text]="'Crear Rutina'" [variant]="'raised'" [color]="'primaryDark'" (click)="onSubmit()"> </app-btn>
+    <app-input [label]="'Nombre de tu rutina :'" [type]="'text'" [placeholder]="'Ingresa un nombre para tu rutina '"
+        [control]="titleControl"></app-input>
+
     <div>
         <p>Categorías:</p>
         @for ( category of categories(); track category) {
         <span class="inline-block bg-primary text-white text-xs px-2 py-1 rounded-md mr-1">
             {{ category }}
             {{ countExercisesByCategory(category) > 1 ? `( ${countExercisesByCategory(category)}) `: '' }}
-            <!-- {{ exerciseCountByCategory()[category] ?? 0 }} -->
 
             <button class="ml-1 font-bold" (click)="removeAllCategory(category)">X</button>
 
@@ -50,7 +53,7 @@
             Ejercicio</button>
         @if(showCreateExercise()){
         <div class="mt-4">
-            <app-routine-exercise-create (closeForm)="showCreateExercise.set(false)"></app-routine-exercise-create>
+            <app-exercise-create (closeForm)="showCreateExercise.set(false)"></app-exercise-create>
         </div>
         }
     </div>

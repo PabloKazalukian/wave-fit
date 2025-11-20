@@ -6,14 +6,19 @@
     <div class="flex flex-col md:flex-row gap-12">
         <p>No hay Rutinas</p>
     </div>
-    <app-btn [text]="'Crear Rutina '" [variant]="'raised'" [color]="'secondaryDark'" (click)="showExercise()">
-    </app-btn>
+
     @if (show) {
+    <app-btn [text]="'Cancelar'" [variant]="'raised'" [color]="'error'" (click)="showExercise()"> </app-btn>
+
     <div class="flex">
         <app-routine-exercise-form [categoryExercise]="selectControl.value"></app-routine-exercise-form>
     </div>
+    } @else{
+    <app-btn [text]="'Crear Rutina '" [variant]="'raised'" [color]="'secondaryDark'" (click)="showExercise()">
+    </app-btn>
     }
     } @else {
+
     <ul role="listbox" tabindex="0" class="listbox">
         <p>{{routinesDays}}</p>
     </ul>

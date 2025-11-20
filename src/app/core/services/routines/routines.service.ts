@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of, tap } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../auth/auth.service';
-import { DayPlan } from '../../../shared/interfaces/routines.interface';
+import {
+    DayPlan,
+    RoutineDayCreate,
+    RoutineDayCreateSend,
+} from '../../../shared/interfaces/routines.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -58,6 +62,39 @@ export class RoutinesServices {
             }
             `,
         });
+    }
+
+    createRoutine(data: RoutineDayCreate): Observable<any> {
+        const payload: RoutineDayCreateSend = this.createRoutinePayload(data);
+        return this.apollo
+            .mutate<RoutineDayCreate>({
+                mutation: gql`
+                    mutation createRoutineDay($createRoutineDayInput: CreateRoutineDayInput!) {
+                        createRoutineDay(createRoutineDayInput: $createRoutineDayInput) {
+                            id
+                            title
+                            type
+                        }
+                    }
+                `,
+                variables: {
+                    createRoutineDayInput: payload,
+                },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                tap((res) => console.log('Routine created successfully:', res))
+                // map((res) => res.data),
+            );
+    }
+
+    private createRoutinePayload(data: RoutineDayCreate): RoutineDayCreateSend {
+        return {
+            title: data.title,
+            type: data.type,
+            exercises: data.exercises?.map((ex) => ex.id) as string[],
+            planId: data.planId,
+        };
     }
 
     // Contrato: GET /api/routines?type=CHEST

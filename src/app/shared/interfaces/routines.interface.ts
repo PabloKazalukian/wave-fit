@@ -33,3 +33,17 @@ export interface RoutineDay {
     exercises?: Exercise[];
     planId?: string;
 }
+
+export interface RoutineDayCreate {
+    title: string;
+    type?: ExerciseCategory[] | string[];
+    exercises?: Exercise[];
+    planId?: string;
+}
+
+export interface RoutineDayCreateSend {
+    title: string;
+    type?: ExerciseCategory[] | string[];
+    exercises?: string[];
+    planId?: string;
+}

@@ -14,18 +14,24 @@ import { Exercise } from '../../../../shared/interfaces/exercise.interface';
 import { Loading } from '../../../../shared/components/ui/loading/loading';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControlsOf } from '../../../../shared/utils/form-types.util';
-import { FormControl, FormGroup } from '@angular/forms';
-import { RoutineExerciseCreate } from '../routine-exercise-create/routine-exercise-create';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ExerciseCreate } from '../exercise-create/exercise-create';
+import { BtnComponent } from '../../../../shared/components/ui/btn/btn';
+import { FormInputComponent } from '../../../../shared/components/ui/input/input';
+import { RoutineDay, RoutineDayCreate } from '../../../../shared/interfaces/routines.interface';
+import { RoutinesServices } from '../../../../core/services/routines/routines.service';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: Exercise[];
     categoriesSelected: string[];
 }>;
 
+type RoutineDayType = FormControlsOf<RoutineDayCreate>;
+
 @Component({
     selector: 'app-routine-exercise-form',
     standalone: true,
-    imports: [Loading, RoutineExerciseCreate],
+    imports: [Loading, ExerciseCreate, BtnComponent, FormInputComponent],
     templateUrl: './routine-exercise-form.html',
     styleUrl: './routine-exercise-form.css',
 })
@@ -33,6 +39,7 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
     private destroyRef = inject(DestroyRef);
 
     exercisesForm!: FormGroup<ExercisesType>;
+    routineForm!: FormGroup<RoutineDayType>;
 
     @Input() categoryExercise!: string;
 
@@ -42,10 +49,11 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
 
     showCreateExercise = signal(false);
 
-    constructor(private exerciseSvc: ExercisesService) {}
+    constructor(private exerciseSvc: ExercisesService, private routineSvc: RoutinesServices) {}
 
     ngOnInit(): void {
         this.exercisesForm = this.initForm();
+        this.routineForm = this.initFormRoutine();
 
         this.loading.set(true);
 
@@ -62,6 +70,10 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
                 },
                 error: () => this.loading.set(false),
             });
+        this.exercisesForm.valueChanges.subscribe((val) => {
+            this.routineForm.patchValue({ exercises: val.exercisesSelected });
+            this.routineForm.patchValue({ type: val.categoriesSelected });
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -100,6 +112,34 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
         return new FormGroup<ExercisesType>({
             exercisesSelected: new FormControl<Exercise[]>([], { nonNullable: true }),
             categoriesSelected: new FormControl<string[]>([], { nonNullable: true }),
+        });
+    }
+
+    initFormRoutine(): FormGroup<RoutineDayType> {
+        return new FormGroup<RoutineDayType>({
+            title: new FormControl('', {
+                nonNullable: true,
+                validators: [Validators.required, Validators.minLength(3)],
+            }),
+            type: new FormControl([], { nonNullable: true }),
+            exercises: new FormControl([], { nonNullable: true }),
+        });
+    }
+
+    onSubmit(): void {
+        console.log(this.routineForm.value);
+        if (this.routineForm.invalid) {
+            this.routineForm.markAllAsTouched();
+            return;
+        }
+        const newRoutine = this.routineForm.value as RoutineDayCreate;
+        this.routineSvc.createRoutine(newRoutine).subscribe({
+            next: (res) => {
+                console.log('Rutina creada:', res);
+            },
+            error: (err) => {
+                console.error('Error al crear la rutina:', err);
+            },
         });
     }
 
@@ -162,5 +202,9 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
 
     get categoriesSelected(): FormControl<string[]> {
         return this.exercisesForm.get('categoriesSelected') as FormControl<string[]>;
+    }
+
+    get titleControl(): FormControl<string> {
+        return this.routineForm.get('title') as FormControl<string>;
     }
 }

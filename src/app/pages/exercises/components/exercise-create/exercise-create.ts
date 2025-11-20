@@ -16,13 +16,13 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
 // { name: string; description: string; }>;
 
 @Component({
-    selector: 'app-routine-exercise-create',
+    selector: 'app-exercise-create',
     imports: [FormInputComponent, CheckboxComponent, FormSelectComponent, BtnComponent],
     standalone: true,
-    templateUrl: './routine-exercise-create.html',
-    styleUrl: './routine-exercise-create.css',
+    templateUrl: './exercise-create.html',
+    styleUrl: './exercise-create.css',
 })
-export class RoutineExerciseCreate implements OnInit {
+export class ExerciseCreate implements OnInit {
     private destroyRef = inject(DestroyRef);
 
     selectForm!: FormGroup<selectFormType>;
