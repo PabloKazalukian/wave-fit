@@ -12,7 +12,7 @@ import {
 import { Observable } from 'rxjs';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { DayPlan } from '../../../../../shared/interfaces/routines.interface';
-import { RoutineListBoxComponent } from '../routine-list-box/routine-list-box';
+import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
 import { AsyncPipe, NgClass } from '@angular/common';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
 import { SelectType, SelectTypeInput } from '../../../../../shared/interfaces/input.interface';

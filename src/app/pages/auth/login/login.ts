@@ -47,7 +47,7 @@ export class Login implements OnInit {
     constructor(
         private authSvc: AuthService,
         private router: Router,
-        private credentialsSvc: CredentialsService
+        private credentialsSvc: CredentialsService,
     ) {}
 
     ngOnInit(): void {

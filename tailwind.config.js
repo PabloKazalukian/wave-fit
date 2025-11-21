@@ -18,6 +18,9 @@ module.exports = {
   'border-secondary', 'border-secondary2', 'border-secondary3', 'border-secondaryLight', 'border-secondaryDark', 'text-secondaryText',
 
   'bg-confirm', 'bg-confirm2', 'bg-confirm3', 'bg-confirmLight', 'bg-confirmDark',
+  'bg-accentDark', 'bg-accent2', 'bg-accent3', 'hover:bg-confirm', 'hover:bg-confirm2', 'hover:bg-confirm3', 'hover:bg-confirmLight', 'hover:bg-confirmDark',
+  'text-confirm', 'text-confirm2', 'text-confirm3', 'text-confirmLight', 'text-confirmDark',
+  'border-confirm', 'border-confirm2', 'border-confirm3', 'border-confirmLight', 'border-confirmDark',
 
 
   'bg-error', 'bg-error2', 'bg-error3', 'bg-errorLight', 'bg-errorDark',
@@ -86,7 +89,7 @@ module.exports = {
         // === ACCENT (amarillo oro) ===
         accent: "#F5C623",
         accent2: "#F8D250",
-        accent3: "#C79E1B",
+        accent3: "#D99E1B",
         accentLight: "#FBE69A",
         accentDark: "#7C6511",
         accentHover: "#C79E1B",

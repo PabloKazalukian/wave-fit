@@ -1,5 +1,9 @@
 <!-- <p>exercises works!</p> -->
-<app-select [placeholder]="'Seleccione'" [text]="'Elige una opcion:'" [options]="options"
-    [control]="selectControl"></app-select>
+<app-select
+  [placeholder]="'Seleccione'"
+  [text]="'Elige una opcion:'"
+  [options]="options"
+  [control]="selectControl"
+></app-select>
 
 <app-routine-exercise-form [categoryExercise]="selectControl.value"></app-routine-exercise-form>

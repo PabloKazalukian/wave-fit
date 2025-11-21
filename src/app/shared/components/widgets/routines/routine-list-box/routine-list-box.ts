@@ -9,21 +9,18 @@ import {
     DestroyRef,
     signal,
 } from '@angular/core';
-import { RoutineDay, RoutineSummary } from '../../../../../shared/interfaces/routines.interface';
-import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
-import { FormControlsOf } from '../../../../../shared/utils/form-types.util';
-import {
-    options,
-    SelectType,
-    SelectTypeInput,
-} from '../../../../../shared/interfaces/input.interface';
-import { NgClass } from '@angular/common';
+import { RoutineDay, RoutineSummary } from '../../../../interfaces/routines.interface';
+import { FormSelectComponent } from '../../../ui/select/select';
+import { FormControlsOf } from '../../../../utils/form-types.util';
+import { options, SelectTypeInput } from '../../../../interfaces/input.interface';
 import { FormControl, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
-import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
-import { RoutineExerciseForm } from '../../../../exercises/components/routine-exercise-form/routine-exercise-form';
-import { ExerciseCategory } from '../../../../../shared/interfaces/exercise.interface';
+import { BtnComponent } from '../../../ui/btn/btn';
+import { RoutineExerciseForm } from '../routine-exercise-form/routine-exercise-form';
+import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
+import { RoutineExercises } from './routine-exercises/routine-exercises';
+import { AccordionItemComponent } from '../../../ui/accordion-item/accordion-item';
 
 type ExerciseType = FormControlsOf<SelectTypeInput>;
 
@@ -31,34 +28,14 @@ type ExerciseType = FormControlsOf<SelectTypeInput>;
     selector: 'app-routine-list-box',
     standalone: true,
     templateUrl: './routine-list-box.html',
-    styles: [
-        `
-            .listbox {
-                max-height: 160px;
-                overflow: auto;
-                padding: 4px;
-                border-radius: 8px;
-            }
-            li {
-                padding: 8px;
-                border-radius: 6px;
-                cursor: pointer;
-            }
-            li:hover,
-            li:focus {
-                background: rgba(0, 0, 0, 0.04);
-                outline: none;
-            }
-            .title {
-                font-weight: 600;
-            }
-            .meta {
-                font-size: 0.85rem;
-                opacity: 0.8;
-            }
-        `,
+    imports: [
+        FormSelectComponent,
+        FormSelectComponent,
+        BtnComponent,
+        RoutineExerciseForm,
+        RoutineExercises,
+        AccordionItemComponent,
     ],
-    imports: [FormSelectComponent, FormSelectComponent, BtnComponent, RoutineExerciseForm],
 })
 export class RoutineListBoxComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
@@ -66,13 +43,17 @@ export class RoutineListBoxComponent implements OnInit {
     @Input() items: RoutineSummary[] = [];
     @Output() pick = new EventEmitter<string>();
     @Output() categorySelected = new EventEmitter<string>();
+
     exerciseForm!: FormGroup<ExerciseType>;
     routinesDays = signal<RoutineDay[]>([]);
-    // exercises = signal<Exercise[]>([]);
+    openIndex = signal<number | null>(null);
 
     isSearchedRoutines: boolean = false;
+    isShowExercises: boolean = false;
 
     show: boolean = false;
+    routineSelected = signal<RoutineDay | null>(null);
+    isSelected = signal<boolean | null>(null);
 
     options = options;
 
@@ -84,7 +65,6 @@ export class RoutineListBoxComponent implements OnInit {
         this.exerciseForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (newValue) => {
                 this.isSearchedRoutines = true;
-                console.log(newValue.option);
                 const exerCat = ExerciseCategory;
                 if (newValue.option !== undefined)
                     if (Object.keys(exerCat).includes(newValue.option)) {
@@ -93,7 +73,6 @@ export class RoutineListBoxComponent implements OnInit {
                             .subscribe({
                                 next: (value) => {
                                     this.routinesDays.set(value.routinesByCategory);
-                                    console.log(value.routinesByCategory);
                                 },
                                 error: (err) => {
                                     console.log(err);
@@ -119,6 +98,23 @@ export class RoutineListBoxComponent implements OnInit {
 
     showExercise() {
         this.show = !this.show;
+    }
+
+    addRoutine(day: RoutineDay) {
+        this.routineSelected.set(day);
+
+        const index = this.routinesDays().findIndex((r) => r.id === day.id);
+        this.openIndex.set(index); // ahora sí coincide con el accordion
+    }
+
+    removeRoutine() {
+        this.routineSelected.set(null);
+        this.openIndex.set(null);
+    }
+
+    toggleAccordion(i: number) {
+        this.openIndex.update((current) => (current === i ? null : i));
+        // this.isSelected.set(null);
     }
 
     get selectControl(): FormControl<string> {

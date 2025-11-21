@@ -8,10 +8,11 @@
   "useTabs": false,
   "overrides": [
     {
-      "files": ["*.html"],
+      "files": "*.html",
       "options": {
-        "printWidth": 140,
-        "tabWidth": 2
+        "parser": "angular",
+        "printWidth": 200,
+        "tabWidth": 4
       }
     },
     {

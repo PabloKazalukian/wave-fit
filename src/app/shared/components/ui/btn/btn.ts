@@ -51,7 +51,7 @@ export class BtnComponent {
             case 'flat':
                 return `bg-${color3} text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
             case 'outline':
-                return `border border-${cleanColor} hover:bg-${cleanColor}-hover-faint hover:text-white`;
+                return `border border-${cleanColor}Light hover:bg-${cleanColor}-hover-faint  text-${cleanColor}Light hover:text-${cleanColor}`;
             case 'ghost':
                 return `hover:bg-black-faint hover:text-white`;
             default:

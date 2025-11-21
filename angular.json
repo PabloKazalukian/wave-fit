@@ -5,7 +5,14 @@
   "projects": {
     "wave-fit": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "standalone": true,
+          "inlineStyle": true,
+          "style": "none",
+          "skipTests": false
+        }
+      },  
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",

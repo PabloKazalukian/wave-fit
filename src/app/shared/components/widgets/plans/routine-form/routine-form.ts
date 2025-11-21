@@ -1,24 +1,23 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
-import { FormInputComponent } from '../../../../../shared/components/ui/input/input';
-import { FormControlsOf } from '../../../../../shared/utils/form-types.util';
+import { FormSelectComponent } from '../../../ui/select/select';
+import { FormInputComponent } from '../../../ui/input/input';
+import { FormControlsOf } from '../../../../utils/form-types.util';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
-import { SelectType } from '../../../../../shared/interfaces/input.interface';
-import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
-import { WeeklyRoutinePlannerComponent } from '../weekly-routine-planner/weekly-routine-planner';
-import { RoutinePlan } from '../../../../../shared/interfaces/routines.interface';
+import { SelectType } from '../../../../interfaces/input.interface';
+import { BtnComponent } from '../../../ui/btn/btn';
+import { RoutinePlan } from '../../../../interfaces/routines.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { WeeklyRoutinePlannerComponent } from '../weekly-routine-planner/weekly-routine-planner';
 
 type RoutinePlanType = FormControlsOf<RoutinePlan>;
 
 @Component({
-    selector: 'app-routine-form',
+    selector: 'app-routine-plan-form',
     standalone: true,
     // imports: [FormSelectComponent, FormInputComponent],
     templateUrl: './routine-form.html',
-    styleUrl: './routine-form.css',
     imports: [
         FormSelectComponent,
         FormSelectComponent,
@@ -27,7 +26,7 @@ type RoutinePlanType = FormControlsOf<RoutinePlan>;
         WeeklyRoutinePlannerComponent,
     ],
 })
-export class RoutineForm implements OnInit {
+export class RoutinePlanForm implements OnInit {
     private destroyRef = inject(DestroyRef);
 
     routineForm!: FormGroup<RoutinePlanType>;
@@ -44,7 +43,10 @@ export class RoutineForm implements OnInit {
         { name: '7/7', value: '7' },
     ];
 
-    constructor(private routinesSvc: RoutinesServices, private authSvc: AuthService) {}
+    constructor(
+        private routinesSvc: RoutinesServices,
+        private authSvc: AuthService,
+    ) {}
 
     ngOnInit(): void {
         // console.log(this.authSvc.getStoredUser());

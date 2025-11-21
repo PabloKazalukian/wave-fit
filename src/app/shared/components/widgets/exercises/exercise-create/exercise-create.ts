@@ -1,14 +1,17 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormInputComponent } from '../../../../shared/components/ui/input/input';
-import { FormControlsOf } from '../../../../shared/utils/form-types.util';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Exercise, ExerciseCategory } from '../../../../shared/interfaces/exercise.interface';
-import { CheckboxComponent } from '../../../../shared/components/ui/checkbox/checkbox';
-import { FormSelectComponent } from '../../../../shared/components/ui/select/select';
-import { options, SelectTypeInput } from '../../../../shared/interfaces/input.interface';
-import { ExercisesService } from '../../../../core/services/exercises/exercises.service';
-import { BtnComponent } from '../../../../shared/components/ui/btn/btn';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormInputComponent } from '../../../ui/input/input';
+import { CheckboxComponent } from '../../../ui/checkbox/checkbox';
+import { FormSelectComponent } from '../../../ui/select/select';
+import { BtnComponent } from '../../../ui/btn/btn';
+import { FormControlsOf } from '../../../../utils/form-types.util';
+import { SelectTypeInput } from '../../../../interfaces/input.interface';
+import { Exercise, ExerciseCategory } from '../../../../interfaces/exercise.interface';
+import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
+// import {options as ExerciseCategoryOptions, ExerciseCategory} from '../../../../constants/exercise-categories.constant';
+
+import { options } from '../../../../../shared/interfaces/input.interface';
 
 type RoutinePlanType = FormControlsOf<Exercise>;
 type selectFormType = FormControlsOf<SelectTypeInput>;

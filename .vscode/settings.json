@@ -2,7 +2,14 @@
   "workbench.colorTheme": "One Dark Pro",
   "workbench.iconTheme": "material-icon-theme",
   "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "angular.format.enable": false,
+  "angular.languageService.experimental-ivy": true,
+  "html.format.enable": false,
 
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   // Angular: mantener íconos por defecto
   "material-icon-theme.files.associations": {
     "**/*.component.ts": "angular-component",

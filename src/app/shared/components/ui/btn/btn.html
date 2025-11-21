@@ -1,9 +1,9 @@
 @if (routerLink && !isDisabled) {
-<a [routerLink]="routerLink" [class]="classList">
-  {{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}
-</a>
+  <a [routerLink]="routerLink" [class]="classList">
+    {{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}
+  </a>
 } @else {
-<button [type]="buttonType" [disabled]="isDisabled" [class]="classList">
-  {{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}
-</button>
+  <button [type]="buttonType" [disabled]="isDisabled" [class]="classList">
+    {{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}
+  </button>
 }

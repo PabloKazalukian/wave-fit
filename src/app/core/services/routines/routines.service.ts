@@ -45,6 +45,11 @@ export class RoutinesServices {
                             id
                             title
                             type
+                            exercises {
+                                id
+                                name
+                                category
+                            }
                         }
                     }
                 `,

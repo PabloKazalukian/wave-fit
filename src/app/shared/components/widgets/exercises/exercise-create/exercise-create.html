@@ -1,0 +1,34 @@
+<div class="bg-background border border-primaryDark rounded-lg shadow-md">
+  <h4 class="text-primary text-2xl text-center mt-8">Crear Ejercicio:</h4>
+  <div class="flex flex-col px-16 pb-16 pt-4">
+    <app-input
+      [label]="'Nombre de tu rutina semanal:'"
+      [type]="'text'"
+      [placeholder]="'Ingresa un nombre para tu rutina semanal'"
+      [control]="nameControl"
+    ></app-input>
+    <app-input
+      [label]="'Descripción: '"
+      [type]="'text'"
+      [placeholder]="'Ingresa una descripción para tu rutina semanal'"
+      [control]="descriptionControl"
+    ></app-input>
+    <div class="mb-4">
+      <app-select
+        [placeholder]="'Seleccione'"
+        [text]="'Elige una opcion:'"
+        [options]="options"
+        [control]="selectControl"
+      ></app-select>
+    </div>
+    <div class="mb-4">
+      <app-checkbox [text]="'¿Usa peso?'" [control]="usesWeightControl"></app-checkbox>
+    </div>
+    <app-btn
+      [text]="'Crear Ejercicio'"
+      [variant]="'raised'"
+      [color]="'secondary'"
+      (click)="onSubmit()"
+    ></app-btn>
+  </div>
+</div>

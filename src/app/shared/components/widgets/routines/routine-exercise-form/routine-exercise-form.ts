@@ -1,6 +1,5 @@
 import {
     Component,
-    computed,
     DestroyRef,
     inject,
     Input,
@@ -9,17 +8,17 @@ import {
     signal,
     SimpleChanges,
 } from '@angular/core';
-import { ExercisesService } from '../../../../core/services/exercises/exercises.service';
-import { Exercise } from '../../../../shared/interfaces/exercise.interface';
-import { Loading } from '../../../../shared/components/ui/loading/loading';
+import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
+import { Exercise } from '../../../../interfaces/exercise.interface';
+import { Loading } from '../../../ui/loading/loading';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControlsOf } from '../../../../shared/utils/form-types.util';
+import { FormControlsOf } from '../../../../utils/form-types.util';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ExerciseCreate } from '../exercise-create/exercise-create';
-import { BtnComponent } from '../../../../shared/components/ui/btn/btn';
-import { FormInputComponent } from '../../../../shared/components/ui/input/input';
-import { RoutineDay, RoutineDayCreate } from '../../../../shared/interfaces/routines.interface';
-import { RoutinesServices } from '../../../../core/services/routines/routines.service';
+import { BtnComponent } from '../../../ui/btn/btn';
+import { FormInputComponent } from '../../../ui/input/input';
+import { RoutineDayCreate } from '../../../../interfaces/routines.interface';
+import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
+import { ExerciseCreate } from '../../exercises/exercise-create/exercise-create';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: Exercise[];
@@ -33,7 +32,6 @@ type RoutineDayType = FormControlsOf<RoutineDayCreate>;
     standalone: true,
     imports: [Loading, ExerciseCreate, BtnComponent, FormInputComponent],
     templateUrl: './routine-exercise-form.html',
-    styleUrl: './routine-exercise-form.css',
 })
 export class RoutineExerciseForm implements OnInit, OnChanges {
     private destroyRef = inject(DestroyRef);
@@ -49,7 +47,10 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
 
     showCreateExercise = signal(false);
 
-    constructor(private exerciseSvc: ExercisesService, private routineSvc: RoutinesServices) {}
+    constructor(
+        private exerciseSvc: ExercisesService,
+        private routineSvc: RoutinesServices,
+    ) {}
 
     ngOnInit(): void {
         this.exercisesForm = this.initForm();
@@ -63,7 +64,7 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
             .subscribe({
                 next: (value) => {
                     const valueFiltered: Exercise[] = value.filter(
-                        (v) => v.category === this.categoryExercise
+                        (v) => v.category === this.categoryExercise,
                     );
                     this.exercises.set(valueFiltered);
                     this.loading.set(false);
@@ -87,7 +88,7 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
                 this.exercises.set([
                     ...exerciseSelected,
                     ...allExercises.filter(
-                        (e) => e.category === newCategory && !exerciseSelected.includes(e)
+                        (e) => e.category === newCategory && !exerciseSelected.includes(e),
                     ),
                 ]);
                 return;
@@ -173,7 +174,7 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
         this.categories.set(withoutCat);
 
         const exercisesFiltered = this.exercisesForm.controls.exercisesSelected.value.filter(
-            (e) => e.category !== category
+            (e) => e.category !== category,
         );
         this.exercisesForm.controls.exercisesSelected.setValue(exercisesFiltered);
     }
@@ -184,7 +185,7 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
 
     countExercisesByCategory(category: string): number {
         return this.exercisesForm.controls.exercisesSelected.value.filter(
-            (e) => e.category === category
+            (e) => e.category === category,
         ).length;
     }
 

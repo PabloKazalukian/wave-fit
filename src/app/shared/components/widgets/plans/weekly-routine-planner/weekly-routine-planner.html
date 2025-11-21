@@ -1,0 +1,41 @@
+<div class="planner">
+  <div class="" role="list">
+    <p>Cantidad de dias: {{ this.distribution }}</p>
+    <div
+      class="w-full bg-background3 h-12 rounded-md grid grid-cols-7 gap-2 rounded-md overflow-hidden mb-4"
+    >
+      @for (d of days; track d) {
+        <div class="w-full bg-primaryDark flex items-center justify-center text-white font-medium">
+          Día {{ d.day }}
+        </div>
+      }
+    </div>
+
+    <div class="">
+      @for (d of days; track d) {
+        @if (d.day !== 1) {
+          <hr class="border-primary" />
+        }
+
+        <app-week-day-cell
+          [day]="d"
+          [workoutOptions]="workoutOptions"
+          (kindChange)="onToggleKind(d, $event)"
+          (typeSelect)="onSelectWorkoutType(d, $event)"
+          (routineSelect)="onSelectRoutine(d, $event)"
+        >
+        </app-week-day-cell>
+      }
+    </div>
+  </div>
+
+  <div class="actions">
+    <app-btn
+      [text]="'Guardar plan'"
+      [variant]="'raised'"
+      [color]="'secondaryDark'"
+      (click)="savePlan('Mi rutina', 'desc')"
+    >
+    </app-btn>
+  </div>
+</div>
