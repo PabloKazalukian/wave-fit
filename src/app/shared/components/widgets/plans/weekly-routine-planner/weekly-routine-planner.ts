@@ -6,13 +6,13 @@ import { DayIndex, DayPlan } from '../../../../../shared/interfaces/routines.int
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
+import { DayOfRoutine } from '../day-of-routine/day-of-routine';
 
 @Component({
     selector: 'app-weekly-routine-planner',
     standalone: true,
     templateUrl: './weekly-routine-planner.html',
-    styleUrls: ['./weekly-routine-planner.css'],
-    imports: [WeekDayCellComponent, BtnComponent],
+    imports: [WeekDayCellComponent, BtnComponent, DayOfRoutine],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WeeklyRoutinePlannerComponent implements OnInit, OnChanges {

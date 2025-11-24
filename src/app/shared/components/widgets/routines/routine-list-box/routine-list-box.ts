@@ -40,7 +40,7 @@ type ExerciseType = FormControlsOf<SelectTypeInput>;
 export class RoutineListBoxComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
 
-    @Input() items: RoutineSummary[] = [];
+    // @Input() items: RoutineSummary[] = [];
     @Output() pick = new EventEmitter<string>();
     @Output() categorySelected = new EventEmitter<string>();
 

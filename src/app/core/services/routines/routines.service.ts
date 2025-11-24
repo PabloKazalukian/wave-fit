@@ -14,7 +14,10 @@ import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface'
     providedIn: 'root',
 })
 export class RoutinesServices {
-    constructor(private apollo: Apollo, private authSvc: AuthService) {}
+    constructor(
+        private apollo: Apollo,
+        private authSvc: AuthService,
+    ) {}
 
     getRoutinesPlans(): Observable<any> {
         this.authSvc.user$.subscribe((userId) => {});
@@ -57,7 +60,7 @@ export class RoutinesServices {
             })
             .pipe(
                 map((res) => res.data),
-                handleGraphqlError(this.authSvc)
+                handleGraphqlError(this.authSvc),
             );
     }
 
@@ -90,7 +93,7 @@ export class RoutinesServices {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                tap((res) => console.log('Routine created successfully:', res))
+                tap((res) => console.log('Routine created successfully:', res)),
                 // map((res) => res.data),
             );
     }
@@ -129,7 +132,7 @@ export class RoutinesServices {
         ];
         return of(mock).pipe(
             map((list) => list.filter((l) => l.type === type)),
-            catchError(() => of([]))
+            catchError(() => of([])),
         );
     }
 

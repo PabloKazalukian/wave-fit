@@ -34,7 +34,6 @@ export class WeekDayCellComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
 
     @Input() day!: DayPlan;
-    @Input() workoutOptions: { name: string; value: string }[] = [];
     @Output() kindChange = new EventEmitter<'REST' | 'WORKOUT'>();
     @Output() typeSelect = new EventEmitter<string>();
     @Output() routineSelect = new EventEmitter<string>();
@@ -50,17 +49,6 @@ export class WeekDayCellComponent implements OnInit {
     constructor(private routinesSvc: RoutinesServices) {}
 
     ngOnInit(): void {
-        this.routinesSvc
-            .getRoutinesByType('CHEST')
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: (data) => {
-                    this.routines$ = this.routinesSvc.getRoutinesByType('CHEST');
-                },
-                error: (err) => {
-                    console.error('Error fetching routines:', err);
-                },
-            });
         this.selectForm = this.initForm();
         this.selectControl.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))

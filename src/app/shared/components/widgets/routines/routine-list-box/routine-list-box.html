@@ -1,9 +1,11 @@
-<div class="flex gap-8 flex-col md:flex-row">
-  <app-select
-    [text]="'Elige una opcion:'"
-    [options]="options"
-    [control]="selectControl"
-  ></app-select>
+<div class="flex gap-8 flex-col item-center justify-center">
+  <div class="w-full flex items-center justify-center">
+    <app-select
+      [text]="'Elige una opcion:'"
+      [options]="options"
+      [control]="selectControl"
+    ></app-select>
+  </div>
 
   @if (routinesDays().length === 0) {
     <app-btn [text]="'No hay Rutinas'" [variant]="'outline'" [color]="'primary'"></app-btn>
