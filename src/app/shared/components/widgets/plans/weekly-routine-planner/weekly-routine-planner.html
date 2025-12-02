@@ -1,27 +1,17 @@
 <div class="planner">
   <div class="" role="list">
     <p>Cantidad de dias: {{ this.distribution }}</p>
-    <div
-      class="w-full bg-background3 h-12 rounded-md grid grid-cols-7 gap-2 rounded-md overflow-hidden mb-4"
-    >
-      @for (d of days; track d) {
-        <app-day-of-routine [dayPlan]="d"></app-day-of-routine>
-      }
+    <div>
+      <app-day-of-routine [dayPlan]="days()"></app-day-of-routine>
     </div>
 
     <div class="">
-      @for (d of days; track d) {
+      @for (d of days(); track d) {
         @if (d.day !== 1) {
           <hr class="border-primary" />
         }
 
-        <app-week-day-cell
-          [day]="d"
-          (kindChange)="onToggleKind(d, $event)"
-          (typeSelect)="onSelectWorkoutType(d, $event)"
-          (routineSelect)="onSelectRoutine(d, $event)"
-        >
-        </app-week-day-cell>
+        <app-week-day-cell [day]="d" (kindChange)="onToggleKind(d, $event)"> </app-week-day-cell>
       }
     </div>
   </div>

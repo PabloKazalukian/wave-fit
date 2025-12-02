@@ -13,7 +13,6 @@ import { Observable } from 'rxjs';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { DayPlan } from '../../../../../shared/interfaces/routines.interface';
 import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
-import { AsyncPipe, NgClass } from '@angular/common';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
 import { SelectType, SelectTypeInput } from '../../../../../shared/interfaces/input.interface';
 import { FormControlsOf } from '../../../../../shared/utils/form-types.util';
@@ -27,7 +26,7 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
     standalone: true,
     templateUrl: './week-day-cell.html',
     styleUrls: ['./week-day-cell.css'],
-    imports: [RoutineListBoxComponent, AsyncPipe, FormSelectComponent],
+    imports: [RoutineListBoxComponent, FormSelectComponent],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WeekDayCellComponent implements OnInit {
@@ -35,8 +34,6 @@ export class WeekDayCellComponent implements OnInit {
 
     @Input() day!: DayPlan;
     @Output() kindChange = new EventEmitter<'REST' | 'WORKOUT'>();
-    @Output() typeSelect = new EventEmitter<string>();
-    @Output() routineSelect = new EventEmitter<string>();
 
     routines$?: Observable<any[]>;
     selectForm!: FormGroup<selectFormType>;
@@ -68,15 +65,6 @@ export class WeekDayCellComponent implements OnInit {
         this.kindChange.emit(kind);
     }
 
-    onTypeChange(type: string) {
-        this.typeSelect.emit(type);
-
-        this.routines$ = this.routinesSvc.getRoutinesByType(type);
-    }
-
-    onRoutinePick(id: string) {
-        this.routineSelect.emit(id);
-    }
     onExpandToggle(event: MouseEvent): void {
         // Evita que el click interno vuelva a colapsar si hacés click en subcomponentes
         event.stopPropagation();

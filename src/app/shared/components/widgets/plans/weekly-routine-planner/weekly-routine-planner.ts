@@ -1,5 +1,12 @@
 // weekly-routine-planner.component.ts
-import { Component, OnInit, ChangeDetectionStrategy, Input, OnChanges } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    ChangeDetectionStrategy,
+    Input,
+    OnChanges,
+    signal,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { DayIndex, DayPlan } from '../../../../../shared/interfaces/routines.interface';
@@ -20,16 +27,8 @@ export class WeeklyRoutinePlannerComponent implements OnInit, OnChanges {
     @Input({ required: true }) distribution: string = '0/7';
     distributionControl = new FormControl('2/7');
     routineDay = [];
-    days: DayPlan[] = [];
+    days = signal<DayPlan[]>([]);
     selectedDay$ = new BehaviorSubject<DayIndex | null>(null);
-
-    workoutOptions = [
-        { name: 'Pecho', value: 'CHEST' },
-        { name: 'Piernas', value: 'LEGS' },
-        { name: 'Espalda', value: 'BACK' },
-        { name: 'Hombros', value: 'SHOULDERS' },
-        { name: 'Brazos', value: 'ARMS' },
-    ];
 
     constructor(private routinesSvc: RoutinesServices) {}
 
@@ -42,40 +41,33 @@ export class WeeklyRoutinePlannerComponent implements OnInit, OnChanges {
     }
 
     private initDaysFromDistribution(dist: string | null) {
-        // dist = "2/7" -> number of workout days = 2 (no validación exhaustiva)
         const parts = String(dist).split('/');
         const workouts = Number(parts[0]) || 0;
-        this.days = Array.from({ length: 7 }, (_, i) => ({
-            day: (i + 1) as DayIndex,
-            kind: i < workouts ? 'WORKOUT' : 'REST',
-            expanded: false,
-        }));
+        this.days.set(
+            Array.from({ length: 7 }, (_, i) => ({
+                day: (i + 1) as DayIndex,
+                kind: i < workouts ? 'WORKOUT' : 'REST',
+                expanded: false,
+            })),
+        );
     }
 
     onToggleKind(day: DayPlan, kind: 'REST' | 'WORKOUT') {
-        day.kind = kind;
-        if (kind === 'REST') {
-            day.workoutType = undefined;
-            day.routineId = undefined;
-        }
-    }
-
-    onSelectWorkoutType(day: DayPlan, type: string) {
-        day.workoutType = type;
-        day.expanded = true; // UI: agranda fila
-    }
-
-    onSelectRoutine(day: DayPlan, routineId: string) {
-        day.routineId = routineId;
-        // marcar seleccionado etc
-    }
-
-    getDays() {
-        return this.days;
+        const newDay = this.days().filter((d) => {
+            if (day.day === d.day) {
+                d.kind = kind;
+                if (kind === 'REST') {
+                    d.workoutType = undefined;
+                    d.routineId = undefined;
+                }
+            }
+            return d;
+        });
+        this.days.set(newDay);
     }
 
     // ejemplo de enviar al servicio
     savePlan(name: string, description: string) {
-        return this.routinesSvc.saveWeeklyPlan({ name, description, days: this.days });
+        return this.routinesSvc.saveWeeklyPlan({ name, description, days: this.days() });
     }
 }

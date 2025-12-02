@@ -1,6 +1,14 @@
-<div class="w-full bg-primaryDark flex flex-col items-center justify-center text-white font-medium">
-  <p>Día {{ dayPlan.day }}</p>
-  <p class="text-sm mb-1">
-    {{ !dayPlan.workoutType ? dayPlan.kind : dayPlan.workoutType }}
-  </p>
+<div
+  class="w-full bg-background3 h-12 rounded-md grid grid-cols-7 gap-2 rounded-md overflow-hidden mb-4"
+>
+  @for (d of dayPlan(); track d) {
+    <div
+      class="w-full bg-primaryDark flex flex-col items-center justify-center text-white font-medium"
+    >
+      <p>Día {{ d?.day }}</p>
+      <p class="text-sm mb-1">
+        {{ !d?.workoutType ? d.kind : d.workoutType }}
+      </p>
+    </div>
+  }
 </div>

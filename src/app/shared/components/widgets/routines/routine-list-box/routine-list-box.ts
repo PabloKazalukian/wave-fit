@@ -40,8 +40,6 @@ type ExerciseType = FormControlsOf<SelectTypeInput>;
 export class RoutineListBoxComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
 
-    // @Input() items: RoutineSummary[] = [];
-    @Output() pick = new EventEmitter<string>();
     @Output() categorySelected = new EventEmitter<string>();
 
     exerciseForm!: FormGroup<ExerciseType>;
@@ -91,11 +89,6 @@ export class RoutineListBoxComponent implements OnInit {
         });
     }
 
-    pickId(id: string) {
-        this.selected = id;
-        this.pick.emit(id);
-    }
-
     showExercise() {
         this.show = !this.show;
     }
@@ -114,7 +107,6 @@ export class RoutineListBoxComponent implements OnInit {
 
     toggleAccordion(i: number) {
         this.openIndex.update((current) => (current === i ? null : i));
-        // this.isSelected.set(null);
     }
 
     get selectControl(): FormControl<string> {

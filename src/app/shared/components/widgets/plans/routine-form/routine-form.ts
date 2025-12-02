@@ -2,16 +2,17 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { FormInputComponent } from '../../../ui/input/input';
 import { FormControlsOf } from '../../../../utils/form-types.util';
-import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
 import { SelectType } from '../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../ui/btn/btn';
-import { RoutinePlan } from '../../../../interfaces/routines.interface';
+import { RoutineDay, RoutinePlanCreate } from '../../../../interfaces/routines.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WeeklyRoutinePlannerComponent } from '../weekly-routine-planner/weekly-routine-planner';
+import { PlansService } from '../../../../../core/services/plans/plans.service';
+import { switchMap, tap } from 'rxjs';
 
-type RoutinePlanType = FormControlsOf<RoutinePlan>;
+type RoutinePlanType = FormControlsOf<RoutinePlanCreate>;
 
 @Component({
     selector: 'app-routine-plan-form',
@@ -44,23 +45,48 @@ export class RoutinePlanForm implements OnInit {
     ];
 
     constructor(
-        private routinesSvc: RoutinesServices,
         private authSvc: AuthService,
+        private planService: PlansService,
     ) {}
 
     ngOnInit(): void {
-        // console.log(this.authSvc.getStoredUser());
         this.routineForm = this.initForm();
+
         this.authSvc
             .me()
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: (result) => {
-                    this.userId = result?.id || '';
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+
+                tap((user) => {
+                    this.userId = user?.id ?? '';
                     this.routineForm.patchValue({ createdBy: this.userId });
-                },
-                error: (err) => {},
-            });
+
+                    if (this.userId) {
+                        this.planService.initPlanForUser(this.userId);
+                    }
+                }),
+
+                switchMap(() => this.planService.routinePlan$),
+
+                tap((plan) => {
+                    if (plan.weekly_distribution) this.show = true;
+                    this.routineForm.patchValue(plan, { emitEvent: false });
+                }),
+
+                switchMap(() =>
+                    this.routineForm.valueChanges.pipe(
+                        tap((formValue) => {
+                            const current = this.planService.currentValue();
+                            console.log(current);
+                            this.planService.setRoutinePlan(
+                                { ...current, ...formValue },
+                                this.userId,
+                            );
+                        }),
+                    ),
+                ),
+            )
+            .subscribe();
     }
 
     initForm(): FormGroup<RoutinePlanType> {
@@ -68,7 +94,7 @@ export class RoutinePlanForm implements OnInit {
             name: new FormControl('', { nonNullable: true }),
             description: new FormControl('', { nonNullable: true }),
             weekly_distribution: new FormControl('', { nonNullable: true }),
-            routineDays: new FormControl(['', '', '', '', '', '', ''], { nonNullable: true }),
+            routineDays: new FormControl<RoutineDay[]>(Array(7).fill(''), { nonNullable: true }),
             createdBy: new FormControl('', { nonNullable: true }),
         });
     }
@@ -92,7 +118,7 @@ export class RoutinePlanForm implements OnInit {
     get descriptionControl(): FormControl<string> {
         return this.routineForm.get('description') as FormControl<string>;
     }
-    get routinesDayControl(): FormControl<string[]> {
-        return this.routineForm.get('routineDays') as FormControl<string[]>;
+    get routinesDayControl(): FormControl<RoutineDay[]> {
+        return this.routineForm.get('routineDays') as FormControl<RoutineDay[]>;
     }
 }

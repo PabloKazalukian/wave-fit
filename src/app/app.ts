@@ -11,7 +11,10 @@ import { AuthService } from './core/services/auth/auth.service';
     templateUrl: './app.html',
 })
 export class AppComponent {
-    constructor(private authStateSvc: AuthService, private router: Router) {}
+    constructor(
+        private authStateSvc: AuthService,
+        private router: Router,
+    ) {}
     ngOnInit(): void {
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationStart) {
@@ -22,6 +25,7 @@ export class AppComponent {
                     this.authStateSvc.me().subscribe({
                         next: (user) => {},
                         error: (err) => {
+                            this.authStateSvc.logout();
                             this.router.navigate(['/auth/login']);
                         },
                     });

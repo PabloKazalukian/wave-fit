@@ -20,7 +20,6 @@ export interface MeResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private API_URL = environment.graphqlUri;
     private storageKey = 'auth_user';
     private tokenKey = 'token';
 
@@ -59,7 +58,7 @@ export class AuthService {
                 map(() => true),
                 catchError((err) => {
                     return of(false);
-                })
+                }),
             );
     }
 
@@ -89,7 +88,7 @@ export class AuthService {
                 handleGraphqlError(this), // ahora correctamente tipado
                 map((res) => {
                     return res.data?.me;
-                })
+                }),
             );
     }
 
@@ -128,7 +127,7 @@ export class AuthService {
                 catchError((err) => {
                     console.error(err);
                     return of(false);
-                })
+                }),
             );
     }
 

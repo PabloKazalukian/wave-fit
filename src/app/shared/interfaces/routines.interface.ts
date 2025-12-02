@@ -19,10 +19,19 @@ export interface DayPlan {
 }
 
 export interface RoutinePlan {
+    id?: string;
     name: string;
     description: string;
     weekly_distribution: string;
-    routineDays: string[];
+    routineDays: RoutineDay[] | string[];
+    createdBy?: string;
+}
+
+export interface RoutinePlanCreate {
+    name: string;
+    description: string;
+    weekly_distribution?: string;
+    routineDays: RoutineDay[];
     createdBy?: string;
 }
 

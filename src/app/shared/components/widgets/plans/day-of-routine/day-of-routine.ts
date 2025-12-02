@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, input, OnChanges, effect, OnInit, SimpleChanges, signal } from '@angular/core';
 import { DayPlan } from '../../../../interfaces/routines.interface';
+import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 
 @Component({
     selector: 'app-day-of-routine',
@@ -9,7 +10,15 @@ import { DayPlan } from '../../../../interfaces/routines.interface';
     styles: ``,
 })
 export class DayOfRoutine {
-    @Input() dayPlan!: DayPlan;
+    public dayPlan = input<DayPlan[]>();
 
-    constructor() {}
+    constructor(private routineSvc: RoutinesServices) {}
+
+    // señal interna que siempre mantiene una copia del input
+
+    // efecto 1: sincroniza el input con la señal local
+    syncEffect = effect(() => {
+        const value = this.dayPlan();
+        console.log('valuarte', value);
+    });
 }
