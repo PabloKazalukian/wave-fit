@@ -8,19 +8,24 @@ import {
     inject,
     DestroyRef,
     signal,
+    computed,
+    WritableSignal,
 } from '@angular/core';
-import { RoutineDay, RoutineSummary } from '../../../../interfaces/routines.interface';
+import { DayPlan, RoutineDay } from '../../../../interfaces/routines.interface';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { options, SelectTypeInput } from '../../../../interfaces/input.interface';
 import { FormControl, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { RoutineExerciseForm } from '../routine-exercise-form/routine-exercise-form';
 import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
 import { RoutineExercises } from './routine-exercises/routine-exercises';
 import { AccordionItemComponent } from '../../../ui/accordion-item/accordion-item';
+import { PlansService } from '../../../../../core/services/plans/plans.service';
+import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
+import { DayOfRoutine } from '../../plans/day-of-routine/day-of-routine';
+import { RoutineListBoxFacade } from './routine-list-box.facade';
 
 type ExerciseType = FormControlsOf<SelectTypeInput>;
 
@@ -28,6 +33,7 @@ type ExerciseType = FormControlsOf<SelectTypeInput>;
     selector: 'app-routine-list-box',
     standalone: true,
     templateUrl: './routine-list-box.html',
+    providers: [RoutineListBoxFacade],
     imports: [
         FormSelectComponent,
         FormSelectComponent,
@@ -38,71 +44,43 @@ type ExerciseType = FormControlsOf<SelectTypeInput>;
     ],
 })
 export class RoutineListBoxComponent implements OnInit {
-    private destroyRef = inject(DestroyRef);
+    private facade = inject(RoutineListBoxFacade);
 
-    @Output() categorySelected = new EventEmitter<string>();
+    @Input() day!: DayPlan;
+    exerciseForm: FormGroup = this.facade.exerciseForm;
+    routinesDays: WritableSignal<RoutineDay[]> = this.facade.routinesDays;
+    // (property) RoutineListBoxComponent.routinesDays: >
 
-    exerciseForm!: FormGroup<ExerciseType>;
-    routinesDays = signal<RoutineDay[]>([]);
-    openIndex = signal<number | null>(null);
+    routineSelected: WritableSignal<RoutineDay | null> = this.facade.routineSelected;
+    openIndex: WritableSignal<number | null> = this.facade.openIndex;
 
-    isSearchedRoutines: boolean = false;
+    isSearchedRoutines = signal<boolean>(false);
     isShowExercises: boolean = false;
 
     show: boolean = false;
-    routineSelected = signal<RoutineDay | null>(null);
     isSelected = signal<boolean | null>(null);
 
     options = options;
 
-    selected?: string;
-    constructor(private routinesSvc: RoutinesServices) {}
-
     ngOnInit(): void {
-        this.exerciseForm = this.initForm();
-        this.exerciseForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-            next: (newValue) => {
-                this.isSearchedRoutines = true;
-                const exerCat = ExerciseCategory;
-                if (newValue.option !== undefined)
-                    if (Object.keys(exerCat).includes(newValue.option)) {
-                        this.routinesSvc
-                            .getRoutinesByCategory(newValue.option as ExerciseCategory)
-                            .subscribe({
-                                next: (value) => {
-                                    this.routinesDays.set(value.routinesByCategory);
-                                },
-                                error: (err) => {
-                                    console.log(err);
-                                },
-                            });
-                    }
-                this.categorySelected.emit(newValue.option);
-            },
-            error: (err) => {},
-        });
-    }
-
-    initForm(): FormGroup<ExerciseType> {
-        return new FormGroup<ExerciseType>({
-            option: new FormControl('', { nonNullable: true }),
-        });
+        this.facade.setDay(this.day);
     }
 
     showExercise() {
         this.show = !this.show;
     }
 
+    getNameOfSelectControl(): string {
+        const value = options.filter((e) => e.value === this.selectControl.value);
+        console.log(value);
+        return value[0].name || '';
+    }
     addRoutine(day: RoutineDay) {
-        this.routineSelected.set(day);
-
-        const index = this.routinesDays().findIndex((r) => r.id === day.id);
-        this.openIndex.set(index); // ahora sí coincide con el accordion
+        this.facade.addRoutine(day);
     }
 
     removeRoutine() {
-        this.routineSelected.set(null);
-        this.openIndex.set(null);
+        this.facade.removeRoutine();
     }
 
     toggleAccordion(i: number) {

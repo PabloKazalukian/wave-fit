@@ -35,7 +35,6 @@ export interface LoginWithCredentials {
     ],
     standalone: true,
     templateUrl: './login.html',
-    styleUrl: './login.css',
 })
 export class Login implements OnInit {
     private destroyRef = inject(DestroyRef);

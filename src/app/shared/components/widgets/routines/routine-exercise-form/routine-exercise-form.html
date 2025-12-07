@@ -1,5 +1,5 @@
-@if (loading()) {
-  <div class="h-8 w-8">
+@if (loading() === true) {
+  <div class="h-32 w-32 flex items-center justify-center">
     <app-loading></app-loading>
   </div>
 } @else {
@@ -60,13 +60,21 @@
       </div>
     }
     <div class="bg-background2 rounded-b-lg">
-      <button
-        class="mt-2 bg-primary hover:bg-primaryDark w-full font-bold p-1 rounded-b-lg"
-        (click)="createExercise()"
-      >
-        Crear Ejercicio
-      </button>
+      @if (!showCreateExercise()) {
+        <button
+          class="mt-2 bg-secondary hover:bg-secondaryDark w-full font-bold p-1 rounded-b-lg"
+          (click)="changeShowExercise()"
+        >
+          Crear Ejercicio
+        </button>
+      }
       @if (showCreateExercise()) {
+        <button
+          class="mt-2 bg-error hover:bg-errorDark w-full font-bold p-1 rounded-b-lg"
+          (click)="changeShowExercise()"
+        >
+          Cancelar creacion de ejercicio
+        </button>
         <div class="mt-4">
           <app-exercise-create (closeForm)="showCreateExercise.set(false)"></app-exercise-create>
         </div>

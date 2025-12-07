@@ -9,7 +9,7 @@ import {
     DestroyRef,
     inject,
 } from '@angular/core';
-import { Observable } from 'rxjs';
+import { filter, map, Observable, tap } from 'rxjs';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { DayPlan } from '../../../../../shared/interfaces/routines.interface';
 import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
@@ -18,6 +18,8 @@ import { SelectType, SelectTypeInput } from '../../../../../shared/interfaces/in
 import { FormControlsOf } from '../../../../../shared/utils/form-types.util';
 import { FormControl, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
+import { AuthService } from '../../../../../core/services/auth/auth.service';
 
 type selectFormType = FormControlsOf<SelectTypeInput>;
 
@@ -37,16 +39,28 @@ export class WeekDayCellComponent implements OnInit {
 
     routines$?: Observable<any[]>;
     selectForm!: FormGroup<selectFormType>;
+    userId!: string;
 
     options: SelectType[] = [
         { name: 'Ejercicio', value: 'WORKOUT' },
         { name: 'Descanso', value: 'REST' },
     ];
 
-    constructor(private routinesSvc: RoutinesServices) {}
+    constructor(
+        private authSvc: AuthService,
+        private dayPlanSvc: DayPlanService,
+    ) {}
 
     ngOnInit(): void {
         this.selectForm = this.initForm();
+        this.authSvc.user$
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+                filter((user) => !!user),
+                tap((user) => (this.userId = user ? user : '')),
+            )
+            .subscribe();
+
         this.selectControl.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((newValue) => {

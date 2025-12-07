@@ -6,7 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 export function handleGraphqlError<T>(authSvc: AuthService): OperatorFunction<T, T> {
     return catchError((error) => {
-        // console.log('handleGraphqlError', error);
+        console.log('handleGraphqlError', error);
         // console.log(CombinedGraphQLErrors.is(error));
 
         if (CombinedGraphQLErrors.is(error)) {
@@ -29,7 +29,7 @@ export function handleGraphqlError<T>(authSvc: AuthService): OperatorFunction<T,
             if (Array.isArray(gqlErrors) && gqlErrors.length > 0) {
                 // Control especial de UNAUTHORIZED
                 const unauthorized = gqlErrors.find(
-                    (e: any) => e?.extensions?.code === 'UNAUTHORIZED'
+                    (e: any) => e?.extensions?.code === 'UNAUTHORIZED',
                 );
                 if (unauthorized) {
                     authSvc.logout();

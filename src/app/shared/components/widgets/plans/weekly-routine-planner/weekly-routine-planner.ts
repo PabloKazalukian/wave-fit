@@ -6,14 +6,20 @@ import {
     Input,
     OnChanges,
     signal,
+    effect,
+    inject,
+    DestroyRef,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
 import { DayIndex, DayPlan } from '../../../../../shared/interfaces/routines.interface';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
 import { DayOfRoutine } from '../day-of-routine/day-of-routine';
+import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AuthService } from '../../../../../core/services/auth/auth.service';
 
 @Component({
     selector: 'app-weekly-routine-planner',
@@ -22,35 +28,37 @@ import { DayOfRoutine } from '../day-of-routine/day-of-routine';
     imports: [WeekDayCellComponent, BtnComponent, DayOfRoutine],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WeeklyRoutinePlannerComponent implements OnInit, OnChanges {
+export class WeeklyRoutinePlannerComponent implements OnInit {
+    private destroyRef = inject(DestroyRef);
+
     // distribución: la podrías calcular a partir de un input del padre
     @Input({ required: true }) distribution: string = '0/7';
     distributionControl = new FormControl('2/7');
-    routineDay = [];
+    // routineDay = [];
     days = signal<DayPlan[]>([]);
+    daysSelected = signal<number>(0);
     selectedDay$ = new BehaviorSubject<DayIndex | null>(null);
+    userId!: string;
 
-    constructor(private routinesSvc: RoutinesServices) {}
+    constructor(private dayPlanSvc: DayPlanService) {}
 
     ngOnInit() {
-        this.initDaysFromDistribution(this.distribution);
+        // this.initDaysFromDistribution(this.distribution);
+
+        this.dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (value) => {
+                this.days.set(value);
+            },
+        });
     }
 
-    ngOnChanges() {
-        this.initDaysFromDistribution(this.distribution);
-    }
-
-    private initDaysFromDistribution(dist: string | null) {
-        const parts = String(dist).split('/');
-        const workouts = Number(parts[0]) || 0;
-        this.days.set(
-            Array.from({ length: 7 }, (_, i) => ({
-                day: (i + 1) as DayIndex,
-                kind: i < workouts ? 'WORKOUT' : 'REST',
-                expanded: false,
-            })),
+    controlChange = effect(() => {
+        const count = this.days().reduce(
+            (count, current) => count + (current.kind === 'WORKOUT' ? 1 : 0),
+            0,
         );
-    }
+        this.daysSelected.set(count);
+    });
 
     onToggleKind(day: DayPlan, kind: 'REST' | 'WORKOUT') {
         const newDay = this.days().filter((d) => {
@@ -64,10 +72,11 @@ export class WeeklyRoutinePlannerComponent implements OnInit, OnChanges {
             return d;
         });
         this.days.set(newDay);
+        this.dayPlanSvc.setPlanDay(newDay);
     }
 
     // ejemplo de enviar al servicio
     savePlan(name: string, description: string) {
-        return this.routinesSvc.saveWeeklyPlan({ name, description, days: this.days() });
+        // return this.routinesSvc.saveWeeklyPlan({ name, description, days: this.days() });
     }
 }

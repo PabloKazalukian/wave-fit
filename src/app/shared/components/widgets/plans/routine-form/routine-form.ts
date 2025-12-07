@@ -6,11 +6,12 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
 import { SelectType } from '../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../ui/btn/btn';
-import { RoutineDay, RoutinePlanCreate } from '../../../../interfaces/routines.interface';
+import { DayPlan, RoutineDay, RoutinePlanCreate } from '../../../../interfaces/routines.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WeeklyRoutinePlannerComponent } from '../weekly-routine-planner/weekly-routine-planner';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { switchMap, tap } from 'rxjs';
+import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
 
 type RoutinePlanType = FormControlsOf<RoutinePlanCreate>;
 
@@ -47,6 +48,7 @@ export class RoutinePlanForm implements OnInit {
     constructor(
         private authSvc: AuthService,
         private planService: PlansService,
+        private dayPlanSvc: DayPlanService,
     ) {}
 
     ngOnInit(): void {
@@ -62,6 +64,7 @@ export class RoutinePlanForm implements OnInit {
                     this.routineForm.patchValue({ createdBy: this.userId });
 
                     if (this.userId) {
+                        this.dayPlanSvc.initDayPlan(this.userId);
                         this.planService.initPlanForUser(this.userId);
                     }
                 }),
@@ -77,11 +80,7 @@ export class RoutinePlanForm implements OnInit {
                     this.routineForm.valueChanges.pipe(
                         tap((formValue) => {
                             const current = this.planService.currentValue();
-                            console.log(current);
-                            this.planService.setRoutinePlan(
-                                { ...current, ...formValue },
-                                this.userId,
-                            );
+                            this.planService.setRoutinePlan({ ...current, ...formValue });
                         }),
                     ),
                 ),

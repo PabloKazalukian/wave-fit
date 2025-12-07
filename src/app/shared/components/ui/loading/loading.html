@@ -1,12 +1,3 @@
-<div
-  class="w-full h-full border-[0.25em] border-transparent rounded-full animate-spin"
-  [ngClass]="{
-    'border-t-primary': color === 'primary',
-    'border-t-secondary': color === 'secondary',
-    'border-t-accent': color === 'accent',
-    'border-t-error': color === 'error',
-    'border-t-success': color === 'success',
-    'border-t-surface': color === 'surface',
-    'border-t-confirm': color === 'confirm'
-  }"
-></div>
+<div class="w-full h-full flex items-center justify-start rounded-full pl-5 py-4">
+  <div class="loader" [ngStyle]="{ '--loader-color': resolveColor(color) }"></div>
+</div>

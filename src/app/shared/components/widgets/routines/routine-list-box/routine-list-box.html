@@ -1,11 +1,22 @@
 <div class="flex gap-8 flex-col item-center justify-center">
-  <div class="w-full flex items-center justify-center">
-    <app-select
-      [text]="'Elige una opcion:'"
-      [options]="options"
-      [control]="selectControl"
-    ></app-select>
-  </div>
+  @if (!routineSelected()) {
+    <div class="w-full">
+      <app-select
+        [text]="'Elige una opcion:'"
+        [options]="options"
+        [control]="selectControl"
+      ></app-select>
+    </div>
+  } @else {
+    <div class="mt-2">
+      <app-btn
+        [buttonType]="'button'"
+        [variant]="'outline'"
+        [color]="'primary'"
+        [text]="getNameOfSelectControl()"
+      ></app-btn>
+    </div>
+  }
 
   @if (routinesDays().length === 0) {
     <app-btn [text]="'No hay Rutinas'" [variant]="'outline'" [color]="'primary'"></app-btn>

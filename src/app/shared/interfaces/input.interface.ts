@@ -8,14 +8,14 @@ export interface SelectType {
 }
 
 export const options: SelectType[] = [
-    { name: 'chest', value: 'CHEST' },
-    { name: 'back', value: 'BACK' },
-    { name: 'legs', value: 'LEGS' },
-    { name: 'legs_front', value: 'LEGS_FRONT' },
-    { name: 'legs_posterior', value: 'LEGS_POSTERIOR' },
-    { name: 'biceps', value: 'BICEPS' },
-    { name: 'triceps', value: 'TRICEPS' },
-    { name: 'shoulders', value: 'SHOULDERS' },
-    { name: 'core', value: 'CORE' },
-    { name: 'cardio', value: 'CARDIO' },
+    { name: 'Pectorales', value: 'CHEST' },
+    { name: 'Espalda', value: 'BACK' },
+    { name: 'Piernas', value: 'LEGS' },
+    { name: 'Piernas frontal', value: 'LEGS_FRONT' },
+    { name: 'Piernas posterior', value: 'LEGS_POSTERIOR' },
+    { name: 'Biceps', value: 'BICEPS' },
+    { name: 'Triceps', value: 'TRICEPS' },
+    { name: 'Hombros', value: 'SHOULDERS' },
+    { name: 'Core', value: 'CORE' },
+    { name: 'Cardio', value: 'CARDIO' },
 ];

@@ -3,9 +3,16 @@
 >
   @for (d of dayPlan(); track d) {
     <div
-      class="w-full bg-primaryDark flex flex-col items-center justify-center text-white font-medium"
+      class="w-full bg-primaryDark hover:bg-primary flex flex-col items-center justify-center text-white font-medium transition-colors duration-150 cursor-pointer"
+      [class.bg-success]="d.expanded"
+      [class.font-bold]="d.expanded"
+      (click)="changeExpanded(d)"
     >
-      <p>Día {{ d?.day }}</p>
+      @if (d.day) {
+        <p>Día {{ d.day + 1 }}</p>
+      } @else {
+        <p>Día {{ d.day + 1 }}</p>
+      }
       <p class="text-sm mb-1">
         {{ !d?.workoutType ? d.kind : d.workoutType }}
       </p>

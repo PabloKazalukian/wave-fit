@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../auth/auth.service';
 import { Apollo, gql } from 'apollo-angular';
-import { RoutinePlan, RoutinePlanCreate } from '../../../shared/interfaces/routines.interface';
-import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
+import { RoutinePlan, RoutinePlanCreate } from '../../../../shared/interfaces/routines.interface';
+import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import { tap } from 'rxjs';
 
 @Injectable({

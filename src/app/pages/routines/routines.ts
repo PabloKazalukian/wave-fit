@@ -42,7 +42,7 @@ export class Routines implements OnInit {
     constructor(
         private svcUser: UserService,
         private svcRoutines: RoutinesServices,
-        private exerciseSvc: ExercisesService
+        private exerciseSvc: ExercisesService,
     ) {}
 
     ngOnInit(): void {
@@ -61,6 +61,7 @@ export class Routines implements OnInit {
             .getRoutinesPlans()
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((result) => {
+                console.log(result);
                 this.routinesPlans = result.data.routinePlans;
             });
 

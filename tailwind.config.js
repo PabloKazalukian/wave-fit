@@ -28,6 +28,16 @@ module.exports = {
   'text-error', 'text-error2', 'text-error3', 'text-errorLight', 'text-errorDark',
   'border-error', 'border-error2', 'border-error3', 'border-errorLight', 'border-errorDark',
 
+  'bg-success','text-surface',
+
+  'shadow-primary',
+'shadow-secondary',
+'shadow-accent',
+'shadow-error',
+'shadow-success',
+'shadow-surface',
+'shadow-confirm',
+
 
   // Repetir igual para confirm, accent, success, error, warning, text
   // ...

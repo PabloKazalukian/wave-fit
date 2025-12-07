@@ -2,7 +2,6 @@ import { Injectable, signal, computed } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { tap, Observable, BehaviorSubject, catchError, map, of } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
-import { environment } from '../../../../environments/environments';
 import { LoginWithGoogle } from '../../../shared/interfaces/auth.interface';
 
 export interface LoginResponse {
@@ -125,7 +124,7 @@ export class AuthService {
                 }),
                 handleGraphqlError(this),
                 catchError((err) => {
-                    console.error(err);
+                    // console.error(err);
                     return of(false);
                 }),
             );

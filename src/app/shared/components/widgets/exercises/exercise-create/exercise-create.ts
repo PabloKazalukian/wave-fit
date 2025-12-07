@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormInputComponent } from '../../../ui/input/input';
@@ -12,6 +12,9 @@ import { ExercisesService } from '../../../../../core/services/exercises/exercis
 // import {options as ExerciseCategoryOptions, ExerciseCategory} from '../../../../constants/exercise-categories.constant';
 
 import { options } from '../../../../../shared/interfaces/input.interface';
+import { Loading } from '../../../ui/loading/loading';
+import { delay, tap, timeInterval } from 'rxjs';
+import { Notification } from '../../../ui/notification/notification';
 
 type RoutinePlanType = FormControlsOf<Exercise>;
 type selectFormType = FormControlsOf<SelectTypeInput>;
@@ -20,25 +23,36 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
 
 @Component({
     selector: 'app-exercise-create',
-    imports: [FormInputComponent, CheckboxComponent, FormSelectComponent, BtnComponent],
+    imports: [
+        FormInputComponent,
+        CheckboxComponent,
+        FormSelectComponent,
+        BtnComponent,
+        Loading,
+        Notification,
+    ],
     standalone: true,
     templateUrl: './exercise-create.html',
-    styleUrl: './exercise-create.css',
 })
 export class ExerciseCreate implements OnInit {
     private destroyRef = inject(DestroyRef);
 
     selectForm!: FormGroup<selectFormType>;
-
     routineExerciseCreateForm!: FormGroup<RoutinePlanType>;
 
     options = options;
+
+    loading = signal<boolean>(true);
+    complete = signal<boolean | null>(null);
 
     constructor(private exerciseSvc: ExercisesService) {}
     ngOnInit(): void {
         this.routineExerciseCreateForm = this.initForm();
         this.selectForm = this.initFormSelect();
 
+        setTimeout(() => {
+            this.loading.set(false);
+        }, 1000);
         this.selectControl.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((value) => {
@@ -68,6 +82,7 @@ export class ExerciseCreate implements OnInit {
     }
 
     onSubmit(): void {
+        this.loading.set(true);
         if (this.routineExerciseCreateForm.invalid) {
             this.routineExerciseCreateForm.markAllAsTouched();
             return;
@@ -79,8 +94,19 @@ export class ExerciseCreate implements OnInit {
             .createExercise(newExercise)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: (response) => console.log('Exercise created successfully:', response),
-                error: (error) => console.error('Error creating exercise:', error),
+                next: (response) => {
+                    console.log('Exercise created successfully:', response);
+                    // this.loading.set(false);
+                    this.complete.set(true);
+                },
+                error: (error) => {
+                    this.complete.set(false);
+
+                    console.error('Error creating exercise:', error);
+                },
+                complete: () => {
+                    this.loading.set(false);
+                },
             });
     }
 

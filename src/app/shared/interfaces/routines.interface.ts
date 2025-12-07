@@ -1,6 +1,11 @@
 import { Exercise, ExerciseCategory } from './exercise.interface';
 
 export type DayIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type KindType = 'REST' | 'WORKOUT';
+export enum KindEnum {
+    rest = 'REST',
+    workout = 'WORKOUT',
+}
 
 export interface RoutineSummary {
     id: string;
@@ -12,7 +17,7 @@ export interface RoutineSummary {
 
 export interface DayPlan {
     day: DayIndex;
-    kind: 'REST' | 'WORKOUT';
+    kind: KindType;
     workoutType?: string; // ex: "CHEST"
     routineId?: string;
     expanded?: boolean;
@@ -23,7 +28,7 @@ export interface RoutinePlan {
     name: string;
     description: string;
     weekly_distribution: string;
-    routineDays: RoutineDay[] | string[];
+    routineDays: RoutineDay[];
     createdBy?: string;
 }
 

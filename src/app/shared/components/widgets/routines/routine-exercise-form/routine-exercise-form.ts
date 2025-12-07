@@ -41,7 +41,7 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
 
     @Input() categoryExercise!: string;
 
-    loading = signal(false);
+    loading = signal(true);
     exercises = signal<Exercise[]>([]);
     categories = signal<string[]>([]);
 
@@ -56,7 +56,9 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
         this.exercisesForm = this.initForm();
         this.routineForm = this.initFormRoutine();
 
-        this.loading.set(true);
+        setTimeout(() => {
+            this.loading.set(false);
+        }, 200);
 
         this.exerciseSvc
             .getExercises()
@@ -193,8 +195,8 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
         return this.exercisesForm.controls.exercisesSelected.value.some((e) => e.id === ex.id);
     }
 
-    createExercise(): void {
-        this.showCreateExercise.set(true);
+    changeShowExercise(): void {
+        this.showCreateExercise.set(!this.showCreateExercise());
     }
 
     get exercisesSelected(): FormControl<Exercise[]> {

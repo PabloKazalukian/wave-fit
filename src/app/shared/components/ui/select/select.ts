@@ -8,7 +8,6 @@ import { SelectType } from '../../../interfaces/input.interface';
     imports: [ReactiveFormsModule],
     standalone: true,
     templateUrl: './select.html',
-    styleUrl: './select.css',
 })
 export class FormSelectComponent {
     @Input() text: string = '';

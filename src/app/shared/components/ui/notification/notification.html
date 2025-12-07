@@ -1,0 +1,18 @@
+<div class="m-2 p-2 bg-background rounded-md grid grid-cols-12 gap-1">
+  <!-- Columna del ícono -->
+  <div class="col-span-2 rounded-md flex items-center justify-center" [class]="colorClass()">
+    <span class="text-lg font-bold">
+      {{ icon() }}
+    </span>
+  </div>
+
+  <!-- Mensaje -->
+  <div class="col-span-7 bg-secondary pl-2 flex justify-between border-r-text2 border-r-2">
+    <p>{{ message() }}</p>
+  </div>
+
+  <!-- Cerrar -->
+  <div class="col-span-3 bg-primary flex justify-center">
+    <button class="text-sm font-bold hover:text-text3 duration-100">Cerrar</button>
+  </div>
+</div>

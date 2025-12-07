@@ -52,3 +52,33 @@
   font-style: italic;
   font-display: swap;
 }
+
+@keyframes puls-in {
+  0% {
+    box-shadow: inset 0 0 0 1rem currentColor;
+    opacity: 1;
+  }
+  50%, 100% {
+    box-shadow: inset 0 0 0 0 currentColor;
+    opacity: 0;
+  }
+}
+
+@keyframes puls-out {
+  0%, 50% {
+    box-shadow: 0 0 0 0 currentColor;
+    opacity: 0;
+  }
+  100% {
+    box-shadow: 0 0 0 1rem currentColor;
+    opacity: 1;
+  }
+}
+
+.animate-puls-in {
+  animation: puls-in 1.8s ease-in-out infinite;
+}
+
+.animate-puls-out {
+  animation: puls-out 1.8s ease-in-out infinite;
+}

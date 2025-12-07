@@ -9,16 +9,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     imports: [],
     standalone: true,
     templateUrl: './callback.html',
-    styleUrl: './callback.css',
 })
 export class Callback implements OnInit {
     private destroyRef = inject(DestroyRef);
 
     constructor(
-        private routerActivaded: ActivatedRoute,
         private authSvc: AuthService,
-        private http: HttpClient,
-        private router: Router
+        private router: Router,
     ) {}
 
     ngOnInit(): void {
@@ -28,14 +25,10 @@ export class Callback implements OnInit {
 
         if (!code || !codeVerifier) return;
 
-        // .pipe(takeUntilDestroyed(this.destroyRef))
         this.authSvc
             .loginWithGoogle(code, codeVerifier)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(({ data }: any) => {
-                // const token: string = data.loginWithGoogle;
-
-                // sessionStorage.removeItem('pkce_verifier');
                 this.router.navigate(['/home']);
             });
     }
