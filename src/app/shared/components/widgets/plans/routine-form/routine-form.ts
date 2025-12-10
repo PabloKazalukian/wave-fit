@@ -6,7 +6,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
 import { SelectType } from '../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../ui/btn/btn';
-import { DayPlan, RoutineDay, RoutinePlanCreate } from '../../../../interfaces/routines.interface';
+import { RoutineDay, RoutinePlanCreate } from '../../../../interfaces/routines.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WeeklyRoutinePlannerComponent } from '../weekly-routine-planner/weekly-routine-planner';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
@@ -18,7 +18,6 @@ type RoutinePlanType = FormControlsOf<RoutinePlanCreate>;
 @Component({
     selector: 'app-routine-plan-form',
     standalone: true,
-    // imports: [FormSelectComponent, FormInputComponent],
     templateUrl: './routine-form.html',
     imports: [
         FormSelectComponent,

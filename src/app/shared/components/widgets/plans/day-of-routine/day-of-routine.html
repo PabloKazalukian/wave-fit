@@ -9,9 +9,9 @@
       (click)="changeExpanded(d)"
     >
       @if (d.day) {
-        <p>Día {{ d.day + 1 }}</p>
+        <p>Día {{ d.day }}</p>
       } @else {
-        <p>Día {{ d.day + 1 }}</p>
+        <p>Día {{ d.day }}</p>
       }
       <p class="text-sm mb-1">
         {{ !d?.workoutType ? d.kind : d.workoutType }}

@@ -1,11 +1,9 @@
 <div class="planner">
   <div class="" role="list">
-    <div
-      class="h-12 bg-background2 border border-error rounded-md px-2 text-2xl flex items-center my-4"
-    >
-      <p>Rutina de {{ this.distribution }} días</p>
-      <p>faltante {{ daysSelected() }} /7</p>
-    </div>
+    <app-days-routine-progress
+      [daysSelected]="daysSelected()"
+      [distribution]="this.distribution"
+    ></app-days-routine-progress>
     <div>
       <app-day-of-routine></app-day-of-routine>
     </div>

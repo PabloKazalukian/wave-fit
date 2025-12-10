@@ -4,7 +4,6 @@ import {
     OnInit,
     ChangeDetectionStrategy,
     Input,
-    OnChanges,
     signal,
     effect,
     inject,
@@ -12,20 +11,25 @@ import {
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { BehaviorSubject, tap } from 'rxjs';
-import { DayIndex, DayPlan } from '../../../../../shared/interfaces/routines.interface';
-import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
+import {
+    DayIndex,
+    DayPlan,
+    RoutinePlan,
+    RoutinePlanCreate,
+} from '../../../../../shared/interfaces/routines.interface';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
 import { DayOfRoutine } from '../day-of-routine/day-of-routine';
 import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthService } from '../../../../../core/services/auth/auth.service';
+import { DaysRoutineProgress } from './routine-days-progress/days-routine-progress.';
+import { PlansService } from '../../../../../core/services/plans/plans.service';
 
 @Component({
     selector: 'app-weekly-routine-planner',
     standalone: true,
     templateUrl: './weekly-routine-planner.html',
-    imports: [WeekDayCellComponent, BtnComponent, DayOfRoutine],
+    imports: [WeekDayCellComponent, BtnComponent, DayOfRoutine, DaysRoutineProgress],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WeeklyRoutinePlannerComponent implements OnInit {
@@ -33,18 +37,18 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
 
     // distribución: la podrías calcular a partir de un input del padre
     @Input({ required: true }) distribution: string = '0/7';
-    distributionControl = new FormControl('2/7');
-    // routineDay = [];
+
     days = signal<DayPlan[]>([]);
     daysSelected = signal<number>(0);
     selectedDay$ = new BehaviorSubject<DayIndex | null>(null);
     userId!: string;
 
-    constructor(private dayPlanSvc: DayPlanService) {}
+    constructor(
+        private dayPlanSvc: DayPlanService,
+        private planService: PlansService,
+    ) {}
 
     ngOnInit() {
-        // this.initDaysFromDistribution(this.distribution);
-
         this.dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (value) => {
                 this.days.set(value);
@@ -76,7 +80,5 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
     }
 
     // ejemplo de enviar al servicio
-    savePlan(name: string, description: string) {
-        // return this.routinesSvc.saveWeeklyPlan({ name, description, days: this.days() });
-    }
+    savePlan(name: string, description: string) {}
 }

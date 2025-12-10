@@ -57,6 +57,7 @@ export class PlansService {
         this.planStorage.setPlanStorage(plan, this.userId());
         if (this.plansSubject.value) this.dayPlan.changeDayPlan(plan);
     }
+
     setRoutineDay(routine: RoutineDay) {
         let arrPlans = this.plansSubject.value;
 
@@ -105,8 +106,8 @@ export class PlansService {
             .subscribe();
     }
 
-    getRoutinePlan(id: string): RoutinePlanCreate | null {
-        const data = this.planStorage.getPlanStorage(id);
+    getRoutinePlan(idUser: string): RoutinePlanCreate | null {
+        const data = this.planStorage.getPlanStorage(idUser);
         if (data) this.plansSubject.next(data);
         return this.plansSubject.getValue();
     }

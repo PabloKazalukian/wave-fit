@@ -8,9 +8,9 @@ import {
     OnInit,
     DestroyRef,
     inject,
+    signal,
 } from '@angular/core';
 import { filter, map, Observable, tap } from 'rxjs';
-import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { DayPlan } from '../../../../../shared/interfaces/routines.interface';
 import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
@@ -40,6 +40,8 @@ export class WeekDayCellComponent implements OnInit {
     routines$?: Observable<any[]>;
     selectForm!: FormGroup<selectFormType>;
     userId!: string;
+
+    isExpanded = signal<boolean>(false);
 
     options: SelectType[] = [
         { name: 'Ejercicio', value: 'WORKOUT' },
@@ -75,10 +77,17 @@ export class WeekDayCellComponent implements OnInit {
         });
     }
 
+    // onKindChange(kind: 'REST' | 'WORKOUT') {
+    //     this.kindChange.emit(kind);
+    //     kind === 'REST' ? this.isExpanded.set(true) : this.isExpanded.set(false);
+    // }
+
     onKindChange(kind: 'REST' | 'WORKOUT') {
         this.kindChange.emit(kind);
-    }
 
+        // esto era tu bug principal
+        this.isExpanded.set(kind === 'WORKOUT');
+    }
     onExpandToggle(event: MouseEvent): void {
         // Evita que el click interno vuelva a colapsar si hacés click en subcomponentes
         event.stopPropagation();

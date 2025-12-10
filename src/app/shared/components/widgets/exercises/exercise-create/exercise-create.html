@@ -41,9 +41,17 @@
       </div>
     </div>
   } @else {
-    <app-notification [message]="'Ejercicio creado!'" [type]="'error'"></app-notification>
-    <app-notification [message]="'fijate'" [type]="'info'"></app-notification
-    ><app-notification [message]="'mañ¿'" [type]="'success'"></app-notification
-    ><app-notification [message]="'mañ¿'" [type]="'success'"></app-notification>
+    @if (showNotification()) {
+      <app-notification [message]="'¡Ejercicio creado!'" [type]="'success'"></app-notification>
+      <app-notification [message]="'fijate'" [type]="'info'"></app-notification
+      ><app-notification
+        [message]="
+          '
+        ¡Ocurrio un error!'
+        "
+        [type]="'error'"
+      ></app-notification
+      ><app-notification [message]="'mañ¿'" [type]="'success'"></app-notification>
+    }
   }
 }

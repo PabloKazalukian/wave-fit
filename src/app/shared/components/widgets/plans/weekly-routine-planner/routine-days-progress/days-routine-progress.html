@@ -1,0 +1,25 @@
+<div
+  class="h-15 rounded-md py-2 px-4 grid grid-cols-3 items-center my-4 border"
+  [ngClass]="{
+    'border-error text-error': state() === 'error',
+    'border-secondary text-secondary': state() === 'incomplete',
+    'border-primary text-primary': state() === 'complete',
+  }"
+>
+  <p class="text-md md:text-2xl">Rutina de {{ target() }}/7 días</p>
+  <p class="text-md md:text-2xl flex items-center justify-center">
+    <!-- {{ exceeded() ? 'Excedido: ' + exceeded() : 'Faltante ' + remaining() + '/' + target() }} -->
+    {{ daysSelected() }} <span class="text-text2"> /7 </span>
+  </p>
+
+  <div class="flex items-center justify-end">
+    @if (!complete()) {
+      <app-btn
+        [text]="'Cambiar cantidad de días'"
+        [variant]="'outline'"
+        [color]="state() === 'error' ? 'error' : 'secondary'"
+        (click)="this.setDistribution()"
+      />
+    }
+  </div>
+</div>

@@ -31,16 +31,13 @@ module.exports = {
   'bg-success','text-surface',
 
   'shadow-primary',
-'shadow-secondary',
-'shadow-accent',
-'shadow-error',
-'shadow-success',
-'shadow-surface',
-'shadow-confirm',
+  'shadow-secondary',
+  'shadow-accent',
+  'shadow-error',
+  'shadow-success',
+  'shadow-surface',
+  'shadow-confirm',
 
-
-  // Repetir igual para confirm, accent, success, error, warning, text
-  // ...
 ],
   theme: {
     container: {
@@ -141,7 +138,20 @@ module.exports = {
         sans: ['Lato', 'sans-serif'],
         heading: ['Work Sans', 'sans-serif'],
       },
-      
+      keyframes: {
+        slideInDown: {
+          '0%': { transform: 'translateY(-100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideOutUp: {
+          '0%': { transform: 'translateY(0)', opacity: '1' },
+          '100%': { transform: 'translateY(-100%)', opacity: '0' },
+        },
+      },
+      animation: {
+        'slide-in': 'slideInDown 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        'slide-out': 'slideOutUp 0.3s cubic-bezier(0.4, 0, 1, 1)',
+      }
     },
   },
   plugins: [require('@tailwindcss/forms')],

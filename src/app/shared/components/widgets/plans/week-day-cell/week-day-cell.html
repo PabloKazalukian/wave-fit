@@ -1,12 +1,11 @@
-<!-- @if(d) -->
 <div
-  class="bg-surface mx-2 my-8 rounded-md transition duration-200 ease-in-out day-cell flex-col gap-8 items-start"
+  class="bg-surface mx-2 my-8 rounded-md flex flex-col gap-8 items-center justify-center"
   [class.opacity-50]="day.kind === 'REST'"
   [class.grayscale-50]="day.kind === 'REST'"
   role="listitem"
   aria-label="Day {{ day.day }}"
 >
-  <div class="flex flex-col w-full gap-4 items-center mb-8">
+  <div class="flex flex-col w-64 gap-4 items-center mb-8 spin-slow">
     <div class="font-bold text-[0.95rem]">Día {{ day.day + 1 }}</div>
     <div class="flex items-center">
       <app-select
@@ -16,9 +15,7 @@
       ></app-select>
     </div>
     @if (day.kind === 'WORKOUT') {
-      <div class="">
-        <app-routine-list-box [day]="day"> </app-routine-list-box>
-      </div>
+      <app-routine-list-box [day]="day"></app-routine-list-box>
     }
   </div>
 </div>

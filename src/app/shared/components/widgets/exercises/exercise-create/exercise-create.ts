@@ -44,6 +44,7 @@ export class ExerciseCreate implements OnInit {
 
     loading = signal<boolean>(true);
     complete = signal<boolean | null>(null);
+    showNotification = signal<boolean>(true);
 
     constructor(private exerciseSvc: ExercisesService) {}
     ngOnInit(): void {
@@ -108,6 +109,10 @@ export class ExerciseCreate implements OnInit {
                     this.loading.set(false);
                 },
             });
+    }
+
+    onClosedNoti() {
+        console.log('emitio');
     }
 
     get nameControl(): FormControl<string> {

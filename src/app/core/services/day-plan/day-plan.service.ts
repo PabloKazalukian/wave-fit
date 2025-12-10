@@ -20,10 +20,7 @@ export class DayPlanService {
 
     userId = signal<string>('');
 
-    constructor(
-        private dayPlanStorage: DayPlanStorageService,
-        // private planRoutineSvc: PlansService,
-    ) {}
+    constructor(private dayPlanStorage: DayPlanStorageService) {}
 
     initDayPlan(userId: string) {
         const stored = this.dayPlanStorage.getDayPlanStorage(userId);
@@ -40,20 +37,6 @@ export class DayPlanService {
             this.dayPlanSubject.next(arr);
             this.dayPlanStorage.setDayPlanStorage(arr, userId);
         }
-
-        // this.planSvc.routinePlan$.subscribe({
-        //     next: (plan) => {
-        //         // console.log(plan);
-        //         let dayplan = this.dayPlanSubject.value;
-        //         if (plan.weekly_distribution && dayplan) {
-        //             for (let i = 0; i < parseInt(plan.weekly_distribution); i++) {
-        //                 dayplan[i] = this.createDayPlanEmpty(i as DayIndex);
-        //                 dayplan[i].kind = 'WORKOUT';
-        //             }
-        //             this.dayPlanSubject.next(dayplan);
-        //         }
-        //     },
-        // });
     }
 
     private createDayPlanEmpty(i: DayIndex): DayPlan {
@@ -94,7 +77,13 @@ export class DayPlanService {
     changeDayPlan(planRoutine: RoutinePlanCreate | RoutinePlan) {
         console.log(planRoutine);
         const updateDayPlan: DayPlan[] = planRoutine.routineDays.map((r, index): DayPlan => {
-            if (r === null) {
+            console.log(r);
+            if (r.exercises === undefined || r.exercises === null) {
+                console.log(this.dayPlanSubject.value);
+
+                if (this.dayPlanSubject.value) {
+                    return this.dayPlanSubject.value[index];
+                }
                 return this.createDayPlanEmpty((index + 1) as DayIndex);
             }
             return {

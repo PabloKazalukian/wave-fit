@@ -1,4 +1,4 @@
-.days-row{
+/* .days-row{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
@@ -8,4 +8,34 @@
 }
 .day-header{ display:flex; justify-content:space-between; align-items:center; }
 .day-number{ font-weight:700; font-size:0.95rem; }
-.kind-select select { background:transparent; border-radius:6px; padding:6px; }
+.kind-select select { background:transparent; border-radius:6px; padding:6px; } */
+
+
+.expand-wrapper {
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 2s ease;
+}
+
+/* Estado colapsado */
+.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* Estado expandido */
+.expanded {
+  max-height: 500px; /* suficientemente grande para cubrir contenido */
+  opacity: 1;
+}
+
+/* Animación interna (children) */
+.inner-enter {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease 2s, transform 2s ease 5s;
+}
+
+.inner-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+}
