@@ -1,4 +1,3 @@
-// weekly-routine-planner.component.ts
 import {
     Component,
     OnInit,
@@ -9,21 +8,14 @@ import {
     inject,
     DestroyRef,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { BehaviorSubject, tap } from 'rxjs';
-import {
-    DayIndex,
-    DayPlan,
-    RoutinePlan,
-    RoutinePlanCreate,
-} from '../../../../../shared/interfaces/routines.interface';
+import { DayIndex, DayPlan } from '../../../../../shared/interfaces/routines.interface';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
 import { DayOfRoutine } from '../day-of-routine/day-of-routine';
 import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DaysRoutineProgress } from './routine-days-progress/days-routine-progress.';
-import { PlansService } from '../../../../../core/services/plans/plans.service';
 
 @Component({
     selector: 'app-weekly-routine-planner',
@@ -35,18 +27,13 @@ import { PlansService } from '../../../../../core/services/plans/plans.service';
 export class WeeklyRoutinePlannerComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
 
-    // distribución: la podrías calcular a partir de un input del padre
     @Input({ required: true }) distribution: string = '0/7';
 
     days = signal<DayPlan[]>([]);
     daysSelected = signal<number>(0);
     selectedDay$ = new BehaviorSubject<DayIndex | null>(null);
-    userId!: string;
 
-    constructor(
-        private dayPlanSvc: DayPlanService,
-        private planService: PlansService,
-    ) {}
+    constructor(private dayPlanSvc: DayPlanService) {}
 
     ngOnInit() {
         this.dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -79,6 +66,5 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
         this.dayPlanSvc.setPlanDay(newDay);
     }
 
-    // ejemplo de enviar al servicio
     savePlan(name: string, description: string) {}
 }

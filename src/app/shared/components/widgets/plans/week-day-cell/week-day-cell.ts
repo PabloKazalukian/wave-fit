@@ -10,7 +10,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { filter, map, Observable, tap } from 'rxjs';
+import { filter, Observable, tap } from 'rxjs';
 import { DayPlan } from '../../../../../shared/interfaces/routines.interface';
 import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';

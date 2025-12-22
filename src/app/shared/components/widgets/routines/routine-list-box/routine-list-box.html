@@ -18,52 +18,55 @@
     </div>
   }
 
-  @if (routinesDays().length === 0) {
-    <app-btn [text]="'No hay Rutinas'" [variant]="'outline'" [color]="'primary'"></app-btn>
-  } @else {
-    <div class="">
-      @if (routineSelected() !== null) {
-        <app-accordion-item
-          [title]="routineSelected()?.title || ''"
-          [open]="openIndex() === 0"
-          (toggle)="toggleAccordion(0)"
-          [isSelected]="true"
-        >
-          <button class="text-sm text-error underline mb-2" (click)="removeRoutine()">
-            Quitar Rutina
-          </button>
+  @if (!creatingRoutine()) {
+    @if (routinesDays().length === 0) {
+      <app-btn [text]="'No hay Rutinas'" [variant]="'outline'" [color]="'primary'"></app-btn>
+    } @else {
+      <div class="">
+        @if (routineSelected() !== null) {
+          <app-accordion-item
+            [title]="routineSelected()?.title || ''"
+            [open]="openIndex() === 0"
+            (toggle)="toggleAccordion(0)"
+            [isSelected]="true"
+          >
+            <button class="text-sm text-error underline mb-2" (click)="removeRoutine()">
+              Quitar Rutina
+            </button>
 
-          @if (routineSelected()?.exercises) {
-            <app-routine-exercises [exercises]="routineSelected()?.exercises || []" />
-          } @else {
-            <p class="text-sm text-gray-400">No hay ejercicios.</p>
-          }
-        </app-accordion-item>
-      } @else {
-        <!-- Caso: listado de todas las rutinas -->
-        @for (r of routinesDays(); track r; let i = $index) {
-          @if (!show) {
-            <app-accordion-item
-              [title]="r.title"
-              [open]="openIndex() === i"
-              (toggle)="toggleAccordion(i)"
-              [isSelected]="false"
-            >
-              <button class="text-sm text-primary underline mb-2" (click)="addRoutine(r)">
-                Agregar Rutina
-              </button>
+            @if (routineSelected()?.exercises) {
+              <app-routine-exercises [exercises]="routineSelected()?.exercises || []" />
+            } @else {
+              <p class="text-sm text-gray-400">No hay ejercicios.</p>
+            }
+          </app-accordion-item>
+        } @else {
+          <!-- Caso: listado de todas las rutinas -->
+          @for (r of routinesDays(); track r; let i = $index) {
+            @if (!show) {
+              <app-accordion-item
+                [title]="r.title"
+                [open]="openIndex() === i"
+                (toggle)="toggleAccordion(i)"
+                [isSelected]="false"
+              >
+                <button class="text-sm text-primary underline mb-2" (click)="addRoutine(r)">
+                  Agregar Rutina
+                </button>
 
-              @if (r.exercises) {
-                <app-routine-exercises [exercises]="r.exercises" />
-              } @else {
-                <p class="text-sm text-gray-400">No hay ejercicios.</p>
-              }
-            </app-accordion-item>
+                @if (r.exercises) {
+                  <app-routine-exercises [exercises]="r.exercises" />
+                } @else {
+                  <p class="text-sm text-gray-400">No hay ejercicios.</p>
+                }
+              </app-accordion-item>
+            }
           }
         }
-      }
-    </div>
+      </div>
+    }
   }
+
   @if (show) {
     <app-btn [text]="'Cancelar'" [variant]="'raised'" [color]="'error'" (click)="showExercise()">
     </app-btn>

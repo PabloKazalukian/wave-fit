@@ -9,15 +9,10 @@ import { FormControlsOf } from '../../../../utils/form-types.util';
 import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { Exercise, ExerciseCategory } from '../../../../interfaces/exercise.interface';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
-// import {options as ExerciseCategoryOptions, ExerciseCategory} from '../../../../constants/exercise-categories.constant';
-
 import { options } from '../../../../../shared/interfaces/input.interface';
 import { Loading } from '../../../ui/loading/loading';
-import { delay, tap, timeInterval } from 'rxjs';
 import { Notification } from '../../../ui/notification/notification';
-
-type RoutinePlanType = FormControlsOf<Exercise>;
-type selectFormType = FormControlsOf<SelectTypeInput>;
+import { ExerciseCreateFacade, RoutinePlanType, selectFormType } from './exercise-create.facade';
 
 // { name: string; description: string; }>;
 
@@ -36,23 +31,22 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
 })
 export class ExerciseCreate implements OnInit {
     private destroyRef = inject(DestroyRef);
+    private facade = inject(ExerciseCreateFacade);
 
-    selectForm!: FormGroup<selectFormType>;
-    routineExerciseCreateForm!: FormGroup<RoutinePlanType>;
+    selectForm: FormGroup = this.facade.selectForm;
+    routineExerciseCreateForm: FormGroup<RoutinePlanType> = this.facade.routineExerciseCreateForm;
 
     options = options;
 
     loading = signal<boolean>(true);
     complete = signal<boolean | null>(null);
-    showNotification = signal<boolean>(true);
+    showNotification = signal<boolean>(false);
 
     constructor(private exerciseSvc: ExercisesService) {}
     ngOnInit(): void {
-        this.routineExerciseCreateForm = this.initForm();
-        this.selectForm = this.initFormSelect();
-
         setTimeout(() => {
             this.loading.set(false);
+            this.complete.set(true);
         }, 1000);
         this.selectControl.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
@@ -61,31 +55,14 @@ export class ExerciseCreate implements OnInit {
             });
     }
 
-    initForm(): FormGroup<RoutinePlanType> {
-        return new FormGroup<RoutinePlanType>({
-            name: new FormControl('', {
-                nonNullable: true,
-                validators: [Validators.required, Validators.minLength(3)],
-            }),
-            description: new FormControl('', { nonNullable: true }),
-            category: new FormControl(ExerciseCategory.BACK, {
-                nonNullable: true,
-                validators: [Validators.required],
-            }),
-            usesWeight: new FormControl(false, { nonNullable: true }),
-        });
-    }
-
-    initFormSelect(): FormGroup<selectFormType> {
-        return new FormGroup<selectFormType>({
-            option: new FormControl('', { nonNullable: true }),
-        });
-    }
-
     onSubmit(): void {
         this.loading.set(true);
-        if (this.routineExerciseCreateForm.invalid) {
+        if (this.routineExerciseCreateForm.invalid && this.selectForm) {
             this.routineExerciseCreateForm.markAllAsTouched();
+            console.log('fail');
+            setTimeout(() => {
+                this.loading.set(false);
+            }, 1000);
             return;
         }
 
@@ -109,10 +86,6 @@ export class ExerciseCreate implements OnInit {
                     this.loading.set(false);
                 },
             });
-    }
-
-    onClosedNoti() {
-        console.log('emitio');
     }
 
     get nameControl(): FormControl<string> {

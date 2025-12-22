@@ -3,6 +3,7 @@ import { Component, computed, EventEmitter, input, Output } from '@angular/core'
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { RoutinePlanCreate } from '../../../../../interfaces/routines.interface';
 import { PlansService } from '../../../../../../core/services/plans/plans.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
     selector: 'app-days-routine-progress.',
@@ -14,13 +15,30 @@ import { PlansService } from '../../../../../../core/services/plans/plans.servic
 export class DaysRoutineProgress {
     distribution = input<string>('');
     daysSelected = input<number>(0);
+    routinePlan;
 
-    constructor(private planService: PlansService) {}
+    constructor(private planService: PlansService) {
+        this.routinePlan = toSignal(this.planService.routinePlan$, {
+            initialValue: null,
+        });
+    }
 
     // Parseamos solo el primer número
     target = computed(() => {
         const [first] = this.distribution().split('/');
         return Number(first ?? 0);
+    });
+
+    missed = computed(() => {
+        const plan = this.routinePlan();
+        if (!plan) return 0;
+
+        // const target_ = this.target();
+        return plan.routineDays.reduce((acc, routine) => {
+            // console.log(routine);
+            if (routine.id) return acc + 1;
+            else return acc;
+        }, 0);
     });
 
     exceeded = computed(() => this.daysSelected() > this.target());
@@ -33,10 +51,8 @@ export class DaysRoutineProgress {
         return 'incomplete';
     });
 
-    setDistribution() {
+    changeDistribution() {
         const payload = this.daysSelected().toString();
-        console.log(payload);
-        // this.distribution = payload+'/7'
         const plan: RoutinePlanCreate | null = this.planService.getRoutinePlan(
             this.planService.userId(),
         );
@@ -45,7 +61,6 @@ export class DaysRoutineProgress {
         if (plan?.weekly_distribution) {
             plan.weekly_distribution = payload;
             this.planService.setRoutinePlan(plan);
-            console.log(plan);
         }
     }
 }

@@ -19,6 +19,7 @@ import { FormInputComponent } from '../../../ui/input/input';
 import { RoutineDayCreate } from '../../../../interfaces/routines.interface';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { ExerciseCreate } from '../../exercises/exercise-create/exercise-create';
+import { requiredArray } from '../../../../validators/array.validator';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: Exercise[];
@@ -42,6 +43,7 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
     @Input() categoryExercise!: string;
 
     loading = signal(true);
+    loadingCreate = signal(false);
     exercises = signal<Exercise[]>([]);
     categories = signal<string[]>([]);
 
@@ -125,23 +127,34 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
                 validators: [Validators.required, Validators.minLength(3)],
             }),
             type: new FormControl([], { nonNullable: true }),
-            exercises: new FormControl([], { nonNullable: true }),
+            exercises: new FormControl([], {
+                nonNullable: true,
+                validators: [requiredArray],
+            }),
         });
     }
 
     onSubmit(): void {
+        this.loadingCreate.set(true);
         console.log(this.routineForm.value);
         if (this.routineForm.invalid) {
             this.routineForm.markAllAsTouched();
+            this.loadingCreate.set(false);
+
             return;
         }
         const newRoutine = this.routineForm.value as RoutineDayCreate;
         this.routineSvc.createRoutine(newRoutine).subscribe({
             next: (res) => {
                 console.log('Rutina creada:', res);
+                this.loadingCreate.set(false);
             },
             error: (err) => {
                 console.error('Error al crear la rutina:', err);
+                this.loadingCreate.set(false);
+            },
+            complete: () => {
+                this.loadingCreate.set(false);
             },
         });
     }

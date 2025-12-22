@@ -8,7 +8,6 @@
 >
   <p class="text-md md:text-2xl">Rutina de {{ target() }}/7 días</p>
   <p class="text-md md:text-2xl flex items-center justify-center">
-    <!-- {{ exceeded() ? 'Excedido: ' + exceeded() : 'Faltante ' + remaining() + '/' + target() }} -->
     {{ daysSelected() }} <span class="text-text2"> /7 </span>
   </p>
 
@@ -18,8 +17,23 @@
         [text]="'Cambiar cantidad de días'"
         [variant]="'outline'"
         [color]="state() === 'error' ? 'error' : 'secondary'"
-        (click)="this.setDistribution()"
+        (click)="this.changeDistribution()"
       />
+    } @else {
+      <div>
+        <p class="text-md md:text-2xl">
+          <span class="text">Seleccionados:</span>
+          <span
+            [ngClass]="{
+              'text-secondary': missed() < daysSelected(),
+              'text-primary': missed() === daysSelected(),
+            }"
+          >
+            {{ missed() }}
+          </span>
+          /{{ daysSelected() }}
+        </p>
+      </div>
     }
   </div>
 </div>

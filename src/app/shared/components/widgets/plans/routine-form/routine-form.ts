@@ -23,7 +23,6 @@ type RoutinePlanType = FormControlsOf<RoutinePlanCreate>;
         FormSelectComponent,
         FormSelectComponent,
         FormInputComponent,
-        BtnComponent,
         WeeklyRoutinePlannerComponent,
     ],
 })

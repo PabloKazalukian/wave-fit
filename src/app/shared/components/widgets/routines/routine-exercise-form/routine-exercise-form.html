@@ -3,82 +3,93 @@
     <app-loading></app-loading>
   </div>
 } @else {
-  <div class="bg-background2">
-    <app-btn
-      [text]="'Crear Rutina'"
-      [variant]="'raised'"
-      [color]="'primaryDark'"
-      (click)="onSubmit()"
-    >
-    </app-btn>
-    <app-input
-      [label]="'Nombre de tu rutina :'"
-      [type]="'text'"
-      [placeholder]="'Ingresa un nombre para tu rutina '"
-      [control]="titleControl"
-    ></app-input>
-
-    <div>
-      <p>Categorías:</p>
-      @for (category of categories(); track category) {
-        <span class="inline-block bg-primary text-white text-xs px-2 py-1 rounded-md mr-1">
-          {{ category }}
-          {{
-            countExercisesByCategory(category) > 1
-              ? `( ${countExercisesByCategory(category)}) `
-              : ''
-          }}
-
-          <button class="ml-1 font-bold" (click)="removeAllCategory(category)">X</button>
-        </span>
-      }
-    </div>
-
-    <div class="bg-background3">
-      <p>Ejercicios:</p>
-    </div>
-    @for (exercise of exercises(); track exercise.id) {
-      <div
-        class="p-2 hover:bg-background3 flex items-center justify-start gap-2 cursor-pointer group"
-        (click)="toggleExercise(exercise)"
+  @if (!loadingCreate()) {
+    <div class="bg-background2">
+      <app-btn
+        [text]="'Crear Rutina'"
+        [variant]="'raised'"
+        [color]="'primaryDark'"
+        (click)="onSubmit()"
       >
-        <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
+      </app-btn>
+      <app-input
+        [label]="'Nombre de tu rutina :'"
+        [type]="'text'"
+        [placeholder]="'Ingresa un nombre para tu rutina '"
+        [control]="titleControl"
+      ></app-input>
 
-        <span
-          class="relative flex-center w-5 h-5 px-2 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-sm peer-checked:before:font-bold"
-        ></span>
+      <div>
+        <p>Categorías:</p>
+        @if (
+          routineForm.get('exercises')?.hasError('requiredArray') &&
+          routineForm.get('exercises')?.touched
+        ) {
+          <p class="text-error text-sm mt-1">Debes seleccionar al menos un ejercicio</p>
+        }
 
-        <p class="max-h-14 max-w-14">
-          {{ exercise.name }}
+        @for (category of categories(); track category) {
+          <span class="inline-block bg-primary text-white text-xs px-2 py-1 rounded-md mr-1">
+            {{ category }}
+            {{
+              countExercisesByCategory(category) > 1
+                ? `( ${countExercisesByCategory(category)}) `
+                : ''
+            }}
+
+            <button class="ml-1 font-bold" (click)="removeAllCategory(category)">X</button>
+          </span>
+        }
+      </div>
+
+      <div class="bg-background3">
+        <p>Ejercicios:</p>
+      </div>
+      @for (exercise of exercises(); track exercise.id) {
+        <div
+          class="p-2 hover:bg-background3 flex items-center justify-start gap-2 cursor-pointer group"
+          (click)="toggleExercise(exercise)"
+        >
+          <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
 
           <span
-            class="inline-block bg-primary text-white text-xs px-2 py-1 rounded-md mr-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-          >
-            {{ exercise.category }}
-          </span>
-        </p>
-      </div>
-    }
-    <div class="bg-background2 rounded-b-lg">
-      @if (!showCreateExercise()) {
-        <button
-          class="mt-2 bg-secondary hover:bg-secondaryDark w-full font-bold p-1 rounded-b-lg"
-          (click)="changeShowExercise()"
-        >
-          Crear Ejercicio
-        </button>
-      }
-      @if (showCreateExercise()) {
-        <button
-          class="mt-2 bg-error hover:bg-errorDark w-full font-bold p-1 rounded-b-lg"
-          (click)="changeShowExercise()"
-        >
-          Cancelar creacion de ejercicio
-        </button>
-        <div class="mt-4">
-          <app-exercise-create (closeForm)="showCreateExercise.set(false)"></app-exercise-create>
+            class="relative flex-center w-5 h-5 px-2 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-sm peer-checked:before:font-bold"
+          ></span>
+
+          <p class="max-h-14 max-w-14">
+            {{ exercise.name }}
+
+            <span
+              class="inline-block bg-primary text-white text-xs px-2 py-1 rounded-md mr-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+            >
+              {{ exercise.category }}
+            </span>
+          </p>
         </div>
       }
+      <div class="bg-background2 rounded-b-lg">
+        @if (!showCreateExercise()) {
+          <button
+            class="mt-2 bg-secondary hover:bg-secondaryDark w-full font-bold p-1 rounded-b-lg"
+            (click)="changeShowExercise()"
+          >
+            Crear Ejercicio
+          </button>
+        }
+        @if (showCreateExercise()) {
+          <button
+            class="mt-2 bg-error hover:bg-errorDark w-full font-bold p-1 rounded-b-lg"
+            (click)="changeShowExercise()"
+          >
+            Cancelar creacion de ejercicio
+          </button>
+          <div class="mt-4">
+            <app-exercise-create (closeForm)="showCreateExercise.set(false)"></app-exercise-create>
+          </div>
+        }
+      </div>
     </div>
-  </div>
+  } @else {
+    <app-loading [color]="'primary'"></app-loading>
+  }
 }
