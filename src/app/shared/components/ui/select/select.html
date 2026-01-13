@@ -1,14 +1,37 @@
-<div class="">
+<div class="cursor-pointer relative">
   <label class="pb-1">{{ label }}</label>
   <select
-    class="pl-4 pr-4 rounded-md flex-center font-base pt-2 pb-2 pl-3 pr-3 text-white bg-background border-surface min-w-[150px] w-full"
+    class="pl-4 pr-4 rounded-md flex-center font-base pt-2 pb-2 pl-3 pr-3 text-white bg-background min-w-[150px] w-full cursor-pointer checked:bg-primary"
     [formControl]="control"
+    [ngClass]="selectClasses"
   >
-    <option value="" disabled selected hidden class="">{{ text }}</option>
+    <option value="" disabled selected hidden class="checked:bg-primary">{{ text }}</option>
     @for (opt of options; track opt.value) {
-      <option [value]="opt.value" class="rounded-full">
+      <option
+        [value]="opt.value"
+        class="rounded-full checked:bg-background3 checked:text-primary hover:bg-primary"
+      >
         {{ opt.name }}
       </option>
     }
   </select>
+
+  @if (control.value) {
+    <button
+      type="button"
+      class="absolute right-8 top-1/2 -translate-y-1/2 text-text2 transition rounded-full hover:bg-background2 px-2 py-1"
+      [ngClass]="selectTextClasses"
+      (click)="control.setValue('')"
+    >
+      ✕
+    </button>
+  }
+
+  @if (showError) {
+    <div class="text-error text-sm min-h-[1.3rem]">
+      @if (control.errors?.['required'] || control.errors?.['noEmpty']) {
+        <span>Este campo es obligatorio</span>
+      }
+    </div>
+  }
 </div>

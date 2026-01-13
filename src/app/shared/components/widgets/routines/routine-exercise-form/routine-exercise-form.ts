@@ -7,45 +7,32 @@ import {
     OnInit,
     signal,
     SimpleChanges,
+    WritableSignal,
 } from '@angular/core';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { Exercise } from '../../../../interfaces/exercise.interface';
 import { Loading } from '../../../ui/loading/loading';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControlsOf } from '../../../../utils/form-types.util';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { FormInputComponent } from '../../../ui/input/input';
 import { RoutineDayCreate } from '../../../../interfaces/routines.interface';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { ExerciseCreate } from '../../exercises/exercise-create/exercise-create';
-import { requiredArray } from '../../../../validators/array.validator';
-
-type ExercisesType = FormControlsOf<{
-    exercisesSelected: Exercise[];
-    categoriesSelected: string[];
-}>;
-
-type RoutineDayType = FormControlsOf<RoutineDayCreate>;
+import { RoutineExerciseFormFacade } from './routine-exercise-form.facade';
 
 @Component({
     selector: 'app-routine-exercise-form',
     standalone: true,
     imports: [Loading, ExerciseCreate, BtnComponent, FormInputComponent],
     templateUrl: './routine-exercise-form.html',
+    providers: [RoutineExerciseFormFacade],
 })
 export class RoutineExerciseForm implements OnInit, OnChanges {
     private destroyRef = inject(DestroyRef);
-
-    exercisesForm!: FormGroup<ExercisesType>;
-    routineForm!: FormGroup<RoutineDayType>;
+    facade = inject(RoutineExerciseFormFacade);
 
     @Input() categoryExercise!: string;
-
-    loading = signal(true);
-    loadingCreate = signal(false);
-    exercises = signal<Exercise[]>([]);
-    categories = signal<string[]>([]);
 
     showCreateExercise = signal(false);
 
@@ -55,30 +42,11 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
     ) {}
 
     ngOnInit(): void {
-        this.exercisesForm = this.initForm();
-        this.routineForm = this.initFormRoutine();
-
         setTimeout(() => {
-            this.loading.set(false);
+            this.facade.loading.set(false);
         }, 200);
 
-        this.exerciseSvc
-            .getExercises()
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: (value) => {
-                    const valueFiltered: Exercise[] = value.filter(
-                        (v) => v.category === this.categoryExercise,
-                    );
-                    this.exercises.set(valueFiltered);
-                    this.loading.set(false);
-                },
-                error: () => this.loading.set(false),
-            });
-        this.exercisesForm.valueChanges.subscribe((val) => {
-            this.routineForm.patchValue({ exercises: val.exercisesSelected });
-            this.routineForm.patchValue({ type: val.categoriesSelected });
-        });
+        this.facade.initRoutineFacade(this.categoryExercise);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -89,7 +57,7 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
             if (allExercises.length > 0) {
                 const exerciseSelected: Exercise[] = this.exercisesSelected.value;
 
-                this.exercises.set([
+                this.facade.exercises.set([
                     ...exerciseSelected,
                     ...allExercises.filter(
                         (e) => e.category === newCategory && !exerciseSelected.includes(e),
@@ -98,63 +66,42 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
                 return;
             }
 
-            this.loading.set(true);
+            this.facade.loading.set(true);
             this.exerciseSvc
                 .getExercises()
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe({
                     next: (value) => {
                         const filtered = value.filter((e) => e.category === newCategory);
-                        this.exercises.set(filtered);
-                        this.loading.set(false);
+                        this.facade.exercises.set(filtered);
+                        this.facade.loading.set(false);
                     },
-                    error: () => this.loading.set(false),
+                    error: () => this.facade.loading.set(false),
                 });
         }
     }
 
-    initForm(): FormGroup<ExercisesType> {
-        return new FormGroup<ExercisesType>({
-            exercisesSelected: new FormControl<Exercise[]>([], { nonNullable: true }),
-            categoriesSelected: new FormControl<string[]>([], { nonNullable: true }),
-        });
-    }
-
-    initFormRoutine(): FormGroup<RoutineDayType> {
-        return new FormGroup<RoutineDayType>({
-            title: new FormControl('', {
-                nonNullable: true,
-                validators: [Validators.required, Validators.minLength(3)],
-            }),
-            type: new FormControl([], { nonNullable: true }),
-            exercises: new FormControl([], {
-                nonNullable: true,
-                validators: [requiredArray],
-            }),
-        });
-    }
-
     onSubmit(): void {
-        this.loadingCreate.set(true);
-        console.log(this.routineForm.value);
-        if (this.routineForm.invalid) {
-            this.routineForm.markAllAsTouched();
-            this.loadingCreate.set(false);
+        this.facade.loadingCreate.set(true);
+        console.log(this.facade.routineForm.value);
+        if (this.facade.routineForm.invalid) {
+            this.facade.routineForm.markAllAsTouched();
+            this.facade.loadingCreate.set(false);
 
             return;
         }
-        const newRoutine = this.routineForm.value as RoutineDayCreate;
+        const newRoutine = this.facade.routineForm.value as RoutineDayCreate;
         this.routineSvc.createRoutine(newRoutine).subscribe({
             next: (res) => {
                 console.log('Rutina creada:', res);
-                this.loadingCreate.set(false);
+                this.facade.loadingCreate.set(false);
             },
             error: (err) => {
                 console.error('Error al crear la rutina:', err);
-                this.loadingCreate.set(false);
+                this.facade.loadingCreate.set(false);
             },
             complete: () => {
-                this.loadingCreate.set(false);
+                this.facade.loadingCreate.set(false);
             },
         });
     }
@@ -179,33 +126,35 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
         const unique = [...new Set(selected.map((e) => e.category))];
 
         this.categoriesSelected.setValue(unique);
-        this.categories.set(unique);
+        this.facade.categories.set(unique);
     }
 
     removeAllCategory(category: string) {
         const withoutCat = this.currentCateogries().filter((c) => c !== category);
 
-        this.exercisesForm.controls.categoriesSelected.setValue(withoutCat);
-        this.categories.set(withoutCat);
+        this.facade.exercisesForm.controls.categoriesSelected.setValue(withoutCat);
+        this.facade.categories.set(withoutCat);
 
-        const exercisesFiltered = this.exercisesForm.controls.exercisesSelected.value.filter(
+        const exercisesFiltered = this.facade.exercisesForm.controls.exercisesSelected.value.filter(
             (e) => e.category !== category,
         );
-        this.exercisesForm.controls.exercisesSelected.setValue(exercisesFiltered);
+        this.facade.exercisesForm.controls.exercisesSelected.setValue(exercisesFiltered);
     }
 
     currentCateogries = () => {
-        return this.exercisesForm.controls.categoriesSelected.value;
+        return this.facade.exercisesForm.controls.categoriesSelected.value;
     };
 
     countExercisesByCategory(category: string): number {
-        return this.exercisesForm.controls.exercisesSelected.value.filter(
+        return this.facade.exercisesForm.controls.exercisesSelected.value.filter(
             (e) => e.category === category,
         ).length;
     }
 
     isSelected(ex: Exercise): boolean {
-        return this.exercisesForm.controls.exercisesSelected.value.some((e) => e.id === ex.id);
+        return this.facade.exercisesForm.controls.exercisesSelected.value.some(
+            (e) => e.id === ex.id,
+        );
     }
 
     changeShowExercise(): void {
@@ -213,14 +162,14 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
     }
 
     get exercisesSelected(): FormControl<Exercise[]> {
-        return this.exercisesForm.get('exercisesSelected') as FormControl<Exercise[]>;
+        return this.facade.exercisesForm.get('exercisesSelected') as FormControl<Exercise[]>;
     }
 
     get categoriesSelected(): FormControl<string[]> {
-        return this.exercisesForm.get('categoriesSelected') as FormControl<string[]>;
+        return this.facade.exercisesForm.get('categoriesSelected') as FormControl<string[]>;
     }
 
     get titleControl(): FormControl<string> {
-        return this.routineForm.get('title') as FormControl<string>;
+        return this.facade.routineForm.get('title') as FormControl<string>;
     }
 }

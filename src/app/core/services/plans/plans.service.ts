@@ -1,15 +1,15 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { BehaviorSubject, filter, map, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, switchMap, take, tap } from 'rxjs';
 import {
     DayPlan,
     RoutineDay,
-    RoutinePlan,
     RoutinePlanCreate,
 } from '../../../shared/interfaces/routines.interface';
 import { PlansStorageService } from './storage/plans-storage.service';
 import { DayPlanService } from '../day-plan/day-plan.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PlansApiService } from './api/plans-api.service';
 
 @Injectable({
     providedIn: 'root',
@@ -25,6 +25,7 @@ export class PlansService {
         private authSvc: AuthService,
         private planStorage: PlansStorageService,
         private dayPlan: DayPlanService,
+        private planApi: PlansApiService,
     ) {}
 
     initPlanForUser(userId: string) {
@@ -134,5 +135,9 @@ export class PlansService {
 
         const updated = { ...plan, routineDays };
         this.setRoutinePlan(updated);
+    }
+
+    submitPlan(): Observable<any> {
+        return this.planApi.createPlan(this.currentValue());
     }
 }

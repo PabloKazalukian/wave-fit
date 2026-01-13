@@ -1,20 +1,13 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { FormInputComponent } from '../../../ui/input/input';
 import { CheckboxComponent } from '../../../ui/checkbox/checkbox';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { BtnComponent } from '../../../ui/btn/btn';
-import { FormControlsOf } from '../../../../utils/form-types.util';
-import { SelectTypeInput } from '../../../../interfaces/input.interface';
-import { Exercise, ExerciseCategory } from '../../../../interfaces/exercise.interface';
-import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
-import { options } from '../../../../../shared/interfaces/input.interface';
+import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
 import { Loading } from '../../../ui/loading/loading';
 import { Notification } from '../../../ui/notification/notification';
-import { ExerciseCreateFacade, RoutinePlanType, selectFormType } from './exercise-create.facade';
-
-// { name: string; description: string; }>;
+import { ExerciseCreateFacade } from './exercise-create.facade';
 
 @Component({
     selector: 'app-exercise-create',
@@ -28,82 +21,57 @@ import { ExerciseCreateFacade, RoutinePlanType, selectFormType } from './exercis
     ],
     standalone: true,
     templateUrl: './exercise-create.html',
+    providers: [ExerciseCreateFacade],
 })
 export class ExerciseCreate implements OnInit {
-    private destroyRef = inject(DestroyRef);
-    private facade = inject(ExerciseCreateFacade);
+    facade = inject(ExerciseCreateFacade);
 
-    selectForm: FormGroup = this.facade.selectForm;
-    routineExerciseCreateForm: FormGroup<RoutinePlanType> = this.facade.routineExerciseCreateForm;
-
-    options = options;
-
-    loading = signal<boolean>(true);
-    complete = signal<boolean | null>(null);
-    showNotification = signal<boolean>(false);
-
-    constructor(private exerciseSvc: ExercisesService) {}
     ngOnInit(): void {
-        setTimeout(() => {
-            this.loading.set(false);
-            this.complete.set(true);
-        }, 1000);
-        this.selectControl.valueChanges
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((value) => {
-                this.categoryControl.setValue(value as ExerciseCategory);
-            });
+        this.facade.initFacade();
     }
 
-    onSubmit(): void {
-        this.loading.set(true);
-        if (this.routineExerciseCreateForm.invalid && this.selectForm) {
-            this.routineExerciseCreateForm.markAllAsTouched();
-            console.log('fail');
-            setTimeout(() => {
-                this.loading.set(false);
-            }, 1000);
-            return;
-        }
+    onSubmit() {
+        this.facade.submit()?.subscribe({
+            next: (response) => {
+                console.log('Exercise created successfully:', response);
+                // this.loading.set(false);
+                this.facade.complete.set(false);
+                this.facade.showNotification.set(true);
+                this.facade.notification.set('success');
+            },
+            error: (error) => {
+                this.facade.complete.set(false);
+                this.facade.showNotification.set(true);
+                this.facade.notification.set('error');
 
-        const newExercise: Exercise = this.routineExerciseCreateForm.value as Exercise;
-
-        this.exerciseSvc
-            .createExercise(newExercise)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: (response) => {
-                    console.log('Exercise created successfully:', response);
-                    // this.loading.set(false);
-                    this.complete.set(true);
-                },
-                error: (error) => {
-                    this.complete.set(false);
-
-                    console.error('Error creating exercise:', error);
-                },
-                complete: () => {
-                    this.loading.set(false);
-                },
-            });
+                console.error('Error creating exercise:', error);
+            },
+            complete: () => {
+                this.facade.loading.set(false);
+                // this.facade.showNotification.set();
+                this.facade.notification.set('');
+            },
+        });
     }
 
     get nameControl(): FormControl<string> {
-        return this.routineExerciseCreateForm.get('name') as FormControl<string>;
+        return this.facade.routineExerciseCreateForm.get('name') as FormControl<string>;
     }
 
     get descriptionControl(): FormControl<string> {
-        return this.routineExerciseCreateForm.get('description') as FormControl<string>;
+        return this.facade.routineExerciseCreateForm.get('description') as FormControl<string>;
     }
 
     get categoryControl(): FormControl<ExerciseCategory> {
-        return this.routineExerciseCreateForm.get('category') as FormControl<ExerciseCategory>;
+        return this.facade.routineExerciseCreateForm.get(
+            'category',
+        ) as FormControl<ExerciseCategory>;
     }
 
     get usesWeightControl(): FormControl<boolean> {
-        return this.routineExerciseCreateForm.get('usesWeight') as FormControl<boolean>;
+        return this.facade.routineExerciseCreateForm.get('usesWeight') as FormControl<boolean>;
     }
     get selectControl(): FormControl<string> {
-        return this.selectForm.get('option') as FormControl<string>;
+        return this.facade.selectForm.get('option') as FormControl<string>;
     }
 }

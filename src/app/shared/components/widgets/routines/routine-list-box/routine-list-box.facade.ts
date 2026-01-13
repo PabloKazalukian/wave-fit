@@ -7,6 +7,7 @@ import { RoutinesServices } from '../../../../../core/services/routines/routines
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { noEmpty } from '../../../../validators/no-empty.validator';
 
 export type ExerciseType = FormControlsOf<SelectTypeInput>;
 
@@ -17,7 +18,10 @@ export class RoutineListBoxFacade {
     private day = signal<DayPlan | null>(null);
 
     exerciseForm = new FormGroup<ExerciseType>({
-        option: new FormControl('', { nonNullable: true }),
+        option: new FormControl('', {
+            validators: [noEmpty],
+            nonNullable: true,
+        }),
     });
 
     routineSelected = signal<RoutineDay | null>(null);

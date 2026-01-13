@@ -2,8 +2,7 @@
 import { Component, Input, OnInit, inject, signal, WritableSignal } from '@angular/core';
 import { DayPlan, RoutineDay } from '../../../../interfaces/routines.interface';
 import { FormSelectComponent } from '../../../ui/select/select';
-import { FormControlsOf } from '../../../../utils/form-types.util';
-import { options, SelectTypeInput } from '../../../../interfaces/input.interface';
+import { options } from '../../../../interfaces/input.interface';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { RoutineExerciseForm } from '../routine-exercise-form/routine-exercise-form';
@@ -50,6 +49,11 @@ export class RoutineListBoxComponent implements OnInit {
     }
 
     showExercise() {
+        if (this.selectControl.invalid) {
+            console.log('invalid');
+            this.selectControl.markAsTouched();
+            return;
+        }
         this.show = !this.show;
         this.creatingRoutine.set(this.show);
     }

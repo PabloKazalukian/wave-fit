@@ -15,7 +15,7 @@
     ></app-input>
   </div>
 
-  @if (!show) {
+  @if (!this.facade.show()) {
     <div>
       <p>Primero diseña la distribucion de los dias de ejercicio</p>
       <app-select
@@ -25,7 +25,7 @@
       ></app-select>
     </div>
   }
-  @if (show) {
+  @if (this.facade.show()) {
     <div>
       <!-- <app-btn
         [text]="'Cambiar'"
@@ -33,7 +33,10 @@
         [color]="'accent'"
         (click)="onRestart()"
       ></app-btn> -->
-      <app-weekly-routine-planner [distribution]="selectControl.value"></app-weekly-routine-planner>
+      <app-weekly-routine-planner
+        [distribution]="selectControl.value"
+        (outputSavePlan)="onSubmit($event)"
+      ></app-weekly-routine-planner>
     </div>
   }
 </div>

@@ -18,3 +18,10 @@ export interface Exercise {
     category: ExerciseCategory;
     usesWeight: boolean;
 }
+
+export interface ExerciseForm {
+    name: string;
+    description: string;
+    category: ExerciseCategory | null;
+    usesWeight: boolean;
+}

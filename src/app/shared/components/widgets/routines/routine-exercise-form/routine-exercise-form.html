@@ -1,9 +1,9 @@
-@if (loading() === true) {
+@if (facade.loading() === true) {
   <div class="h-32 w-32 flex items-center justify-center">
     <app-loading></app-loading>
   </div>
 } @else {
-  @if (!loadingCreate()) {
+  @if (!facade.loadingCreate()) {
     <div class="bg-background2">
       <app-btn
         [text]="'Crear Rutina'"
@@ -22,13 +22,13 @@
       <div>
         <p>Categorías:</p>
         @if (
-          routineForm.get('exercises')?.hasError('requiredArray') &&
-          routineForm.get('exercises')?.touched
+          facade.routineForm.get('exercises')?.hasError('requiredArray') &&
+          facade.routineForm.get('exercises')?.touched
         ) {
           <p class="text-error text-sm mt-1">Debes seleccionar al menos un ejercicio</p>
         }
 
-        @for (category of categories(); track category) {
+        @for (category of facade.categories(); track category) {
           <span class="inline-block bg-primary text-white text-xs px-2 py-1 rounded-md mr-1">
             {{ category }}
             {{
@@ -45,7 +45,7 @@
       <div class="bg-background3">
         <p>Ejercicios:</p>
       </div>
-      @for (exercise of exercises(); track exercise.id) {
+      @for (exercise of facade.exercises(); track exercise.id) {
         <div
           class="p-2 hover:bg-background3 flex items-center justify-start gap-2 cursor-pointer group"
           (click)="toggleExercise(exercise)"
@@ -83,7 +83,7 @@
           >
             Cancelar creacion de ejercicio
           </button>
-          <div class="mt-4">
+          <div class="mt-4 w-full">
             <app-exercise-create (closeForm)="showCreateExercise.set(false)"></app-exercise-create>
           </div>
         }

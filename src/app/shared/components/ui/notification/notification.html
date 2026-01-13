@@ -7,15 +7,17 @@
     [class.border-yellow-500]="type() === 'warning'"
     [class.border-blue-500]="type() === 'info'"
   >
-    <div class="bg-gray-700 flex items-center justify-between px-4 py-3">
+    <div class="bg-background3 flex items-center justify-between px-2 py-2">
       <!-- Ícono y Mensaje -->
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full flex items-center justify-center" [class]="iconBgClass()">
-          <span class="text-white text-sm font-bold">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center" [class]="iconBgClass()">
+          <span class="text-white text-xs font-bold">
             {{ icon() }}
           </span>
         </div>
-        <span class="text-white font-medium truncate">{{ message() }}</span>
+        <span class="text-white font-medium text-sm truncate sm:w-full max-w-[120px]">{{
+          message()
+        }}</span>
       </div>
 
       <!-- Botón Cerrar -->

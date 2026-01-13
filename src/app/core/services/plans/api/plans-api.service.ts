@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
 import { Apollo, gql } from 'apollo-angular';
-import { RoutinePlan, RoutinePlanCreate } from '../../../../shared/interfaces/routines.interface';
+import {
+    CreateRoutinePlanInput,
+    RoutineDay,
+    RoutinePlan,
+    RoutinePlanCreate,
+} from '../../../../shared/interfaces/routines.interface';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import { tap } from 'rxjs';
 
@@ -31,22 +36,66 @@ export class PlansApiService {
     }
 
     createPlan(planInput: RoutinePlanCreate) {
+        console.log('plan inputt', planInput);
+        console.log(this.createInputPlan(planInput));
         return this.apollo
             .mutate<{ CreatePlan: RoutinePlan }>({
                 mutation: gql`
-                    mutation CreatePlan($input: CreatePlanInput!) {
-                        createPlan(createPlanInput: $input) {
-                            id
+                    mutation CreateRoutinePlan($input: CreateRoutinePlanInput!) {
+                        createRoutinePlan(createRoutinePlanInput: $input) {
                             name
                             description
+                            weekly_distribution
+                            routineDays {
+                                id
+                            }
+                            createdBy
                         }
                     }
                 `,
-                variables: { input: planInput },
+                variables: { input: this.createInputPlan(planInput) },
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 tap((value) => console.log(value)),
             );
+    }
+
+    createInputPlan(plan: RoutinePlanCreate): CreateRoutinePlanInput | null {
+        if (
+            plan.weekly_distribution !== undefined &&
+            plan.createdBy !== undefined &&
+            plan.routineDays !== undefined
+        ) {
+            const input: CreateRoutinePlanInput = {
+                name: plan.name,
+                description: plan.description,
+                weekly_distribution: plan.weekly_distribution,
+                createdBy: plan.createdBy,
+                routineDays: plan.routineDays
+                    .filter((day) => day?.id) // 👈 evita {} vacíos
+                    .map((day: RoutineDay) => ({
+                        title: day.title,
+                        type: day.type,
+                        exercises: this.createInputExercise(day),
+                    })),
+            };
+
+            const output: any = {
+                name: plan.name,
+                description: plan.description,
+                weekly_distribution: plan.weekly_distribution,
+                createdBy: plan.createdBy,
+                routineDays: plan.routineDays.map((routine) => routine.id),
+            };
+            return output;
+        }
+        return null;
+    }
+    createInputExercise(routineDay: RoutineDay): string[] {
+        if (routineDay.exercises === undefined) {
+            return [''];
+        }
+        return routineDay.exercises.map((ex) => (ex.id ? ex.id : ''));
     }
 }

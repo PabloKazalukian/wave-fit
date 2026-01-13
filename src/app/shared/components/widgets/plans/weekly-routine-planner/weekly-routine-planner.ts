@@ -7,8 +7,9 @@ import {
     effect,
     inject,
     DestroyRef,
+    Output,
 } from '@angular/core';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, Subject, tap } from 'rxjs';
 import { DayIndex, DayPlan } from '../../../../../shared/interfaces/routines.interface';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
@@ -26,6 +27,7 @@ import { DaysRoutineProgress } from './routine-days-progress/days-routine-progre
 })
 export class WeeklyRoutinePlannerComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
+    @Output() outputSavePlan = new Subject<boolean>();
 
     @Input({ required: true }) distribution: string = '0/7';
 
@@ -66,5 +68,7 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
         this.dayPlanSvc.setPlanDay(newDay);
     }
 
-    savePlan(name: string, description: string) {}
+    savePlan(name: string, description: string) {
+        this.outputSavePlan.next(true);
+    }
 }
