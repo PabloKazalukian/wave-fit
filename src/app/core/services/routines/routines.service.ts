@@ -13,6 +13,7 @@ import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface'
 import { PlansService } from '../plans/plans.service';
 import { RoutinesApiService } from './api/routines-api.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RoutinePlanAPI } from '../../../shared/interfaces/api/routines-api.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -47,6 +48,7 @@ export class RoutinesServices {
         );
     }
 
+    //aqui
     getRoutineById(id: string): Observable<RoutineDay | undefined> {
         if (this.routinesCache$.value && !this.loading) {
             return of(this.routinesCache$.value.filter((routine) => routine.id === id)[0]);
@@ -56,15 +58,50 @@ export class RoutinesServices {
 
     getRoutinesPlans(): Observable<any> {
         this.authSvc.user$.subscribe((userId) => {});
-        return this.apollo.query({
-            query: gql`
-                query {
-                    routinePlans {
-                        id
+        return this.apollo
+            .query<{ routinePlans: RoutinePlanAPI[] }>({
+                query: gql`
+                    query {
+                        routinePlans {
+                            id
+                            name
+                            description
+                            weekly_distribution
+                            routineDays {
+                                id
+                            }
+                        }
                     }
-                }
-            `,
-        });
+                `,
+            })
+            .pipe(
+                // tap(({ data }) => {
+                // if (data) this.routinePlans.set(data.routinePlans);
+                // }),
+                handleGraphqlError(this.authSvc),
+                map((res) => res.data?.routinePlans),
+            );
+    }
+
+    getRoutinePlanById(id: string): Observable<RoutinePlanAPI | undefined> {
+        return this.apollo
+            .query<{ routinePlan: RoutinePlanAPI }>({
+                query: gql`
+                    query GetRoutinePlan($id: String!) {
+                        routinePlan(id: $id) {
+                            id
+                            name
+                            description
+                            weekly_distribution
+                        }
+                    }
+                `,
+                variables: { id },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map((res) => res.data?.routinePlan),
+            );
     }
 
     // getRoutinesByCategory(category: ExerciseCategory): Observable<any> {
@@ -102,16 +139,6 @@ export class RoutinesServices {
                 of(list ? list.filter((r) => r.type?.includes(category) && r !== undefined) : null),
             ),
         );
-    }
-
-    createRoutinePlan(data: any): Observable<any> {
-        return this.apollo.mutate({
-            mutation: gql`
-            mutation {
-            
-            }
-            `,
-        });
     }
 
     createRoutine(data: RoutineDayCreate): Observable<any> {

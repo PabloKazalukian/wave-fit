@@ -1,0 +1,26 @@
+/* Animaciones adicionales si las necesitas */
+
+.feature-card {
+  transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Animación sutil para el logo */
+
+
+/* Efecto de pulso en el status badge */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+  }
+}
+
+.border-error {
+  animation: pulse-glow 2s ease-in-out infinite;
+}

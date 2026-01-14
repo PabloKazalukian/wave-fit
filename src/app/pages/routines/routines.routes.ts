@@ -9,4 +9,8 @@ export const ROUTINES_ROUTES: Routes = [
         path: 'create',
         loadComponent: () => import('./create/create').then((m) => m.Create),
     },
+    {
+        path: 'show/:id',
+        loadComponent: () => import('./show/show').then((m) => m.Show),
+    },
 ];

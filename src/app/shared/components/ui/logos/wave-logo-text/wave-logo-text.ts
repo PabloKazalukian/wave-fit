@@ -139,8 +139,8 @@ import { CommonModule } from '@angular/common';
     ],
 })
 export class WaveLogoTextComponent {
-    @Input() width: string = '40';
-    @Input() height: string = '40';
+    @Input() width: string = '20';
+    @Input() height: string = '20';
     @Input() viewBox: string = '0 0 200 215';
     @Input() customClass: string = '';
 

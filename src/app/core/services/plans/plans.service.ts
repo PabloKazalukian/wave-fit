@@ -112,6 +112,9 @@ export class PlansService {
         if (data) this.plansSubject.next(data);
         return this.plansSubject.getValue();
     }
+    getRoutinePlanById(id: string): Observable<any | null> {
+        return this.planApi.getRoutinePlanById(id);
+    }
 
     createRoutinePlan(planInput: RoutinePlanCreate) {
         const createdBy = this.authSvc.user();

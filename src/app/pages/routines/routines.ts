@@ -9,12 +9,15 @@ import { SelectType, SelectTypeInput } from '../../shared/interfaces/input.inter
 import { ExercisesService } from '../../core/services/exercises/exercises.service';
 import { Exercise } from '../../shared/interfaces/exercise.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RoutineDay } from '../../shared/interfaces/routines.interface';
+import { RoutinePlanAPI } from '../../shared/interfaces/api/routines-api.interface';
+import { RouterModule } from '@angular/router';
 
 type selectFormType = FormControlsOf<SelectTypeInput>;
 
 @Component({
     selector: 'app-routines',
-    imports: [FormSelectComponent, BtnComponent],
+    imports: [FormSelectComponent, BtnComponent, RouterModule],
     standalone: true,
     templateUrl: './routines.html',
     styleUrl: './routines.css',
@@ -32,7 +35,7 @@ export class Routines implements OnInit {
         { name: '7/7', value: '7' },
     ];
 
-    routinesPlans: any[] = [];
+    routinesPlans = signal<RoutinePlanAPI[]>([]);
     // exercises: Exercise[] = []
     exercises = signal<Exercise[]>([]);
 
@@ -62,7 +65,8 @@ export class Routines implements OnInit {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((result) => {
                 console.log(result);
-                this.routinesPlans = result.data.routinePlans;
+                this.routinesPlans.set(result);
+                console.log(this.routinesPlans());
             });
 
         this.selectControl.valueChanges

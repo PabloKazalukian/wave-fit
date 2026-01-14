@@ -92,6 +92,35 @@ export class PlansApiService {
         }
         return null;
     }
+
+    getRoutinePlanById(id: string): any {
+        return this.apollo.query<{ routinePlan: RoutinePlanCreate | null }>({
+            query: gql`
+                query GetRoutinePlan($id: String!) {
+                    routinePlan(id: $id) {
+                        id
+                        name
+                        description
+                        weekly_distribution
+                        routineDays {
+                            id
+                            title
+                            type
+                            exercises {
+                                id
+                                name
+                                category
+                            }
+                        }
+                        createdBy
+                    }
+                }
+            `,
+            variables: {
+                id: id,
+            },
+        });
+    }
     createInputExercise(routineDay: RoutineDay): string[] {
         if (routineDay.exercises === undefined) {
             return [''];
