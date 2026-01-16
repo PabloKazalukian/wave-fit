@@ -1,0 +1,128 @@
+<div class="table-wrapper relative">
+  <!-- Header con checkboxes si está habilitado -->
+  @if (selectable()) {
+    <div class="selection-header flex items-center gap-4 p-4 bg-background rounded-t-md">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          [checked]="allSelected()"
+          [indeterminate]="someSelected()"
+          (change)="toggleSelectAll()"
+          class="w-4 h-4"
+        />
+        <span class="text-sm"> {{ selectedCount() }} / {{ data().length }} seleccionados </span>
+      </label>
+
+      @if (selectedCount() > 0 && selectionActions()) {
+        <ng-container
+          *ngTemplateOutlet="selectionActions()!; context: { $implicit: selectedItems() }"
+        ></ng-container>
+      }
+    </div>
+  }
+
+  <table class="styled-table border-background2 w-full">
+    <thead class="border-primary bg-background3">
+      <tr class="font-bold">
+        @if (selectable()) {
+          <th class="w-12"></th>
+        }
+
+        @for (col of columns(); track col.key) {
+          <th>
+            @if (col.sortable !== false) {
+              <button
+                (click)="onSort(col.key)"
+                class="sort-button w-full flex items-center justify-between gap-2 px-3 py-2 hover:bg-background2"
+                [class.active-sort]="isColumnSorted(col.key)"
+              >
+                <span class="label">{{ col.label }}</span>
+                <span class="arrow-group flex flex-col gap-0">
+                  <svg
+                    class="arrow-icon up w-4 h-4"
+                    viewBox="0 0 24 24"
+                    [class.active]="isColumnSorted(col.key) && sortAscending()"
+                    [class.inactive]="!isColumnSorted(col.key) || !sortAscending()"
+                  >
+                    <path
+                      d="M7 14l5-5 5 5"
+                      stroke="currentColor"
+                      fill="none"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <svg
+                    class="arrow-icon down w-4 h-4"
+                    viewBox="0 0 24 24"
+                    [class.active]="isColumnSorted(col.key) && !sortAscending()"
+                    [class.inactive]="!isColumnSorted(col.key) || sortAscending()"
+                  >
+                    <path
+                      d="M7 10l5 5 5-5"
+                      stroke="currentColor"
+                      fill="none"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </button>
+            } @else {
+              <span class="px-3 py-2">{{ col.label }}</span>
+            }
+          </th>
+        }
+
+        @if (actionsTemplate()) {
+          <th>Acciones</th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (row of data(); track row.id || $index) {
+        <tr [class.selected]="isRowSelected(row)">
+          @if (selectable()) {
+            <td class="w-12">
+              <input
+                type="checkbox"
+                [checked]="isRowSelected(row)"
+                (change)="toggleRowSelection(row)"
+                class="w-4 h-4 cursor-pointer"
+              />
+            </td>
+          }
+
+          @for (col of columns(); track col.key) {
+            <td>
+              @if (col.link) {
+                <a [href]="col.link(getValue(row, col.key))" class="text-primary hover:underline">
+                  {{ getValue(row, col.key) }}
+                </a>
+              } @else {
+                {{ getValue(row, col.key) }}
+              }
+            </td>
+          }
+
+          @if (actionsTemplate()) {
+            <td>
+              <ng-container
+                *ngTemplateOutlet="actionsTemplate()!; context: { $implicit: row }"
+              ></ng-container>
+            </td>
+          }
+        </tr>
+      } @empty {
+        <tr>
+          <td [attr.colspan]="columnCount()" class="text-center py-8 text-background2-4">
+            No hay datos disponibles
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

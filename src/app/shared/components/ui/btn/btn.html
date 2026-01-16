@@ -1,6 +1,12 @@
 @if (routerLink && !isDisabled) {
   <a [routerLink]="routerLink" [class]="classList">
-    <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
+    <div class="flex flex-col">
+      <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
+      @if (this.descriptionText !== '') {
+        <!-- Descripción -->
+        <small class="block text-xs opacity-75">{{ this.descriptionText }}</small>
+      }
+    </div>
 
     @if (showIcon) {
       @if (icon) {
@@ -24,6 +30,10 @@
 } @else {
   <button [type]="buttonType" [disabled]="isDisabled" [class]="classList">
     <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
+    @if (this.descriptionText !== '') {
+      <!-- Descripción -->
+      <small class="block text-xs opacity-75">{{ this.descriptionText }}</small>
+    }
 
     @if (showIcon) {
       @if (icon) {

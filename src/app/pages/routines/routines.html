@@ -27,15 +27,16 @@
             <app-btn
               [text]="'Iniciar una Rutina semanal'"
               [variant]="'raised'"
+              [showIcon]="true"
               [color]="'secondaryDark'"
               (click)="createRoutine()"
             ></app-btn>
           </div>
         </div>
       } @else {
-        <ul>
+        <ul class="flex flex-col gap-4">
           @for (routine of this.routinesPlans(); track routine.id) {
-            <li class="mb-2 p-2 border border-gray-300 rounded">
+            <!-- <li class="mb-2 p-2 border border-gray-300 rounded">
               <a
                 [routerLink]="`/routines/show/${routine.id}`"
                 class="block hover:bg-gray-100 p-2 rounded"
@@ -43,7 +44,16 @@
                 <h3 class="text-xl font-semibold">{{ routine.name }}</h3>
                 <p>{{ routine.description }}</p>
               </a>
-            </li>
+            </li> -->
+            <app-btn
+              [routerLink]="`/routines/show/${routine.id}`"
+              [text]="routine.name"
+              [descriptionText]="routine.name + ' - ' + routine.description"
+              [variant]="'outline'"
+              [showIcon]="true"
+              [size]="'md'"
+              [color]="'primary'"
+            ></app-btn>
           }
         </ul>
       }
@@ -69,17 +79,8 @@
     </div>
   </div>
 
-  <div class="flex flex-col items-start">
-    <p class="text-2xl mb-4">Rutinas de ejercicios:</p>
-  </div>
-
-  <div class="flex flex-col items-start">
-    <p class="text-2xl mb-4">Lista de ejercicios:</p>
-    @for (item of exercises(); track $index) {
-      <div class="grid">
-        <p>{{ item.name }} | {{ item.category }}</p>
-      </div>
-    }
+  <div class="mt-8">
+    <app-exercises-table [enableSelection]="true" />
   </div>
 </div>
 <!-- Fecha con flechas -->

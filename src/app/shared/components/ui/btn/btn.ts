@@ -22,6 +22,7 @@ const VALID_COLORS = [
 })
 export class BtnComponent {
     @Input() text: string = '';
+    @Input() descriptionText: string = '';
     @Input() isDisabled: boolean = false;
     @Input() variant:
         | 'basic'

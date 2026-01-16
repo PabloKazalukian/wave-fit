@@ -12,15 +12,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutineDay } from '../../shared/interfaces/routines.interface';
 import { RoutinePlanAPI } from '../../shared/interfaces/api/routines-api.interface';
 import { RouterModule } from '@angular/router';
+import { ExercisesTableComponent } from '../../shared/components/widgets/exercises/table/exercises-table';
 
 type selectFormType = FormControlsOf<SelectTypeInput>;
 
 @Component({
     selector: 'app-routines',
-    imports: [FormSelectComponent, BtnComponent, RouterModule],
+    imports: [FormSelectComponent, BtnComponent, RouterModule, ExercisesTableComponent],
     standalone: true,
     templateUrl: './routines.html',
-    styleUrl: './routines.css',
 })
 export class Routines implements OnInit {
     private destroyRef = inject(DestroyRef);
@@ -45,20 +45,10 @@ export class Routines implements OnInit {
     constructor(
         private svcUser: UserService,
         private svcRoutines: RoutinesServices,
-        private exerciseSvc: ExercisesService,
     ) {}
 
     ngOnInit(): void {
         this.selectForm = this.initForm();
-        this.exerciseSvc
-            .getExercises()
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: (data) => {
-                    if (data!) this.exercises.set(data);
-                },
-                error: (err) => {},
-            });
 
         this.svcRoutines
             .getRoutinesPlans()

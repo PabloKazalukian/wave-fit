@@ -1,0 +1,69 @@
+<div class="exercises-table-container">
+  @if (facade.isLoading$()) {
+    <div class="loading-state flex justify-center items-center py-12">
+      <div class="spinner-border text-primary">
+        <p class="text-lg">Cargando ejercicios...</p>
+      </div>
+    </div>
+  } @else if (!facade.hasData()) {
+    <div class="empty-state text-center py-12">
+      <p class="text-xl text-surface-4">No hay ejercicios disponibles</p>
+    </div>
+  } @else {
+    <!-- Controls: Filter + Info -->
+    <div class="table-controls bg-background2 mb-4 rounded-xl p-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">Lista de ejercicios</h3>
+        @if (facade.selectedCount() > 0) {
+          <span class="text-sm text-surface-4">
+            {{ facade.selectedCount() }} ejercicio(s) seleccionado(s)
+          </span>
+        }
+      </div>
+
+      <app-table-filter
+        [label]="'Buscar ejercicios'"
+        [placeholder]="'Buscar por nombre o categoría...'"
+        [data]="facade.rawData$()"
+        [columns]="facade.columns()"
+        (filteredData)="onFilteredData($event)"
+      />
+    </div>
+
+    <!-- Table -->
+    <div class="bg-background rounded-xl overflow-hidden">
+      <app-table
+        [data]="facade.pagedData$()"
+        [columns]="facade.columns()"
+        [selectable]="enableSelection()"
+        (sortChange)="onSort($event)"
+        (selectionChange)="onSelectionChange($event)"
+      >
+        <!-- Actions template for batch operations -->
+        <ng-template #selectionActions let-items>
+          <div class="flex gap-2">
+            <button
+              (click)="facade.processSelectedExercises()"
+              class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors font-medium"
+            >
+              Agregar {{ items.length }} a rutina
+            </button>
+            <button
+              (click)="facade.clearSelection()"
+              class="px-4 py-2 bg-surface-3 text-surface rounded-md hover:bg-surface transition-colors"
+            >
+              Limpiar selección
+            </button>
+          </div>
+        </ng-template>
+      </app-table>
+
+      <!-- Pagination -->
+      <app-table-pagination
+        [data]="facade.filteredData$()"
+        [pageSizeOptions]="facade.pageSizeOptions()"
+        (pageData)="onPageData($event)"
+      />
+    </div>
+  }
+</div>
