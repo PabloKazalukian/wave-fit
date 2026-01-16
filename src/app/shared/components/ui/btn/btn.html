@@ -1,9 +1,47 @@
 @if (routerLink && !isDisabled) {
   <a [routerLink]="routerLink" [class]="classList">
-    {{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}
+    <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
+
+    @if (showIcon) {
+      @if (icon) {
+        <!-- Icono proyectado desde el padre (IconComponent) -->
+        <ng-content></ng-content>
+      } @else {
+        <!-- Icono por defecto (flecha) -->
+        <div [class]="iconContainerClasses">
+          <svg [class]="iconClasses" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              [attr.d]="defaultIconPath"
+            />
+          </svg>
+        </div>
+      }
+    }
   </a>
 } @else {
   <button [type]="buttonType" [disabled]="isDisabled" [class]="classList">
-    {{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}
+    <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
+
+    @if (showIcon) {
+      @if (icon) {
+        <!-- Icono proyectado desde el padre (IconComponent) -->
+        <ng-content></ng-content>
+      } @else {
+        <!-- Icono por defecto (flecha) -->
+        <div [class]="iconContainerClasses">
+          <svg [class]="iconClasses" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              [attr.d]="defaultIconPath"
+            />
+          </svg>
+        </div>
+      }
+    }
   </button>
 }

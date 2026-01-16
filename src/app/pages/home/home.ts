@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { WaveLogoTextComponent } from '../../shared/components/ui/logos/wave-logo-text/wave-logo-text';
 import { CommonModule } from '@angular/common';
+import { BtnComponent } from '../../shared/components/ui/btn/btn';
 
 @Component({
     selector: 'app-home',
     standalone: true,
     templateUrl: './home.html',
     styleUrl: './home.css',
-    imports: [WaveLogoTextComponent, CommonModule],
+    imports: [WaveLogoTextComponent, CommonModule, BtnComponent],
 })
 export class Home {
     weekActive: boolean = false;
@@ -29,9 +30,4 @@ export class Home {
             description: 'Visualiza tu evolución y mantén la motivación día a día',
         },
     ];
-
-    startTraining() {
-        // Lógica para comenzar entrenamiento
-        console.log('Comenzar entrenamiento');
-    }
 }

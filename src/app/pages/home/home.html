@@ -73,23 +73,14 @@
     </p>
   </div>
 
-  <!-- CTA Button -->
-  <button
-    (click)="startTraining()"
-    class="w-full bg-primary hover:bg-primaryHover text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center space-x-2 transition-all duration-300 transform hover:scale-[1.02]"
-  >
-    <span class="text-lg">Comenzar Ahora</span>
-    <div class="w-8 h-8 bg-black/20 rounded-full flex items-center justify-center">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M13 7l5 5m0 0l-5 5m5-5H6"
-        />
-      </svg>
-    </div>
-  </button>
+  <app-btn
+    text="comenzar ahora"
+    [routerLink]="'/routines'"
+    [showIcon]="true"
+    size="md"
+    variant="raised"
+    color="primary"
+  ></app-btn>
 
   <!-- Additional Info -->
   <div class="mt-8 text-center">
