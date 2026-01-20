@@ -1,1 +1,57 @@
-<p>show works!</p>
+<div class="container px-4 py-4 max-w-lg mx-auto mt-8">
+  <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-4">
+    <p class="text-xl bg-background rounded-2xl px-4 py-2">
+      {{ this.routinePlan()?.name }} {{ this.routinePlan()?.weekly_distribution }}
+    </p>
+  </div>
+  @if (routinePlan()?.routineDays?.length !== 0) {
+    <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-4">
+      @for (routineDay of this.routinePlan()?.routineDays; track routineDay.id; let i = $index) {
+        @if (routineDay?.id === 'rest') {
+          <div
+            class="border rounded-md bg-background2 transition-colors duration-300 border-accent text-accent"
+          >
+            <div
+              class="w-full flex justify-between items-center px-4 py-3 bg-background3 rounded-md transition-colors duration-300"
+            >
+              <h4 class="font-semibold">
+                {{ routineDay.title }}
+              </h4>
+            </div>
+          </div>
+        } @else {
+          <app-accordion-item
+            [title]="routineDay.title"
+            [open]="isOpen(i)"
+            (toggle)="toggleAccordion(i)"
+            [isSelected]="routineDay?.id === 'rest'"
+          >
+            <div class="bg-background rounded-md p-4 mb-4">
+              <div class="flex flew-wrap gap-4 mb-4 text-confirmLight font-bold">
+                @for (category of routineDay.type; track category; let j = $index) {
+                  <span
+                    class="bg-confirm3 py-1 px-3 rounded-2xl hover:text-white cursor-pointer transition-all duration-150"
+                    >{{ category | exerciseCategory }}
+                  </span>
+                }
+              </div>
+              @for (exercise of routineDay.exercises; track exercise.name) {
+                <div class="bg-background2 rounded-lg p-3 mb-3">
+                  <p class="group text-md font-semibold mb-1">
+                    {{ exercise.name }}
+
+                    <span
+                      class="inline-block bg-primary text-white text-xs px-2 py-1 rounded-md mr-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                    >
+                      {{ exercise.category | exerciseCategory }}
+                    </span>
+                  </p>
+                </div>
+              }
+            </div>
+          </app-accordion-item>
+        }
+      }
+    </div>
+  }
+</div>

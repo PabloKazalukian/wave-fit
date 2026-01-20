@@ -1,12 +1,17 @@
 <label class="flex items-center gap-2 cursor-pointer select-none font-inter relative">
   <!-- Checkbox oculto -->
-  <input type="checkbox" [formControl]="control" class="hidden peer" />
+  <input #checkboxInput type="checkbox" [formControl]="control" class="hidden peer" />
 
-  <!-- Checkmark -->
+  <!-- Checkmark con soporte para indeterminate -->
   <span
-    class="relative flex-center w-5 h-5 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-sm peer-checked:before:font-bold"
+    class="relative flex-center w-5 h-5 rounded-md border-2 border-primary bg-background transition-colors text-white before:content-[''] before:absolute before:inset-0 before:flex before:items-center before:justify-center before:text-sm before:font-bold before:transition-opacity peer-checked:before:content-['✓'] peer-checked:before:opacity-100 peer-checked:border-primary peer-checked:bg-primary peer-indeterminate:before:content-['-'] peer-indeterminate:before:opacity-100 peer-indeterminate:before:font-2xl peer-indeterminate:border-primary peer-indeterminate:bg-primary peer-hover:border-white"
+    [class.before:text-3xl]="indeterminate"
+    [class.before:font-black]="indeterminate"
+    [class.before:pb-1]="indeterminate"
   ></span>
 
   <!-- Texto -->
-  <span class="text-sm text-white">{{ text }}</span>
+  @if (text) {
+    <span class="text-sm text-white">{{ text }}</span>
+  }
 </label>

@@ -26,7 +26,7 @@ export class TablePaginationComponent {
     pageSizeChange = output<number>();
 
     currentPage = signal<number>(0);
-    pageSize = signal<number>(20);
+    pageSize = signal<number>(10);
 
     // Computed values
     totalItems = computed(() => this.data().length);

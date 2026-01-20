@@ -8,7 +8,7 @@ import {
     RoutinePlanCreate,
 } from '../../../../shared/interfaces/routines.interface';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
-import { tap } from 'rxjs';
+import { map, tap } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -94,32 +94,37 @@ export class PlansApiService {
     }
 
     getRoutinePlanById(id: string): any {
-        return this.apollo.query<{ routinePlan: RoutinePlanCreate | null }>({
-            query: gql`
-                query GetRoutinePlan($id: String!) {
-                    routinePlan(id: $id) {
-                        id
-                        name
-                        description
-                        weekly_distribution
-                        routineDays {
+        return this.apollo
+            .query<{ routinePlan: RoutinePlanCreate | null }>({
+                query: gql`
+                    query GetRoutinePlan($id: String!) {
+                        routinePlan(id: $id) {
                             id
-                            title
-                            type
-                            exercises {
+                            name
+                            description
+                            weekly_distribution
+                            routineDays {
                                 id
-                                name
-                                category
+                                title
+                                type
+                                exercises {
+                                    id
+                                    name
+                                    category
+                                }
                             }
+                            createdBy
                         }
-                        createdBy
                     }
-                }
-            `,
-            variables: {
-                id: id,
-            },
-        });
+                `,
+                variables: {
+                    id: id,
+                },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map((value) => value.data?.routinePlan),
+            );
     }
     createInputExercise(routineDay: RoutineDay): string[] {
         if (routineDay.exercises === undefined) {

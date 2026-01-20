@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { Exercise } from '../../../../../interfaces/exercise.interface';
+import { ExerciseCategoryPipe } from '../../../../../pipes/exercise-category.pipe';
 
 @Component({
     selector: 'app-routine-exercises',
-    imports: [],
+    imports: [ExerciseCategoryPipe],
     standalone: true,
     templateUrl: './routine-exercises.html',
     styles: ``,

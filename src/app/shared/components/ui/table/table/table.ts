@@ -6,8 +6,11 @@ import {
     TemplateRef,
     computed,
     signal,
+    effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CheckboxComponent } from '../../checkbox/checkbox';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 export interface TableColumn {
     key: string;
@@ -24,67 +27,8 @@ export interface SortEvent {
 @Component({
     selector: 'app-table',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, CheckboxComponent, ReactiveFormsModule],
     templateUrl: './table.html',
-    styles: [
-        `
-            .styled-table {
-                border-collapse: collapse;
-            }
-
-            th,
-            td {
-                padding: 0.75rem;
-                text-align: left;
-                border-bottom: 1px solid var(--surface-3, #50c878);
-            }
-
-            thead {
-                position: sticky;
-                top: 0;
-                z-index: 10;
-            }
-
-            tbody tr {
-                transition: background-color 0.15s;
-            }
-
-            tbody tr:hover {
-                background-color: var(--surface-1, #3ca15e);
-            }
-
-            tbody tr.selected {
-                background-color: var(--primary-light, #3ca15e);
-            }
-
-            .sort-button {
-                background: none;
-                border: none;
-                cursor: pointer;
-                font-weight: inherit;
-                font-size: inherit;
-            }
-
-            .arrow-icon {
-                transition: all 0.2s;
-            }
-
-            .arrow-icon.active {
-                color: var(--primary-color, #d99e1b);
-                transform: scale(1.4);
-                transition: all 0.6s;
-            }
-
-            .arrow-icon.inactive {
-                color: var(--surface-4, #f5c623);
-                opacity: 0.5;
-            }
-
-            .active-sort {
-                color: var(--primary-color, #50c878);
-            }
-        `,
-    ],
 })
 export class TableComponent {
     // Inputs
@@ -104,6 +48,11 @@ export class TableComponent {
     private sortColumn = signal<string | null>(null);
     sortAscending = signal<boolean>(true);
     private selectedRows = signal<Set<any>>(new Set());
+    openActionMenu = signal<string | null>(null);
+
+    // Form Controls para los checkboxes
+    headerCheckboxControl = new FormControl<boolean>(false, { nonNullable: true });
+    rowCheckboxControls = new Map<any, FormControl<boolean>>();
 
     // Computed signals
     columnCount = computed(() => {
@@ -125,6 +74,45 @@ export class TableComponent {
         const count = this.selectedRows().size;
         return count > 0 && count < this.data().length;
     });
+
+    constructor() {
+        // Effect para sincronizar el header checkbox con el estado de selección
+        effect(() => {
+            const all = this.allSelected();
+            this.headerCheckboxControl.setValue(all, { emitEvent: false });
+        });
+
+        // Effect para actualizar los row controls cuando cambia la data
+        effect(() => {
+            const currentData = this.data();
+
+            // Limpiar controles que ya no existen
+            const currentRows = new Set(currentData);
+            for (const [row, _] of this.rowCheckboxControls.entries()) {
+                if (!currentRows.has(row)) {
+                    this.rowCheckboxControls.delete(row);
+                }
+            }
+
+            // Crear controles para nuevas filas
+            currentData.forEach((row) => {
+                if (!this.rowCheckboxControls.has(row)) {
+                    const control = new FormControl<boolean>(false, { nonNullable: true });
+                    this.rowCheckboxControls.set(row, control);
+
+                    // Suscribirse a cambios del control
+                    control.valueChanges.subscribe((checked) => {
+                        this.handleRowCheckboxChange(row, checked);
+                    });
+                }
+            });
+        });
+
+        // Suscribirse a cambios del header checkbox
+        this.headerCheckboxControl.valueChanges.subscribe(() => {
+            this.toggleSelectAll();
+        });
+    }
 
     // Methods
     getValue(row: any, key: string): any {
@@ -149,13 +137,25 @@ export class TableComponent {
         return this.sortColumn() === colKey;
     }
 
-    toggleRowSelection(row: any): void {
+    getRowCheckboxControl(row: any): FormControl<boolean> {
+        if (!this.rowCheckboxControls.has(row)) {
+            const control = new FormControl<boolean>(false, { nonNullable: true });
+            this.rowCheckboxControls.set(row, control);
+
+            control.valueChanges.subscribe((checked) => {
+                this.handleRowCheckboxChange(row, checked);
+            });
+        }
+        return this.rowCheckboxControls.get(row)!;
+    }
+
+    private handleRowCheckboxChange(row: any, checked: boolean): void {
         const newSelection = new Set(this.selectedRows());
 
-        if (newSelection.has(row)) {
-            newSelection.delete(row);
-        } else {
+        if (checked) {
             newSelection.add(row);
+        } else {
+            newSelection.delete(row);
         }
 
         this.selectedRows.set(newSelection);
@@ -163,15 +163,39 @@ export class TableComponent {
     }
 
     toggleSelectAll(): void {
-        if (this.allSelected()) {
-            this.selectedRows.set(new Set());
-        } else {
+        const shouldSelectAll = !this.allSelected();
+
+        if (shouldSelectAll) {
             this.selectedRows.set(new Set(this.data()));
+            // Actualizar todos los row controls
+            this.data().forEach((row) => {
+                const control = this.getRowCheckboxControl(row);
+                control.setValue(true, { emitEvent: false });
+            });
+        } else {
+            this.selectedRows.set(new Set());
+            // Desmarcar todos los row controls
+            this.rowCheckboxControls.forEach((control) => {
+                control.setValue(false, { emitEvent: false });
+            });
         }
+
         this.selectionChange.emit(Array.from(this.selectedRows()));
     }
 
     isRowSelected(row: any): boolean {
         return this.selectedRows().has(row);
+    }
+
+    toggleActionMenu(rowId: string): void {
+        if (this.openActionMenu() === rowId) {
+            this.openActionMenu.set(null);
+        } else {
+            this.openActionMenu.set(rowId);
+        }
+    }
+
+    closeActionMenu(): void {
+        this.openActionMenu.set(null);
     }
 }

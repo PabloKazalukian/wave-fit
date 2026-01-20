@@ -1,19 +1,18 @@
-<div class="table-wrapper relative">
-  <!-- Header con checkboxes si está habilitado -->
-  @if (selectable()) {
-    <div class="selection-header flex items-center gap-4 p-4 bg-background rounded-t-md">
-      <label class="flex items-center gap-2 cursor-pointer">
-        <input
-          type="checkbox"
-          [checked]="allSelected()"
+<div class="relative bg-background rounded-2xl overflow-hidden">
+  <!-- Selection Header -->
+  @if (selectable() && selectedCount() > 0) {
+    <div
+      class="flex items-center justify-between px-6 py-4 bg-background2 border-b border-background3"
+    >
+      <div class="flex items-center gap-4">
+        <app-checkbox
+          [control]="headerCheckboxControl"
           [indeterminate]="someSelected()"
-          (change)="toggleSelectAll()"
-          class="w-4 h-4"
-        />
-        <span class="text-sm"> {{ selectedCount() }} / {{ data().length }} seleccionados </span>
-      </label>
+          [text]="selectedCount() + ' / ' + data().length + ' seleccionados'"
+        ></app-checkbox>
+      </div>
 
-      @if (selectedCount() > 0 && selectionActions()) {
+      @if (selectionActions()) {
         <ng-container
           *ngTemplateOutlet="selectionActions()!; context: { $implicit: selectedItems() }"
         ></ng-container>
@@ -21,108 +20,140 @@
     </div>
   }
 
-  <table class="styled-table border-background2 w-full">
-    <thead class="border-primary bg-background3">
-      <tr class="font-bold">
-        @if (selectable()) {
-          <th class="w-12"></th>
-        }
-
-        @for (col of columns(); track col.key) {
-          <th>
-            @if (col.sortable !== false) {
-              <button
-                (click)="onSort(col.key)"
-                class="sort-button w-full flex items-center justify-between gap-2 px-3 py-2 hover:bg-background2"
-                [class.active-sort]="isColumnSorted(col.key)"
-              >
-                <span class="label">{{ col.label }}</span>
-                <span class="arrow-group flex flex-col gap-0">
-                  <svg
-                    class="arrow-icon up w-4 h-4"
-                    viewBox="0 0 24 24"
-                    [class.active]="isColumnSorted(col.key) && sortAscending()"
-                    [class.inactive]="!isColumnSorted(col.key) || !sortAscending()"
-                  >
-                    <path
-                      d="M7 14l5-5 5 5"
-                      stroke="currentColor"
-                      fill="none"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <svg
-                    class="arrow-icon down w-4 h-4"
-                    viewBox="0 0 24 24"
-                    [class.active]="isColumnSorted(col.key) && !sortAscending()"
-                    [class.inactive]="!isColumnSorted(col.key) || sortAscending()"
-                  >
-                    <path
-                      d="M7 10l5 5 5-5"
-                      stroke="currentColor"
-                      fill="none"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </span>
-              </button>
-            } @else {
-              <span class="px-3 py-2">{{ col.label }}</span>
-            }
-          </th>
-        }
-
-        @if (actionsTemplate()) {
-          <th>Acciones</th>
-        }
-      </tr>
-    </thead>
-
-    <tbody>
-      @for (row of data(); track row.id || $index) {
-        <tr [class.selected]="isRowSelected(row)">
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="bg-background2 border-b border-primaryDark">
           @if (selectable()) {
-            <td class="w-12">
-              <input
-                type="checkbox"
-                [checked]="isRowSelected(row)"
-                (change)="toggleRowSelection(row)"
-                class="w-4 h-4 cursor-pointer"
-              />
-            </td>
+            <th class="px-6 py-4 text-left w-16">
+              <app-checkbox
+                [control]="headerCheckboxControl"
+                [indeterminate]="someSelected()"
+              ></app-checkbox>
+            </th>
           }
 
           @for (col of columns(); track col.key) {
-            <td>
-              @if (col.link) {
-                <a [href]="col.link(getValue(row, col.key))" class="text-primary hover:underline">
-                  {{ getValue(row, col.key) }}
-                </a>
+            <th class="px-6 py-4 text-left text-sm font-semibold text-primary">
+              @if (col.sortable !== false) {
+                <button
+                  (click)="onSort(col.key)"
+                  class="flex items-center justify-between w-full gap-2 hover:text-white transition-colors"
+                  [class.text-primary]="isColumnSorted(col.key)"
+                >
+                  <span>{{ col.label }}</span>
+                  <span class="flex flex-col gap-0">
+                    <svg
+                      class="w-4 h-4 transition-all"
+                      [class.text-primary]="isColumnSorted(col.key) && sortAscending()"
+                      [class.text-text3]="!isColumnSorted(col.key) || !sortAscending()"
+                      [class.opacity-40]="!isColumnSorted(col.key) || !sortAscending()"
+                      [class.scale-110]="isColumnSorted(col.key) && sortAscending()"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M7 14l5-5 5 5"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <svg
+                      class="w-4 h-4 transition-all -mt-1"
+                      [class.text-primary]="isColumnSorted(col.key) && !sortAscending()"
+                      [class.text-text3]="!isColumnSorted(col.key) || sortAscending()"
+                      [class.opacity-40]="!isColumnSorted(col.key) || sortAscending()"
+                      [class.scale-110]="isColumnSorted(col.key) && !sortAscending()"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M7 10l5 5 5-5"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </button>
               } @else {
-                {{ getValue(row, col.key) }}
+                <span>{{ col.label }}</span>
               }
-            </td>
+            </th>
           }
 
           @if (actionsTemplate()) {
-            <td>
-              <ng-container
-                *ngTemplateOutlet="actionsTemplate()!; context: { $implicit: row }"
-              ></ng-container>
-            </td>
+            <th class="px-6 py-4 w-20"></th>
           }
         </tr>
-      } @empty {
-        <tr>
-          <td [attr.colspan]="columnCount()" class="text-center py-8 text-background2-4">
-            No hay datos disponibles
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
+      </thead>
+
+      <tbody>
+        @for (row of data(); track row.id || $index) {
+          <tr
+            class="border-b border-background2 transition-colors hover:bg-background2"
+            [class.bg-background3]="isRowSelected(row)"
+            [class.hover:bg-background3]="isRowSelected(row)"
+            [class.border-primaryDark]="isRowSelected(row)"
+          >
+            @if (selectable()) {
+              <td class="px-6 py-4">
+                <app-checkbox [control]="getRowCheckboxControl(row)"></app-checkbox>
+              </td>
+            }
+
+            @for (col of columns(); track col.key) {
+              <td class="px-6 py-4 text-white">
+                @if (col.link) {
+                  <a [href]="col.link(getValue(row, col.key))" class="text-primary hover:underline">
+                    {{ getValue(row, col.key) }}
+                  </a>
+                } @else {
+                  {{ getValue(row, col.key) }}
+                }
+              </td>
+            }
+
+            @if (actionsTemplate()) {
+              <td class="px-6 py-4 relative">
+                <button
+                  class="p-2 rounded-lg hover:bg-background2 text-text2 hover:text-text transition-all"
+                  (click)="toggleActionMenu(row.id)"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="5" r="1.5" fill="currentColor" />
+                    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                    <circle cx="12" cy="19" r="1.5" fill="currentColor" />
+                  </svg>
+                </button>
+
+                @if (openActionMenu() === row.id) {
+                  <div
+                    class="absolute right-0 top-full mt-1 bg-background2 border border-background3 rounded-xl p-2 min-w-[10rem] z-50 shadow-xl"
+                  >
+                    <ng-container
+                      *ngTemplateOutlet="
+                        actionsTemplate()!;
+                        context: { $implicit: row, close: closeActionMenu.bind(this) }
+                      "
+                    ></ng-container>
+                  </div>
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="columnCount()" class="px-6 py-12 text-center text-text3">
+              No hay datos disponibles
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 </div>

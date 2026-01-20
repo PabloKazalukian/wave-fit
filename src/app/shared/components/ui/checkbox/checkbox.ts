@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnChanges } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
@@ -7,7 +7,24 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
     imports: [ReactiveFormsModule],
     templateUrl: './checkbox.html',
 })
-export class CheckboxComponent {
+export class CheckboxComponent implements AfterViewInit, OnChanges {
     @Input() control!: FormControl<boolean>;
     @Input() text: string = '';
+    @Input() indeterminate: boolean = false;
+
+    @ViewChild('checkboxInput', { static: false }) checkboxInput!: ElementRef<HTMLInputElement>;
+
+    ngAfterViewInit(): void {
+        this.updateIndeterminate();
+    }
+
+    ngOnChanges(): void {
+        this.updateIndeterminate();
+    }
+
+    private updateIndeterminate(): void {
+        if (this.checkboxInput?.nativeElement) {
+            this.checkboxInput.nativeElement.indeterminate = this.indeterminate;
+        }
+    }
 }
