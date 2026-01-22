@@ -27,12 +27,6 @@
   }
   @if (this.facade.show()) {
     <div>
-      <!-- <app-btn
-        [text]="'Cambiar'"
-        [variant]="'raised'"
-        [color]="'accent'"
-        (click)="onRestart()"
-      ></app-btn> -->
       <app-weekly-routine-planner
         [distribution]="selectControl.value"
         (outputSavePlan)="onSubmit($event)"

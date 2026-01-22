@@ -18,7 +18,6 @@ import { SelectType, SelectTypeInput } from '../../../../../shared/interfaces/in
 import { FormControlsOf } from '../../../../../shared/utils/form-types.util';
 import { FormControl, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
 
 type selectFormType = FormControlsOf<SelectTypeInput>;
@@ -48,10 +47,7 @@ export class WeekDayCellComponent implements OnInit {
         { name: 'Descanso', value: 'REST' },
     ];
 
-    constructor(
-        private authSvc: AuthService,
-        private dayPlanSvc: DayPlanService,
-    ) {}
+    constructor(private authSvc: AuthService) {}
 
     ngOnInit(): void {
         this.selectForm = this.initForm();
@@ -77,11 +73,6 @@ export class WeekDayCellComponent implements OnInit {
         });
     }
 
-    // onKindChange(kind: 'REST' | 'WORKOUT') {
-    //     this.kindChange.emit(kind);
-    //     kind === 'REST' ? this.isExpanded.set(true) : this.isExpanded.set(false);
-    // }
-
     onKindChange(kind: 'REST' | 'WORKOUT') {
         this.kindChange.emit(kind);
 
@@ -96,7 +87,7 @@ export class WeekDayCellComponent implements OnInit {
         this.day.expanded = !this.day.expanded;
     }
 
-    get selectControl(): FormControl<string> {
-        return this.selectForm.get('option') as FormControl<string>;
+    get selectControl(): FormControl<string | null> {
+        return this.selectForm.get('option') as FormControl<string | null>;
     }
 }

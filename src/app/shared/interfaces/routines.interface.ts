@@ -7,17 +7,9 @@ export enum KindEnum {
     workout = 'WORKOUT',
 }
 
-export interface RoutineSummary {
-    id: string;
-    title: string;
-    type: string; // ex: "CHEST", "LEGS", ...
-    durationMinutes?: number;
-    difficulty?: 'easy' | 'medium' | 'hard';
-}
-
 export interface DayPlan {
     day: DayIndex;
-    kind: KindType;
+    kind: KindType | null;
     workoutType?: string; // ex: "CHEST"
     routineId?: string;
     expanded?: boolean;
@@ -36,7 +28,7 @@ export interface RoutinePlanCreate {
     name: string;
     description: string;
     weekly_distribution?: string;
-    routineDays: RoutineDay[];
+    routineDays: RoutineDayCreate[];
     createdBy?: string;
 }
 
@@ -46,9 +38,12 @@ export interface RoutineDay {
     type?: ExerciseCategory[];
     exercises?: Exercise[];
     planId?: string;
+    kind: KindType;
 }
 
 export interface RoutineDayCreate {
+    id?: string;
+    kind?: KindType;
     title: string;
     type?: ExerciseCategory[] | string[];
     exercises?: Exercise[];

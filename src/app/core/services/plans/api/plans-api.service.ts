@@ -4,6 +4,7 @@ import { Apollo, gql } from 'apollo-angular';
 import {
     CreateRoutinePlanInput,
     RoutineDay,
+    RoutineDayCreate,
     RoutinePlan,
     RoutinePlanCreate,
 } from '../../../../shared/interfaces/routines.interface';
@@ -74,7 +75,7 @@ export class PlansApiService {
                 createdBy: plan.createdBy,
                 routineDays: plan.routineDays
                     .filter((day) => day?.id) // 👈 evita {} vacíos
-                    .map((day: RoutineDay) => ({
+                    .map((day: RoutineDayCreate) => ({
                         title: day.title,
                         type: day.type,
                         exercises: this.createInputExercise(day),
@@ -126,7 +127,7 @@ export class PlansApiService {
                 map((value) => value.data?.routinePlan),
             );
     }
-    createInputExercise(routineDay: RoutineDay): string[] {
+    createInputExercise(routineDay: RoutineDayCreate): string[] {
         if (routineDay.exercises === undefined) {
             return [''];
         }

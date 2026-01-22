@@ -39,15 +39,11 @@ export class ExercisesTableComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        // Inicializar datos cuando llegan los ejercicios
-        console.log(this.exercises());
-
         this.exerciseSvc
             .getExercises()
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (data) => {
-                    console.log(data);
                     if (data!) this.exercises.set(data);
                     this.facade.setExercises(this.exercises());
                 },

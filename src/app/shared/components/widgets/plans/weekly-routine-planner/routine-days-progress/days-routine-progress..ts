@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, computed, EventEmitter, input, Output } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { RoutinePlanCreate } from '../../../../../interfaces/routines.interface';
 import { PlansService } from '../../../../../../core/services/plans/plans.service';
@@ -10,7 +10,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
     imports: [NgClass, BtnComponent],
     standalone: true,
     templateUrl: './days-routine-progress.html',
-    styles: ``,
 })
 export class DaysRoutineProgress {
     distribution = input<string>('');
@@ -53,14 +52,13 @@ export class DaysRoutineProgress {
 
     changeDistribution() {
         const payload = this.daysSelected().toString();
-        const plan: RoutinePlanCreate | null = this.planService.getRoutinePlan(
-            this.planService.userId(),
-        );
-        console.log(plan);
-
-        if (plan?.weekly_distribution) {
-            plan.weekly_distribution = payload;
-            this.planService.setRoutinePlan(plan);
-        }
+        this.planService.routinePlan$.subscribe({
+            next: (plan) => {
+                if (plan?.weekly_distribution) {
+                    plan.weekly_distribution = payload;
+                    this.planService.setRoutinePlan(plan);
+                }
+            },
+        });
     }
 }

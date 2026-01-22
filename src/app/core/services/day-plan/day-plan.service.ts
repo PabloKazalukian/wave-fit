@@ -4,11 +4,9 @@ import {
     DayIndex,
     DayPlan,
     KindEnum,
-    RoutineDay,
-    RoutinePlan,
+    KindType,
     RoutinePlanCreate,
 } from '../../../shared/interfaces/routines.interface';
-import { PlansService } from '../plans/plans.service';
 import { DayPlanStorageService } from './storage/day-plan-storage.service';
 
 @Injectable({
@@ -22,11 +20,19 @@ export class DayPlanService {
 
     constructor(private dayPlanStorage: DayPlanStorageService) {}
 
-    initDayPlan(userId: string) {
-        const stored = this.dayPlanStorage.getDayPlanStorage(userId);
+    initDayPlan(userId: string, plan?: RoutinePlanCreate) {
         this.userId.set(userId);
+        const stored = this.dayPlanStorage.getDayPlanStorage(userId);
 
         if (stored) {
+            if (plan) {
+                console.log(plan, stored);
+                this.createDayPlanFromPlan(plan, stored);
+                return;
+            }
+
+            this.userId.set(userId);
+
             this.dayPlanSubject.next(stored);
         } else {
             let arr = new Array(7).fill({});
@@ -39,15 +45,38 @@ export class DayPlanService {
         }
     }
 
-    private createDayPlanEmpty(i: DayIndex): DayPlan {
-        return {
-            day: i,
-            kind: 'REST',
-            workoutType: undefined, // ex: "CHEST"
-            routineId: undefined,
-            expanded: false,
-        };
+    createDayPlanFromPlan(plan: RoutinePlanCreate, stored?: DayPlan[]) {
+        // Create DayPlan from RoutinePlanCreate, with control in first step if exist kind workout else create empty, second
+        const updateDayPlan: DayPlan[] = plan.routineDays.map((r, index): DayPlan => {
+            if (r.kind === null || r.kind === undefined) {
+                return this.createDayPlanEmpty((index + 1) as DayIndex);
+            }
+            if (r.type === undefined || r.type === null) {
+                return this.createDayPlanEmpty((index + 1) as DayIndex, r.kind);
+            }
+            return {
+                day: (index + 1) as DayIndex,
+                kind: KindEnum.workout,
+                workoutType: r.type?.join(','), // ex: "CHEST"
+                routineId: r.id,
+                expanded: this.getDayPlanByIndex((index + 1) as DayIndex)?.expanded,
+            };
+        });
+
+        this.dayPlanSubject.next(updateDayPlan);
+        this.dayPlanStorage.setDayPlanStorage(updateDayPlan, this.userId());
+        if (stored) {
+            this.changeDayPlanExpanded(
+                updateDayPlan[stored.findIndex((s) => s.expanded) as DayIndex],
+            );
+        } else {
+            const emptyDayPlan = this.createDayPlanEmpty(1);
+            emptyDayPlan.expanded = true;
+            this.dayPlanSubject.next([emptyDayPlan]);
+            this.dayPlanStorage.setDayPlanStorage([emptyDayPlan], this.userId());
+        }
     }
+
     changeDayPlanExpanded(day: DayPlan) {
         let dayPlans = this.dayPlanSubject.value;
         if (dayPlans) {
@@ -74,28 +103,46 @@ export class DayPlanService {
         this.dayPlanStorage.setDayPlanStorage(dayPlans, this.userId());
     }
 
-    changeDayPlan(planRoutine: RoutinePlanCreate | RoutinePlan) {
-        console.log(planRoutine);
-        const updateDayPlan: DayPlan[] = planRoutine.routineDays.map((r, index): DayPlan => {
-            console.log(r);
-            if (r.exercises === undefined || r.exercises === null) {
-                console.log(this.dayPlanSubject.value);
+    changeDayPlan(planRoutine: RoutinePlanCreate) {
+        const currentDayPlans = this.dayPlanSubject.value || [];
 
-                if (this.dayPlanSubject.value) {
-                    return this.dayPlanSubject.value[index];
-                }
-                return this.createDayPlanEmpty((index + 1) as DayIndex);
+        const updateDayPlan: DayPlan[] = planRoutine.routineDays.map((r, index): DayPlan => {
+            const dayIndex = (index + 1) as DayIndex;
+            const existingDay = currentDayPlans.find((d) => d.day === dayIndex);
+
+            // Mantener el expanded del día existente
+            const expanded = existingDay?.expanded || false;
+
+            if (!r.kind || r.kind === null) {
+                return this.createDayPlanEmpty(dayIndex, undefined, expanded);
             }
+
+            if (!r.type || r.type.length === 0) {
+                return this.createDayPlanEmpty(dayIndex, r.kind, expanded);
+            }
+
             return {
-                day: (index + 1) as DayIndex,
-                kind: KindEnum.workout,
-                workoutType: r.type?.join(','), // ex: "CHEST"
+                day: dayIndex,
+                kind: r.kind,
+                workoutType: r.type?.join(','),
                 routineId: r.id,
-                expanded: this.getDayPlanByIndex((index + 1) as DayIndex)?.expanded,
+                expanded,
             };
         });
 
         this.setPlanDay(updateDayPlan);
+    }
+
+    //plan.routinesDays if null is no selected , if kind: rest in DayPlan is kind:REST , if Type no empty is kind:WORKOUT with workoutType: ej "CHEST" but no id in dayplan is routineId: null, with id is the complate state of Dayplan with routineId not null
+
+    private createDayPlanEmpty(i: DayIndex, kind?: KindType, expanded: boolean = false): DayPlan {
+        return {
+            day: i,
+            kind: kind || null,
+            workoutType: undefined,
+            routineId: undefined,
+            expanded,
+        };
     }
 
     private getDayPlanByIndex(index: DayIndex): DayPlan | undefined {

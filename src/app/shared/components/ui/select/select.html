@@ -6,7 +6,7 @@
     [ngClass]="selectClasses"
   >
     <option value="" disabled selected hidden class="checked:bg-primary">{{ text }}</option>
-    @for (opt of options; track opt.value) {
+    @for (opt of options; track opt) {
       <option
         [value]="opt.value"
         class="rounded-full checked:bg-background3 checked:text-primary hover:bg-primary"

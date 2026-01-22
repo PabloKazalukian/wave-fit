@@ -16,10 +16,6 @@ export type PlanFormType = FormControlsOf<RoutinePlanCreate>;
 export class PlanFormBuilderService {
     constructor(private fb: FormBuilder) {}
 
-    // -------------------------------------------------------------
-    // PUBLIC API
-    // -------------------------------------------------------------
-
     buildForm(): FormGroup<PlanFormType> {
         return this.fb.group<PlanFormType>(
             {
@@ -78,7 +74,7 @@ export class PlanFormBuilderService {
             const value = control.value;
 
             if (!optional && !value) return { required: true };
-            if (!value) return null; // valid if optional
+            if (!value) return null;
 
             return regex.test(value) ? null : { invalidString: true };
         };

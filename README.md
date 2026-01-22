@@ -1,59 +1,92 @@
-# WaveFit
+## 📝Formulario Rutina Semanal
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.6.
+## 🎨 Componentes - Jerarquía y Flujo
 
-## Development server
+### Árbol de Componentes
 
-To start a local development server, run:
+```
+RoutinePlanForm (Página Principal)
+  │
+  └─→ WeeklyRoutinePlannerComponent
+        │
+        ├─→ DayOfRoutineComponent (muestra día individual)
+        │
+        ├─→ DaysRoutineProgressComponent (muestra progreso)
+        │
+        └─→ WeekDayCellComponent (celda de día)
+              │
+              └─→ RoutineListBoxComponent
+                    │
+                    ├─→ RoutineExercisesComponent (acordeón de ejercicios)
+                    │
+                    └─→ RoutineExerciseFormComponent
+                          │
+                          └─→ ExerciseCreateComponent
 
-```bash
-ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+#### 🔄 Flujo de Datos Completo
 
-## Code scaffolding
+##### Escenario: Usuario Crea Plan Semanal
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```
+1. Usuario entra a /routines/create
+   → RoutinePlanForm.ngOnInit()
+   → Facade.initFacade()
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
+```
+2. Facade obtiene userId
+   → PlansService.initPlanForUser(userId)
+   → DayPlanService.initDayPlan(userId)
+   → Carga desde Storage o crea vacío
 ```
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
+```
+3. Usuario llena nombre/descripción/distribución
+   → FormGroup.valueChanges
+   → PlansService.setRoutinePlan()
+   → PlansStorageService.setPlanStorage()
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
+```
+4. Usuario selecciona día 1
+   → DayPlanService.changeDayPlanExpanded()
+   → expanded = true para día 1
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+```
+5. Usuario selecciona "WORKOUT" en día 1
+   → WeekDayCellComponent emite evento
+   → DayPlanService.setDay({ kind: 'WORKOUT' })
+   → Muestra RoutineListBoxComponent
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+```
+6. Usuario selecciona categoría "CHEST"
+   → RoutineListBoxComponent busca rutina existente
+   → Si existe: muestra acordeón con ejercicios
+   → Si no: muestra "No hay rutina"
+```
 
-## Additional Resources
+```
+7. Usuario crea nueva rutina
+   → RoutineExerciseFormComponent se muestra
+   → Usuario llena form y selecciona ejercicios
+   → Si falta ejercicio: ExerciseCreateComponent
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```
+8. Usuario guarda rutina
+   → PlansService.setRoutineDay(routine)
+   → Busca día expandido en DayPlanService
+   → Actualiza routineDays[index]
+   → Sincroniza con DayPlanService
+```
+
+```
+9. Usuario hace submit
+   → RoutinePlanForm.onSubmit()
+   → PlansService.submitPlan()
+   → PlansApiService.createPlan()
+```

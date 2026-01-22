@@ -9,10 +9,8 @@
     </div>
 
     <div>
-      @for (d of days(); track d) {
-        @if (d.expanded && d.expanded === true) {
-          <app-week-day-cell [day]="d" (kindChange)="onToggleKind(d, $event)"> </app-week-day-cell>
-        }
+      @for (d of expandedDays(); track d.day) {
+        <app-week-day-cell [day]="d" (kindChange)="onToggleKind(d, $event)"> </app-week-day-cell>
       }
     </div>
   </div>

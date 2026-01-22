@@ -54,9 +54,7 @@ export class Routines implements OnInit {
             .getRoutinesPlans()
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((result) => {
-                console.log(result);
                 this.routinesPlans.set(result);
-                console.log(this.routinesPlans());
             });
 
         this.selectControl.valueChanges

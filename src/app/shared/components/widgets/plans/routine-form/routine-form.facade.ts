@@ -42,7 +42,6 @@ export class RoutinePlanFormFacade {
                     this.routineForm.patchValue({ createdBy: this.userId() });
 
                     if (this.userId) {
-                        this.dayPlanSvc.initDayPlan(this.userId());
                         this.planService.initPlanForUser(this.userId());
                     }
                 }),

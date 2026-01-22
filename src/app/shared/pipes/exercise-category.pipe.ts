@@ -18,9 +18,16 @@ export class ExerciseCategoryPipe implements PipeTransform {
         cardio: 'Cardio',
     };
 
-    transform(value: string): string {
-        if (!value) return '';
+    transform(value: string | undefined): string {
+        if (!value || value === undefined) return '';
 
+        if (value.includes(',')) {
+            return value
+                .split(',')
+                .map((v) => v.trim())
+                .map((v) => this.transform(v))
+                .join('-');
+        }
         // Convertir a minúsculas para buscar en las traducciones
         const lowerValue = value.toLowerCase();
 

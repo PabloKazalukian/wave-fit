@@ -2,7 +2,7 @@
   @if (!routineSelected()) {
     <div class="w-full">
       <app-select
-        [text]="'Elige una opcion:'"
+        [text]="'Elige una categoria:'"
         [options]="options"
         [control]="selectControl"
       ></app-select>
@@ -42,7 +42,7 @@
           </app-accordion-item>
         } @else {
           <!-- Caso: listado de todas las rutinas -->
-          @for (r of routinesDays(); track r; let i = $index) {
+          @for (r of routinesDays(); track r.id; let i = $index) {
             @if (!show) {
               <app-accordion-item
                 [title]="r.title"

@@ -8,8 +8,9 @@ import {
     inject,
     DestroyRef,
     Output,
+    computed,
 } from '@angular/core';
-import { BehaviorSubject, Subject, tap } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { DayIndex, DayPlan } from '../../../../../shared/interfaces/routines.interface';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
@@ -17,6 +18,7 @@ import { DayOfRoutine } from '../day-of-routine/day-of-routine';
 import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DaysRoutineProgress } from './routine-days-progress/days-routine-progress.';
+import { PlansService } from '../../../../../core/services/plans/plans.service';
 
 @Component({
     selector: 'app-weekly-routine-planner',
@@ -35,7 +37,10 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
     daysSelected = signal<number>(0);
     selectedDay$ = new BehaviorSubject<DayIndex | null>(null);
 
-    constructor(private dayPlanSvc: DayPlanService) {}
+    constructor(
+        private dayPlanSvc: DayPlanService,
+        private planSvc: PlansService,
+    ) {}
 
     ngOnInit() {
         this.dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -44,6 +49,8 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
             },
         });
     }
+
+    expandedDays = computed(() => this.days().filter((d) => d.expanded === true));
 
     controlChange = effect(() => {
         const count = this.days().reduce(
@@ -54,7 +61,7 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
     });
 
     onToggleKind(day: DayPlan, kind: 'REST' | 'WORKOUT') {
-        const newDay = this.days().filter((d) => {
+        const newDay: DayPlan[] = this.days().filter((d) => {
             if (day.day === d.day) {
                 d.kind = kind;
                 if (kind === 'REST') {
@@ -65,6 +72,7 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
             return d;
         });
         this.days.set(newDay);
+        this.planSvc.setKindRoutineDay(day.day - 1, kind);
         this.dayPlanSvc.setPlanDay(newDay);
     }
 

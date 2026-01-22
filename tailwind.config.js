@@ -29,6 +29,8 @@ module.exports = {
   'border-error', 'border-error2', 'border-error3', 'border-errorLight', 'border-errorDark',
 
   'bg-success','text-surface',
+  'border-confirm3',
+  'bg-surface', 'bg-surface2', 'bg-surface3', 'bg-surfaceLight', 'bg-surfaceDark',
 
   'shadow-primary',
   'shadow-secondary',
