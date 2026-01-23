@@ -1,14 +1,14 @@
-import { DestroyRef, inject, Injectable, signal, Signal } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { RoutineDay, RoutinePlanCreate } from '../../../../interfaces/routines.interface';
+import { RoutineDay, RoutineDayVM, RoutinePlanVM } from '../../../../interfaces/routines.interface';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
-import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, switchMap, tap } from 'rxjs';
+import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 
-type RoutinePlanType = FormControlsOf<RoutinePlanCreate>;
+type RoutinePlanType = FormControlsOf<RoutinePlanVM>;
 
 @Injectable()
 export class RoutinePlanFormFacade {
@@ -21,14 +21,14 @@ export class RoutinePlanFormFacade {
         name: new FormControl('', { nonNullable: true }),
         description: new FormControl('', { nonNullable: true }),
         weekly_distribution: new FormControl('', { nonNullable: true }),
-        routineDays: new FormControl<RoutineDay[]>(Array(7).fill(''), { nonNullable: true }),
+        routineDays: new FormControl<RoutineDayVM[]>(Array(7).fill(''), { nonNullable: true }),
         createdBy: new FormControl('', { nonNullable: true }),
     });
 
     constructor(
         private authSvc: AuthService,
         private planService: PlansService,
-        private dayPlanSvc: DayPlanService,
+        private routinesSvc: RoutinesServices,
     ) {}
 
     initFacade() {
@@ -46,7 +46,7 @@ export class RoutinePlanFormFacade {
                     }
                 }),
 
-                switchMap(() => this.planService.routinePlan$),
+                switchMap(() => this.planService.routinePlanVM$),
 
                 tap((plan) => {
                     if (plan.weekly_distribution) this.show.set(true);
@@ -66,6 +66,10 @@ export class RoutinePlanFormFacade {
     }
 
     submitPlan(): Observable<any> {
-        return this.planService.submitPlan();
+        this.routineForm.markAllAsTouched();
+
+        console.log(this.routineForm);
+        //wrapped aqui
+        return this.planService.submitPlan(this.routineForm.value);
     }
 }

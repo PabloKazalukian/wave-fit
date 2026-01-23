@@ -6,6 +6,7 @@ import {
     KindEnum,
     KindType,
     RoutinePlanCreate,
+    RoutinePlanVM,
 } from '../../../shared/interfaces/routines.interface';
 import { DayPlanStorageService } from './storage/day-plan-storage.service';
 
@@ -22,7 +23,7 @@ export class DayPlanService {
 
     initDayPlan(userId: string, plan?: RoutinePlanCreate) {
         this.userId.set(userId);
-        const stored = this.dayPlanStorage.getDayPlanStorage(userId);
+        const stored = this.getDayPlanStorage();
 
         if (stored) {
             if (plan) {
@@ -41,7 +42,7 @@ export class DayPlanService {
             });
             arr[0].expanded = true;
             this.dayPlanSubject.next(arr);
-            this.dayPlanStorage.setDayPlanStorage(arr, userId);
+            this.setDayPlanStorage(arr);
         }
     }
 
@@ -64,7 +65,7 @@ export class DayPlanService {
         });
 
         this.dayPlanSubject.next(updateDayPlan);
-        this.dayPlanStorage.setDayPlanStorage(updateDayPlan, this.userId());
+        this.setDayPlanStorage(updateDayPlan);
         if (stored) {
             this.changeDayPlanExpanded(
                 updateDayPlan[stored.findIndex((s) => s.expanded) as DayIndex],
@@ -73,7 +74,7 @@ export class DayPlanService {
             const emptyDayPlan = this.createDayPlanEmpty(1);
             emptyDayPlan.expanded = true;
             this.dayPlanSubject.next([emptyDayPlan]);
-            this.dayPlanStorage.setDayPlanStorage([emptyDayPlan], this.userId());
+            this.setDayPlanStorage([emptyDayPlan]);
         }
     }
 
@@ -100,10 +101,10 @@ export class DayPlanService {
 
     setPlanDay(dayPlans: DayPlan[]) {
         this.dayPlanSubject.next(dayPlans);
-        this.dayPlanStorage.setDayPlanStorage(dayPlans, this.userId());
+        this.setDayPlanStorage(dayPlans);
     }
 
-    changeDayPlan(planRoutine: RoutinePlanCreate) {
+    changeDayPlan(planRoutine: RoutinePlanVM) {
         const currentDayPlans = this.dayPlanSubject.value || [];
 
         const updateDayPlan: DayPlan[] = planRoutine.routineDays.map((r, index): DayPlan => {
@@ -147,5 +148,13 @@ export class DayPlanService {
 
     private getDayPlanByIndex(index: DayIndex): DayPlan | undefined {
         return this.dayPlanSubject.value?.find((e) => e.day === index);
+    }
+
+    private setDayPlanStorage(payload: DayPlan[]) {
+        this.dayPlanStorage.setDayPlanStorage(payload, this.userId());
+    }
+
+    private getDayPlanStorage(): DayPlan[] | null {
+        return this.dayPlanStorage.getDayPlanStorage(this.userId());
     }
 }

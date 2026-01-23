@@ -1,52 +1,66 @@
 import { Component, OnInit, signal, DestroyRef, inject, computed } from '@angular/core';
-import { DayPlan } from '../../../../interfaces/routines.interface';
+import { DayPlan, RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
 import { take } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { PlansService } from '../../../../../core/services/plans/plans.service';
 
 @Component({
     selector: 'app-day-of-routine',
-    imports: [ExerciseCategoryPipe],
+    imports: [ExerciseCategoryPipe, CommonModule],
     standalone: true,
     templateUrl: './day-of-routine.html',
 })
 export class DayOfRoutine implements OnInit {
     private destroyRef = inject(DestroyRef);
 
-    dayPlan = signal<DayPlan[]>([]);
+    dayPlan = signal<RoutineDayVM[]>([]);
     userId: string = '';
 
-    constructor(private dayPlanSvc: DayPlanService) {}
+    constructor(private planSvc: PlansService) {}
+
+    ngOnInit(): void {
+        this.planSvc.routinePlanVM$.pipe(take(1)).subscribe({
+            next: (e) => {
+                console.log(e.routineDays);
+                this.dayPlan.set(e.routineDays);
+            },
+        });
+        // dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        //     next: (e) => {
+        //         this.dayPlan.set(e);
+        //     },
+        // });
+    }
 
     computedDayPlan = computed(() => {
         return this.dayPlan().find((d) => d.expanded);
     });
 
-    ngOnInit(): void {
-        this.dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef), take(1)).subscribe({
-            next: (e) => {
-                console.log(e);
-                this.dayPlan.set(e);
-            },
+    changeExpanded(routine: RoutineDayVM) {
+        this.dayPlan.update((days) => {
+            return days.map((day) => {
+                if (routine.day === day.day) {
+                    day.expanded = true;
+                } else {
+                    day.expanded = false;
+                }
+                return day;
+            });
         });
+        // DayPlanExpanded(d);
     }
-
-    changeExpanded(d: DayPlan) {
-        this.dayPlanSvc.changeDayPlanExpanded(d);
-    }
-    getDisplayContent(d: DayPlan): string {
-        // Si tiene routineId, mostrar checkmark
-        if (d.kind === 'WORKOUT' && d.routineId) {
+    getDisplayContent(d: RoutineDayVM): string {
+        if (d.kind === 'WORKOUT' && d.id) {
             return '✓';
         }
 
-        // Si es WORKOUT con workoutType pero sin routineId, mostrar !
-        if (d.kind === 'WORKOUT' && d.workoutType && !d.routineId) {
+        if (d.kind === 'WORKOUT' && d.type && !d.id) {
             return '!';
         }
 
-        // En cualquier otro caso, mostrar el número del día
         return d.day.toString();
     }
 }

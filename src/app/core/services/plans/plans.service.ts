@@ -2,16 +2,19 @@ import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { BehaviorSubject, filter, map, Observable, switchMap, take, tap } from 'rxjs';
 import {
+    DayIndex,
     DayPlan,
     RoutineDay,
-    RoutineDayCreate,
+    RoutineDayVM,
     RoutinePlanCreate,
+    RoutinePlanVM,
 } from '../../../shared/interfaces/routines.interface';
 import { PlansStorageService } from './storage/plans-storage.service';
 import { DayPlanService } from '../day-plan/day-plan.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlansApiService } from './api/plans-api.service';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
+import { RoutinesServices } from '../routines/routines.service';
 
 @Injectable({
     providedIn: 'root',
@@ -19,8 +22,8 @@ import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface'
 export class PlansService {
     private destroyRef = inject(DestroyRef);
 
-    private plansSubject = new BehaviorSubject<RoutinePlanCreate | null>(null);
-    routinePlan$ = this.plansSubject.pipe(filter((v): v is RoutinePlanCreate => v !== null));
+    private plansSubject = new BehaviorSubject<RoutinePlanVM | null>(null);
+    routinePlanVM$ = this.plansSubject.pipe(filter((v): v is RoutinePlanVM => v !== null));
     userId = signal<string>('');
 
     constructor(
@@ -40,39 +43,45 @@ export class PlansService {
 
         if (stored) {
             this.plansSubject.next(stored);
-            this.dayPlanSvc.initDayPlan(this.userId(), stored);
+            // this.dayPlanSvc.initDayPlan(this.userId(), stored);
             // syncFromPlan
         } else {
-            const init = {
+            const initPlanUser: RoutinePlanVM = {
                 name: '',
                 description: '',
                 weekly_distribution: '',
-                routineDays: new Array(7).fill({
-                    title: '',
-                    kind: 'REST',
-                }),
+                routineDays: this.initRoutineDays(),
                 createdBy: userId,
-                id: null,
+                id: undefined,
             };
 
-            this.plansSubject.next(init);
-            this.planStorage.setPlanStorage(init, userId);
+            this.plansSubject.next(initPlanUser);
+            this.planStorage.setPlanStorage(initPlanUser, userId);
             this.dayPlanSvc.initDayPlan(this.userId());
         }
     }
 
-    setRoutinePlan(plan: RoutinePlanCreate) {
+    initRoutineDays(): RoutineDayVM[] {
+        return Array.from({ length: 7 }, (_, i) => ({
+            title: '',
+            kind: 'REST',
+            expanded: i === 0,
+            day: (i + 1) as DayIndex,
+        }));
+    }
+
+    setRoutinePlan(plan: RoutinePlanVM) {
         this.plansSubject.next(plan);
         this.planStorage.setPlanStorage(plan, this.userId());
         if (this.plansSubject.value) this.dayPlanSvc.changeDayPlan(plan);
     }
 
     setKindRoutineDay(dayIndex: number, kind: 'REST' | 'WORKOUT') {
-        this.routinePlan$.pipe(take(1)).subscribe((plan) => {
+        this.routinePlanVM$.pipe(take(1)).subscribe((plan) => {
             const routineDays = plan.routineDays.map((d, i) =>
                 i === dayIndex ? { ...d, kind: kind } : d,
             );
-            const updatePlan: RoutinePlanCreate = { ...plan, routineDays };
+            const updatePlan: RoutinePlanVM = { ...plan, routineDays };
             this.setRoutinePlan(updatePlan);
         });
     }
@@ -89,132 +98,126 @@ export class PlansService {
         //     console.log('updatePlan', updatePlan);
         //     this.setRoutinePlan(updatePlan);
         // }
-        this.routinePlan$.pipe(takeUntilDestroyed(this.destroyRef), take(1)).subscribe((plan) => {
-            const routineDays = plan.routineDays.map((d, i) =>
-                i === indexDay ? { ...d, type: [type] } : d,
-            );
-            const updatePlan: RoutinePlanCreate = { ...plan, routineDays };
-            this.setRoutinePlan(updatePlan);
-        });
+        // this.routinePlanVM$.pipe(takeUntilDestroyed(this.destroyRef), take(1)).subscribe((plan) => {
+        //     const routineDays = plan.routineDays.map((d, i) =>
+        //         i === indexDay ? { ...d, type: [type] } : d,
+        //     );
+        //     const updatePlan: RoutinePlanCreate = { ...plan, routineDays };
+        //     this.setRoutinePlan(updatePlan);
+        // });
     }
 
-    setRoutineDay(routine: RoutineDay) {
-        this.dayPlanSvc.dayPlan$
-            .pipe(
-                take(1),
-                map((dayPlans: DayPlan[]) => {
-                    const expandedDay = dayPlans.find((d) => d.expanded === true);
+    // setRoutineDay(routine: RoutineDay) {
+    //     this.dayPlanSvc.dayPlan$
+    //         .pipe(
+    //             take(1),
+    //             map((dayPlans: DayPlan[]) => {
+    //                 const expandedDay = dayPlans.find((d) => d.expanded === true);
 
-                    if (!expandedDay) {
-                        console.error('No expanded day found');
-                        return null;
-                    }
+    //                 if (!expandedDay) {
+    //                     console.error('No expanded day found');
+    //                     return null;
+    //                 }
 
-                    const currentPlan = this.plansSubject.value;
-                    if (!currentPlan) return null;
+    //                 const currentPlan = this.plansSubject.value;
+    //                 if (!currentPlan) return null;
 
-                    // Actualizar routineDays
-                    const routineDays = currentPlan.routineDays.map((r, index) => {
-                        if (index + 1 === expandedDay.day) {
-                            return routine;
-                        }
-                        return r;
-                    });
+    //                 // Actualizar routineDays
+    //                 const routineDays = currentPlan.routineDays.map((r, index) => {
+    //                     if (index + 1 === expandedDay.day) {
+    //                         return routine;
+    //                     }
+    //                     return r;
+    //                 });
 
-                    const updatePlan: RoutinePlanCreate = {
-                        ...currentPlan,
-                        routineDays,
-                    };
+    //                 const updatePlan: RoutinePlanCreate = {
+    //                     ...currentPlan,
+    //                     routineDays,
+    //                 };
 
-                    this.setRoutinePlan(updatePlan);
+    //                 this.setRoutinePlan(updatePlan);
 
-                    // IMPORTANTE: Actualizar también el DayPlan
-                    const updatedDayPlans = dayPlans.map((d) => {
-                        if (d.day === expandedDay.day) {
-                            return {
-                                ...d,
-                                routineId: routine.id,
-                                workoutType: routine.type?.[0] || d.workoutType,
-                            };
-                        }
-                        return d;
-                    });
+    //                 // IMPORTANTE: Actualizar también el DayPlan
+    //                 const updatedDayPlans = dayPlans.map((d) => {
+    //                     if (d.day === expandedDay.day) {
+    //                         return {
+    //                             ...d,
+    //                             routineId: routine.id,
+    //                             workoutType: routine.type?.[0] || d.workoutType,
+    //                         };
+    //                     }
+    //                     return d;
+    //                 });
 
-                    this.dayPlanSvc.setPlanDay(updatedDayPlans);
+    //                 this.dayPlanSvc.setPlanDay(updatedDayPlans);
 
-                    return expandedDay;
-                }),
-            )
-            .subscribe();
+    //                 return expandedDay;
+    //             }),
+    //         )
+    //         .subscribe();
+    // }
+
+    removeDayRoutine(dayToRemove: RoutineDayVM) {
+        // this.dayPlanSvc.dayPlan$
+        //     .pipe(
+        //         take(1),
+        //         map((dayPlans: DayPlan[]) => {
+        //             if(this.plansSubject.getValue() === null) return null;
+        //             const expandedDay = this.plansSubject.getValue().routineDays.find((r => r.day === dayToRemove.day))?.expanded
+        //             if (!expandedDay) return null;
+        //             const currentPlan = this.plansSubject.value;
+        //             if (!currentPlan) return null;
+        //             // ARREGLADO: Crear un routineDay vacío pero válido
+        //             const emptyRoutine: RoutineDayVM = {
+        //                 title: '',
+        //                 kind: 'WORKOUT',
+        //                 expanded: false,
+        //                 day: expandedDay.day,
+        //                 type: expandedDay.workoutType
+        //                     ? [expandedDay.workoutType as ExerciseCategory]
+        //                     : undefined,
+        //             };
+        //             const routineDays = currentPlan.routineDays.map((r, index) => {
+        //                 if (index + 1 === expandedDay.day) {
+        //                     return emptyRoutine;
+        //                 }
+        //                 return r;
+        //             });
+        //             const updatePlan: RoutinePlanVM = {
+        //                 ...currentPlan,
+        //                 routineDays,
+        //             };
+        //             this.setRoutinePlan(updatePlan);
+        //             // IMPORTANTE: Actualizar también el DayPlan
+        //             const updatedDayPlans = dayPlans.map((d) => {
+        //                 if (d.day === expandedDay.day) {
+        //                     return {
+        //                         ...d,
+        //                         routineId: undefined,
+        //                         // Mantener el workoutType para poder cargar categorías
+        //                     };
+        //                 }
+        //                 return d;
+        //             });
+        //             this.dayPlanSvc.setPlanDay(updatedDayPlans);
+        //             return expandedDay;
+        //         }),
+        //     )
+        //     .subscribe();
     }
 
-    removeDayRoutine(dayToRemove: RoutineDay) {
-        this.dayPlanSvc.dayPlan$
-            .pipe(
-                take(1),
-                map((dayPlans: DayPlan[]) => {
-                    const expandedDay = dayPlans.find((d) => d.expanded === true);
-
-                    if (!expandedDay) return null;
-
-                    const currentPlan = this.plansSubject.value;
-                    if (!currentPlan) return null;
-
-                    // ARREGLADO: Crear un routineDay vacío pero válido
-                    const emptyRoutine: RoutineDayCreate = {
-                        title: '',
-                        kind: 'WORKOUT',
-                        type: expandedDay.workoutType
-                            ? [expandedDay.workoutType as ExerciseCategory]
-                            : undefined,
-                    };
-
-                    const routineDays = currentPlan.routineDays.map((r, index) => {
-                        if (index + 1 === expandedDay.day) {
-                            return emptyRoutine;
-                        }
-                        return r;
-                    });
-
-                    const updatePlan: RoutinePlanCreate = {
-                        ...currentPlan,
-                        routineDays,
-                    };
-
-                    this.setRoutinePlan(updatePlan);
-
-                    // IMPORTANTE: Actualizar también el DayPlan
-                    const updatedDayPlans = dayPlans.map((d) => {
-                        if (d.day === expandedDay.day) {
-                            return {
-                                ...d,
-                                routineId: undefined,
-                                // Mantener el workoutType para poder cargar categorías
-                            };
-                        }
-                        return d;
-                    });
-
-                    this.dayPlanSvc.setPlanDay(updatedDayPlans);
-
-                    return expandedDay;
-                }),
-            )
-            .subscribe();
-    }
-
-    getRoutinePlan(idUser: string): RoutinePlanCreate | null {
+    getRoutinePlan(idUser: string): RoutinePlanVM | null {
         const data = this.planStorage.getPlanStorage(idUser);
-        if (data) this.plansSubject.next(data);
+        // if (data) this.plansSubject.next(data);
         return this.plansSubject.getValue();
     }
     getRoutinePlanById(id: string): Observable<any | null> {
         return this.planApi.getRoutinePlanById(id);
     }
 
-    createRoutinePlan(planInput: RoutinePlanCreate) {
+    createRoutinePlan(planInput: RoutinePlanVM): RoutinePlanVM {
         const createdBy = this.authSvc.user();
-        const newPlan: RoutinePlanCreate = {
+        const newPlan: RoutinePlanVM = {
             ...planInput,
             createdBy,
         };
@@ -222,13 +225,13 @@ export class PlansService {
         return newPlan;
     }
 
-    currentValue(): RoutinePlanCreate {
+    currentValue(): RoutinePlanVM {
         const value = this.plansSubject.getValue();
         if (!value) throw new Error('RoutinePlan not initialized');
         return value;
     }
 
-    setDayRoutine(dayIndex: number, routine: RoutineDay) {
+    setDayRoutine(dayIndex: number, routine: RoutineDayVM) {
         const plan = this.currentValue();
         const routineDays = plan.routineDays.map((d, i) => (i === dayIndex ? routine : d));
 
@@ -236,7 +239,8 @@ export class PlansService {
         this.setRoutinePlan(updated);
     }
 
-    submitPlan(): Observable<any> {
-        return this.planApi.createPlan(this.currentValue());
+    submitPlan(current: any): Observable<any> {
+        //aca tambein debe llegar limpito
+        return this.planApi.createPlan(current);
     }
 }

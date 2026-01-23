@@ -7,6 +7,7 @@ import {
     RoutineDayCreate,
     RoutinePlan,
     RoutinePlanCreate,
+    RoutinePlanSend,
 } from '../../../../shared/interfaces/routines.interface';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import { map, tap } from 'rxjs';
@@ -36,9 +37,8 @@ export class PlansApiService {
         });
     }
 
-    createPlan(planInput: RoutinePlanCreate) {
-        console.log('plan inputt', planInput);
-        console.log(this.createInputPlan(planInput));
+    createPlan(planInput: RoutinePlanSend) {
+        //aca debe llegar limpito
         return this.apollo
             .mutate<{ CreatePlan: RoutinePlan }>({
                 mutation: gql`
@@ -54,44 +54,12 @@ export class PlansApiService {
                         }
                     }
                 `,
-                variables: { input: this.createInputPlan(planInput) },
+                variables: { input: planInput },
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 tap((value) => console.log(value)),
             );
-    }
-
-    createInputPlan(plan: RoutinePlanCreate): CreateRoutinePlanInput | null {
-        if (
-            plan.weekly_distribution !== undefined &&
-            plan.createdBy !== undefined &&
-            plan.routineDays !== undefined
-        ) {
-            const input: CreateRoutinePlanInput = {
-                name: plan.name,
-                description: plan.description,
-                weekly_distribution: plan.weekly_distribution,
-                createdBy: plan.createdBy,
-                routineDays: plan.routineDays
-                    .filter((day) => day?.id) // 👈 evita {} vacíos
-                    .map((day: RoutineDayCreate) => ({
-                        title: day.title,
-                        type: day.type,
-                        exercises: this.createInputExercise(day),
-                    })),
-            };
-
-            const output: any = {
-                name: plan.name,
-                description: plan.description,
-                weekly_distribution: plan.weekly_distribution,
-                createdBy: plan.createdBy,
-                routineDays: plan.routineDays.map((routine) => routine.id),
-            };
-            return output;
-        }
-        return null;
     }
 
     getRoutinePlanById(id: string): any {

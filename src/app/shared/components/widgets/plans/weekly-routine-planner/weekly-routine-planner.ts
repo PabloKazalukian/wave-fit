@@ -11,7 +11,12 @@ import {
     computed,
 } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { DayIndex, DayPlan } from '../../../../../shared/interfaces/routines.interface';
+import {
+    DayIndex,
+    DayPlan,
+    RoutineDay,
+    RoutineDayVM,
+} from '../../../../../shared/interfaces/routines.interface';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
 import { DayOfRoutine } from '../day-of-routine/day-of-routine';
@@ -33,7 +38,7 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
 
     @Input({ required: true }) distribution: string = '0/7';
 
-    days = signal<DayPlan[]>([]);
+    days = signal<RoutineDayVM[]>([]);
     daysSelected = signal<number>(0);
     selectedDay$ = new BehaviorSubject<DayIndex | null>(null);
 
@@ -43,9 +48,14 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-            next: (value) => {
-                this.days.set(value);
+        // this.dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        //     next: (value) => {
+        //         this.days.set(value);
+        //     },
+        // });
+        this.planSvc.routinePlanVM$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (plan) => {
+                this.days.set(plan.routineDays);
             },
         });
     }
@@ -60,20 +70,20 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
         this.daysSelected.set(count);
     });
 
-    onToggleKind(day: DayPlan, kind: 'REST' | 'WORKOUT') {
-        const newDay: DayPlan[] = this.days().filter((d) => {
+    onToggleKind(day: RoutineDayVM, kind: 'REST' | 'WORKOUT') {
+        const newDay: RoutineDayVM[] = this.days().filter((d) => {
             if (day.day === d.day) {
                 d.kind = kind;
                 if (kind === 'REST') {
-                    d.workoutType = undefined;
-                    d.routineId = undefined;
+                    d.type = undefined;
+                    d.id = undefined;
                 }
             }
             return d;
         });
         this.days.set(newDay);
         this.planSvc.setKindRoutineDay(day.day - 1, kind);
-        this.dayPlanSvc.setPlanDay(newDay);
+        // this.dayPlanSvc.setPlanDay(newDay);
     }
 
     savePlan(name: string, description: string) {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RoutinePlanCreate } from '../../../../shared/interfaces/routines.interface';
+import { RoutinePlanCreate, RoutinePlanVM } from '../../../../shared/interfaces/routines.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -7,12 +7,12 @@ import { RoutinePlanCreate } from '../../../../shared/interfaces/routines.interf
 export class PlansStorageService {
     private storageKey = 'routine_plan:';
 
-    getPlanStorage(id: string): RoutinePlanCreate | null {
+    getPlanStorage(id: string): RoutinePlanVM | null {
         const data = localStorage.getItem(`${this.storageKey}${id}`);
         return data ? JSON.parse(data) : null;
     }
 
-    setPlanStorage(payload: RoutinePlanCreate, id: string) {
+    setPlanStorage(payload: RoutinePlanVM, id: string) {
         localStorage.setItem(`${this.storageKey}${id}`, JSON.stringify(payload));
     }
 }

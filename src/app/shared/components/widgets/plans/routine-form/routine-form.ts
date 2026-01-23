@@ -3,7 +3,7 @@ import { FormSelectComponent } from '../../../ui/select/select';
 import { FormInputComponent } from '../../../ui/input/input';
 import { FormControl } from '@angular/forms';
 import { SelectType } from '../../../../interfaces/input.interface';
-import { RoutineDay } from '../../../../interfaces/routines.interface';
+import { RoutineDay, RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { WeeklyRoutinePlannerComponent } from '../weekly-routine-planner/weekly-routine-planner';
 import { RoutinePlanFormFacade } from './routine-form.facade';
 
@@ -40,7 +40,6 @@ export class RoutinePlanForm implements OnInit {
 
     onSubmit(event: any): void {
         this.facade.show.set(true);
-        console.log(event);
         this.facade.submitPlan().subscribe((res) => {
             console.log(res);
         });
@@ -61,7 +60,7 @@ export class RoutinePlanForm implements OnInit {
     get descriptionControl(): FormControl<string> {
         return this.facade.routineForm.get('description') as FormControl<string>;
     }
-    get routinesDayControl(): FormControl<RoutineDay[]> {
-        return this.facade.routineForm.get('routineDays') as FormControl<RoutineDay[]>;
+    get routinesDayControl(): FormControl<RoutineDayVM[]> {
+        return this.facade.routineForm.get('routineDays') as FormControl<RoutineDayVM[]>;
     }
 }

@@ -131,7 +131,7 @@ export class RoutineListBoxFacade {
             kind: 'WORKOUT',
         };
 
-        this.planSvc.setRoutineDay(routineToSave);
+        // this.planSvc.setRoutineDay(routineToSave);
     }
 
     removeRoutine() {
@@ -145,7 +145,7 @@ export class RoutineListBoxFacade {
         this.openIndex.set(null);
 
         // ARREGLADO: Remover del plan
-        this.planSvc.removeDayRoutine(value);
+        // this.planSvc.removeDayRoutine(value);
 
         // ARREGLADO: Recargar las categorías del tipo actual
         const currentType = this.exerciseForm.value.option;

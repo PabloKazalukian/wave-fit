@@ -17,7 +17,7 @@ export class DaysRoutineProgress {
     routinePlan;
 
     constructor(private planService: PlansService) {
-        this.routinePlan = toSignal(this.planService.routinePlan$, {
+        this.routinePlan = toSignal(this.planService.routinePlanVM$, {
             initialValue: null,
         });
     }
@@ -52,7 +52,7 @@ export class DaysRoutineProgress {
 
     changeDistribution() {
         const payload = this.daysSelected().toString();
-        this.planService.routinePlan$.subscribe({
+        this.planService.routinePlanVM$.subscribe({
             next: (plan) => {
                 if (plan?.weekly_distribution) {
                     plan.weekly_distribution = payload;

@@ -1,23 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RoutinePlanForm } from './routine-form';
 
-import { RoutineForm } from './routine-form';
+describe('RoutinePlanForm', () => {
+    let component: RoutinePlanForm;
+    let fixture: ComponentFixture<RoutinePlanForm>;
 
-describe('RoutineForm', () => {
-  let component: RoutineForm;
-  let fixture: ComponentFixture<RoutineForm>;
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [RoutinePlanForm],
+        }).compileComponents();
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [RoutineForm]
-    })
-    .compileComponents();
+        fixture = TestBed.createComponent(RoutinePlanForm);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-    fixture = TestBed.createComponent(RoutineForm);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

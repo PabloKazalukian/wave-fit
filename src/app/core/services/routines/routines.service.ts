@@ -8,6 +8,7 @@ import {
     RoutineDay,
     RoutineDayCreate,
     RoutineDayCreateSend,
+    RoutineDayVM,
 } from '../../../shared/interfaces/routines.interface';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
 import { PlansService } from '../plans/plans.service';
@@ -173,4 +174,10 @@ export class RoutinesServices {
             planId: data.planId,
         };
     }
+
+    // wrappedRoutineDayToSend(routine: RoutineDayVM[]): RoutineDayCreateSend | null {
+    //     return this.getAllRoutines().subscribe((routines) => {
+    //         return
+    //     });
+    // }
 }

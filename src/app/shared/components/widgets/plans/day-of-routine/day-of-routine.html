@@ -1,92 +1,33 @@
 <div
   class="w-full bg-background3 h-12 grid grid-cols-7 overflow-hidden border-x-2 border-t-2 border-primary rounded-t-xl"
 >
-  @for (d of dayPlan(); track d.day) {
+  @for (d of dayPlan(); track d) {
     <div
-      class="w-full bg-background2 flex flex-col items-center justify-center text-white font-medium transition-colors duration-150 cursor-pointer"
+      class="w-full bg-background2 border-hover:bg-primary flex flex-col items-center justify-center text-white font-medium transition-colors duration-150 cursor-pointer"
       [class.font-bold]="d.expanded"
-      [class.border-hover:bg-primary]="d.kind === 'WORKOUT' && d.routineId"
-      [class.border-hover:bg-secondary]="d.kind === 'WORKOUT' && d.workoutType && !d.routineId"
-      [class.border-hover:bg-accent]="d.kind === 'REST'"
       (click)="changeExpanded(d)"
     >
       @if (d.day) {
-        <!-- Día expandido -->
-        @if (d.expanded) {
-          @if (d.kind === 'WORKOUT' && d.routineId) {
-            <!-- WORKOUT completo expandido -->
-            <p
-              class="rounded-full border border-2 border-primary3 h-8 w-8 flex items-center justify-center font-bold text-primary"
-            >
-              ✓
-            </p>
-          } @else if (d.kind === 'WORKOUT' && d.workoutType && !d.routineId) {
-            <!-- WORKOUT incompleto expandido -->
-            <p
-              class="rounded-full border border-2 border-primary3 h-8 w-8 flex items-center justify-center font-bold text-accent"
-            >
-              !
-            </p>
-          } @else if (d.kind === 'WORKOUT') {
-            <!-- WORKOUT sin categoría expandido -->
-            <p
-              class="rounded-full border border-2 border-primary3 h-8 w-8 flex items-center justify-center font-bold text-primary"
-            >
-              {{ d.day }}
-            </p>
-          } @else if (d.kind === 'REST') {
-            <!-- REST expandido -->
-            <p
-              class="rounded-full border border-2 border-primary3 h-8 w-8 flex items-center justify-center font-bold bg-secondaryDark text-secondary"
-            >
-              {{ d.day }}
-            </p>
-          } @else {
-            <!-- Sin kind expandido -->
-            <p
-              class="rounded-full border border-2 border-primary3 h-8 w-8 flex items-center justify-center font-bold text-primary"
-            >
-              {{ d.day }}
-            </p>
-          }
-        }
-        <!-- Día NO expandido -->
-        @else {
-          @if (d.kind === 'WORKOUT' && d.routineId) {
-            <!-- WORKOUT completo -->
-            <p
-              class="rounded-full border border-primary2 h-8 w-8 flex items-center justify-center text-text3 bg-background3"
-            >
-              ✓
-            </p>
-          } @else if (d.kind === 'WORKOUT' && d.workoutType && !d.routineId) {
-            <!-- WORKOUT con categoría pero sin rutina -->
-            <p
-              class="rounded-full border border-accent h-8 w-8 flex items-center justify-center text-accent bg-background3"
-            >
-              !
-            </p>
-          } @else if (d.kind === 'WORKOUT') {
-            <!-- WORKOUT sin categoría -->
-            <p
-              class="rounded-full border border-primary2 h-8 w-8 flex items-center justify-center text-text3 bg-background3"
-            >
-              {{ d.day }}
-            </p>
-          } @else if (d.kind === 'REST') {
-            <!-- REST -->
-            <p
-              class="rounded-full border border-secondary h-8 w-8 flex items-center justify-center text-white bg-background3"
-            >
-              {{ d.day }}
-            </p>
-          } @else {
-            <!-- Sin kind definido -->
-            <p class="rounded-full border h-8 w-8 flex items-center justify-center">
-              {{ d.day }}
-            </p>
-          }
-        }
+        <p
+          class="rounded-full border h-8 w-8 flex items-center justify-center"
+          [class.border-2]="d.expanded"
+          [class.border-primary3]="d.expanded"
+          [class.font-bold]="d.expanded"
+          [class.text-primary]="d.expanded"
+          [class.border-primary2]="d.kind === 'WORKOUT' && d.id && !d.expanded"
+          [class.text-text3]="d.kind === 'WORKOUT' && d.id && !d.expanded"
+          [class.bg-background3]="d.kind === 'WORKOUT' && d.id && !d.expanded"
+          [class.border-accent]="d.kind === 'WORKOUT' && !d.id && d.type && !d.expanded"
+          [class.text-accent]="d.kind === 'WORKOUT' && !d.id && d.type && !d.expanded"
+          [class.bg-background3]="d.kind === 'WORKOUT' && !d.id && d.type && !d.expanded"
+          [class.border-secondary]="d.kind === 'REST'"
+          [class.text-white]="d.kind === 'REST' && !d.expanded"
+          [class.bg-secondaryDark]="d.kind === 'REST' && d.expanded"
+          [class.text-secondary]="d.kind === 'REST' && d.expanded"
+          [class.bg-background3]="d.kind === 'REST' && !d.expanded"
+        >
+          {{ getDisplayContent(d) }}
+        </p>
       } @else {
         <p>{{ d.day }}</p>
       }
@@ -105,10 +46,10 @@
   </div>
   @if (computedDayPlan()?.kind === 'WORKOUT') {
     <div
-      class="rounded-b-xl flex itemx-center justify-center bg-background4 border-b-2 border-x-2 border-primary py-2"
+      class="rounded-b-xl flex items-center justify-center bg-background4 border-b-2 border-x-2 border-primary py-2"
     >
       <p class="text-lg mb-1 text-primaryLight">
-        {{ computedDayPlan()?.workoutType | exerciseCategory }}
+        {{ computedDayPlan()?.type?.join(', ') | exerciseCategory }}
       </p>
     </div>
   }
