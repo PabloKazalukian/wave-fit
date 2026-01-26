@@ -2,7 +2,7 @@ import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { FormControl, FormGroup } from '@angular/forms';
-import { DayPlan, RoutineDay } from '../../../../interfaces/routines.interface';
+import { DayPlan, RoutineDay, RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
@@ -14,7 +14,7 @@ export type ExerciseType = FormControlsOf<SelectTypeInput>;
 @Injectable()
 export class RoutineListBoxFacade {
     private destroyRef = inject(DestroyRef);
-    private day = signal<DayPlan | null>(null);
+    private day = signal<RoutineDayVM | null>(null);
     private isInitialized = false; // NUEVO: flag para evitar llamadas duplicadas
 
     exerciseForm = new FormGroup<ExerciseType>({
@@ -34,16 +34,17 @@ export class RoutineListBoxFacade {
         private planSvc: PlansService,
     ) {}
 
-    setDay(day: DayPlan) {
+    setDay(day: RoutineDayVM) {
         this.day.set(day);
+        console.log(day);
 
         // ARREGLADO: Primero cargar rutina si existe, LUEGO setear el form
-        if (day.routineId) {
-            this.loadRoutineById(day.routineId);
-        } else if (day.kind === 'WORKOUT' && day.workoutType) {
-            // Solo patchear y cargar categorías si NO hay routineId
-            this.exerciseForm.patchValue({ option: day.workoutType }, { emitEvent: false });
-            this.loadCategoriesByType(day.workoutType);
+        if (day.id) {
+            this.loadRoutineById(day.id);
+        } else if (day.kind === 'WORKOUT' && day.type) {
+            // Solo patchear y cargar categorías si NO hay id
+            this.exerciseForm.patchValue({ option: day.type[0] }, { emitEvent: false });
+            this.loadCategoriesByType(day.type[0]);
         }
 
         // ARREGLADO: Subscribir solo una vez
@@ -62,10 +63,12 @@ export class RoutineListBoxFacade {
                 const exerCat = ExerciseCategory;
                 if (Object.keys(exerCat).includes(newValue.option)) {
                     // ARREGLADO: Solo actualizar si cambió realmente
-                    if (day.workoutType !== newValue.option) {
-                        this.planSvc.setRoutineDayType(newValue.option, day.day - 1);
+                    if (day.type !== undefined) {
+                        if (day.type[0] !== newValue.option) {
+                            this.planSvc.setRoutineDayType(newValue.option, day.day - 1);
+                        }
+                        this.loadCategoriesByType(newValue.option);
                     }
-                    this.loadCategoriesByType(newValue.option);
                 }
             },
         });

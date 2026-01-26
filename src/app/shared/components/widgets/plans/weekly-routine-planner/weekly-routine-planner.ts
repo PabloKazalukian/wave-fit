@@ -11,16 +11,10 @@ import {
     computed,
 } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import {
-    DayIndex,
-    DayPlan,
-    RoutineDay,
-    RoutineDayVM,
-} from '../../../../../shared/interfaces/routines.interface';
+import { DayIndex, RoutineDayVM } from '../../../../../shared/interfaces/routines.interface';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
 import { BtnComponent } from '../../../../../shared/components/ui/btn/btn';
 import { DayOfRoutine } from '../day-of-routine/day-of-routine';
-import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DaysRoutineProgress } from './routine-days-progress/days-routine-progress.';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
@@ -42,10 +36,7 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
     daysSelected = signal<number>(0);
     selectedDay$ = new BehaviorSubject<DayIndex | null>(null);
 
-    constructor(
-        private dayPlanSvc: DayPlanService,
-        private planSvc: PlansService,
-    ) {}
+    constructor(private planSvc: PlansService) {}
 
     ngOnInit() {
         // this.dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -56,6 +47,7 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
         this.planSvc.routinePlanVM$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (plan) => {
                 this.days.set(plan.routineDays);
+                console.log(plan.routineDays);
             },
         });
     }

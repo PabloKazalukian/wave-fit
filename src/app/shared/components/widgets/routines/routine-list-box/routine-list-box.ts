@@ -1,6 +1,6 @@
 // routine-list-box.component.ts
 import { Component, Input, OnInit, inject, signal, WritableSignal } from '@angular/core';
-import { DayPlan, RoutineDay } from '../../../../interfaces/routines.interface';
+import { DayPlan, RoutineDay, RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { options } from '../../../../interfaces/input.interface';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -27,7 +27,7 @@ import { RoutineListBoxFacade } from './routine-list-box.facade';
 export class RoutineListBoxComponent implements OnInit {
     private facade = inject(RoutineListBoxFacade);
 
-    @Input() day!: DayPlan;
+    @Input() day!: RoutineDayVM;
     exerciseForm: FormGroup = this.facade.exerciseForm;
     routinesDays: WritableSignal<RoutineDay[]> = this.facade.routinesDays;
 

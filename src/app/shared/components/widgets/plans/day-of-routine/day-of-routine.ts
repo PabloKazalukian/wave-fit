@@ -24,7 +24,6 @@ export class DayOfRoutine implements OnInit {
     ngOnInit(): void {
         this.planSvc.routinePlanVM$.pipe(take(1)).subscribe({
             next: (e) => {
-                console.log(e.routineDays);
                 this.dayPlan.set(e.routineDays);
             },
         });
@@ -40,17 +39,17 @@ export class DayOfRoutine implements OnInit {
     });
 
     changeExpanded(routine: RoutineDayVM) {
-        this.dayPlan.update((days) => {
-            return days.map((day) => {
-                if (routine.day === day.day) {
-                    day.expanded = true;
-                } else {
-                    day.expanded = false;
-                }
-                return day;
-            });
+        const currentDayPlan = this.dayPlan();
+        const payload = currentDayPlan.map((day) => {
+            if (routine.day === day.day) {
+                day.expanded = true;
+            } else {
+                day.expanded = false;
+            }
+            return day;
         });
-        // DayPlanExpanded(d);
+        this.dayPlan.update(() => payload);
+        this.planSvc.setDayRoutines(payload);
     }
     getDisplayContent(d: RoutineDayVM): string {
         if (d.kind === 'WORKOUT' && d.id) {

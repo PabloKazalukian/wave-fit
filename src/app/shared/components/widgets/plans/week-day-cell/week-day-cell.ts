@@ -11,7 +11,11 @@ import {
     signal,
 } from '@angular/core';
 import { filter, Observable, tap } from 'rxjs';
-import { DayPlan } from '../../../../../shared/interfaces/routines.interface';
+import {
+    DayPlan,
+    RoutineDay,
+    RoutineDayVM,
+} from '../../../../../shared/interfaces/routines.interface';
 import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
 import { SelectType, SelectTypeInput } from '../../../../../shared/interfaces/input.interface';
@@ -33,7 +37,7 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
 export class WeekDayCellComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
 
-    @Input() day!: DayPlan;
+    @Input() day!: RoutineDayVM;
     @Output() kindChange = new EventEmitter<'REST' | 'WORKOUT'>();
 
     routines$?: Observable<any[]>;
@@ -64,7 +68,7 @@ export class WeekDayCellComponent implements OnInit {
             .subscribe((newValue) => {
                 this.onKindChange(newValue as 'REST' | 'WORKOUT');
             });
-        this.selectControl.setValue(this.day.kind);
+        if (this.day.kind) this.selectControl.setValue(this.day.kind);
     }
 
     initForm(): FormGroup<selectFormType> {

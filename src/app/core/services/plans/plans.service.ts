@@ -71,9 +71,10 @@ export class PlansService {
     }
 
     setRoutinePlan(plan: RoutinePlanVM) {
+        console.log(plan);
         this.plansSubject.next(plan);
         this.planStorage.setPlanStorage(plan, this.userId());
-        if (this.plansSubject.value) this.dayPlanSvc.changeDayPlan(plan);
+        // if (this.plansSubject.value) this.dayPlanSvc.changeDayPlan(plan);
     }
 
     setKindRoutineDay(dayIndex: number, kind: 'REST' | 'WORKOUT') {
@@ -237,6 +238,10 @@ export class PlansService {
 
         const updated = { ...plan, routineDays };
         this.setRoutinePlan(updated);
+    }
+
+    setDayRoutines(routine: RoutineDayVM[]) {
+        this.setRoutinePlan({ ...this.currentValue(), routineDays: routine });
     }
 
     submitPlan(current: any): Observable<any> {
