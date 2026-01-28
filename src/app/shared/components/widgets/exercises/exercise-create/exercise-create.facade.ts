@@ -15,6 +15,11 @@ import { noEmpty } from '../../../../validators/no-empty.validator';
 export type ExerciseType = FormControlsOf<ExerciseForm>;
 export type selectFormType = FormControlsOf<SelectTypeInput>;
 export type notificationType = 'success' | 'error' | 'info';
+export enum notificationEnum {
+    success = 'success',
+    error = 'error',
+    info = 'info',
+}
 
 @Injectable()
 export class ExerciseCreateFacade {

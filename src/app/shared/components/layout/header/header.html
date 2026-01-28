@@ -1,26 +1,48 @@
-@if (show){
-
-<header class="flex w-full justify-center items-center fixed top-0 left-0 z-10">
-    <nav class="flex justify-center items-center ">
-        <div class="bg-background3 flex justify-center items-center gap-6 px-6 py-4 rounded-xl mt-4">
-            <!--  -->
-            <!-- <app-wave-logo></app-wave-logo> -->
-            <app-wave-logo colorType="gradient-animated" [gradientColors]="['#50C878', '#2D5694']" width="40"
-                height="40" />
-            <ul class="text-text2">
-                <app-btn [routerLink]="'/home'" [text]="'Home'" [color]="'text'" [variant]="'basic'"></app-btn>
-            </ul>
-            <ul class="text-text2">
-                <app-btn [routerLink]="'/user'" [text]="'Mi Dia'" [color]="'text'" [variant]="'basic'"></app-btn>
-            </ul>
-            <ul class="text-text2">
-                <app-btn [routerLink]="'/routines'" [text]="'Programar Rutina'" [color]="'text'"
-                    [variant]="'basic'"></app-btn>
-            </ul>
-            <ul class="text-text2 w-20">
-                <app-btn [text]="'Logout'" [variant]="'raised'" [color]="'primaryDark'" (click)="logout()"></app-btn>
-            </ul>
-        </div>
+@if (show) {
+  <header class="flex w-full justify-center items-center fixed top-0 left-0 z-10">
+    <nav class="flex justify-center items-center">
+      <div class="bg-background3 flex justify-center items-center gap-6 px-6 py-4 rounded-xl mt-4">
+        <!--  -->
+        <!-- <app-wave-logo></app-wave-logo> -->
+        <app-wave-logo
+          colorType="gradient-animated"
+          [gradientColors]="['#50C878', '#ec4899', '#66aaf9', '#50C878']"
+          width="40"
+          height="40"
+        />
+        <ul class="text-text2">
+          <app-btn
+            [routerLink]="'/home'"
+            [text]="'Home'"
+            [color]="'text'"
+            [variant]="'basic'"
+          ></app-btn>
+        </ul>
+        <ul class="text-text2">
+          <app-btn
+            [routerLink]="'/user'"
+            [text]="'Mi Dia'"
+            [color]="'text'"
+            [variant]="'basic'"
+          ></app-btn>
+        </ul>
+        <ul class="text-text2">
+          <app-btn
+            [routerLink]="'/routines'"
+            [text]="'Programar Rutina'"
+            [color]="'text'"
+            [variant]="'basic'"
+          ></app-btn>
+        </ul>
+        <ul class="text-text2 w-20">
+          <app-btn
+            [text]="'Logout'"
+            [variant]="'raised'"
+            [color]="'primaryDark'"
+            (click)="logout()"
+          ></app-btn>
+        </ul>
+      </div>
     </nav>
-</header>
+  </header>
 }

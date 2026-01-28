@@ -1,11 +1,10 @@
-import { Component, OnInit, signal, DestroyRef, inject, computed } from '@angular/core';
-import { DayPlan, RoutineDayVM } from '../../../../interfaces/routines.interface';
-import { DayPlanService } from '../../../../../core/services/day-plan/day-plan.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, OnInit, signal, computed } from '@angular/core';
+import { RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
-import { take } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
+
+type DayState = 'error' | 'accent' | 'rest' | 'complete';
 
 @Component({
     selector: 'app-day-of-routine',
@@ -14,24 +13,18 @@ import { PlansService } from '../../../../../core/services/plans/plans.service';
     templateUrl: './day-of-routine.html',
 })
 export class DayOfRoutine implements OnInit {
-    private destroyRef = inject(DestroyRef);
-
     dayPlan = signal<RoutineDayVM[]>([]);
     userId: string = '';
+    dayState: DayState = 'error';
 
     constructor(private planSvc: PlansService) {}
 
     ngOnInit(): void {
-        this.planSvc.routinePlanVM$.pipe(take(1)).subscribe({
+        this.planSvc.routinePlanVM$.pipe().subscribe({
             next: (e) => {
                 this.dayPlan.set(e.routineDays);
             },
         });
-        // dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        //     next: (e) => {
-        //         this.dayPlan.set(e);
-        //     },
-        // });
     }
 
     computedDayPlan = computed(() => {
@@ -41,12 +34,7 @@ export class DayOfRoutine implements OnInit {
     changeExpanded(routine: RoutineDayVM) {
         const currentDayPlan = this.dayPlan();
         const payload = currentDayPlan.map((day) => {
-            if (routine.day === day.day) {
-                day.expanded = true;
-            } else {
-                day.expanded = false;
-            }
-            return day;
+            return { ...day, expanded: day.day === routine.day };
         });
         this.dayPlan.update(() => payload);
         this.planSvc.setDayRoutines(payload);
@@ -59,7 +47,35 @@ export class DayOfRoutine implements OnInit {
         if (d.kind === 'WORKOUT' && d.type && !d.id) {
             return '!';
         }
+        if (d.kind !== 'WORKOUT' && d.kind !== 'REST') {
+            return '!';
+        }
 
         return d.day.toString();
+    }
+
+    getDayState(day: RoutineDayVM): DayState {
+        if (day.kind !== 'REST' && day.kind !== 'WORKOUT') {
+            return 'error';
+        }
+
+        if (day.kind === 'REST') {
+            if (day.type || day.id) {
+                return 'error';
+            }
+            return 'rest';
+        }
+
+        if (day.kind === 'WORKOUT') {
+            if (day.id && day.type) {
+                return 'complete';
+            }
+            if (!day.id) {
+                return 'accent';
+            }
+            return 'accent';
+        }
+
+        return 'error';
     }
 }

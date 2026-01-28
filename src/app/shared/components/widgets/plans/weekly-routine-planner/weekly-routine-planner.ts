@@ -9,6 +9,7 @@ import {
     DestroyRef,
     Output,
     computed,
+    input,
 } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { DayIndex, RoutineDayVM } from '../../../../../shared/interfaces/routines.interface';
@@ -18,12 +19,25 @@ import { DayOfRoutine } from '../day-of-routine/day-of-routine';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DaysRoutineProgress } from './routine-days-progress/days-routine-progress.';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
+import { SpinnerComponent } from '../../../ui/icon/spinner';
+import { IconComponent } from '../../../ui/icon/icon';
+import { notificationType } from '../../exercises/exercise-create/exercise-create.facade';
+import { Notification } from '../../../ui/notification/notification';
+import { typeNotification } from '../routine-form/routine-form.facade';
 
 @Component({
     selector: 'app-weekly-routine-planner',
     standalone: true,
     templateUrl: './weekly-routine-planner.html',
-    imports: [WeekDayCellComponent, BtnComponent, DayOfRoutine, DaysRoutineProgress],
+    imports: [
+        WeekDayCellComponent,
+        BtnComponent,
+        DayOfRoutine,
+        DaysRoutineProgress,
+        SpinnerComponent,
+        IconComponent,
+        Notification,
+    ],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WeeklyRoutinePlannerComponent implements OnInit {
@@ -36,18 +50,17 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
     daysSelected = signal<number>(0);
     selectedDay$ = new BehaviorSubject<DayIndex | null>(null);
 
+    loading = input<boolean>(false);
+    complete = signal<boolean | null>(null);
+    showNotification = signal<boolean>(false);
+    notification = input<typeNotification>();
+
     constructor(private planSvc: PlansService) {}
 
     ngOnInit() {
-        // this.dayPlanSvc.dayPlan$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        //     next: (value) => {
-        //         this.days.set(value);
-        //     },
-        // });
         this.planSvc.routinePlanVM$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (plan) => {
                 this.days.set(plan.routineDays);
-                console.log(plan.routineDays);
             },
         });
     }
@@ -75,10 +88,14 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
         });
         this.days.set(newDay);
         this.planSvc.setKindRoutineDay(day.day - 1, kind);
-        // this.dayPlanSvc.setPlanDay(newDay);
     }
 
-    savePlan(name: string, description: string) {
+    savePlan(e: Event) {
+        console.log(e);
+        // this.loading.set(true);
+        // setTimeout(() => this.loading.set(false), 6000);
+
+        // this.loading.set(true);
         this.outputSavePlan.next(true);
     }
 }

@@ -10,7 +10,7 @@ import {
     RoutinePlanSend,
 } from '../../../../shared/interfaces/routines.interface';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
-import { map, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -93,6 +93,24 @@ export class PlansApiService {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map((value) => value.data?.routinePlan),
+            );
+    }
+
+    validateTitleUnique(title: string): Observable<boolean | undefined> {
+        return this.apollo
+            .query<{ validateTitleUnique: boolean }>({
+                query: gql`
+                    query ValidateTitleUnique($title: String!) {
+                        validateTitleUnique(title: $title)
+                    }
+                `,
+                variables: {
+                    title: title,
+                },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map((value) => value.data?.validateTitleUnique),
             );
     }
     createInputExercise(routineDay: RoutineDayCreate): string[] {

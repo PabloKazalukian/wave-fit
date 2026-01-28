@@ -16,14 +16,29 @@
       }
     </div>
   </div>
+  @if (this.notification()?.show) {
+    <app-notification
+      [message]="notification()?.message || ''"
+      [type]="notification()?.type || 'success'"
+    ></app-notification>
+  }
 
-  <div class="actions">
+  <div>
     <app-btn
       [text]="'Guardar plan'"
       [variant]="'raised'"
       [color]="'secondaryDark'"
-      (click)="savePlan('Mi rutina', 'desc')"
+      [showIcon]="true"
+      size="md"
+      (click)="savePlan($event)"
     >
+      <app-icon>
+        <div class="h-6 w-6">
+          @if (this.loading()) {
+            <app-spinner> </app-spinner>
+          }
+        </div>
+      </app-icon>
     </app-btn>
   </div>
 </div>

@@ -29,6 +29,8 @@
     <div>
       <app-weekly-routine-planner
         [distribution]="selectControl.value"
+        [loading]="this.facade.loading()"
+        [notification]="this.facade.notification()"
         (outputSavePlan)="onSubmit($event)"
       ></app-weekly-routine-planner>
     </div>

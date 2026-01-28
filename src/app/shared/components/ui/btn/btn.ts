@@ -1,4 +1,4 @@
-import { Component, Input, ContentChild, TemplateRef } from '@angular/core';
+import { Component, Input, ContentChild, TemplateRef, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { IconComponent } from '../icon/icon';
@@ -36,7 +36,7 @@ export class BtnComponent {
     @Input() routerLink?: string;
     @Input() buttonType: 'button' | 'submit' | 'reset' = 'button';
     @Input() size: 'sm' | 'md' = 'sm';
-    @Input() showIcon: boolean = false;
+    showIcon = input<boolean>(false);
 
     // @ContentChild('iconTemplate') iconTemplate?: TemplateRef<any>;
     @ContentChild(IconComponent) icon?: IconComponent;
@@ -48,7 +48,7 @@ export class BtnComponent {
 
     get baseClasses(): string {
         const sizeClasses = this.getSizeClasses();
-        const iconSpacing = this.showIcon
+        const iconSpacing = this.showIcon()
             ? 'flex items-center justify-center space-x-2'
             : 'text-center';
 
@@ -56,7 +56,7 @@ export class BtnComponent {
     }
 
     private getSizeClasses(): string {
-        if (this.showIcon) {
+        if (this.showIcon()) {
             return this.size === 'sm'
                 ? 'px-3 py-2 text-sm rounded-lg shadow-md hover:scale-[1.01] transition-all duration-300'
                 : 'px-4 py-4 text-lg rounded-2xl shadow-lg hover:scale-[1.02] transition-all duration-300 font-bold';
@@ -78,7 +78,7 @@ export class BtnComponent {
             case 'basic':
                 return `hover:bg-${cleanColor} hover:text-white`;
             case 'raised':
-                return `bg-${this.color} text-white font-semibold ${this.showIcon ? 'hover:bg-' + cleanColor + 'Hover' : 'shadow-md hover:bg-' + cleanColor + 'Hover'}`;
+                return `bg-${this.color} text-white font-semibold ${this.showIcon() ? 'hover:bg-' + cleanColor + 'Hover' : 'shadow-md hover:bg-' + cleanColor + 'Hover'}`;
             case 'stroked':
                 return `border border-surface hover:bg-${cleanColor}-hover-faint`;
             case 'flat':

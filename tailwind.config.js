@@ -115,6 +115,7 @@ module.exports = {
         error: "#CC1E2C",
         error2: "#E04A58",
         error3: "#9E1622",
+        error4: '#ec4899',
         errorLight: "#F199A0",
         errorDark: "#5C0C11",
         errorHover: "#9E1622",
@@ -134,6 +135,7 @@ module.exports = {
         textLight: "#6B6B6B",
         textDark: "#0D0D0D",
         textHover: "#1A1A1A",
+
 
       },
       fontFamily: {

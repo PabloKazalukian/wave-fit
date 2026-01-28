@@ -1,9 +1,10 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { BehaviorSubject, filter, map, Observable, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import {
     DayIndex,
     DayPlan,
+    KindEnum,
     RoutineDay,
     RoutineDayVM,
     RoutinePlanCreate,
@@ -15,6 +16,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlansApiService } from './api/plans-api.service';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
 import { RoutinesServices } from '../routines/routines.service';
+import { Kind } from 'graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -71,10 +73,9 @@ export class PlansService {
     }
 
     setRoutinePlan(plan: RoutinePlanVM) {
-        console.log(plan);
+        console.log(plan.routineDays);
         this.plansSubject.next(plan);
         this.planStorage.setPlanStorage(plan, this.userId());
-        // if (this.plansSubject.value) this.dayPlanSvc.changeDayPlan(plan);
     }
 
     setKindRoutineDay(dayIndex: number, kind: 'REST' | 'WORKOUT') {
@@ -87,124 +88,14 @@ export class PlansService {
         });
     }
 
-    setRoutineDayType(type: string, indexDay: number) {
-        // let newRoutine = this.plansSubject.value?.routineDays.map((d, i) =>
-        //     i === indexDay ? { ...d, workoutType: type } : d,
-        // );
-        // if (newRoutine && this.plansSubject.value) {
-        //     const updatePlan: RoutinePlanCreate = {
-        //         ...this.plansSubject.value,
-        //         routineDays: newRoutine,
-        //     };
-        //     console.log('updatePlan', updatePlan);
-        //     this.setRoutinePlan(updatePlan);
-        // }
-        // this.routinePlanVM$.pipe(takeUntilDestroyed(this.destroyRef), take(1)).subscribe((plan) => {
-        //     const routineDays = plan.routineDays.map((d, i) =>
-        //         i === indexDay ? { ...d, type: [type] } : d,
-        //     );
-        //     const updatePlan: RoutinePlanCreate = { ...plan, routineDays };
-        //     this.setRoutinePlan(updatePlan);
-        // });
-    }
-
-    // setRoutineDay(routine: RoutineDay) {
-    //     this.dayPlanSvc.dayPlan$
-    //         .pipe(
-    //             take(1),
-    //             map((dayPlans: DayPlan[]) => {
-    //                 const expandedDay = dayPlans.find((d) => d.expanded === true);
-
-    //                 if (!expandedDay) {
-    //                     console.error('No expanded day found');
-    //                     return null;
-    //                 }
-
-    //                 const currentPlan = this.plansSubject.value;
-    //                 if (!currentPlan) return null;
-
-    //                 // Actualizar routineDays
-    //                 const routineDays = currentPlan.routineDays.map((r, index) => {
-    //                     if (index + 1 === expandedDay.day) {
-    //                         return routine;
-    //                     }
-    //                     return r;
-    //                 });
-
-    //                 const updatePlan: RoutinePlanCreate = {
-    //                     ...currentPlan,
-    //                     routineDays,
-    //                 };
-
-    //                 this.setRoutinePlan(updatePlan);
-
-    //                 // IMPORTANTE: Actualizar también el DayPlan
-    //                 const updatedDayPlans = dayPlans.map((d) => {
-    //                     if (d.day === expandedDay.day) {
-    //                         return {
-    //                             ...d,
-    //                             routineId: routine.id,
-    //                             workoutType: routine.type?.[0] || d.workoutType,
-    //                         };
-    //                     }
-    //                     return d;
-    //                 });
-
-    //                 this.dayPlanSvc.setPlanDay(updatedDayPlans);
-
-    //                 return expandedDay;
-    //             }),
-    //         )
-    //         .subscribe();
-    // }
-
-    removeDayRoutine(dayToRemove: RoutineDayVM) {
-        // this.dayPlanSvc.dayPlan$
-        //     .pipe(
-        //         take(1),
-        //         map((dayPlans: DayPlan[]) => {
-        //             if(this.plansSubject.getValue() === null) return null;
-        //             const expandedDay = this.plansSubject.getValue().routineDays.find((r => r.day === dayToRemove.day))?.expanded
-        //             if (!expandedDay) return null;
-        //             const currentPlan = this.plansSubject.value;
-        //             if (!currentPlan) return null;
-        //             // ARREGLADO: Crear un routineDay vacío pero válido
-        //             const emptyRoutine: RoutineDayVM = {
-        //                 title: '',
-        //                 kind: 'WORKOUT',
-        //                 expanded: false,
-        //                 day: expandedDay.day,
-        //                 type: expandedDay.workoutType
-        //                     ? [expandedDay.workoutType as ExerciseCategory]
-        //                     : undefined,
-        //             };
-        //             const routineDays = currentPlan.routineDays.map((r, index) => {
-        //                 if (index + 1 === expandedDay.day) {
-        //                     return emptyRoutine;
-        //                 }
-        //                 return r;
-        //             });
-        //             const updatePlan: RoutinePlanVM = {
-        //                 ...currentPlan,
-        //                 routineDays,
-        //             };
-        //             this.setRoutinePlan(updatePlan);
-        //             // IMPORTANTE: Actualizar también el DayPlan
-        //             const updatedDayPlans = dayPlans.map((d) => {
-        //                 if (d.day === expandedDay.day) {
-        //                     return {
-        //                         ...d,
-        //                         routineId: undefined,
-        //                         // Mantener el workoutType para poder cargar categorías
-        //                     };
-        //                 }
-        //                 return d;
-        //             });
-        //             this.dayPlanSvc.setPlanDay(updatedDayPlans);
-        //             return expandedDay;
-        //         }),
-        //     )
-        //     .subscribe();
+    removeDayRoutine(dayToRemove: DayIndex) {
+        this.routinePlanVM$.pipe(take(1)).subscribe((plan) => {
+            const routineDays = plan.routineDays.map((d) =>
+                d.day === dayToRemove ? { ...d, id: undefined } : d,
+            );
+            const updatePlan: RoutinePlanVM = { ...plan, routineDays };
+            this.setRoutinePlan(updatePlan);
+        });
     }
 
     getRoutinePlan(idUser: string): RoutinePlanVM | null {
@@ -237,15 +128,20 @@ export class PlansService {
         const routineDays = plan.routineDays.map((d, i) => (i === dayIndex ? routine : d));
 
         const updated = { ...plan, routineDays };
+        console.log(updated);
         this.setRoutinePlan(updated);
     }
 
-    setDayRoutines(routine: RoutineDayVM[]) {
-        this.setRoutinePlan({ ...this.currentValue(), routineDays: routine });
+    setDayRoutines(routineDays: RoutineDayVM[]) {
+        this.setRoutinePlan({ ...this.currentValue(), routineDays });
     }
 
     submitPlan(current: any): Observable<any> {
-        //aca tambein debe llegar limpito
+        return of(current);
         return this.planApi.createPlan(current);
+    }
+
+    validateTitleUnique(title: string): Observable<boolean | undefined> {
+        return this.planApi.validateTitleUnique(title);
     }
 }

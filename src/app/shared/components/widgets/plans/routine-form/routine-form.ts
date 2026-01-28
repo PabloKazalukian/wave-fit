@@ -39,9 +39,11 @@ export class RoutinePlanForm implements OnInit {
     }
 
     onSubmit(event: any): void {
+        // event.preventDefault();
         this.facade.show.set(true);
-        this.facade.submitPlan().subscribe((res) => {
-            console.log(res);
+        this.facade.submitPlan().subscribe({
+            next: (res) => console.log(res),
+            error: (err) => console.error(err),
         });
     }
 

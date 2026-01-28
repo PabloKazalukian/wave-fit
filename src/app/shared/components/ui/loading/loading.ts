@@ -8,51 +8,6 @@ import { NgClass, NgStyle } from '@angular/common';
     standalone: true,
     templateUrl: './loading.html',
     styleUrl: './loading.css',
-    // styles: `
-    //     .loader {
-    //         width: 8px;
-    //         height: 48px;
-    //         display: inline-block;
-    //         position: relative;
-    //         border-radius: 4px;
-    //         box-sizing: border-box;
-    //         animation: animloader 0.6s linear infinite;
-    //         color: currentColor; /* clave para que el color se aplique */
-    //     }
-
-    //     @keyframes animloader {
-    //         0% {
-    //             box-shadow:
-    //                 20px -10px currentColor,
-    //                 40px 10px currentColor,
-    //                 60px 0px currentColor;
-    //         }
-    //         25% {
-    //             box-shadow:
-    //                 20px 0px currentColor,
-    //                 40px 0px currentColor,
-    //                 60px 10px currentColor;
-    //         }
-    //         50% {
-    //             box-shadow:
-    //                 20px 10px currentColor,
-    //                 40px -10px currentColor,
-    //                 60px 0px currentColor;
-    //         }
-    //         75% {
-    //             box-shadow:
-    //                 20px 0px currentColor,
-    //                 40px 0px currentColor,
-    //                 60px -10px currentColor;
-    //         }
-    //         100% {
-    //             box-shadow:
-    //                 20px -10px currentColor,
-    //                 40px 10px currentColor,
-    //                 60px 0px currentColor;
-    //         }
-    //     }
-    // `,
 })
 export class Loading {
     @Input() color: COLOR_VALUES = 'primary';

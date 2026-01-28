@@ -8,7 +8,7 @@
       }
     </div>
 
-    @if (showIcon) {
+    @if (showIcon()) {
       @if (icon) {
         <!-- Icono proyectado desde el padre (IconComponent) -->
         <ng-content></ng-content>
@@ -35,7 +35,7 @@
       <small class="block text-xs opacity-75">{{ this.descriptionText }}</small>
     }
 
-    @if (showIcon) {
+    @if (showIcon()) {
       @if (icon) {
         <!-- Icono proyectado desde el padre (IconComponent) -->
         <ng-content></ng-content>

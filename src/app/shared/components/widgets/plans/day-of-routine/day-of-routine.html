@@ -10,21 +10,14 @@
       @if (d.day) {
         <p
           class="rounded-full border h-8 w-8 flex items-center justify-center"
-          [class.border-2]="d.expanded"
-          [class.border-primary3]="d.expanded"
-          [class.font-bold]="d.expanded"
-          [class.text-primary]="d.expanded"
-          [class.border-primary2]="d.kind === 'WORKOUT' && d.id && !d.expanded"
-          [class.text-text3]="d.kind === 'WORKOUT' && d.id && !d.expanded"
-          [class.bg-background3]="d.kind === 'WORKOUT' && d.id && !d.expanded"
-          [class.border-accent]="d.kind === 'WORKOUT' && !d.id && d.type && !d.expanded"
-          [class.text-accent]="d.kind === 'WORKOUT' && !d.id && d.type && !d.expanded"
-          [class.bg-background3]="d.kind === 'WORKOUT' && !d.id && d.type && !d.expanded"
-          [class.border-secondary]="d.kind === 'REST'"
-          [class.text-white]="d.kind === 'REST' && !d.expanded"
-          [class.bg-secondaryDark]="d.kind === 'REST' && d.expanded"
-          [class.text-secondary]="d.kind === 'REST' && d.expanded"
-          [class.bg-background3]="d.kind === 'REST' && !d.expanded"
+          [ngClass]="{
+            'border-2 font-bold': d.expanded,
+            'border-accent text-accent': getDayState(d) === 'accent',
+            'border-primary text-primary': getDayState(d) === 'complete',
+            'border-secondary text-secondary': getDayState(d) === 'rest',
+            'bg-background3': getDayState(d) === 'rest' && d.expanded,
+            'border-error text-error': getDayState(d) === 'error',
+          }"
         >
           {{ getDisplayContent(d) }}
         </p>
