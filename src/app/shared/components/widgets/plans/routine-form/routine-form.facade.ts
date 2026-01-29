@@ -1,5 +1,5 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
 import {
     KindEnum,
     RoutineDay,
@@ -10,12 +10,13 @@ import { FormControlsOf } from '../../../../utils/form-types.util';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, map, Observable, of, switchMap, tap, timer } from 'rxjs';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import {
     notificationEnum,
     notificationType,
 } from '../../exercises/exercise-create/exercise-create.facade';
+import { routineDaysValidator } from '../../../../validators/routine-days.validator';
 
 type RoutinePlanType = FormControlsOf<RoutinePlanVM>;
 export type typeNotification = { show: boolean; type: notificationType; message: string };
@@ -35,17 +36,31 @@ export class RoutinePlanFormFacade {
     notification = signal<typeNotification>(initValueNotification);
 
     routineForm = new FormGroup<RoutinePlanType>({
-        name: new FormControl('', { nonNullable: true }),
+        name: new FormControl('', {
+            nonNullable: true,
+            validators: [
+                Validators.required,
+                Validators.minLength(3),
+                Validators.pattern(/^[a-zA-Z0-9\s]+$/),
+            ],
+            asyncValidators: [this.validateTitleUniqueForm.bind(this)],
+            updateOn: 'blur',
+        }),
         description: new FormControl('', { nonNullable: true }),
-        weekly_distribution: new FormControl('', { nonNullable: true }),
-        routineDays: new FormControl<RoutineDayVM[]>(Array(7).fill(''), { nonNullable: true }),
-        createdBy: new FormControl('', { nonNullable: true }),
+        weekly_distribution: new FormControl('', {
+            nonNullable: true,
+            validators: [Validators.required],
+        }),
+        routineDays: new FormControl<RoutineDayVM[]>(Array(7).fill(''), {
+            nonNullable: true,
+            validators: [routineDaysValidator()],
+        }),
+        createdBy: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     });
 
     constructor(
         private authSvc: AuthService,
         private planService: PlansService,
-        private routinesSvc: RoutinesServices,
     ) {}
 
     initFacade() {
@@ -81,100 +96,77 @@ export class RoutinePlanFormFacade {
             )
             .subscribe();
     }
-
-    submitPlan(): Observable<any> {
+    submitPlan(): Observable<void> {
         this.routineForm.markAllAsTouched();
 
-        const syncErrors = this.validateFormSync();
+        if (this.routineForm.invalid) {
+            return EMPTY;
+        }
 
-        if (syncErrors) {
+        const businessErrors = this.validateBusinessRules();
+        if (businessErrors.length) {
             this.notification.set({
                 show: true,
                 type: notificationEnum.error,
-                message: syncErrors.join(' | '),
+                message: businessErrors.join(' | '),
             });
-            return new Observable(); // corta flujo
+            return EMPTY;
         }
 
         this.loading.set(true);
-        console.log(this.validateTitleUnique(this.routineForm.value.name!));
-        return new Observable(); // corta flujo
 
-        return this.validateTitleUnique(this.routineForm.value.name!).pipe(
-            switchMap((isValid) => {
-                if (!isValid) {
+        return timer(2000).pipe(
+            // loading mínimo 2s ✔️
+            switchMap(() => this.planService.submitPlan(this.routineForm.getRawValue())),
+            tap({
+                next: () => {
                     this.loading.set(false);
                     this.notification.set({
                         show: true,
-                        type: notificationEnum.error,
-                        message: 'El nombre de la rutina ya existe',
+                        type: notificationEnum.success,
+                        message: 'Rutina creada correctamente',
                     });
-                    return new Observable();
-                }
-
-                return this.planService.submitPlan(this.routineForm.value);
-            }),
-            tap(() => {
-                this.loading.set(false);
-                this.notification.set({
-                    show: true,
-                    type: notificationEnum.success,
-                    message: 'Rutina creada correctamente',
-                });
+                },
+                error: () =>
+                    this.notification.set({
+                        show: true,
+                        type: notificationEnum.error,
+                        message: 'Error al crear la rutina',
+                    }),
+                finalize: () => this.loading.set(false),
             }),
         );
     }
 
-    private validateTitleUnique(title: string): Observable<boolean | undefined> {
-        return this.planService.validateTitleUnique(title);
-        // .pipe(takeUntilDestroyed(this.destroyRef))
+    private validateBusinessRules(): string[] {
+        const { weekly_distribution, routineDays } = this.routineForm.getRawValue();
+
+        const workoutCount = routineDays.filter((d) => d.kind === KindEnum.workout).length;
+
+        if (+weekly_distribution !== workoutCount) {
+            return [
+                `La distribución semanal no coincide con los días de entrenamiento (${workoutCount})`,
+            ];
+        }
+
+        return [];
     }
 
-    private validateFormSync(): string[] | null {
-        const errors: string[] = [];
-        const value = this.routineForm.getRawValue();
+    //Validators Form
 
-        // 1. title obligatorio
-        if (!value.name || !value.name.trim()) {
-            errors.push('El título es obligatorio');
-        }
-
-        // 2. routineDays length
-        if (!Array.isArray(value.routineDays) || value.routineDays.length !== 7) {
-            errors.push('La rutina debe tener exactamente 7 días');
-            return errors;
-        }
-
-        // 3. validación de días
-        const invalidDays: number[] = [];
-        let workoutCount = 0;
-
-        value.routineDays.forEach((day, index) => {
-            if (!day?.kind) {
-                invalidDays.push(index + 1);
-                return;
-            }
-
-            if (day.kind === KindEnum.workout) {
-                workoutCount++;
-
-                if (!day.id || !day.type) {
-                    invalidDays.push(index + 1);
-                }
-            }
-        });
-
-        if (invalidDays.length) {
-            errors.push(`Días mal configurados: ${invalidDays.join(' ')}`);
-        }
-
-        // 4. weekly_distribution
-        if (+value.weekly_distribution !== workoutCount) {
-            errors.push(
-                `La distribución semanal no coincide con los días de entrenamiento (${workoutCount})`,
+    private validateTitleUniqueForm(control: AbstractControl) {
+        const title = control.value;
+        console.log(title);
+        if (title) {
+            return this.planService.validateTitleUnique(title).pipe(
+                map((isValid) => {
+                    return isValid ? null : { titleExist: true };
+                }),
+                catchError((error) => {
+                    return of(null);
+                }),
             );
         }
-
-        return errors.length ? errors : null;
+        return of(null);
     }
 }
