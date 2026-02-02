@@ -25,6 +25,14 @@
       ></app-select>
     </div>
   }
+
+  @let errors = this.facade.routineForm.get('routineDays')?.errors;
+
+  @if (errors) {
+    <div class="text-error text-sm min-h-[1.3rem]">
+      <span>La rutina debe tener exactamente 7 días{{ errors['invalidDaysLength'] }}</span>
+    </div>
+  }
   @if (this.facade.show()) {
     <div>
       <app-weekly-routine-planner

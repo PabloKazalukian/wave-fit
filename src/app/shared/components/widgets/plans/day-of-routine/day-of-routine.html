@@ -1,7 +1,7 @@
 <div
   class="w-full bg-background3 h-12 grid grid-cols-7 overflow-hidden border-x-2 border-t-2 border-primary rounded-t-xl"
 >
-  @for (d of dayPlan(); track d) {
+  @for (d of dayPlan(); track d.day) {
     <div
       class="w-full bg-background2 border-hover:bg-primary flex flex-col items-center justify-center text-white font-medium transition-colors duration-150 cursor-pointer"
       [class.font-bold]="d.expanded"

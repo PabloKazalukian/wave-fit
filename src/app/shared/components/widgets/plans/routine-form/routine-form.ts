@@ -13,12 +13,7 @@ import { RoutinePlanFormFacade } from './routine-form.facade';
     selector: 'app-routine-plan-form',
     standalone: true,
     templateUrl: './routine-form.html',
-    imports: [
-        FormSelectComponent,
-        FormSelectComponent,
-        FormInputComponent,
-        WeeklyRoutinePlannerComponent,
-    ],
+    imports: [FormSelectComponent, FormInputComponent, WeeklyRoutinePlannerComponent],
     providers: [RoutinePlanFormFacade],
 })
 export class RoutinePlanForm implements OnInit {

@@ -12,44 +12,53 @@
       [placeholder]="placeholder"
       [ngClass]="{
         'border-error': showError,
-        'border-primary': !showError
+        'border-primary': !showError,
       }"
       class="w-full rounded-md bg-background2 text-white px-3 py-2 border transition-colors focus:outline-none focus:border-primary"
     />
 
     @if (showTogglePassword) {
-    <button
-      type="button"
-      (click)="togglePassword()"
-      class="absolute right-3 text-lg cursor-pointer select-none"
-    >
-      {{ hidePassword ? '🙈' : '🐵' }}
-    </button>
+      <button
+        type="button"
+        (click)="togglePassword()"
+        class="absolute right-3 text-lg cursor-pointer select-none"
+      >
+        {{ hidePassword ? '🙈' : '🐵' }}
+      </button>
     }
   </div>
 
   <!-- Mensajes de error -->
   @if (showError) {
-  <div class="text-error text-sm min-h-[1.3rem]">
-    @if (control.errors?.['required']) {
-    <span>Este campo es obligatorio</span>
-    } @if (control.errors?.['minlength']) {
-    <span>
-      Debe tener al menos {{ control.errors?.['minlength']?.requiredLength }} caracteres.
-    </span>
-    } @if (control.errors?.['email']) {
-    <span>Formato de email inválido.</span>
-    } @if (control.errors?.['usernameExist']) {
-    <span>El usuario ya existe.</span>
-    } @if (control.errors?.['emailExist']) {
-    <span>El email es inválido.</span>
-    } @if (control.errors?.['passNoRepeat']) {
-    <span>Las contraseñas no coinciden.</span>
-    } @if (control.errors?.['mustBeDifferent']) {
-    <span>Modifica algún campo para guardar.</span>
-    }
-  </div>
+    <div class="text-error text-sm min-h-[1.3rem]">
+      @if (control.errors?.['required']) {
+        <span>Este campo es obligatorio</span>
+      }
+      @if (control.errors?.['minlength']) {
+        <span>
+          Debe tener al menos {{ control.errors?.['minlength']?.requiredLength }} caracteres.
+        </span>
+      }
+      @if (control.errors?.['email']) {
+        <span>Formato de email inválido.</span>
+      }
+      @if (control.errors?.['usernameExist']) {
+        <span>El usuario ya existe.</span>
+      }
+      @if (control.errors?.['emailExist']) {
+        <span>El email es inválido.</span>
+      }
+      @if (control.errors?.['passNoRepeat']) {
+        <span>Las contraseñas no coinciden.</span>
+      }
+      @if (control.errors?.['mustBeDifferent']) {
+        <span>Modifica algún campo para guardar.</span>
+      }
+      @if (control.errors?.['titleExist']) {
+        <span>El titulo ya existe</span>
+      }
+    </div>
   } @else {
-  <span class="block text-sm min-h-[1.3rem]">&nbsp;</span>
+    <span class="block text-sm min-h-[1.3rem]">&nbsp;</span>
   }
 </div>

@@ -11,11 +11,7 @@ import {
     signal,
 } from '@angular/core';
 import { filter, Observable, tap } from 'rxjs';
-import {
-    DayPlan,
-    RoutineDay,
-    RoutineDayVM,
-} from '../../../../../shared/interfaces/routines.interface';
+import { RoutineDayVM } from '../../../../../shared/interfaces/routines.interface';
 import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
 import { SelectType, SelectTypeInput } from '../../../../../shared/interfaces/input.interface';
@@ -80,15 +76,17 @@ export class WeekDayCellComponent implements OnInit {
     onKindChange(kind: 'REST' | 'WORKOUT') {
         this.kindChange.emit(kind);
 
-        // esto era tu bug principal
         this.isExpanded.set(kind === 'WORKOUT');
     }
     onExpandToggle(event: MouseEvent): void {
-        // Evita que el click interno vuelva a colapsar si hacés click en subcomponentes
         event.stopPropagation();
 
-        // Cambia el estado expandido (puede ser boolean o controlado desde el padre)
         this.day.expanded = !this.day.expanded;
+    }
+
+    onClear(event: string) {
+        this.selectControl.setValue('REST');
+        this.onKindChange('REST');
     }
 
     get selectControl(): FormControl<string | null> {

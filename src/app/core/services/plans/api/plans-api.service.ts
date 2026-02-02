@@ -98,19 +98,22 @@ export class PlansApiService {
 
     validateTitleUnique(title: string): Observable<boolean | undefined> {
         return this.apollo
-            .query<{ validateTitleUnique: boolean }>({
+            .query<{ isRoutineTitleAvailable: boolean }>({
                 query: gql`
-                    query ValidateTitleUnique($title: String!) {
-                        validateTitleUnique(title: $title)
+                    query IsRoutineTitleAvailable($input: ValidateTitleInput!) {
+                        isRoutineTitleAvailable(title: $input)
                     }
                 `,
                 variables: {
-                    title: title,
+                    input: { title },
                 },
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                map((value) => value.data?.validateTitleUnique),
+                map(({ data }) => {
+                    console.log(data);
+                    return data?.isRoutineTitleAvailable;
+                }),
             );
     }
     createInputExercise(routineDay: RoutineDayCreate): string[] {

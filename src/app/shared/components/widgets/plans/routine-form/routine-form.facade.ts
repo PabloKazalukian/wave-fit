@@ -1,17 +1,23 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
-import {
-    KindEnum,
-    RoutineDay,
-    RoutineDayVM,
-    RoutinePlanVM,
-} from '../../../../interfaces/routines.interface';
+import { KindEnum, RoutineDayVM, RoutinePlanVM } from '../../../../interfaces/routines.interface';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, EMPTY, map, Observable, of, switchMap, tap, timer } from 'rxjs';
-import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
+import {
+    catchError,
+    debounceTime,
+    distinctUntilChanged,
+    EMPTY,
+    filter,
+    map,
+    Observable,
+    of,
+    switchMap,
+    tap,
+    timer,
+} from 'rxjs';
 import {
     notificationEnum,
     notificationType,
@@ -43,8 +49,6 @@ export class RoutinePlanFormFacade {
                 Validators.minLength(3),
                 Validators.pattern(/^[a-zA-Z0-9\s]+$/),
             ],
-            asyncValidators: [this.validateTitleUniqueForm.bind(this)],
-            updateOn: 'blur',
         }),
         description: new FormControl('', { nonNullable: true }),
         weekly_distribution: new FormControl('', {
@@ -95,15 +99,45 @@ export class RoutinePlanFormFacade {
                 ),
             )
             .subscribe();
+        this.routineForm
+            .get('name')!
+            .valueChanges.pipe(
+                takeUntilDestroyed(this.destroyRef),
+                debounceTime(400),
+                distinctUntilChanged(),
+                filter((title) => !!title && title.length >= 3),
+                switchMap((title) =>
+                    this.planService.validateTitleUnique(title).pipe(
+                        map((isValid) => (isValid ? null : { titleExist: true })),
+                        catchError(() => of(null)),
+                    ),
+                ),
+            )
+            .subscribe((error) => {
+                const control = this.routineForm.get('name');
+                if (error) {
+                    control?.setErrors(error);
+                } else {
+                    // importante: no pisar otros errores
+                    const errors = control?.errors;
+                    if (errors?.['titleExist']) {
+                        delete errors['titleExist'];
+                        control?.setErrors(Object.keys(errors).length ? errors : null);
+                    }
+                }
+            });
     }
     submitPlan(): Observable<void> {
         this.routineForm.markAllAsTouched();
+        console.log('work');
+        console.log(this.routineForm.controls);
 
         if (this.routineForm.invalid) {
             return EMPTY;
         }
 
         const businessErrors = this.validateBusinessRules();
+
         if (businessErrors.length) {
             this.notification.set({
                 show: true,
@@ -150,23 +184,5 @@ export class RoutinePlanFormFacade {
         }
 
         return [];
-    }
-
-    //Validators Form
-
-    private validateTitleUniqueForm(control: AbstractControl) {
-        const title = control.value;
-        console.log(title);
-        if (title) {
-            return this.planService.validateTitleUnique(title).pipe(
-                map((isValid) => {
-                    return isValid ? null : { titleExist: true };
-                }),
-                catchError((error) => {
-                    return of(null);
-                }),
-            );
-        }
-        return of(null);
     }
 }

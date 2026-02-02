@@ -42,7 +42,6 @@ export class RoutineListBoxFacade {
             this.loadRoutineById(day.id);
         } else if (day.kind === 'WORKOUT' && day.type) {
             // Solo patchear y cargar categorías si NO hay id
-            console.log('patching form with type:', day.type[0]);
             this.exerciseForm.patchValue({ option: day.type[0] }, { emitEvent: false });
             this.loadCategoriesByType(day.type[0]);
         }
@@ -57,7 +56,6 @@ export class RoutineListBoxFacade {
     private setupFormListener() {
         this.exerciseForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (newValue) => {
-                console.log('form changed:', newValue);
                 const day = this.day();
                 if (!day || newValue.option === undefined) return;
 
@@ -69,12 +67,8 @@ export class RoutineListBoxFacade {
                 }
 
                 const exerCat = ExerciseCategory;
-                console.log(Object.keys(exerCat).includes(newValue.option));
 
                 if (Object.keys(exerCat).includes(newValue.option)) {
-                    // ARREGLADO: Solo actualizar si cambió realmente
-                    console.log(day);
-                    // this.planSvc.setRoutineDayType(newValue.option, day.day - 1);
                     this.planSvc.setDayRoutine(day.day - 1, {
                         ...day,
                         type: [newValue.option as ExerciseCategory],
@@ -96,7 +90,6 @@ export class RoutineListBoxFacade {
             .subscribe({
                 next: (value) => {
                     if (value) {
-                        // ARREGLADO: Solo setear si no hay rutina seleccionada
                         if (this.routineSelected() === null) {
                             this.routinesDays.set(value);
                         }
@@ -114,13 +107,11 @@ export class RoutineListBoxFacade {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (value: RoutineDay | undefined) => {
-                    console.log(value);
                     if (!value) return;
 
                     this.routineSelected.set(value);
                     this.routinesDays.set([value]);
 
-                    // ARREGLADO: Patchear el form DESPUÉS de cargar
                     if (value.type && value.type.length > 0) {
                         this.exerciseForm.patchValue(
                             { option: value.type[0] },
@@ -128,7 +119,6 @@ export class RoutineListBoxFacade {
                         );
                     }
 
-                    // Setear el índice abierto
                     this.openIndex.set(0);
                 },
                 error: (err) => {
@@ -143,11 +133,9 @@ export class RoutineListBoxFacade {
 
         this.routineSelected.set(routine);
 
-        // ARREGLADO: Buscar índice en el array actual
         const index = this.routinesDays().findIndex((r) => r.id === routine.id);
         this.openIndex.set(index);
 
-        // ARREGLADO: Crear el objeto completo para setear
         const routineToSave: RoutineDayVM = {
             ...routine,
             id: routine.id,
@@ -166,18 +154,15 @@ export class RoutineListBoxFacade {
 
         if (!value || !day) return;
 
-        // ARREGLADO: Limpiar estado primero
         this.routineSelected.set(null);
         this.openIndex.set(null);
 
-        // ARREGLADO: Remover del plan
         this.planSvc.setDayRoutine(day.day - 1, {
             ...day,
             id: undefined,
         });
         this.planSvc.removeDayRoutine(day.day);
 
-        // ARREGLADO: Recargar las categorías del tipo actual
         const currentType = this.exerciseForm.value.option;
         if (currentType) {
             this.loadCategoriesByType(currentType);

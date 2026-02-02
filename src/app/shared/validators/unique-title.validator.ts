@@ -3,8 +3,7 @@ import { KindEnum } from '../interfaces/routines.interface';
 
 export function routineDaysValidator(): ValidatorFn {
     return (group: AbstractControl) => {
-        const days = group.value;
-        // console.log(group.value);
+        const days = group.get('routineDays')?.value;
         if (!Array.isArray(days) || days.length !== 7) {
             return { invalidDaysLength: true };
         }

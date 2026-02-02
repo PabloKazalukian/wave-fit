@@ -1,22 +1,13 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { BehaviorSubject, filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, of, take } from 'rxjs';
 import {
     DayIndex,
-    DayPlan,
-    KindEnum,
-    RoutineDay,
     RoutineDayVM,
-    RoutinePlanCreate,
     RoutinePlanVM,
 } from '../../../shared/interfaces/routines.interface';
 import { PlansStorageService } from './storage/plans-storage.service';
-import { DayPlanService } from '../day-plan/day-plan.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlansApiService } from './api/plans-api.service';
-import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
-import { RoutinesServices } from '../routines/routines.service';
-import { Kind } from 'graphql';
 
 @Injectable({
     providedIn: 'root',
@@ -31,7 +22,6 @@ export class PlansService {
     constructor(
         private authSvc: AuthService,
         private planStorage: PlansStorageService,
-        private dayPlanSvc: DayPlanService,
         private planApi: PlansApiService,
     ) {}
 
@@ -45,8 +35,6 @@ export class PlansService {
 
         if (stored) {
             this.plansSubject.next(stored);
-            // this.dayPlanSvc.initDayPlan(this.userId(), stored);
-            // syncFromPlan
         } else {
             const initPlanUser: RoutinePlanVM = {
                 name: '',
@@ -59,7 +47,6 @@ export class PlansService {
 
             this.plansSubject.next(initPlanUser);
             this.planStorage.setPlanStorage(initPlanUser, userId);
-            this.dayPlanSvc.initDayPlan(this.userId());
         }
     }
 
@@ -73,7 +60,6 @@ export class PlansService {
     }
 
     setRoutinePlan(plan: RoutinePlanVM) {
-        console.log(plan.routineDays);
         this.plansSubject.next(plan);
         this.planStorage.setPlanStorage(plan, this.userId());
     }
@@ -100,7 +86,6 @@ export class PlansService {
 
     getRoutinePlan(idUser: string): RoutinePlanVM | null {
         const data = this.planStorage.getPlanStorage(idUser);
-        // if (data) this.plansSubject.next(data);
         return this.plansSubject.getValue();
     }
     getRoutinePlanById(id: string): Observable<any | null> {
@@ -128,7 +113,6 @@ export class PlansService {
         const routineDays = plan.routineDays.map((d, i) => (i === dayIndex ? routine : d));
 
         const updated = { ...plan, routineDays };
-        console.log(updated);
         this.setRoutinePlan(updated);
     }
 

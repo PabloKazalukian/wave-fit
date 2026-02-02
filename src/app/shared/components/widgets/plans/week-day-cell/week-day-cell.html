@@ -13,6 +13,7 @@
         [options]="options"
         [control]="selectControl"
         [color]="'secondary'"
+        (clearValue)="onClear($event)"
       ></app-select>
     </div>
     @if (day.kind === 'WORKOUT') {

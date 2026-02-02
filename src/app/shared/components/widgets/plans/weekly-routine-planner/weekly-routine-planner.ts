@@ -91,11 +91,6 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
     }
 
     savePlan(e: Event) {
-        console.log(e);
-        // this.loading.set(true);
-        // setTimeout(() => this.loading.set(false), 6000);
-
-        // this.loading.set(true);
         this.outputSavePlan.next(true);
     }
 }
