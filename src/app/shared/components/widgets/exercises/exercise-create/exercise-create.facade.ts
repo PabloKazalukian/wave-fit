@@ -53,7 +53,7 @@ export class ExerciseCreateFacade {
     showNotification = signal<boolean>(false);
     notification = signal<notificationType | ''>('');
 
-    constructor(private exerciseSvc: ExercisesService) {}
+    private readonly exerciseSvc = inject(ExercisesService);
 
     initFacade() {
         setTimeout(() => {

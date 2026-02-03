@@ -47,7 +47,7 @@ export class TablePaginationComponent {
         }
 
         let start = Math.max(0, current - 2);
-        let end = Math.min(total, start + maxVisible);
+        const end = Math.min(total, start + maxVisible);
 
         if (end - start < maxVisible) {
             start = Math.max(0, end - maxVisible);

@@ -10,7 +10,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { filter, Observable, tap } from 'rxjs';
+import { filter, tap } from 'rxjs';
 import { RoutineDayVM } from '../../../../../shared/interfaces/routines.interface';
 import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
@@ -36,7 +36,6 @@ export class WeekDayCellComponent implements OnInit {
     @Input() day!: RoutineDayVM;
     @Output() kindChange = new EventEmitter<'REST' | 'WORKOUT'>();
 
-    routines$?: Observable<any[]>;
     selectForm!: FormGroup<selectFormType>;
     userId!: string;
 
@@ -47,7 +46,7 @@ export class WeekDayCellComponent implements OnInit {
         { name: 'Descanso', value: 'REST' },
     ];
 
-    constructor(private authSvc: AuthService) {}
+    private readonly authSvc = inject(AuthService);
 
     ngOnInit(): void {
         this.selectForm = this.initForm();
@@ -84,7 +83,7 @@ export class WeekDayCellComponent implements OnInit {
         this.day.expanded = !this.day.expanded;
     }
 
-    onClear(event: string) {
+    onClear() {
         this.selectControl.setValue('REST');
         this.onKindChange('REST');
     }

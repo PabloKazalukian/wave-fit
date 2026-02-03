@@ -39,7 +39,8 @@
         [distribution]="selectControl.value"
         [loading]="this.facade.loading()"
         [notification]="this.facade.notification()"
-        (outputSavePlan)="onSubmit($event)"
+        (showNotification)="this.facade.handleCloseNotification()"
+        (outputSavePlan)="onSubmit()"
       ></app-weekly-routine-planner>
     </div>
   }

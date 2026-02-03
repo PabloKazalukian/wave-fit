@@ -42,7 +42,7 @@ export class RoutineExerciseFormFacade {
 
     showCreateExercise = signal(false);
 
-    constructor(private exerciseSvc: ExercisesService) {}
+    private readonly exerciseSvc = inject(ExercisesService);
 
     initRoutineFacade(categoryExercise: string) {
         this.exerciseSvc

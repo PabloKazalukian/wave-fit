@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { BtnComponent } from '../../shared/components/ui/btn/btn';
 
 @Component({
     selector: 'app-user',
@@ -12,8 +11,8 @@ import { BtnComponent } from '../../shared/components/ui/btn/btn';
 })
 export class User {
     currentDate: Date = new Date(2025, 9, 2); // October 02, 2025 (meses 0-indexed)
-    consumedCalories: number = 0; // Mock, de service
-    waterAmount: number = 0; // Mock
+    consumedCalories = 0; // Mock, de service
+    waterAmount = 0; // Mock
     macros = { proteins: 0, fats: 0, carbs: 0 }; // Mock
     meals = {
         desayuno: [], // Array de {name: string, calories: number}

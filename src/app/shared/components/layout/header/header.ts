@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { BtnComponent } from '../../ui/btn/btn';
 import { WaveLogoComponent } from '../../ui/logos/wave-logo/wave-logo';
 import { AuthService } from '../../../../core/services/auth/auth.service';
@@ -12,16 +12,16 @@ import { Router } from '@angular/router';
     styleUrl: './header.css',
 })
 export class Header implements OnInit {
-    show: boolean = true;
+    show = true;
 
-    constructor(private authSvc: AuthService, private router: Router) {}
+    private readonly authSvc = inject(AuthService);
+    private readonly router = inject(Router);
 
     ngOnInit() {
         this.authSvc.isAuthenticated$.subscribe({
             next: (res) => {
                 this.show = res;
             },
-            error: (err) => {},
         });
     }
 

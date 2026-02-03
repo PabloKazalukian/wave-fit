@@ -1,4 +1,4 @@
-import { catchError, OperatorFunction, of, throwError } from 'rxjs';
+import { catchError, OperatorFunction, throwError } from 'rxjs';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { CombinedGraphQLErrors } from '@apollo/client';
 import { GraphQLFormattedError } from 'graphql';
@@ -28,9 +28,7 @@ export function handleGraphqlError<T>(authSvc: AuthService): OperatorFunction<T,
 
             if (Array.isArray(gqlErrors) && gqlErrors.length > 0) {
                 // Control especial de UNAUTHORIZED
-                const unauthorized = gqlErrors.find(
-                    (e: any) => e?.extensions?.code === 'UNAUTHORIZED',
-                );
+                const unauthorized = gqlErrors.find((e) => e?.extensions?.code === 'UNAUTHORIZED');
                 if (unauthorized) {
                     authSvc.logout();
                     return throwError(() => new Error('UNAUTHORIZED'));

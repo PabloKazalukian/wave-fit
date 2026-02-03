@@ -13,10 +13,10 @@ export class FormInputComponent {
     @Input() control!: FormControl<string | null>;
     @Input() label!: string;
     @Input() type: 'text' | 'email' | 'password' = 'text';
-    @Input() placeholder: string = '';
-    @Input() showTogglePassword: boolean = false;
+    @Input() placeholder = '';
+    @Input() showTogglePassword = false;
 
-    hidePassword: boolean = true;
+    hidePassword = true;
 
     get showError(): boolean {
         return this.control?.touched && this.control?.invalid;

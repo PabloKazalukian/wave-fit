@@ -1,4 +1,4 @@
-@if (shouldRender()) {
+@if (isVisible()) {
   <div
     [class]="animationClass()"
     class="m-2 rounded-lg shadow-lg overflow-hidden border-b-4 transition-all"
@@ -15,9 +15,7 @@
             {{ icon() }}
           </span>
         </div>
-        <span class="text-white font-medium text-sm truncate sm:w-full max-w-[120px]">{{
-          message()
-        }}</span>
+        <span class="text-white font-medium text-sm truncate sm:w-full">{{ message() }}</span>
       </div>
 
       <!-- Botón Cerrar -->

@@ -20,6 +20,8 @@
     <app-notification
       [message]="notification()?.message || ''"
       [type]="notification()?.type || 'success'"
+      [isVisible]="notification()?.show || false"
+      (onClose)="handleCloseNotification()"
     ></app-notification>
   }
 
@@ -30,7 +32,7 @@
       [color]="'secondaryDark'"
       [showIcon]="true"
       size="md"
-      (click)="savePlan($event)"
+      (click)="savePlan()"
     >
       <app-icon>
         <div class="h-6 w-6">

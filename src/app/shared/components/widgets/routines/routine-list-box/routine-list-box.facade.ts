@@ -2,7 +2,7 @@ import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { FormControl, FormGroup } from '@angular/forms';
-import { DayPlan, RoutineDay, RoutineDayVM } from '../../../../interfaces/routines.interface';
+import { RoutineDay, RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
@@ -29,10 +29,8 @@ export class RoutineListBoxFacade {
     openIndex = signal<number | null>(null);
     isSelected = signal<boolean | null>(null);
 
-    constructor(
-        private routinesSvc: RoutinesServices,
-        private planSvc: PlansService,
-    ) {}
+    private readonly routinesSvc = inject(RoutinesServices);
+    private readonly planSvc = inject(PlansService);
 
     setDay(day: RoutineDayVM) {
         this.day.set(day);

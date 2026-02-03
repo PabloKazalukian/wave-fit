@@ -1,5 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter, Routes } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { provideHttpClient, HttpHeaders } from '@angular/common/http';
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
@@ -12,7 +12,6 @@ import { environment } from './environments/environments';
 bootstrapApplication(AppComponent, {
     providers: [
         provideRouter(routes),
-        provideHttpClient(),
         provideHttpClient(),
         provideApollo(() => {
             const httpLink = inject(HttpLink);

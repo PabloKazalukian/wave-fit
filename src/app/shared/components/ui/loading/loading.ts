@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { COLOR_VALUES } from '../../../utils/color.type';
-import { NgClass, NgStyle } from '@angular/common';
+import { NgStyle } from '@angular/common';
 
 @Component({
     selector: 'app-loading',
@@ -11,8 +11,6 @@ import { NgClass, NgStyle } from '@angular/common';
 })
 export class Loading {
     @Input() color: COLOR_VALUES = 'primary';
-
-    constructor() {}
 
     get colorClass() {
         return {

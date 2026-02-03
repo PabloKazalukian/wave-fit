@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
 import { Apollo, gql } from 'apollo-angular';
 import {
-    CreateRoutinePlanInput,
-    RoutineDay,
     RoutineDayCreate,
     RoutinePlan,
     RoutinePlanCreate,
@@ -16,10 +14,8 @@ import { map, Observable, tap } from 'rxjs';
     providedIn: 'root',
 })
 export class PlansApiService {
-    constructor(
-        private apollo: Apollo,
-        private authSvc: AuthService,
-    ) {}
+    private readonly apollo = inject(Apollo);
+    private readonly authSvc = inject(AuthService);
 
     getPlans() {
         return this.apollo.query({
@@ -62,7 +58,7 @@ export class PlansApiService {
             );
     }
 
-    getRoutinePlanById(id: string): any {
+    getRoutinePlanById(id: string): Observable<RoutinePlanCreate | null | undefined> {
         return this.apollo
             .query<{ routinePlan: RoutinePlanCreate | null }>({
                 query: gql`

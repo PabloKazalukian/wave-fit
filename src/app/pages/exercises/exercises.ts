@@ -19,7 +19,6 @@ export class Exercises implements OnInit {
 
     options = options;
 
-    constructor() {}
     ngOnInit(): void {
         this.exerciseForm = this.initForm();
     }

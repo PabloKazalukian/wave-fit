@@ -9,8 +9,8 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 })
 export class CheckboxComponent implements AfterViewInit, OnChanges {
     @Input() control!: FormControl<boolean>;
-    @Input() text: string = '';
-    @Input() indeterminate: boolean = false;
+    @Input() text = '';
+    @Input() indeterminate = false;
 
     @ViewChild('checkboxInput', { static: false }) checkboxInput!: ElementRef<HTMLInputElement>;
 

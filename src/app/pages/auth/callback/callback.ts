@@ -1,7 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
-import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -13,10 +12,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class Callback implements OnInit {
     private destroyRef = inject(DestroyRef);
 
-    constructor(
-        private authSvc: AuthService,
-        private router: Router,
-    ) {}
+    private readonly authSvc = inject(AuthService);
+    private readonly router = inject(Router);
 
     ngOnInit(): void {
         const params = new URLSearchParams(window.location.search);
@@ -28,7 +25,7 @@ export class Callback implements OnInit {
         this.authSvc
             .loginWithGoogle(code, codeVerifier)
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(({ data }: any) => {
+            .subscribe(() => {
                 this.router.navigate(['/home']);
             });
     }

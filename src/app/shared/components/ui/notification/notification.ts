@@ -1,4 +1,4 @@
-import { Component, input, computed, output, signal, effect } from '@angular/core';
+import { Component, input, computed, output, signal } from '@angular/core';
 
 @Component({
     selector: 'app-notification',
@@ -10,7 +10,9 @@ export class Notification {
     type = input<'success' | 'error' | 'warning' | 'info'>('info');
     isVisible = input<boolean>(true);
 
-    shouldRender = signal(true);
+    // Output para emitir al padre cuando se cierre
+    onClose = output<void>();
+
     animationClass = signal('animate-slide-in');
 
     icon = computed(() => {
@@ -36,7 +38,7 @@ export class Notification {
     close() {
         this.animationClass.set('animate-slide-out');
         setTimeout(() => {
-            this.shouldRender.set(false);
+            this.onClose.emit();
         }, 300);
     }
 }

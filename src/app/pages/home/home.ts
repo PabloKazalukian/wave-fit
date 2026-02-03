@@ -11,7 +11,7 @@ import { BtnComponent } from '../../shared/components/ui/btn/btn';
     imports: [WaveLogoTextComponent, CommonModule, BtnComponent],
 })
 export class Home {
-    weekActive: boolean = false;
+    weekActive = false;
 
     features = [
         {

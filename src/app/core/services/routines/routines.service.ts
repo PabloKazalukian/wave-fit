@@ -1,17 +1,14 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../auth/auth.service';
 import {
-    DayPlan,
     RoutineDay,
     RoutineDayCreate,
     RoutineDayCreateSend,
-    RoutineDayVM,
 } from '../../../shared/interfaces/routines.interface';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
-import { PlansService } from '../plans/plans.service';
 import { RoutinesApiService } from './api/routines-api.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinePlanAPI } from '../../../shared/interfaces/api/routines-api.interface';
@@ -26,11 +23,9 @@ export class RoutinesServices {
     routines$ = this.routinesCache$.pipe(filter((v): v is RoutineDay[] => v !== null));
     private loading = false;
 
-    constructor(
-        private apollo: Apollo,
-        private authSvc: AuthService,
-        private api: RoutinesApiService,
-    ) {}
+    private readonly apollo = inject(Apollo);
+    private readonly authSvc = inject(AuthService);
+    private readonly api = inject(RoutinesApiService);
 
     getAllRoutines(): Observable<RoutineDay[] | null> {
         if (this.routinesCache$.value && this.routinesCache$.value && !this.loading) {
@@ -58,7 +53,7 @@ export class RoutinesServices {
     }
 
     getRoutinesPlans(): Observable<any> {
-        this.authSvc.user$.subscribe((userId) => {});
+        this.authSvc.user$.subscribe();
         return this.apollo
             .query<{ routinePlans: RoutinePlanAPI[] }>({
                 query: gql`

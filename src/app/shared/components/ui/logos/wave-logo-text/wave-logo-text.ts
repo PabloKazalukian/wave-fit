@@ -139,10 +139,10 @@ import { CommonModule } from '@angular/common';
     ],
 })
 export class WaveLogoTextComponent {
-    @Input() width: string = '20';
-    @Input() height: string = '20';
-    @Input() viewBox: string = '0 0 200 215';
-    @Input() customClass: string = '';
+    @Input() width = '20';
+    @Input() height = '20';
+    @Input() viewBox = '0 0 200 215';
+    @Input() customClass = '';
 
     // Tipo de color: 'solid', 'gradient-static', 'gradient-animated', 'primary', 'secondary', etc.
     @Input() colorType:
@@ -155,13 +155,13 @@ export class WaveLogoTextComponent {
         | 'custom' = 'primary';
 
     // Color sólido personalizado
-    @Input() solidColor: string = '#5bc878';
+    @Input() solidColor = '#5bc878';
 
     // Colores del degradado [color1, color2, color3, color4]
     @Input() gradientColors: string[] = ['#4ade80', '#3b82f6', '#8b5cf6'];
 
     // Duración de la animación en segundos
-    @Input() animationDuration: string = '4s';
+    @Input() animationDuration = '4s';
 
     // ID único para el degradado
     gradientId = `wave-gradient-${Math.random().toString(36).substr(2, 9)}`;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RoutinePlanCreate, RoutinePlanVM } from '../../../../shared/interfaces/routines.interface';
+import { RoutinePlanVM } from '../../../../shared/interfaces/routines.interface';
 
 @Injectable({
     providedIn: 'root',

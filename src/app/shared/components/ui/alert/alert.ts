@@ -10,7 +10,5 @@ import { Component, Input } from '@angular/core';
 })
 export class Alert {
     @Input() type: 'success' | 'error' | 'info' = 'info';
-    @Input() message: string = '';
-
-    constructor() {}
+    @Input() message = '';
 }

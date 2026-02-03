@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
 import { Apollo, gql } from 'apollo-angular';
 import { map, Observable, tap } from 'rxjs';
@@ -14,10 +14,8 @@ import { ExerciseCategory } from '../../../../shared/interfaces/exercise.interfa
     providedIn: 'root',
 })
 export class RoutinesApiService {
-    constructor(
-        private apollo: Apollo,
-        private authSvc: AuthService,
-    ) {}
+    private readonly apollo = inject(Apollo);
+    private readonly authSvc = inject(AuthService);
 
     getRoutines(): Observable<RoutineDay[] | undefined> {
         return this.apollo
@@ -75,7 +73,7 @@ export class RoutinesApiService {
     }
 
     getRoutinesPlans(): Observable<any> {
-        this.authSvc.user$.subscribe((userId) => {});
+        this.authSvc.user$.subscribe();
         return this.apollo.query({
             query: gql`
                 query {
@@ -112,15 +110,15 @@ export class RoutinesApiService {
             );
     }
 
-    createRoutinePlan(data: any): Observable<any> {
-        return this.apollo.mutate({
-            mutation: gql`
-            mutation {
-            
-            }
-            `,
-        });
-    }
+    // createRoutinePlan(data: any): Observable<any> {
+    //     return this.apollo.mutate({
+    //         mutation: gql`
+    //         mutation {
+
+    //         }
+    //         `,
+    //     });
+    // }
 
     createRoutine(data: RoutineDayCreate): Observable<any> {
         const payload: RoutineDayCreateSend = this.createRoutinePayload(data);

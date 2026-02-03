@@ -42,8 +42,6 @@ export class ExercisesTableFacade {
     // Pagination config
     readonly pageSizeOptions = signal([10, 20, 50]);
 
-    constructor() {}
-
     // ==================== DATA MANAGEMENT ====================
 
     setExercises(exercises: Exercise[]): void {

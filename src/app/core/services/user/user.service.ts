@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { Observable } from 'rxjs';
 
@@ -9,7 +9,7 @@ export class UserService {
     private storageKey = 'auth_user';
     private tokenKey = 'token';
 
-    constructor(private apollo: Apollo) {}
+    private readonly apollo = inject(Apollo);
 
     getAllUsers(): Observable<any> {
         return this.apollo.query({

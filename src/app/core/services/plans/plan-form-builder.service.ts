@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
     AbstractControl,
     FormBuilder,
@@ -14,7 +14,7 @@ export type PlanFormType = FormControlsOf<RoutinePlanCreate>;
 
 @Injectable({ providedIn: 'root' })
 export class PlanFormBuilderService {
-    constructor(private fb: FormBuilder) {}
+    private readonly fb = inject(FormBuilder);
 
     buildForm(): FormGroup<PlanFormType> {
         return this.fb.group<PlanFormType>(

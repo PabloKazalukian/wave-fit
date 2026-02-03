@@ -1,4 +1,4 @@
-import { Component, Input, ContentChild, TemplateRef, input } from '@angular/core';
+import { Component, Input, ContentChild, input, AfterContentInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { IconComponent } from '../icon/icon';
@@ -20,10 +20,10 @@ const VALID_COLORS = [
     imports: [CommonModule, RouterModule],
     templateUrl: './btn.html',
 })
-export class BtnComponent {
-    @Input() text: string = '';
-    @Input() descriptionText: string = '';
-    @Input() isDisabled: boolean = false;
+export class BtnComponent implements AfterContentInit {
+    @Input() text = '';
+    @Input() descriptionText = '';
+    @Input() isDisabled = false;
     @Input() variant:
         | 'basic'
         | 'raised'
@@ -42,7 +42,7 @@ export class BtnComponent {
     @ContentChild(IconComponent) icon?: IconComponent;
 
     private sanitizeColor(color: string): string {
-        let base = color.replace(/2|3|Light|Dark$/, '');
+        const base = color.replace(/2|3|Light|Dark$/, '');
         return VALID_COLORS.includes(base) ? base : 'primary';
     }
 

@@ -1,6 +1,5 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { RoutinesServices } from '../../../core/services/routines/routines.service';
 import { PlansService } from '../../../core/services/plans/plans.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutineDay, RoutinePlanCreate } from '../../../shared/interfaces/routines.interface';
@@ -26,10 +25,9 @@ export class Show implements OnInit {
     private openAccordionIndex = signal<number | null>(0);
 
     openIndex = signal<number | null>(null);
-    constructor(
-        private route: ActivatedRoute,
-        private svcRoutines: PlansService,
-    ) {}
+
+    private readonly route = inject(ActivatedRoute);
+    private readonly svcRoutines = inject(PlansService);
 
     exerciseCategory = ExerciseCategory;
 

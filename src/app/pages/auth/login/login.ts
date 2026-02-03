@@ -41,13 +41,11 @@ export class Login implements OnInit {
 
     contactForm!: FormGroup<LoginFormType>;
     login!: boolean | null;
-    loading: boolean = false;
+    loading = false;
 
-    constructor(
-        private authSvc: AuthService,
-        private router: Router,
-        private credentialsSvc: CredentialsService,
-    ) {}
+    private readonly authSvc = inject(AuthService);
+    private readonly router = inject(Router);
+    private readonly credentialsSvc = inject(CredentialsService);
 
     ngOnInit(): void {
         this.contactForm = this.initForm();
@@ -85,7 +83,7 @@ export class Login implements OnInit {
                 .login(this.identifierControl.value, this.passwordControl.value)
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe({
-                    next: (result) => {
+                    next: () => {
                         this.loading = false;
                         this.login = false;
                         if (this.contactForm.get('remember')?.value) {

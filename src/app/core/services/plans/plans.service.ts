@@ -1,9 +1,10 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { BehaviorSubject, filter, map, Observable, of, take } from 'rxjs';
+import { BehaviorSubject, filter, Observable, take } from 'rxjs';
 import {
     DayIndex,
     RoutineDayVM,
+    RoutinePlanSend,
     RoutinePlanVM,
 } from '../../../shared/interfaces/routines.interface';
 import { PlansStorageService } from './storage/plans-storage.service';
@@ -19,11 +20,9 @@ export class PlansService {
     routinePlanVM$ = this.plansSubject.pipe(filter((v): v is RoutinePlanVM => v !== null));
     userId = signal<string>('');
 
-    constructor(
-        private authSvc: AuthService,
-        private planStorage: PlansStorageService,
-        private planApi: PlansApiService,
-    ) {}
+    private readonly authSvc = inject(AuthService);
+    private readonly planStorage = inject(PlansStorageService);
+    private readonly planApi = inject(PlansApiService);
 
     initPlanForUser(userId: string) {
         if (this.userId() !== '') {
@@ -84,8 +83,8 @@ export class PlansService {
         });
     }
 
-    getRoutinePlan(idUser: string): RoutinePlanVM | null {
-        const data = this.planStorage.getPlanStorage(idUser);
+    getRoutinePlan(): RoutinePlanVM | null {
+        // const data = this.planStorage.getPlanStorage(idUser);
         return this.plansSubject.getValue();
     }
     getRoutinePlanById(id: string): Observable<any | null> {
@@ -120,12 +119,21 @@ export class PlansService {
         this.setRoutinePlan({ ...this.currentValue(), routineDays });
     }
 
-    submitPlan(current: any): Observable<any> {
-        return of(current);
-        return this.planApi.createPlan(current);
+    submitPlan(current: RoutinePlanVM): Observable<any> {
+        return this.planApi.createPlan(this.wrapperRoutinePlanVMtoRoutinePlan(current));
     }
 
     validateTitleUnique(title: string): Observable<boolean | undefined> {
         return this.planApi.validateTitleUnique(title);
+    }
+
+    wrapperRoutinePlanVMtoRoutinePlan(routinePlanVM: RoutinePlanVM): RoutinePlanSend {
+        return {
+            name: routinePlanVM.name,
+            description: routinePlanVM.description,
+            weekly_distribution: routinePlanVM.weekly_distribution,
+            routineDays: routinePlanVM.routineDays.map((d) => d?.id || ''),
+            createdBy: routinePlanVM.createdBy,
+        };
     }
 }

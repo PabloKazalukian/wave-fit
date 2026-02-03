@@ -10,6 +10,7 @@ import {
     Output,
     computed,
     input,
+    output,
 } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { DayIndex, RoutineDayVM } from '../../../../../shared/interfaces/routines.interface';
@@ -21,7 +22,6 @@ import { DaysRoutineProgress } from './routine-days-progress/days-routine-progre
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { SpinnerComponent } from '../../../ui/icon/spinner';
 import { IconComponent } from '../../../ui/icon/icon';
-import { notificationType } from '../../exercises/exercise-create/exercise-create.facade';
 import { Notification } from '../../../ui/notification/notification';
 import { typeNotification } from '../routine-form/routine-form.facade';
 
@@ -44,7 +44,7 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
     @Output() outputSavePlan = new Subject<boolean>();
 
-    @Input({ required: true }) distribution: string = '0/7';
+    @Input({ required: true }) distribution = '0/7';
 
     days = signal<RoutineDayVM[]>([]);
     daysSelected = signal<number>(0);
@@ -52,10 +52,10 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
 
     loading = input<boolean>(false);
     complete = signal<boolean | null>(null);
-    showNotification = signal<boolean>(false);
+    showNotification = output<boolean>();
     notification = input<typeNotification>();
 
-    constructor(private planSvc: PlansService) {}
+    private readonly planSvc = inject(PlansService);
 
     ngOnInit() {
         this.planSvc.routinePlanVM$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -90,7 +90,12 @@ export class WeeklyRoutinePlannerComponent implements OnInit {
         this.planSvc.setKindRoutineDay(day.day - 1, kind);
     }
 
-    savePlan(e: Event) {
+    savePlan() {
         this.outputSavePlan.next(true);
+    }
+
+    handleCloseNotification() {
+        console.log(this.notification());
+        this.showNotification.emit(false);
     }
 }

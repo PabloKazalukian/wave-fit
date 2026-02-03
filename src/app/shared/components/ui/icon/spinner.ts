@@ -1,4 +1,4 @@
-import { Component, computed, Input, signal } from '@angular/core';
+import { Component, computed, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -42,7 +42,7 @@ import { CommonModule } from '@angular/common';
         `,
     ],
 })
-export class SpinnerComponent {
+export class SpinnerComponent implements OnInit {
     @Input() colors: string[] = ['#50C878', '#ec4899', '#66aaf9'];
 
     colorIndex = signal<number>(0);

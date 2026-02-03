@@ -10,6 +10,7 @@ function decrypt(text: string): string {
         const decrypted = decodeURIComponent(escape(atob(text)));
         return decrypted.replace(ENCRYPTION_KEY, '');
     } catch (e) {
+        console.log(e);
         return '';
     }
 }

@@ -12,7 +12,7 @@
           "style": "none",
           "skipTests": false
         }
-      },  
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -29,27 +29,21 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "assets"
               }
-
             ],
             "styles": [
               "src/styles.css"
             ]
           },
           "configurations": {
-             "local": {
-                "fileReplacements": [
-                  {
-                    "replace": "src/environments/environment.ts",
-                    "with": "src/environments/environment.local.ts"
-                  }
-                ]
-              },
+            "local": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environments.ts",
+                  "with": "src/environments/environments.prod.ts"
+                }
+              ]
+            },
             "production": {
               "budgets": [
                 {
@@ -112,11 +106,23 @@
               "src/styles.css"
             ]
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
   },
   "cli": {
-    "analytics": "1dd59282-bdf6-4f75-9f26-46ea4f8c8702"
+    "analytics": "1dd59282-bdf6-4f75-9f26-46ea4f8c8702",
+    "schematicCollections": [
+      "angular-eslint"
+    ]
   }
 }

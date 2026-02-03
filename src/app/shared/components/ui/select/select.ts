@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, input, Input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { SelectType } from '../../../interfaces/input.interface';
 import { COLOR_VALUES } from '../../../utils/color.type';

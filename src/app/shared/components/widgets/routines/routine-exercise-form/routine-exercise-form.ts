@@ -7,13 +7,12 @@ import {
     OnInit,
     signal,
     SimpleChanges,
-    WritableSignal,
 } from '@angular/core';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { Exercise } from '../../../../interfaces/exercise.interface';
 import { Loading } from '../../../ui/loading/loading';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { FormInputComponent } from '../../../ui/input/input';
 import { RoutineDayCreate } from '../../../../interfaces/routines.interface';
@@ -36,10 +35,8 @@ export class RoutineExerciseForm implements OnInit, OnChanges {
 
     showCreateExercise = signal(false);
 
-    constructor(
-        private exerciseSvc: ExercisesService,
-        private routineSvc: RoutinesServices,
-    ) {}
+    private readonly exerciseSvc = inject(ExercisesService);
+    private readonly routineSvc = inject(RoutinesServices);
 
     ngOnInit(): void {
         setTimeout(() => {

@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { tap, Observable, BehaviorSubject, catchError, map, of } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
@@ -22,7 +22,7 @@ export class AuthService {
     private storageKey = 'auth_user';
     private tokenKey = 'token';
 
-    constructor(private apollo: Apollo) {}
+    private apollo = inject(Apollo);
 
     // Signals de estado
     user = signal<any | null>(this.getStoredUser());
@@ -55,7 +55,7 @@ export class AuthService {
                     this.isAuthenticatedSubject.next(true);
                 }),
                 map(() => true),
-                catchError((err) => {
+                catchError(() => {
                     return of(false);
                 }),
             );
@@ -95,7 +95,7 @@ export class AuthService {
         this.clearSession();
     }
 
-    saveToken(s: string) {}
+    // saveToken(s: string) {}
 
     loginWithGoogle(code: string, codeVerifier: string) {
         // return true;
@@ -123,7 +123,7 @@ export class AuthService {
                     this.isAuthenticatedSubject.next(true);
                 }),
                 handleGraphqlError(this),
-                catchError((err) => {
+                catchError(() => {
                     // console.error(err);
                     return of(false);
                 }),

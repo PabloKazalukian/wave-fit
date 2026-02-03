@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
 import { CommonModule } from '@angular/common';
@@ -14,10 +14,10 @@ type DayState = 'error' | 'accent' | 'rest' | 'complete';
 })
 export class DayOfRoutine implements OnInit {
     dayPlan = signal<RoutineDayVM[]>([]);
-    userId: string = '';
+    userId = '';
     dayState: DayState = 'error';
 
-    constructor(private planSvc: PlansService) {}
+    private readonly planSvc = inject(PlansService);
 
     ngOnInit(): void {
         this.planSvc.routinePlanVM$.pipe().subscribe({

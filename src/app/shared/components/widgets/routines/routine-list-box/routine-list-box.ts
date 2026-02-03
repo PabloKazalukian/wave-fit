@@ -1,6 +1,6 @@
 // routine-list-box.component.ts
 import { Component, Input, OnInit, inject, signal, WritableSignal } from '@angular/core';
-import { DayPlan, RoutineDay, RoutineDayVM } from '../../../../interfaces/routines.interface';
+import { RoutineDay, RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { options } from '../../../../interfaces/input.interface';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -35,9 +35,9 @@ export class RoutineListBoxComponent implements OnInit {
     openIndex: WritableSignal<number | null> = this.facade.openIndex;
 
     isSearchedRoutines = signal<boolean>(false);
-    isShowExercises: boolean = false;
+    isShowExercises = false;
 
-    show: boolean = false;
+    show = false;
     creatingRoutine = signal<boolean>(false);
 
     isSelected = signal<boolean | null>(null);

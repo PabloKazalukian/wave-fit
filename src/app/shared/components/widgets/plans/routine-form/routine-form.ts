@@ -1,9 +1,9 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { FormInputComponent } from '../../../ui/input/input';
 import { FormControl } from '@angular/forms';
 import { SelectType } from '../../../../interfaces/input.interface';
-import { RoutineDay, RoutineDayVM } from '../../../../interfaces/routines.interface';
+import { RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { WeeklyRoutinePlannerComponent } from '../weekly-routine-planner/weekly-routine-planner';
 import { RoutinePlanFormFacade } from './routine-form.facade';
 
@@ -33,7 +33,7 @@ export class RoutinePlanForm implements OnInit {
         this.facade.initFacade();
     }
 
-    onSubmit(event: any): void {
+    onSubmit(): void {
         // event.preventDefault();
         this.facade.show.set(true);
         this.facade.submitPlan().subscribe({

@@ -33,10 +33,8 @@ export class ExercisesTableComponent implements OnInit {
     exercises = signal<Exercise[]>([]);
     enableSelection = input<boolean>(true);
 
-    constructor(
-        public facade: ExercisesTableFacade,
-        private exerciseSvc: ExercisesService,
-    ) {}
+    public facade = inject(ExercisesTableFacade);
+    private exerciseSvc = inject(ExercisesService);
 
     ngOnInit(): void {
         this.exerciseSvc
@@ -47,7 +45,6 @@ export class ExercisesTableComponent implements OnInit {
                     if (data!) this.exercises.set(data);
                     this.facade.setExercises(this.exercises());
                 },
-                error: (err) => {},
             });
     }
 

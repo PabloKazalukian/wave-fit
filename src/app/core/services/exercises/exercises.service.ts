@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { AuthService } from '../auth/auth.service';
 import { map, Observable, of, tap } from 'rxjs';
@@ -9,7 +9,8 @@ import { Exercise } from '../../../shared/interfaces/exercise.interface';
 export class ExercisesService {
     exercises = signal<Exercise[]>([]);
 
-    constructor(private apollo: Apollo, private authSvc: AuthService) {}
+    private readonly apollo = inject(Apollo);
+    private readonly authSvc = inject(AuthService);
 
     getExercises(): Observable<Exercise[]> {
         if (this.exercises().length > 0) {
@@ -35,7 +36,7 @@ export class ExercisesService {
                     if (data) this.exercises.set(data.exercises);
                 }),
                 handleGraphqlError(this.authSvc),
-                map((res) => res.data!.exercises)
+                map((res) => res.data!.exercises),
             );
     }
 
@@ -62,7 +63,7 @@ export class ExercisesService {
                         this.exercises.set([...this.exercises(), newExercise]);
                     }
                     return newExercise!;
-                })
+                }),
             );
     }
 }

@@ -6,10 +6,8 @@ import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { UserService } from '../../core/services/user/user.service';
 import { RoutinesServices } from '../../core/services/routines/routines.service';
 import { SelectType, SelectTypeInput } from '../../shared/interfaces/input.interface';
-import { ExercisesService } from '../../core/services/exercises/exercises.service';
 import { Exercise } from '../../shared/interfaces/exercise.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RoutineDay } from '../../shared/interfaces/routines.interface';
 import { RoutinePlanAPI } from '../../shared/interfaces/api/routines-api.interface';
 import { RouterModule } from '@angular/router';
 import { ExercisesTableComponent } from '../../shared/components/widgets/exercises/table/exercises-table';
@@ -40,12 +38,10 @@ export class Routines implements OnInit {
     exercises = signal<Exercise[]>([]);
 
     selectForm!: FormGroup<selectFormType>;
-    showSelected: string = '';
+    showSelected = '';
 
-    constructor(
-        private svcUser: UserService,
-        private svcRoutines: RoutinesServices,
-    ) {}
+    private readonly svcUser = inject(UserService);
+    private readonly svcRoutines = inject(RoutinesServices);
 
     ngOnInit(): void {
         this.selectForm = this.initForm();
@@ -71,10 +67,7 @@ export class Routines implements OnInit {
     }
 
     createRoutine() {
-        this.svcUser
-            .getAllUsers()
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((result) => {});
+        this.svcUser.getAllUsers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
 
     get selectControl(): FormControl<string> {

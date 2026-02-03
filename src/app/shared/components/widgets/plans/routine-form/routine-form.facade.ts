@@ -1,5 +1,5 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { KindEnum, RoutineDayVM, RoutinePlanVM } from '../../../../interfaces/routines.interface';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
@@ -62,10 +62,8 @@ export class RoutinePlanFormFacade {
         createdBy: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     });
 
-    constructor(
-        private authSvc: AuthService,
-        private planService: PlansService,
-    ) {}
+    private readonly authSvc = inject(AuthService);
+    private readonly planService = inject(PlansService);
 
     initFacade() {
         this.authSvc
@@ -118,7 +116,6 @@ export class RoutinePlanFormFacade {
                 if (error) {
                     control?.setErrors(error);
                 } else {
-                    // importante: no pisar otros errores
                     const errors = control?.errors;
                     if (errors?.['titleExist']) {
                         delete errors['titleExist'];
@@ -127,14 +124,12 @@ export class RoutinePlanFormFacade {
                 }
             });
     }
+
     submitPlan(): Observable<void> {
         this.routineForm.markAllAsTouched();
-        console.log('work');
-        console.log(this.routineForm.controls);
 
-        if (this.routineForm.invalid) {
-            return EMPTY;
-        }
+        this.routineForm.patchValue({ name: this.routineForm.get('name')?.value });
+        if (this.routineForm.invalid) return EMPTY;
 
         const businessErrors = this.validateBusinessRules();
 
@@ -149,25 +144,51 @@ export class RoutinePlanFormFacade {
 
         this.loading.set(true);
 
-        return timer(2000).pipe(
-            // loading mínimo 2s ✔️
-            switchMap(() => this.planService.submitPlan(this.routineForm.getRawValue())),
-            tap({
-                next: () => {
+        const currentName = this.routineForm.get('name')?.value || '';
+
+        return this.planService.validateTitleUnique(currentName).pipe(
+            switchMap((isValid) => {
+                if (!isValid) {
                     this.loading.set(false);
-                    this.notification.set({
-                        show: true,
-                        type: notificationEnum.success,
-                        message: 'Rutina creada correctamente',
-                    });
-                },
-                error: () =>
+                    this.routineForm.get('name')?.setErrors({ titleExist: true });
                     this.notification.set({
                         show: true,
                         type: notificationEnum.error,
-                        message: 'Error al crear la rutina',
+                        message: 'El nombre de la rutina ya existe',
+                    });
+                    return EMPTY;
+                }
+
+                return timer(2000).pipe(
+                    switchMap(() => this.planService.submitPlan(this.routineForm.getRawValue())),
+                    tap({
+                        next: () => {
+                            this.loading.set(false);
+                            this.notification.set({
+                                show: true,
+                                type: notificationEnum.success,
+                                message: 'Rutina creada correctamente',
+                            });
+                        },
+                        error: () => {
+                            this.loading.set(false);
+                            this.notification.set({
+                                show: true,
+                                type: notificationEnum.error,
+                                message: 'Error al crear la rutina',
+                            });
+                        },
                     }),
-                finalize: () => this.loading.set(false),
+                );
+            }),
+            catchError(() => {
+                this.loading.set(false);
+                this.notification.set({
+                    show: true,
+                    type: notificationEnum.error,
+                    message: 'Error al validar el nombre',
+                });
+                return EMPTY;
             }),
         );
     }
@@ -184,5 +205,9 @@ export class RoutinePlanFormFacade {
         }
 
         return [];
+    }
+
+    handleCloseNotification() {
+        this.notification.set(initValueNotification);
     }
 }

@@ -1,7 +1,6 @@
 import { NgClass } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { BtnComponent } from '../../../../ui/btn/btn';
-import { RoutinePlanCreate } from '../../../../../interfaces/routines.interface';
 import { PlansService } from '../../../../../../core/services/plans/plans.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -15,8 +14,9 @@ export class DaysRoutineProgress {
     distribution = input<string>('');
     daysSelected = input<number>(0);
     routinePlan;
+    private readonly planService = inject(PlansService);
 
-    constructor(private planService: PlansService) {
+    constructor() {
         this.routinePlan = toSignal(this.planService.routinePlanVM$, {
             initialValue: null,
         });

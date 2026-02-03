@@ -7,8 +7,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class AccordionItemComponent {
     @Input() title!: string;
-    @Input() open: boolean = false;
-    @Input() isSelected: boolean | null = false;
+    @Input() open = false;
+    @Input() isSelected = false;
 
     @Output() toggle = new EventEmitter<void>();
 

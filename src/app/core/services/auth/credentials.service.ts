@@ -11,8 +11,6 @@ export interface LoginWithCredentials {
     providedIn: 'root',
 })
 export class CredentialsService {
-    constructor() {}
-
     getCredentials(): LoginWithCredentials {
         const remember = localStorage.getItem('remember') === 'true';
         const usernameEncrypted = localStorage.getItem('identifier');
