@@ -1,0 +1,99 @@
+<div
+  class="bg-background3 rounded-xl p-4 border border-background3 hover:border-primary/30 transition-all"
+>
+  <div class="flex items-start justify-between gap-3">
+    <div class="flex-1">
+      <h3 class="font-semibold text-primary mb-1">{{ exercise().name }}</h3>
+      <p class="text-sm text-text2">{{ exercise().description }}</p>
+      @if (exercise().time && !exercise().showInput) {
+        <span class="text-xs text-accent mt-2 inline-block">{{ exercise().time }} min</span>
+      }
+    </div>
+
+    <div class="flex items-center gap-2 relative bg-background2 rounded-full p-2">
+      <button
+        (click)="toggleExerciseInput(exercise())"
+        [class]="exercise().showInput ? 'bg-accent' : 'bg-primary'"
+        class="rounded-full p-2 hover:scale-110 transition-transform flex-shrink-0 transition-all duration-300 ease-out"
+        [attr.aria-label]="exercise().showInput ? 'Guardar tiempo' : 'Agregar tiempo'"
+      >
+        @if (exercise().showInput) {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5 text-background"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5 text-background"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        }
+      </button>
+
+      <!-- Botón X con animación de despliegue -->
+      <div
+        [class]="
+          !exercise().showDeleteButton
+            ? 'translate-x-0 opacity-100'
+            : 'translate-x-2 opacity-0 pointer-events-none translate-x-200 hidden'
+        "
+        class="transition-all duration-300 ease-out"
+      >
+        <button
+          (click)="deleteExercises(exercise(), $event)"
+          class="rounded-full p-2 bg-error hover:scale-110 transition-transform flex-shrink-0"
+          [attr.aria-label]="'Eliminar ejercicio'"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5 text-background"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (exercise().showInput) {
+    <div class="mt-3 flex items-center gap-2">
+      <input
+        type="number"
+        [(ngModel)]="exercise().time"
+        min="1"
+        max="120"
+        placeholder="Min"
+        class="w-20 px-3 py-2 bg-background2 border border-primary/30 rounded-lg text-center focus:outline-none focus:border-primary"
+      />
+      <span class="text-sm text-text2">minutos</span>
+    </div>
+  }
+</div>

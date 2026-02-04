@@ -31,6 +31,7 @@ export class BtnComponent implements AfterContentInit {
         | 'flat'
         | 'outline'
         | 'outlineLigth'
+        | 'outlineDark'
         | 'ghost' = 'basic';
     @Input() color: string = 'primary';
     @Input() routerLink?: string;
@@ -84,9 +85,11 @@ export class BtnComponent implements AfterContentInit {
             case 'flat':
                 return `bg-${color3} text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
             case 'outline':
-                return `text-${this.color} border border-${this.color} font-semibold shadow-md hover:bg-${this.color} hover:text-white`;
+                return `text-${this.color} border-2 border-${this.color} font-semibold shadow-md hover:text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
             case 'outlineLigth':
-                return `border border-${cleanColor}Light hover:bg-${cleanColor}-hover-faint text-${cleanColor}Light hover:text-${cleanColor}`;
+                return `border border-${cleanColor}Light text-${cleanColor}Light hover:text-${this.color}Dark`;
+            case 'outlineDark':
+                return `border border-${cleanColor}Dark hover:bg-${cleanColor}-hover-faint text-${cleanColor}Dark hover:text-${cleanColor}`;
             case 'ghost':
                 return `hover:bg-black-faint hover:text-white`;
             default:

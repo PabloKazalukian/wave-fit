@@ -1,0 +1,27 @@
+<div class="flex flex-col gap-3">
+  <button
+    (click)="addNewExercise()"
+    class="bg-background3 border-2 border-dashed border-primary/30 rounded-xl p-4 hover:border-primary hover:bg-background3/50 transition-all flex items-center justify-center gap-2 text-primary"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+    <span class="font-semibold">Agregar ejercicio</span>
+  </button>
+
+  @if (this.showSelect()) {
+    <app-select
+      [text]="'Ejercicio:'"
+      [options]="options"
+      [control]="selectControl"
+      [color]="'secondary'"
+      (clearValue)="onClear()"
+    ></app-select>
+  }
+</div>

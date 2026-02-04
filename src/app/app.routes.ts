@@ -20,6 +20,11 @@ export const routes: Routes = [
             import('./pages/exercises/exercises.routes').then((m) => m.EXERCISES_ROUTES),
     },
     {
+        path: 'my-day',
+        loadComponent: () => import('./pages/my-day/my-day').then((m) => m.MyDay),
+        // canActivate: [authGuard],
+    },
+    {
         path: 'user',
         loadComponent: () => import('./pages/user/user').then((m) => m.User),
         // canActivate: [authGuard],

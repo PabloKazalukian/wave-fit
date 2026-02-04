@@ -22,6 +22,11 @@ module.exports = {
   'text-confirm', 'text-confirm2', 'text-confirm3', 'text-confirmLight', 'text-confirmDark',
   'border-confirm', 'border-confirm2', 'border-confirm3', 'border-confirmLight', 'border-confirmDark',
 
+  'bg-accent', 'bg-accent2', 'bg-accent3', 'bg-accentLight', 'bg-accentDark',
+  'hover:bg-accent', 'hover:bg-accent2', 'hover:bg-accent3', 'hover:bg-accentLight', 'hover:bg-accentDark',
+  'text-accent', 'text-accent2', 'text-accent3', 'text-accentLight', 'text-accentDark',
+  'border-accent', 'border-accent2', 'border-accent3', 'border-accentLight', 'border-accentDark',
+
 
   'bg-error', 'bg-error2', 'bg-error3', 'bg-errorLight', 'bg-errorDark',
   'hover:bg-error', 'hover:bg-error2', 'hover:bg-error3', 'hover:bg-errorLight', 'hover:bg-errorDark',
