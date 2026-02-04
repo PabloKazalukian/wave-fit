@@ -6,7 +6,7 @@
   </div>
   @if (routinePlan()?.routineDays?.length !== 0) {
     <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-4">
-      @for (routineDay of this.routinePlan()?.routineDays; track routineDay.id; let i = $index) {
+      @for (routineDay of this.routinePlan()?.routineDays; track i; let i = $index) {
         @if (routineDay?.id === 'rest') {
           <div
             class="border rounded-md bg-background2 transition-colors duration-300 border-accent text-accent"

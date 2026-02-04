@@ -1,47 +1,54 @@
 <div class="bg-background md:p-16 sm:p-6 p-2">
-  <h3 class="text-2xl text-primary mb-6">Rutina:</h3>
-  <div>
-    <app-input
-      [label]="'Nombre de tu rutina semanal:'"
-      [type]="'text'"
-      [placeholder]="'Ingresa un nombre para tu rutina semanal'"
-      [control]="nameControl"
-    ></app-input>
-    <app-input
-      [label]="'Descripción: '"
-      [type]="'text'"
-      [placeholder]="'Ingresa un nombre para tu rutina semanal'"
-      [control]="descriptionControl"
-    ></app-input>
-  </div>
-
-  @if (!this.facade.show()) {
+  @if (this.facade.complete()) {
+    <app-success-screen
+      [title]="'¡Rutina creada con éxito!'"
+      [description]="'Serás redirigido a tu nueva rutina en un instante. ¡Que la disfrutes!'"
+    ></app-success-screen>
+  } @else {
+    <h3 class="text-2xl text-primary mb-6">Rutina:</h3>
     <div>
-      <p>Primero diseña la distribucion de los dias de ejercicio</p>
-      <app-select
-        [text]="'Elige una opcion:'"
-        [options]="options"
-        [control]="selectControl"
-      ></app-select>
+      <app-input
+        [label]="'Nombre de tu rutina semanal:'"
+        [type]="'text'"
+        [placeholder]="'Ingresa un nombre para tu rutina semanal'"
+        [control]="nameControl"
+      ></app-input>
+      <app-input
+        [label]="'Descripción: '"
+        [type]="'text'"
+        [placeholder]="'Ingresa un nombre para tu rutina semanal'"
+        [control]="descriptionControl"
+      ></app-input>
     </div>
-  }
 
-  @let errors = this.facade.routineForm.get('routineDays')?.errors;
+    @if (!this.facade.show()) {
+      <div>
+        <p>Primero diseña la distribucion de los dias de ejercicio</p>
+        <app-select
+          [text]="'Elige una opcion:'"
+          [options]="options"
+          [control]="selectControl"
+        ></app-select>
+      </div>
+    }
 
-  @if (errors) {
-    <div class="text-error text-sm min-h-[1.3rem]">
-      <span>La rutina debe tener exactamente 7 días{{ errors['invalidDaysLength'] }}</span>
-    </div>
-  }
-  @if (this.facade.show()) {
-    <div>
-      <app-weekly-routine-planner
-        [distribution]="selectControl.value"
-        [loading]="this.facade.loading()"
-        [notification]="this.facade.notification()"
-        (showNotification)="this.facade.handleCloseNotification()"
-        (outputSavePlan)="onSubmit()"
-      ></app-weekly-routine-planner>
-    </div>
+    @let errors = this.facade.routineForm.get('routineDays')?.errors;
+
+    @if (errors) {
+      <div class="text-error text-sm min-h-[1.3rem]">
+        <span>La rutina debe tener exactamente 7 días{{ errors['invalidDaysLength'] }}</span>
+      </div>
+    }
+    @if (this.facade.show()) {
+      <div>
+        <app-weekly-routine-planner
+          [distribution]="selectControl.value"
+          [loading]="this.facade.loading()"
+          [notification]="this.facade.notification()"
+          (showNotification)="this.facade.handleCloseNotification()"
+          (outputSavePlan)="onSubmit()"
+        ></app-weekly-routine-planner>
+      </div>
+    }
   }
 </div>

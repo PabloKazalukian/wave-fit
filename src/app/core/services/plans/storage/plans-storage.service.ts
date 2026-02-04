@@ -15,4 +15,8 @@ export class PlansStorageService {
     setPlanStorage(payload: RoutinePlanVM, id: string) {
         localStorage.setItem(`${this.storageKey}${id}`, JSON.stringify(payload));
     }
+
+    removePlanStorage(id: string) {
+        localStorage.removeItem(`${this.storageKey}${id}`);
+    }
 }

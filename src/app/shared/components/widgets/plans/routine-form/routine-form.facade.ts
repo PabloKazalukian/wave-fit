@@ -1,6 +1,11 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { KindEnum, RoutineDayVM, RoutinePlanVM } from '../../../../interfaces/routines.interface';
+import {
+    KindEnum,
+    RoutineDayVM,
+    RoutinePlan,
+    RoutinePlanVM,
+} from '../../../../interfaces/routines.interface';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
@@ -40,6 +45,8 @@ export class RoutinePlanFormFacade {
     show = signal<boolean>(false);
     loading = signal<boolean>(false);
     notification = signal<typeNotification>(initValueNotification);
+
+    complete = signal<boolean>(false);
 
     routineForm = new FormGroup<RoutinePlanType>({
         name: new FormControl('', {
@@ -125,7 +132,7 @@ export class RoutinePlanFormFacade {
             });
     }
 
-    submitPlan(): Observable<void> {
+    submitPlan(): Observable<RoutinePlan> {
         this.routineForm.markAllAsTouched();
 
         this.routineForm.patchValue({ name: this.routineForm.get('name')?.value });
@@ -145,6 +152,18 @@ export class RoutinePlanFormFacade {
         this.loading.set(true);
 
         const currentName = this.routineForm.get('name')?.value || '';
+
+        // return timer(2000).pipe(
+        //     map(() => {
+        //         this.loading.set(false);
+        //         this.notification.set({
+        //             show: true,
+        //             type: notificationEnum.success,
+        //             message: 'Rutina creada correctamente',
+        //         });
+        //         this.complete.set(true);
+        //     }),
+        // );
 
         return this.planService.validateTitleUnique(currentName).pipe(
             switchMap((isValid) => {

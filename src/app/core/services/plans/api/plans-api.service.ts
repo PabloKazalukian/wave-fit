@@ -33,13 +33,14 @@ export class PlansApiService {
         });
     }
 
-    createPlan(planInput: RoutinePlanSend) {
+    createPlan(planInput: RoutinePlanSend): Observable<RoutinePlan | null | undefined> {
         //aca debe llegar limpito
         return this.apollo
-            .mutate<{ CreatePlan: RoutinePlan }>({
+            .mutate<{ createRoutinePlan: RoutinePlan }>({
                 mutation: gql`
                     mutation CreateRoutinePlan($input: CreateRoutinePlanInput!) {
                         createRoutinePlan(createRoutinePlanInput: $input) {
+                            id
                             name
                             description
                             weekly_distribution
@@ -54,7 +55,10 @@ export class PlansApiService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                tap((value) => console.log(value)),
+                tap((e) => {
+                    console.log(e);
+                }),
+                map(({ data }) => data?.createRoutinePlan),
             );
     }
 

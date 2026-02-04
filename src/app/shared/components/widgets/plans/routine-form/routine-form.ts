@@ -3,9 +3,12 @@ import { FormSelectComponent } from '../../../ui/select/select';
 import { FormInputComponent } from '../../../ui/input/input';
 import { FormControl } from '@angular/forms';
 import { SelectType } from '../../../../interfaces/input.interface';
-import { RoutineDayVM } from '../../../../interfaces/routines.interface';
+import { RoutineDayVM, RoutinePlan } from '../../../../interfaces/routines.interface';
 import { WeeklyRoutinePlannerComponent } from '../weekly-routine-planner/weekly-routine-planner';
 import { RoutinePlanFormFacade } from './routine-form.facade';
+import { SuccessScreen } from '../../../ui/success-screen/success-screen';
+import { Router } from '@angular/router';
+import { timer } from 'rxjs';
 
 // type RoutinePlanType = FormControlsOf<RoutinePlanCreate>;
 
@@ -13,11 +16,17 @@ import { RoutinePlanFormFacade } from './routine-form.facade';
     selector: 'app-routine-plan-form',
     standalone: true,
     templateUrl: './routine-form.html',
-    imports: [FormSelectComponent, FormInputComponent, WeeklyRoutinePlannerComponent],
+    imports: [
+        FormSelectComponent,
+        FormInputComponent,
+        WeeklyRoutinePlannerComponent,
+        SuccessScreen,
+    ],
     providers: [RoutinePlanFormFacade],
 })
 export class RoutinePlanForm implements OnInit {
     facade = inject(RoutinePlanFormFacade);
+    router = inject(Router);
 
     options: SelectType[] = [
         { name: '1/7', value: '1' },
@@ -37,7 +46,16 @@ export class RoutinePlanForm implements OnInit {
         // event.preventDefault();
         this.facade.show.set(true);
         this.facade.submitPlan().subscribe({
-            next: (res) => console.log(res),
+            next: (res: RoutinePlan) => {
+                {
+                    // console.log(res);
+                    this.facade.complete.set(true);
+                    timer(3000).subscribe(() => {
+                        this.facade.show.set(false);
+                        this.router.navigate(['/routines/show/' + res?.id]);
+                    });
+                }
+            },
             error: (err) => console.error(err),
         });
     }

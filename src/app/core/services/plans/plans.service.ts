@@ -1,6 +1,6 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { BehaviorSubject, filter, Observable, take } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, take, tap } from 'rxjs';
 import {
     DayIndex,
     RoutineDayVM,
@@ -14,8 +14,6 @@ import { PlansApiService } from './api/plans-api.service';
     providedIn: 'root',
 })
 export class PlansService {
-    private destroyRef = inject(DestroyRef);
-
     private plansSubject = new BehaviorSubject<RoutinePlanVM | null>(null);
     routinePlanVM$ = this.plansSubject.pipe(filter((v): v is RoutinePlanVM => v !== null));
     userId = signal<string>('');
@@ -120,7 +118,12 @@ export class PlansService {
     }
 
     submitPlan(current: RoutinePlanVM): Observable<any> {
-        return this.planApi.createPlan(this.wrapperRoutinePlanVMtoRoutinePlan(current));
+        return this.planApi.createPlan(this.wrapperRoutinePlanVMtoRoutinePlan(current)).pipe(
+            tap({
+                next: () => this.clearPlan(),
+            }),
+            // map(() => void 0),
+        );
     }
 
     validateTitleUnique(title: string): Observable<boolean | undefined> {
@@ -128,6 +131,7 @@ export class PlansService {
     }
 
     wrapperRoutinePlanVMtoRoutinePlan(routinePlanVM: RoutinePlanVM): RoutinePlanSend {
+        console.log(routinePlanVM.weekly_distribution);
         return {
             name: routinePlanVM.name,
             description: routinePlanVM.description,
@@ -135,5 +139,12 @@ export class PlansService {
             routineDays: routinePlanVM.routineDays.map((d) => d?.id || ''),
             createdBy: routinePlanVM.createdBy,
         };
+    }
+
+    private clearPlan() {
+        console.log('estoy borrando cosas');
+        // this.plansSubject.next(null);
+        // this.planStorage.removePlanStorage(this.userId());
+        // this.userId.set('');
     }
 }
