@@ -4,14 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { CardAddExtra } from './card-add-extra/card-add-extra';
 import { CardExtraExercise } from './card-extra-exercise/card-extra-exercise';
 
-// interface Exercise {
-//     id: string;
-//     name: string;
-//     description: string;
-//     time: number | null;
-//     showInput: boolean;
-// }
-
 export interface Exercise {
     id: string;
     name: string;
@@ -43,7 +35,7 @@ export class RoutineSchedulerComponent {
         1: [
             {
                 id: '1',
-                name: 'Yoga Matutino',
+                name: 'Yoga',
                 description: 'Sesión de yoga suave para empezar el día',
                 time: 30,
                 showInput: false,
@@ -82,13 +74,6 @@ export class RoutineSchedulerComponent {
 
     selectDay(dayNumber: number): void {
         this.selectedDay.set(dayNumber);
-    }
-
-    getDayClasses(dayNumber: number): string {
-        const isSelected = this.selectedDay() === dayNumber;
-        return isSelected
-            ? 'bg-primary text-background'
-            : 'border border-primary bg-background2 text-primary hover:bg-primary/10';
     }
 
     getDayName(dayNumber: number): string {

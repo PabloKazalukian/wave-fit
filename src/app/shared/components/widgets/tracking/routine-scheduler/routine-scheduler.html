@@ -27,7 +27,11 @@
       @for (day of visibleDays; track day.number) {
         <button
           (click)="selectDay(day.number)"
-          [class]="getDayClasses(day.number)"
+          [class]="
+            this.selectedDay() === day.number
+              ? 'bg-primary text-background'
+              : 'border border-primary bg-background2 text-primary hover:bg-primary/10'
+          "
           class="flex flex-col items-center justify-center rounded-xl px-3 py-2 min-w-[60px] transition-all"
         >
           <span class="text-xs opacity-70 mb-1">{{ day.label }}</span>
