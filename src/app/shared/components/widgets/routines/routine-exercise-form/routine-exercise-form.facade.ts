@@ -50,7 +50,7 @@ export class RoutineExerciseFormFacade {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (value) => {
-                    console.log(value, categoryExercise);
+                    // console.log(value, categoryExercise);
                     const valueFiltered: Exercise[] = value.filter(
                         (v) => v.category === categoryExercise,
                     );

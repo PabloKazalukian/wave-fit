@@ -1,0 +1,21 @@
+<div class="w-full">
+  <div class="bg-background3 rounded-lg p-3 mb-4">
+    @for (exercise of this.exercisesSelected(); track exercise.id) {
+      <p>
+        {{ exercise.name }}
+      </p>
+    }
+  </div>
+  <div class="w-full">
+    <app-select
+      [text]="'Elige una categoria:'"
+      [options]="options"
+      [control]="selectControl"
+    ></app-select>
+  </div>
+  <app-exercise-selector
+    [exercises]="this.exercises()"
+    [exercisesSelected]="this.exercisesSelected()"
+    (changeExercise)="toggleExercise($event)"
+  ></app-exercise-selector>
+</div>

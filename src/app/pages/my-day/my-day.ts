@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angula
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { RoutineSchedulerComponent } from '../../shared/components/widgets/tracking/routine-scheduler/routine-scheduler';
 import { PlanTrackingService } from '../../core/services/trackings/plan-tracking.service';
-import { Tracking } from '../../shared/interfaces/tracking.interface';
+import { TrackingVM } from '../../shared/interfaces/tracking.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, switchMap, tap } from 'rxjs';
 import { AuthService } from '../../core/services/auth/auth.service';
@@ -19,7 +19,7 @@ export class MyDay implements OnInit {
     authSvc = inject(AuthService);
 
     routineActivated = signal<boolean>(true);
-    tracking = signal<Tracking | null>(null);
+    tracking = signal<TrackingVM | null>(null);
 
     userId = signal<string>('');
 
@@ -36,7 +36,6 @@ export class MyDay implements OnInit {
             )
             .subscribe((tracking) => {
                 this.tracking.set(tracking);
-                // console.log(tracking);
                 this.routineActivated.set(!tracking);
             });
     }

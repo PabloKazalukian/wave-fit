@@ -18,6 +18,56 @@ export interface Tracking {
     completed: boolean;
 }
 
+export interface WorkoutSessionVM {
+    id?: string;
+    date: Date;
+    exercises: ExercisePerformanceVM[];
+    notes?: string;
+}
+
+export interface TrackingVM {
+    id: string;
+    userId: string;
+    startDate: Date;
+    endDate: Date;
+    workouts?: WorkoutSessionVM[];
+    extras?: ExtraSession[];
+    planId?: string; // plan elegido esa semana
+    notes?: string;
+    completed: boolean;
+}
+
+export interface WeekLogCacheVM {
+    weekId: string;
+    userId: string;
+    lastUpdated: Date;
+    days: DayCacheVM[];
+}
+
+export interface DayCacheVM {
+    dayIndex: number;
+    date: Date;
+    sessions: WorkoutSessionVM[]; // ← LO IMPORTANTE
+    extra: ExtraActivityVM[];
+    status: 'not_started' | 'in_progress' | 'sent';
+    sentAt?: Date;
+}
+
+export interface ExtraActivityVM {
+    id: string;
+    type: 'running' | 'yoga' | 'cycling' | 'other';
+    duration?: number; // minutos
+    distance?: number; // km
+}
+
+export interface ExercisePerformanceVM {
+    exerciseId: string;
+    weights?: number[];
+    reps?: number[];
+    series: number;
+    notes?: string;
+}
+
 export interface ExtraSession {
     id: string;
     type: string; // "cardio", "yoga", "deporte", etc.

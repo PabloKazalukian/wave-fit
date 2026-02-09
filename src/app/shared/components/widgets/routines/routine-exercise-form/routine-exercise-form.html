@@ -21,12 +21,6 @@
 
       <div>
         <p>Categorías:</p>
-        @if (
-          facade.routineForm.get('exercises')?.hasError('requiredArray') &&
-          facade.routineForm.get('exercises')?.touched
-        ) {
-          <p class="text-error text-sm mt-1">Debes seleccionar al menos un ejercicio</p>
-        }
 
         @for (category of facade.categories(); track category) {
           <span class="inline-block bg-primary text-white text-xs px-2 py-1 rounded-md mr-1">
@@ -40,6 +34,12 @@
             <button class="ml-1 font-bold" (click)="removeAllCategory(category)">X</button>
           </span>
         }
+        @if (
+          facade.routineForm.get('exercises')?.hasError('requiredArray') &&
+          facade.routineForm.get('exercises')?.touched
+        ) {
+          <p class="text-error text-sm mt-1">Debes seleccionar al menos un ejercicio</p>
+        }
       </div>
 
       <div class="bg-background3">
@@ -47,7 +47,7 @@
       </div>
       @for (exercise of facade.exercises(); track exercise.id) {
         <div
-          class="p-2 hover:bg-background3 flex items-center justify-start gap-2 cursor-pointer group"
+          class="p-2 hover:bg-background3 flex items-center justify-start gap-2 cursor-pointer group w-full"
           (click)="toggleExercise(exercise)"
         >
           <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
@@ -56,7 +56,7 @@
             class="relative flex-center w-5 h-5 px-2 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-sm peer-checked:before:font-bold"
           ></span>
 
-          <p class="max-h-14 max-w-14">
+          <p class="w-full">
             {{ exercise.name }}
 
             <span

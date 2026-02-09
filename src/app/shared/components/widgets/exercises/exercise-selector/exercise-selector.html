@@ -1,0 +1,25 @@
+<div class="bg-background3">
+  <p>Ejercicios:</p>
+</div>
+@for (exercise of this.exercises(); track exercise.id) {
+  <div
+    class="p-2 hover:bg-background3 flex items-center justify-start gap-2 cursor-pointer group w-full"
+    (click)="toggleExercise(exercise)"
+  >
+    <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
+
+    <span
+      class="relative flex-center w-5 h-5 px-2 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-sm peer-checked:before:font-bold"
+    ></span>
+
+    <p class="max-w-64">
+      {{ exercise.name }}
+
+      <span
+        class="inline-block bg-primary text-white text-xs px-2 py-1 rounded-md mr-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+      >
+        {{ exercise.category }}
+      </span>
+    </p>
+  </div>
+}

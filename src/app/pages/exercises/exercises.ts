@@ -9,10 +9,9 @@ type ExerciseType = FormControlsOf<SelectTypeInput>;
 
 @Component({
     selector: 'app-exercises',
-    imports: [RoutineExerciseForm, FormSelectComponent],
+    imports: [FormSelectComponent],
     standalone: true,
     templateUrl: './exercises.html',
-    styleUrl: './exercises.css',
 })
 export class Exercises implements OnInit {
     exerciseForm!: FormGroup<ExerciseType>;

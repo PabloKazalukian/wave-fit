@@ -24,18 +24,18 @@
     </button>
 
     <div class="flex gap-2 flex-1 justify-center">
-      @for (day of visibleDays; track day.number) {
+      @for (day of visibleDays; track day.dayNumber) {
         <button
-          (click)="selectDay(day.number)"
+          (click)="selectDay(day)"
           [class]="
-            this.selectedDay() === day.number
+            this.selectedDay() === day
               ? 'bg-primary text-background'
               : 'border border-primary bg-background2 text-primary hover:bg-primary/10'
           "
           class="flex flex-col items-center justify-center rounded-xl px-3 py-2 min-w-[60px] transition-all"
         >
-          <span class="text-xs opacity-70 mb-1">{{ day.label }}</span>
-          <span class="text-lg font-bold">{{ day.number }}</span>
+          <span class="text-xs opacity-70 mb-1">{{ day.day }}</span>
+          <span class="text-lg font-bold">{{ day.dayNumber }}</span>
         </button>
       }
     </div>
@@ -72,8 +72,17 @@
       </div>
     </div>
     <div class="mb-6">
-      <h2 class="text-xl font-bold text-primary mb-2">{{ getDayName(selectedDay()) }}</h2>
-      <div class="bg-background3 rounded-lg p-3">
+      <h2 class="text-xl font-bold text-primary mb-2">{{ selectedDay()?.dayNumber }}</h2>
+      @for (workout of this.workouts(); track workout.date) {
+        <!-- <p>{{ workout.date }} {{ selectedDay()?.date }}</p> -->
+        @if (this.dateSvc.isEqualDate(workout.date, selectedDay()?.date!)) {
+          <div>
+            <app-routine-tracking-exercise [workout]="workout"></app-routine-tracking-exercise>
+          </div>
+        }
+      }
+
+      <!-- <div class="bg-background3 rounded-lg p-3">
         <div class="flex justify-between items-center text-sm">
           <span class="text-text2">Total de ejercicios:</span>
           <span class="font-semibold">{{ getDayExercises(selectedDay()).length }}</span>
@@ -82,7 +91,7 @@
           <span class="text-text2">Tiempo estimado:</span>
           <span class="font-semibold">{{ getTotalTime(this.selectedDay()) }} min</span>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <!-- <div class="flex flex-col gap-3">
