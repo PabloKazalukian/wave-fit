@@ -1,7 +1,7 @@
 <div class="w-full bg-background2 rounded-2xl p-4">
   <!-- Fecha de inicio -->
   <div class="mb-4">
-    <p class="text-text2 text-sm mb-2">Fecha de inicio: {{ startDate }}</p>
+    <p class="text-text2 text-sm mb-2">Fecha de inicio: {{ this.tracking()?.startDate | date }}</p>
   </div>
 
   <!-- Navegación de días -->
@@ -61,6 +61,17 @@
   <!-- Información del día seleccionado -->
   @if (this.selectedDay() !== null) {
     <div class="mb-6">
+      <h2 class="text-xl font-bold text-primary mb-2">Ejercicios</h2>
+      <div class="bg-background3 rounded-lg p-3">
+        @if (this.tracking()?.planId) {
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-text2">Plan:</span>
+            <span class="font-semibold"> this.tracking()?.planName </span>
+          </div>
+        }
+      </div>
+    </div>
+    <div class="mb-6">
       <h2 class="text-xl font-bold text-primary mb-2">{{ getDayName(selectedDay()) }}</h2>
       <div class="bg-background3 rounded-lg p-3">
         <div class="flex justify-between items-center text-sm">
@@ -74,7 +85,7 @@
       </div>
     </div>
 
-    <div class="flex flex-col gap-3">
+    <!-- <div class="flex flex-col gap-3">
       @for (exercise of getDayExercises(selectedDay()); track exercise.id) {
         <app-card-extra-exercise
           [exercise]="exercise"
@@ -84,6 +95,6 @@
       }
 
       <app-card-add-extra (addExercise)="addNewExercise($event)"></app-card-add-extra>
-    </div>
+    </div> -->
   }
 </div>

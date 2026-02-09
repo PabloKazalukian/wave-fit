@@ -34,6 +34,7 @@
     "@angular/service-worker": "20.3.16",
     "@apollo/client": "^4.0.1",
     "apollo-angular": "^12.1.0",
+    "date-fns": "^4.1.0",
     "graphql": "^16",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

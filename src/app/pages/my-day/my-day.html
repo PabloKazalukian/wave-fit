@@ -2,10 +2,10 @@
   <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-2">
     <h1 class="text-5xl font-bold text-center">Wave-Fit - Mi Dia</h1>
     <p class="text-center text-lg">Lleva tu progreso fitness en tu mano.</p>
-    @if (this.routineActivated()) {
+    @if (!this.routineActivated()) {
       <div class="flex justify-center items-center mt-4">
         <!-- aca va el prompt de la rutina que te solicito claudio -->
-        <app-routine-scheduler></app-routine-scheduler>
+        <app-routine-scheduler [tracking]="this.tracking()"></app-routine-scheduler>
       </div>
     } @else {
       <span class="text-text2 text-center text-sm">
@@ -17,7 +17,7 @@
           <p class="text-lg">No hay rutina activa</p>
           <span class="text-text2 mb-4">Queres crear una?</span>
         </div>
-        <div class="w-60 flex flex-col gap-4">
+        <div class="w-64 flex flex-col gap-4">
           <app-btn
             [text]="'Crear rutina'"
             [descriptionText]="'Crear una rutina'"
@@ -40,7 +40,7 @@
         <span class="text-text2 my-4"
           >O tambien puedes iniciar una rutina sin necesidad de crearla</span
         >
-        <div class="w-60">
+        <div class="w-64">
           <app-btn
             [text]="'Iniciar rutina'"
             [descriptionText]="'Iniciar sin rutina'"
@@ -48,7 +48,7 @@
             size="md"
             [showIcon]="true"
             [color]="'accent'"
-            [routerLink]="'/routines'"
+            (click)="createTracking()"
           ></app-btn>
         </div>
       </div>

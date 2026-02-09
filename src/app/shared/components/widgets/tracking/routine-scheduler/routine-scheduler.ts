@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardAddExtra } from './card-add-extra/card-add-extra';
 import { CardExtraExercise } from './card-extra-exercise/card-extra-exercise';
+import { Tracking } from '../../../../interfaces/tracking.interface';
 
 export interface Exercise {
     id: string;
@@ -25,7 +26,9 @@ interface Day {
     templateUrl: './routine-scheduler.html',
 })
 export class RoutineSchedulerComponent {
-    startDate = '15 Sep, 2025';
+    tracking = input<Tracking | null>(null);
+
+    // startDate = new Date().toLocaleDateString();
     totalDays = 7;
     visibleDayCount = 4;
     currentDayIndex = 0;
