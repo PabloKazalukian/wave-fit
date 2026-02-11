@@ -1,3 +1,9 @@
+export type StatusWorkoutSession = 'not_started' | 'in_progress' | 'sent';
+export enum StatusWorkoutSessionEnum {
+    NOT_STARTED = 'not_started',
+    IN_PROGRESS = 'in_progress',
+    SENT = 'sent',
+}
 export interface TrackingCreate {
     startDate: Date;
     endDate: Date;
@@ -22,6 +28,7 @@ export interface WorkoutSessionVM {
     id?: string;
     date: Date;
     exercises: ExercisePerformanceVM[];
+    status: StatusWorkoutSession;
     notes?: string;
 }
 
@@ -41,16 +48,6 @@ export interface WeekLogCacheVM {
     weekId: string;
     userId: string;
     lastUpdated: Date;
-    days: DayCacheVM[];
-}
-
-export interface DayCacheVM {
-    dayIndex: number;
-    date: Date;
-    sessions: WorkoutSessionVM[]; // ← LO IMPORTANTE
-    extra: ExtraActivityVM[];
-    status: 'not_started' | 'in_progress' | 'sent';
-    sentAt?: Date;
 }
 
 export interface ExtraActivityVM {
@@ -62,9 +59,8 @@ export interface ExtraActivityVM {
 
 export interface ExercisePerformanceVM {
     exerciseId: string;
-    weights?: number[];
-    reps?: number[];
-    series: number;
+    name: string;
+    // series: number;
     notes?: string;
 }
 
@@ -88,7 +84,7 @@ export interface WorkoutSession {
 
 export interface ExercisePerformance {
     exerciseId: string; // referencia al Exercise
-    weights?: number[]; // pesos usados por serie
-    reps: number[]; // repeticiones por serie
+    // weights?: number[]; // pesos usados por serie
+    // reps: number[]; // repeticiones por serie
     notes?: string;
 }

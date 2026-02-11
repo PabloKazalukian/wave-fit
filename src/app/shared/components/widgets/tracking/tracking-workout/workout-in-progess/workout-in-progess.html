@@ -1,0 +1,27 @@
+<div class="bg-background3 rounded-lg p-3 mb-4">
+  <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-primary">
+    <h3 class="">Lista de ejercicios:</h3>
+    <p class="text-text2 rounded-2xl bg-background2 px-3">
+      Cantidad:{{ this.facade.exercisesSelected().length }}
+    </p>
+  </div>
+  @for (exercise of this.facade.exercisesWorkout(); track exercise) {
+    <div>
+      <!-- <p>{{ exerciseame }}</p> -->
+      <p>{{ exercise.name }}:</p>
+      <div class="flex gap-1 items-end">
+        <p>{{ exercise.usesWeight }} x</p>
+        <label>rep:</label>
+        <input
+          type="text"
+          class="w-12 h-6 px-3 py-2.5 bg-background2 border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body rounded-2xl"
+        />
+        @if (exercise.usesWeight) {
+          <label>, peso:</label>
+          <input type="number" class="w-16 h-6 rounded-2xl bg-background2" />
+          <label class="text-sm"> Kg</label>
+        }
+      </div>
+    </div>
+  }
+</div>

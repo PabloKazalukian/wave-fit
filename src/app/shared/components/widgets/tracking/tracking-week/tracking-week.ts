@@ -1,23 +1,13 @@
-import { Component, DestroyRef, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
-import {
-    Tracking,
-    TrackingVM,
-    WeekLogCacheVM,
-    WorkoutSessionVM,
-} from '../../../../interfaces/tracking.interface';
+import { TrackingVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 import { DateService, DayWithString } from '../../../../../core/services/date.service';
 import { FormControlsOf } from '../../../../utils/form-types.util';
-import { ExerciseSelector } from '../../exercises/exercise-selector/exercise-selector';
-import { FormSelectComponent } from '../../../ui/select/select';
-import { options, SelectTypeInput } from '../../../../interfaces/input.interface';
-import { noEmpty } from '../../../../validators/no-empty.validator';
+import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { Exercise } from '../../../../interfaces/exercise.interface';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RoutineTrackingExercise } from './routine-tracking-exercise/routine-tracking-exercise';
-import { RoutineExerciseForm } from '../../routines/routine-exercise-form/routine-exercise-form';
+import { TrackingWorkoutComponent } from '../tracking-workout/tracking-workout';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: ExerciseRoutine[];
@@ -36,12 +26,12 @@ export interface ExerciseRoutine {
 }
 
 @Component({
-    selector: 'app-routine-scheduler',
+    selector: 'app-tracking-week',
     standalone: true,
-    imports: [CommonModule, FormsModule, RoutineTrackingExercise],
-    templateUrl: './routine-scheduler.html',
+    imports: [CommonModule, FormsModule, TrackingWorkoutComponent],
+    templateUrl: './tracking-week.html',
 })
-export class RoutineSchedulerComponent {
+export class TrackingWeekComponent {
     tracking = input<TrackingVM | null>(null);
     dateSvc = inject(DateService);
     exerciseSvc = inject(ExercisesService);
@@ -61,19 +51,19 @@ export class RoutineSchedulerComponent {
     workouts = signal<WorkoutSessionVM[] | undefined>(undefined);
 
     // tracking = signal<WeekLogCacheVM | null>(null);
-    exercises: { [key: number]: ExerciseRoutine[] } = {
-        1: [
-            {
-                id: '1',
-                name: 'Yoga',
-                description: 'Sesión de yoga suave para empezar el día',
-                time: 30,
-                showInput: false,
-                showDeleteButton: true, // 👈 Agregar
-            },
-            // ... resto
-        ],
-    };
+    // exercises: { [key: number]: ExerciseRoutine[] } = {
+    //     1: [
+    //         {
+    //             id: '1',
+    //             name: 'Yoga',
+    //             description: 'Sesión de yoga suave para empezar el día',
+    //             time: 30,
+    //             showInput: false,
+    //             showDeleteButton: true, // 👈 Agregar
+    //         },
+    //         // ... resto
+    //     ],
+    // };
 
     ngOnInit(): void {
         if (this.tracking()) {
@@ -122,60 +112,60 @@ export class RoutineSchedulerComponent {
         this.selectedDay.set(day);
     }
 
-    getDayExercises(dayNumber: number): ExerciseRoutine[] {
-        return this.exercises[dayNumber] || [];
-    }
+    // getDayExercises(dayNumber: number): ExerciseRoutine[] {
+    //     return this.exercises[dayNumber] || [];
+    // }
 
-    getTotalTime(dayNumber: number): number {
-        const exercises = this.getDayExercises(dayNumber);
-        return exercises.reduce((total, ex) => total + (ex.time || 0), 0);
-    }
+    // getTotalTime(dayNumber: number): number {
+    //     const exercises = this.getDayExercises(dayNumber);
+    //     return exercises.reduce((total, ex) => total + (ex.time || 0), 0);
+    // }
 
-    toggleExerciseInput(exercise: ExerciseRoutine): void {
-        // console.log(exercise);
-        if (exercise.showInput) {
-            // Está guardando
-            exercise.showInput = false;
-            exercise.showDeleteButton = true; // 👈 Mostrar botón X
-        } else {
-            // Está editando
-            exercise.showInput = true;
-            exercise.showDeleteButton = false; // 👈 Ocultar botón X
-        }
-    }
+    // toggleExerciseInput(exercise: ExerciseRoutine): void {
+    //     // console.log(exercise);
+    //     if (exercise.showInput) {
+    //         // Está guardando
+    //         exercise.showInput = false;
+    //         exercise.showDeleteButton = true; // 👈 Mostrar botón X
+    //     } else {
+    //         // Está editando
+    //         exercise.showInput = true;
+    //         exercise.showDeleteButton = false; // 👈 Ocultar botón X
+    //     }
+    // }
 
-    deleteExercise(exercise: ExerciseRoutine): void {
-        // event.stopPropagation(); // Evitar que dispare otros clicks
+    // deleteExercise(exercise: ExerciseRoutine): void {
+    //     // event.stopPropagation(); // Evitar que dispare otros clicks
 
-        const currentDay = this.selectedDay();
-        if (currentDay === null) return;
+    //     const currentDay = this.selectedDay();
+    //     if (currentDay === null) return;
 
-        const dayExercises = this.exercises[currentDay.dayNumber];
-        const index = dayExercises.findIndex((ex) => ex.id === exercise.id);
+    //     const dayExercises = this.exercises[currentDay.dayNumber];
+    //     const index = dayExercises.findIndex((ex) => ex.id === exercise.id);
 
-        if (index !== -1) {
-            dayExercises.splice(index, 1);
-        }
-    }
+    //     if (index !== -1) {
+    //         dayExercises.splice(index, 1);
+    //     }
+    // }
 
-    addNewExercise(name: string): void {
-        const currentDay = this.selectedDay();
-        if (currentDay === null) return;
+    // addNewExercise(name: string): void {
+    //     const currentDay = this.selectedDay();
+    //     if (currentDay === null) return;
 
-        const newExercise: ExerciseRoutine = {
-            id: Date.now().toString(),
-            name: name,
-            description: 'Descripción del ejercicio',
-            time: null,
-            showInput: true,
-            showDeleteButton: false, // 👈 Inicializar
-        };
+    //     const newExercise: ExerciseRoutine = {
+    //         id: Date.now().toString(),
+    //         name: name,
+    //         description: 'Descripción del ejercicio',
+    //         time: null,
+    //         showInput: true,
+    //         showDeleteButton: false, // 👈 Inicializar
+    //     };
 
-        if (!this.exercises[currentDay.dayNumber]) {
-            this.exercises[currentDay.dayNumber] = [];
-        }
-        this.exercises[currentDay.dayNumber].push(newExercise);
-    }
+    //     if (!this.exercises[currentDay.dayNumber]) {
+    //         this.exercises[currentDay.dayNumber] = [];
+    //     }
+    //     this.exercises[currentDay.dayNumber].push(newExercise);
+    // }
 
     toggleExercise(exercise: Exercise): void {}
 

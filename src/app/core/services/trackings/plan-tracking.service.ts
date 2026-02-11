@@ -3,6 +3,7 @@ import { PlanTrankingApi } from './plan-tracking/api/plan-tranking-api.service';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
 import { BehaviorSubject, filter, map, Observable, tap } from 'rxjs';
 import {
+    ExercisePerformanceVM,
     Tracking,
     TrackingCreate,
     TrackingVM,
@@ -15,7 +16,7 @@ import { DateService } from '../date.service';
 })
 export class PlanTrackingService {
     private trackingSubject = new BehaviorSubject<TrackingVM | null>(null);
-    trackingPlanVM$ = this.trackingSubject.pipe(filter((v): v is TrackingVM => v !== null));
+    trackingPlanVM$ = this.trackingSubject.asObservable();
 
     api = inject(PlanTrankingApi);
     storage = inject(PlanTrackingStorage);
@@ -34,15 +35,12 @@ export class PlanTrackingService {
         if (stored) {
             this.trackingSubject.next(stored);
         } else {
-            // const initValue = '';
             this.api.getTrackingByUser().subscribe((res) => {
                 if (!res) {
                     return;
                 }
-                // if(res?.workouts?.length === 0) {res.workouts = this.createWorkouts(res);}
-                const payload = this.wrappedTrackingToTrackingVM(res);
-                this.trackingSubject.next(payload);
-                this.storage.setTrackingStorage(payload, this.userId());
+
+                this._persist(this.wrappedTrackingToTrackingVM(res));
             });
         }
     }
@@ -73,6 +71,7 @@ export class PlanTrackingService {
         return this.dateService.daysOfWeek(tracking.startDate, tracking.endDate).map((day) => ({
             date: day.date,
             exercises: [],
+            status: 'not_started',
         }));
     }
 
@@ -83,12 +82,85 @@ export class PlanTrackingService {
         };
     }
 
-    setTracking(tracking: TrackingVM) {
-        this.trackingSubject.next(tracking);
-        this.storage.setTrackingStorage(tracking, this.userId());
+    setWorkouts(day: Date, workout: WorkoutSessionVM) {
+        this._updateWorkout(day, () => workout);
     }
 
-    setWorkouts(tracking: TrackingVM) {
+    toggleExercise(date: Date, exerciseId: string) {
+        this._updateWorkout(date, (workout) => ({
+            ...workout,
+            exercises: workout.exercises.some((e) => e.exerciseId === exerciseId)
+                ? workout.exercises.filter((e) => e.exerciseId !== exerciseId)
+                : [
+                      ...workout.exercises,
+                      {
+                          exerciseId,
+                          series: 0,
+                          name:
+                              workout.exercises.find((e) => e.exerciseId === exerciseId)?.name ||
+                              '',
+                      },
+                  ],
+        }));
+    }
+
+    setExercises(date: Date, exercises: ExercisePerformanceVM[]) {
+        this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
+    }
+
+    get getWorkouts(): Observable<WorkoutSessionVM[]> {
+        return this.trackingPlanVM$.pipe(
+            filter((tracking) => !!tracking),
+            map((tracking) => tracking.workouts || []),
+        );
+    }
+
+    getExercises(workoutDate: Date): Observable<ExercisePerformanceVM[]> {
+        return this.trackingPlanVM$.pipe(
+            filter((tracking) => !!tracking),
+            map(
+                (tracking) =>
+                    tracking.workouts?.filter((w) =>
+                        this.dateService.isEqualDate(w.date, workoutDate),
+                    ) || [],
+            ),
+            map((workouts) => workouts[0]?.exercises || []),
+        );
+    }
+
+    getWorkout(date: Date): Observable<WorkoutSessionVM | undefined> {
+        return this.trackingPlanVM$.pipe(
+            filter((tracking) => !!tracking),
+            map((tracking) => tracking.workouts || []),
+            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
+        );
+    }
+
+    getExercise(date: Date, exerciseId: string): Observable<ExercisePerformanceVM | undefined> {
+        return this.trackingPlanVM$.pipe(
+            filter((tracking) => !!tracking),
+            map((tracking) => tracking.workouts || []),
+            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
+            map((workout) => workout?.exercises.find((e) => e.exerciseId === exerciseId)),
+        );
+    }
+
+    private _updateWorkout(date: Date, updater: (w: WorkoutSessionVM) => WorkoutSessionVM) {
+        const current = this.trackingSubject.value;
+        if (!current) return;
+
+        const updated = {
+            ...current,
+            workouts: current.workouts?.map((w) =>
+                this.dateService.isEqualDate(w.date, date) ? updater(w) : w,
+            ),
+        };
+
+        this._persist(updated);
+    }
+
+    private _persist(tracking: TrackingVM) {
         this.trackingSubject.next(tracking);
+        this.storage.setTrackingStorage(tracking, this.userId());
     }
 }

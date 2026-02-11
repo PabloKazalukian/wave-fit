@@ -1,5 +1,5 @@
 import { Component, input, output, signal } from '@angular/core';
-import { ExerciseRoutine } from '../routine-scheduler';
+import { ExerciseRoutine } from '../tracking-week';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 

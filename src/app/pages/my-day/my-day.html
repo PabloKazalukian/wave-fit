@@ -4,8 +4,7 @@
     <p class="text-center text-lg">Lleva tu progreso fitness en tu mano.</p>
     @if (!this.routineActivated()) {
       <div class="flex justify-center items-center mt-4">
-        <!-- aca va el prompt de la rutina que te solicito claudio -->
-        <app-routine-scheduler [tracking]="this.tracking()"></app-routine-scheduler>
+        <app-tracking-week [tracking]="this.tracking()"></app-tracking-week>
       </div>
     } @else {
       <span class="text-text2 text-center text-sm">

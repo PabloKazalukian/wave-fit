@@ -25,3 +25,17 @@ export interface ExerciseForm {
     category: ExerciseCategory | null;
     usesWeight: boolean;
 }
+
+export interface ExerciseTracking {
+    id: string;
+    name: string;
+    category?: ExerciseCategory;
+    usesWeight: boolean;
+    series: number;
+    sets?: {
+        weights?: number;
+        reps?: number;
+    }[];
+    reps: number;
+    weight: number;
+}

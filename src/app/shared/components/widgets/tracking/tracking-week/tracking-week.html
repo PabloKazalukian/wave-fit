@@ -60,24 +60,24 @@
 
   <!-- Información del día seleccionado -->
   @if (this.selectedDay() !== null) {
-    <div class="mb-6">
-      <h2 class="text-xl font-bold text-primary mb-2">Ejercicios</h2>
-      <div class="bg-background3 rounded-lg p-3">
-        @if (this.tracking()?.planId) {
+    @if (this.tracking()?.planId) {
+      <div class="mb-6">
+        <h2 class="text-xl font-bold text-primary mb-2">Ejercicios</h2>
+        <div class="bg-background3 rounded-lg p-3">
           <div class="flex justify-between items-center text-sm">
             <span class="text-text2">Plan:</span>
             <span class="font-semibold"> this.tracking()?.planName </span>
           </div>
-        }
+        </div>
       </div>
-    </div>
+    }
     <div class="mb-6">
       <h2 class="text-xl font-bold text-primary mb-2">{{ selectedDay()?.dayNumber }}</h2>
       @for (workout of this.workouts(); track workout.date) {
         <!-- <p>{{ workout.date }} {{ selectedDay()?.date }}</p> -->
         @if (this.dateSvc.isEqualDate(workout.date, selectedDay()?.date!)) {
           <div>
-            <app-routine-tracking-exercise [workout]="workout"></app-routine-tracking-exercise>
+            <app-tracking-workout [workoutDate]="workout.date"> </app-tracking-workout>
           </div>
         }
       }

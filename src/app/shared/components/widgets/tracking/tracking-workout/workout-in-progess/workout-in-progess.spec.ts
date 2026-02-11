@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TrackingRoutine } from './tracking-routine';
+import { WorkoutInProgess } from './workout-in-progess';
 
-describe('TrackingRoutine', () => {
-  let component: TrackingRoutine;
-  let fixture: ComponentFixture<TrackingRoutine>;
+describe('WorkoutInProgess', () => {
+  let component: WorkoutInProgess;
+  let fixture: ComponentFixture<WorkoutInProgess>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TrackingRoutine]
+      imports: [WorkoutInProgess]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TrackingRoutine);
+    fixture = TestBed.createComponent(WorkoutInProgess);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,0 +1,57 @@
+<div class="w-full">
+  @switch (this.facade.workoutVM()?.status) {
+    @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
+      <div class="bg-background3 rounded-lg p-3 mb-4">
+        <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-primary">
+          <h3 class="">Lista de ejercicios:</h3>
+          <p class="text-text2 rounded-2xl bg-background2 px-3">
+            Cantidad:{{ this.facade.exercisesSelected().length }}
+          </p>
+        </div>
+        @for (exerciseCategorized of exercisesSelectedOrdered(); track exerciseCategorized[0]) {
+          <div class="mb-2">
+            <h4 class="border-b-2 border-background4 text-center">{{ exerciseCategorized[0] }}</h4>
+
+            <ul>
+              @for (exercise of exerciseCategorized[1]; track exercise.id) {
+                <li>{{ exercise.name }}</li>
+                <!-- <li>{{ exercise. }}</li> -->
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    }
+    @case (this.StatusWorkoutSessionEnum.IN_PROGRESS) {
+      <app-workout-in-progess
+        [exercisesSelected]="this.facade.exercisesVM()"
+      ></app-workout-in-progess>
+    }
+    @default {
+      <!-- <div></div> -->
+    }
+  }
+  <div class="mb-4">
+    <h4>{{ this.facade.workoutVM()?.status }}</h4>
+    <app-btn
+      [variant]="'raised'"
+      [text]="'Iniciar Rutina'"
+      [color]="'secondary'"
+      (click)="startRoutineTracking()"
+    >
+    </app-btn>
+  </div>
+  <div class="w-full">
+    <app-select
+      [text]="'Elige una categoria:'"
+      [options]="options"
+      [control]="selectControl"
+      (clearValue)="this.clear()"
+    ></app-select>
+  </div>
+  <app-exercise-selector
+    [exercises]="this.facade.exercises()"
+    [exercisesSelected]="this.facade.exercisesSelected()"
+    (changeExercise)="toggleExercise($event)"
+  ></app-exercise-selector>
+</div>
