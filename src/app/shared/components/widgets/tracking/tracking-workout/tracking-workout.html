@@ -24,7 +24,7 @@
     }
     @case (this.StatusWorkoutSessionEnum.IN_PROGRESS) {
       <app-workout-in-progess
-        [exercisesSelected]="this.facade.exercisesVM()"
+        [exercisesSelected]="this.facade.exercisesTracking()"
       ></app-workout-in-progess>
     }
     @default {

@@ -36,6 +36,4 @@ export interface ExerciseTracking {
         weights?: number;
         reps?: number;
     }[];
-    reps: number;
-    weight: number;
 }

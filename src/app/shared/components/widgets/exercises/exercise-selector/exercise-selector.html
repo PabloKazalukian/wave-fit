@@ -1,7 +1,7 @@
 <div class="bg-background3">
   <p>Ejercicios:</p>
 </div>
-@for (exercise of this.exercises(); track exercise.id) {
+@for (exercise of this.exercises(); track exercise.exerciseId) {
   <div
     class="p-2 hover:bg-background3 flex items-center justify-start gap-2 cursor-pointer group w-full"
     (click)="toggleExercise(exercise)"

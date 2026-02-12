@@ -4,6 +4,7 @@ import { AuthService } from '../auth/auth.service';
 import { map, Observable, of, tap } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { Exercise } from '../../../shared/interfaces/exercise.interface';
+import { ExercisePerformanceVM } from '../../../shared/interfaces/tracking.interface';
 
 @Injectable({ providedIn: 'root' })
 export class ExercisesService {
@@ -65,5 +66,16 @@ export class ExercisesService {
                     return newExercise!;
                 }),
             );
+    }
+
+    wrapperExerciseAPItoVM(): ExercisePerformanceVM[] {
+        return this.exercises().map((ex) => ({
+            exerciseId: ex.id!,
+            name: ex.name,
+            series: 0,
+            category: ex.category,
+            sets: [],
+            usesWeight: ex.usesWeight,
+        }));
     }
 }

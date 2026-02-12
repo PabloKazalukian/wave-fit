@@ -6,7 +6,10 @@ import { options } from '../../../../interfaces/input.interface';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { TrackingWorkoutFacade } from './tracking-workout.facade';
-import { StatusWorkoutSessionEnum } from '../../../../interfaces/tracking.interface';
+import {
+    ExercisePerformanceVM,
+    StatusWorkoutSessionEnum,
+} from '../../../../interfaces/tracking.interface';
 import { WorkoutInProgess } from './workout-in-progess/workout-in-progess';
 
 @Component({
@@ -27,10 +30,10 @@ export class TrackingWorkoutComponent {
         return Object.entries(
             this.facade
                 .exercisesSelected()
-                .sort((a, b) => a.category.localeCompare(b.category))
+                .sort((a, b) => a?.category.localeCompare(b?.category))
                 .reduce(
                     (acc, item) => {
-                        if (!acc[item.category]) {
+                        if (!acc[item?.category]) {
                             acc[item.category] = [];
                         }
 
@@ -48,7 +51,7 @@ export class TrackingWorkoutComponent {
         if (this.workoutDate !== undefined) this.facade.initFacade(this.workoutDate);
     }
 
-    toggleExercise(ex: Exercise) {
+    toggleExercise(ex: ExercisePerformanceVM) {
         this.facade.toggleExercise(ex);
     }
 

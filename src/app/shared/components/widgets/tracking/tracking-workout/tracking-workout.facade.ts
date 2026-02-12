@@ -10,7 +10,6 @@ import { PlanTrackingService } from '../../../../../core/services/trackings/plan
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
-import { noEmpty } from '../../../../validators/no-empty.validator';
 import { SelectType } from '../tracking-week/tracking-week';
 
 @Injectable()
@@ -36,9 +35,9 @@ export class TrackingWorkoutFacade {
         );
     }
 
-    exercises = signal<Exercise[]>([]);
-    exercisesSelected = signal<Exercise[]>([]);
-    exercisesVM = signal<ExercisePerformanceVM[]>([]);
+    exercises = signal<ExercisePerformanceVM[]>([]);
+    exercisesSelected = signal<ExercisePerformanceVM[]>([]);
+    exercisesTracking = signal<ExercisePerformanceVM[]>([]);
     loading = signal(true);
 
     initFacade(workoutDate: Date) {
@@ -47,13 +46,15 @@ export class TrackingWorkoutFacade {
             .getExercises(workoutDate)
             .pipe(
                 takeUntilDestroyed(this.destroyRef),
-                tap((exercises) => this.exercisesVM.set(exercises)),
-                switchMap((e) => this.exerciseSvc.getExercises()),
+                tap((exercises) => this.exercisesTracking.set(exercises)),
+                switchMap(() => this.exerciseSvc.getExercises()), //Asegura que haga la peticion.
+                map(() => this.exerciseSvc.wrapperExerciseAPItoVM()),
             )
             .subscribe({
                 next: (allExercises) => {
-                    const exercisesFiltered: Exercise[] = allExercises.filter((v) =>
-                        this.exercisesVM().some((ex) => ex.exerciseId === v.id),
+                    console.log(allExercises);
+                    const exercisesFiltered: ExercisePerformanceVM[] = allExercises.filter((v) =>
+                        this.exercisesTracking().some((ex) => ex.exerciseId === v.exerciseId),
                     );
 
                     this.exercises.set(allExercises);
@@ -66,7 +67,7 @@ export class TrackingWorkoutFacade {
         this.exerciseForm.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((val) => {
-                const allExercises = this.exerciseSvc.exercises();
+                const allExercises = this.exerciseSvc.wrapperExerciseAPItoVM();
                 if (!val.option) {
                     this.exercises.set([...this.exercisesSelected(), ...allExercises]);
                 } else {
@@ -81,14 +82,16 @@ export class TrackingWorkoutFacade {
             });
     }
 
-    toggleExercise(ex: Exercise) {
-        if (this.exercisesSelected().some((e) => e.id === ex.id)) {
-            this.exercisesSelected.set(this.exercisesSelected().filter((e) => e.id !== ex.id));
+    toggleExercise(ex: ExercisePerformanceVM) {
+        if (this.exercisesSelected().some((e) => e.exerciseId === ex.exerciseId)) {
+            this.exercisesSelected.set(
+                this.exercisesSelected().filter((e) => e.exerciseId !== ex.exerciseId),
+            );
         } else {
             this.exercisesSelected.set([...this.exercisesSelected(), ex]);
         }
 
-        this.trackingSvc.setExercises(this.workoutDate()!, this.generateArrayOfExercises());
+        this.trackingSvc.setExercises(this.workoutDate()!, this.exercisesSelected());
     }
 
     clear() {
@@ -102,13 +105,5 @@ export class TrackingWorkoutFacade {
 
         // .subscribe((workout) => {});
         // StatusWorkoutSessionEnum
-    }
-
-    private generateArrayOfExercises(): ExercisePerformanceVM[] {
-        return this.exercisesSelected().map((ex) => ({
-            exerciseId: ex.id || '',
-            name: ex.name || '',
-            series: 0,
-        }));
     }
 }

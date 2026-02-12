@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { Exercise } from '../../../../interfaces/exercise.interface';
+import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 
 @Component({
     selector: 'app-exercise-selector',
@@ -8,15 +9,15 @@ import { Exercise } from '../../../../interfaces/exercise.interface';
     styles: ``,
 })
 export class ExerciseSelector {
-    exercises = input<Exercise[]>();
-    exercisesSelected = input<Exercise[]>();
-    changeExercise = output<Exercise>();
+    exercises = input<ExercisePerformanceVM[]>();
+    exercisesSelected = input<ExercisePerformanceVM[]>();
+    changeExercise = output<ExercisePerformanceVM>();
 
-    toggleExercise(ex: Exercise) {
+    toggleExercise(ex: ExercisePerformanceVM) {
         this.changeExercise.emit(ex);
     }
 
-    isSelected(ex: Exercise): boolean {
-        return this.exercisesSelected()?.some((e) => e.id === ex.id) || false;
+    isSelected(ex: ExercisePerformanceVM): boolean {
+        return this.exercisesSelected()?.some((e) => e.exerciseId === ex.exerciseId) || false;
     }
 }

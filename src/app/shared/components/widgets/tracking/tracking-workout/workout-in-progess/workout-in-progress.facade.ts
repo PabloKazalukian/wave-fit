@@ -1,6 +1,6 @@
 import { computed, effect, inject, Injectable, Signal, signal } from '@angular/core';
 import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
-import { Exercise, ExerciseTracking } from '../../../../../interfaces/exercise.interface';
+import { Exercise } from '../../../../../interfaces/exercise.interface';
 import { ExercisesService } from '../../../../../../core/services/exercises/exercises.service';
 import { ExercisePerformanceVM } from '../../../../../interfaces/tracking.interface';
 import { FormControlsOf } from '../../../../../utils/form-types.util';
@@ -16,14 +16,6 @@ export class WorkoutInProgressFacade {
     exercisesSelected = signal<ExercisePerformanceVM[]>([]);
     exercises = signal<Exercise[]>([]);
 
-    // performanceForm: FormGroup<selectFormType> = new FormGroup<selectFormType>({
-    //     option: new FormControl([], { nonNullable: true }),
-    // });
-
-    // FormGroup<selectFormType> {
-    //     return new FormGroup<selectFormType>({
-    //         option: new FormControl([], { nonNullable: true }),
-    //     });
     constructor() {
         effect(() => {
             this.exercisesSvc
