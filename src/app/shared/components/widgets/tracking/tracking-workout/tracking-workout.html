@@ -1,6 +1,6 @@
 <div class="w-full">
   @switch (this.facade.workoutVM()?.status) {
-    @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
+    @case (this.StatusWorkoutSessionEnum.COMPLETE) {
       <div class="bg-background3 rounded-lg p-3 mb-4">
         <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-primary">
           <h3 class="">Lista de ejercicios:</h3>
@@ -22,21 +22,19 @@
         }
       </div>
     }
-    @case (this.StatusWorkoutSessionEnum.IN_PROGRESS) {
+    @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
       <app-workout-in-progess
         [exercisesSelected]="this.facade.exercisesTracking()"
+        [workoutDate]="this.facade.workoutDate()"
       ></app-workout-in-progess>
-    }
-    @default {
-      <!-- <div></div> -->
     }
   }
   <div class="mb-4">
-    <h4>{{ this.facade.workoutVM()?.status }}</h4>
+    <!-- <h4>{{ this.facade.workoutVM()?.status }}</h4> -->
     <app-btn
       [variant]="'raised'"
-      [text]="'Iniciar Rutina'"
-      [color]="'secondary'"
+      [text]="'Completar Rutina'"
+      [color]="'primary3'"
       (click)="startRoutineTracking()"
     >
     </app-btn>

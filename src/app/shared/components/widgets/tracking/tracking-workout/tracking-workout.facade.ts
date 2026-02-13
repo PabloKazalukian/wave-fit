@@ -100,10 +100,7 @@ export class TrackingWorkoutFacade {
     startRoutineTracking() {
         this.trackingSvc.setWorkouts(this.workoutDate()!, {
             ...this.workoutVM()!,
-            status: StatusWorkoutSessionEnum.IN_PROGRESS,
+            status: StatusWorkoutSessionEnum.NOT_STARTED,
         });
-
-        // .subscribe((workout) => {});
-        // StatusWorkoutSessionEnum
     }
 }

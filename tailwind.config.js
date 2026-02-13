@@ -37,6 +37,10 @@ module.exports = {
   'border-confirm3',
   'bg-surface', 'bg-surface2', 'bg-surface3', 'bg-surfaceLight', 'bg-surfaceDark',
 
+  'bg-warning', 'bg-warning2', 'bg-warning3', 'bg-warningLight', 'bg-warningDark',
+  'hover:bg-warning', 'hover:bg-warning2', 'hover:bg-warning3', 'hover:bg-warningLight', 'hover:bg-warningDark',
+  'text-warning', 'text-warning2', 'text-warning3', 'text-warningLight', 'text-warningDark',
+
   'shadow-primary',
   'shadow-secondary',
   'shadow-accent',
@@ -73,6 +77,8 @@ module.exports = {
         background4: '#295538',
         warning: "#D66F6F",
         warningHover: "#A65353",
+
+        surface: "#2b322c",
         
          // === PRIMARY (verde esmeralda) ===
         primary: "#50C878",
@@ -84,7 +90,7 @@ module.exports = {
 
 
         // === SECONDARY (azul) ===
-        secondary: "#3A6EBF",
+        secondary: "#5F99A6",
         secondary2: "#5A8DD4",
         secondary3: "#2D5694",
         secondaryLight: "#A1C6EB",
@@ -92,6 +98,9 @@ module.exports = {
         secondaryHover: "#2A5298",
         secondaryText: "#66aaf9",
 
+        //== TERNARY (GREEN) ===
+        ternary: '#3d6747',
+        
         // === CONFIRM (rosa fuerte) ===
         confirm: "#C83A6E",
         confirm2: "#D65A88",
@@ -117,7 +126,7 @@ module.exports = {
         successHover: "#3A8F3E",
 
         // === ERROR (rojo intenso) ===
-        error: "#CC1E2C",
+        error: "#ba1a1a",
         error2: "#E04A58",
         error3: "#9E1622",
         error4: '#ec4899',

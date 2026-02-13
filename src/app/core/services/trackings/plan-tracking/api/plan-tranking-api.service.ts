@@ -147,13 +147,9 @@ export class PlanTrankingApi {
     private wrapperWorkoutSessionApiToVM(payload: WorkoutSessionAPI): WorkoutSessionVM {
         // Determinar el status basado en la información disponible
         let status: StatusWorkoutSessionEnum;
-        if (!payload.exercises || payload.exercises.length === 0) {
-            status = StatusWorkoutSessionEnum.NOT_STARTED;
-        } else if (payload.date && new Date(payload.date) <= new Date()) {
-            status = StatusWorkoutSessionEnum.SENT;
-        } else {
-            status = StatusWorkoutSessionEnum.IN_PROGRESS;
-        }
+        !payload.exercises || payload.exercises.length === 0
+            ? (status = StatusWorkoutSessionEnum.NOT_STARTED)
+            : (status = StatusWorkoutSessionEnum.COMPLETE);
 
         return {
             id: payload.id,

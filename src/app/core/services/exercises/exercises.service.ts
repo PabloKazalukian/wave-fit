@@ -42,7 +42,6 @@ export class ExercisesService {
     }
 
     createExercise(exercise: Exercise): Observable<Exercise> {
-        console.log('Creating exercise:', exercise);
         return this.apollo
             .mutate<{ createExercise: Exercise }>({
                 mutation: gql`

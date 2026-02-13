@@ -1,10 +1,9 @@
 import { ExerciseCategory } from './exercise.interface';
 
-export type StatusWorkoutSession = 'not_started' | 'in_progress' | 'sent';
+export type StatusWorkoutSession = 'not_started' | 'complete';
 export enum StatusWorkoutSessionEnum {
     NOT_STARTED = 'not_started',
-    IN_PROGRESS = 'in_progress',
-    SENT = 'sent',
+    COMPLETE = 'complete',
 }
 
 export interface TrackingVM {
