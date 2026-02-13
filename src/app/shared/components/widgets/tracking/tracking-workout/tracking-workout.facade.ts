@@ -52,7 +52,6 @@ export class TrackingWorkoutFacade {
             )
             .subscribe({
                 next: (allExercises) => {
-                    console.log(allExercises);
                     const exercisesFiltered: ExercisePerformanceVM[] = allExercises.filter((v) =>
                         this.exercisesTracking().some((ex) => ex.exerciseId === v.exerciseId),
                     );

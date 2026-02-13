@@ -3,7 +3,7 @@
     <h1 class="text-5xl font-bold text-center">Wave-Fit - Mi Dia</h1>
     <p class="text-center text-lg">Lleva tu progreso fitness en tu mano.</p>
     @if (!this.routineActivated()) {
-      <div class="flex justify-center items-center mt-4">
+      <div class="mt-4 mx-1">
         <app-tracking-week [tracking]="this.tracking()"></app-tracking-week>
       </div>
     } @else {

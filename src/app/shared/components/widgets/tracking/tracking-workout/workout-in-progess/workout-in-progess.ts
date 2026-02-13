@@ -31,7 +31,6 @@ export class WorkoutInProgess {
     constructor() {
         effect(() => {
             const eff = this.exercisesSelected();
-            console.log(eff);
             this.facade.workoutDate.set(this.workoutDate);
             if (eff !== null && eff !== undefined) {
                 this.facade.exercisesSelected.set(eff);

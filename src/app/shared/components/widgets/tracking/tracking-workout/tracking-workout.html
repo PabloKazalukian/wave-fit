@@ -23,10 +23,12 @@
       </div>
     }
     @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
-      <app-workout-in-progess
-        [exercisesSelected]="this.facade.exercisesTracking()"
-        [workoutDate]="this.facade.workoutDate()"
-      ></app-workout-in-progess>
+      <div class="">
+        <app-workout-in-progess
+          [exercisesSelected]="this.facade.exercisesTracking()"
+          [workoutDate]="this.facade.workoutDate()"
+        ></app-workout-in-progess>
+      </div>
     }
   }
   <div class="mb-4">

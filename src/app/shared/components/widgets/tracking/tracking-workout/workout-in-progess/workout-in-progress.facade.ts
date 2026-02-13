@@ -33,7 +33,6 @@ export class WorkoutInProgressFacade {
         if (this.exercises().length === 0 || this.exercisesSelected().length === 0) return;
         return this.exercisesSelected().map((ex) => {
             const data = this.exercises().find((e) => e.exerciseId === ex.exerciseId)!;
-            console.log({ ...data, series: ex.series });
 
             return { ...data, series: ex.series };
         });
@@ -42,8 +41,6 @@ export class WorkoutInProgressFacade {
     updateExercisePerformance(exerciseId: string, sets: SetData[]): void {
         const currentCache = new Map();
         currentCache.set(exerciseId, sets);
-        console.log(currentCache);
-        // this.performanceCache.set(currentCache);
         this.exercisesSelected.set(
             this.exercisesSelected().map((ex) =>
                 ex.exerciseId === exerciseId ? { ...ex, series: sets.length, sets: sets } : ex,

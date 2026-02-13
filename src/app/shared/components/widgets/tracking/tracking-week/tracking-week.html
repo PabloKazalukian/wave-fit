@@ -72,7 +72,9 @@
       </div>
     }
     <div class="mb-6">
-      <h2 class="text-xl font-bold text-primary mb-2">{{ selectedDay()?.dayNumber }}</h2>
+      <h2 class="text-xl font-bold text-primary mb-2">
+        Rutina dia: {{ selectedDay()?.date | date: 'dd/MM/yyyy' }}
+      </h2>
       @for (workout of this.workouts(); track workout.date) {
         <!-- <p>{{ workout.date }} {{ selectedDay()?.date }}</p> -->
         @if (this.dateSvc.isEqualDate(workout.date, selectedDay()?.date!)) {
