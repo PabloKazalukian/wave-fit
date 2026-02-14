@@ -79,6 +79,48 @@ export class PlanTrankingApi {
             );
     }
 
+    createWorkoutSession(
+        payload: WorkoutSessionVM,
+        weekLogId: string,
+    ): Observable<WorkoutSessionVM | undefined | null> {
+        const workout = this.wrapperWorkoutSessionVMToApi(payload, weekLogId);
+        // console.log('transformado', workout);
+        return this.apollo
+            .mutate<{ createWorkoutSession: WorkoutSessionAPI }>({
+                mutation: gql`
+                    mutation CreateWorkoutSession($input: CreateWorkoutSessionInput!) {
+                        createWorkoutSession(createWorkoutSessionInput: $input) {
+                            id
+                            weekLogId
+                            date
+                            routineDayId
+                            exercises {
+                                exerciseId
+                                series
+                                sets {
+                                    weights
+                                    reps
+                                }
+                                notes
+                            }
+                            status
+                            notes
+                        }
+                    }
+                `,
+                variables: { input: workout },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.createWorkoutSession
+                        ? this.wrapperWorkoutSessionApiToVM(data.createWorkoutSession)
+                        : null,
+                ),
+                tap((res) => console.log(res)),
+            );
+    }
+
     createTracking(payload: TrackingCreate): Observable<TrackingVM | undefined | null> {
         return this.apollo
             .mutate<{ createWeekLog: TrackingAPI }>({
@@ -129,6 +171,46 @@ export class PlanTrankingApi {
             );
     }
 
+    updateTracking(payload: TrackingCreate): Observable<TrackingVM | undefined | null> {
+        return this.apollo
+            .mutate<{ updateWeekLog: TrackingAPI }>({
+                mutation: gql`
+                    mutation UpdateWeekLog($updateWeekLogInput: UpdateWeekLogInput!) {
+                        updateWeekLog(updateWeekLogInput: $updateWeekLogInput) {
+                            id
+                            userId
+                            startDate
+                            endDate
+                            planId
+                            notes
+                            completed
+                            workouts {
+                                date
+                                status
+                                exercises {
+                                    exerciseId
+                                    name
+                                    category
+                                    usesWeight
+                                    sets {
+                                        reps
+                                        weights
+                                    }
+                                }
+                            }
+                        }
+                    }
+                `,
+                variables: { input: payload },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.updateWeekLog ? this.wrapperTrackingApiToVM(data.updateWeekLog) : null,
+                ),
+            );
+    }
+
     private wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVM {
         return {
             id: payload.id,
@@ -158,6 +240,34 @@ export class PlanTrankingApi {
             status,
             notes: payload.notes,
         };
+    }
+
+    private wrapperWorkoutSessionVMToApi(
+        payload: WorkoutSessionVM,
+        trackingId: string,
+    ): WorkoutSessionAPI {
+        return {
+            id: payload.id,
+            weekLogId: trackingId,
+            date: payload.date,
+            exercises: this.wrapperExercisePerformanceVMToApi(payload.exercises),
+            status: payload.status,
+            notes: payload.notes,
+        };
+    }
+
+    private wrapperExercisePerformanceVMToApi(
+        payload: ExercisePerformanceVM[],
+    ): ExercisePerformanceAPI[] {
+        return payload.map((e) => ({
+            exerciseId: e.exerciseId,
+            series: e.series,
+            sets: e.sets.map((s) => ({
+                reps: s.reps,
+                weights: s.weights,
+            })),
+            notes: e.notes,
+        }));
     }
 
     // Wrapper: ExercisePerformanceAPI[] -> ExercisePerformanceVM[]

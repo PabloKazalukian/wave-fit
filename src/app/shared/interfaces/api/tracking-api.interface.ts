@@ -1,3 +1,5 @@
+import { StatusWorkoutSession } from '../tracking.interface';
+
 export interface TrackingCreate {
     startDate: Date;
     endDate: Date;
@@ -17,8 +19,10 @@ export interface TrackingAPI {
     completed: boolean;
 }
 export interface WorkoutSessionAPI {
-    id: string;
+    id?: string;
     date?: Date;
+    weekLogId?: string;
+    status: StatusWorkoutSession;
     routineDayId?: string; // referencia al día del plan (si siguió uno)
     exercises?: ExercisePerformanceAPI[];
     notes?: string;
@@ -26,8 +30,8 @@ export interface WorkoutSessionAPI {
 export interface ExercisePerformanceAPI {
     exerciseId: string; // referencia al Exercise
     sets: {
-        weights?: number;
         reps: number;
+        weights?: number;
     }[];
     series: number;
     notes?: string;

@@ -97,9 +97,13 @@ export class TrackingWorkoutFacade {
         this.exerciseForm.patchValue({ option: '' });
     }
     startRoutineTracking() {
-        this.trackingSvc.setWorkouts(this.workoutDate()!, {
-            ...this.workoutVM()!,
-            status: StatusWorkoutSessionEnum.NOT_STARTED,
-        });
+        this.trackingSvc.createWorkout(this.workoutDate()!);
+        // .subscribe(
+        // {next: ()=> {}, error: () => {}},}
+        // );
+        // this.trackingSvc.setWorkouts(this.workoutDate()!, {
+        //     ...this.workoutVM()!,
+        //     status: StatusWorkoutSessionEnum.NOT_STARTED,
+        // });
     }
 }

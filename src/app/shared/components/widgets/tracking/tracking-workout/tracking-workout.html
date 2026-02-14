@@ -15,7 +15,6 @@
             <ul>
               @for (exercise of exerciseCategorized[1]; track exercise.id) {
                 <li>{{ exercise.name }}</li>
-                <!-- <li>{{ exercise. }}</li> -->
               }
             </ul>
           </div>
@@ -32,7 +31,6 @@
     }
   }
   <div class="mb-4">
-    <!-- <h4>{{ this.facade.workoutVM()?.status }}</h4> -->
     <app-btn
       [variant]="'raised'"
       [text]="'Completar Rutina'"

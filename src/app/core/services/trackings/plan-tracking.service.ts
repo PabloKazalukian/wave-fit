@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { PlanTrankingApi } from './plan-tracking/api/plan-tranking-api.service';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
-import { BehaviorSubject, filter, map, Observable, tap } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, of, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     TrackingVM,
@@ -17,9 +17,9 @@ export class PlanTrackingService {
     private trackingSubject = new BehaviorSubject<TrackingVM | null>(null);
     trackingPlanVM$ = this.trackingSubject.asObservable();
 
-    api = inject(PlanTrankingApi);
-    storage = inject(PlanTrackingStorage);
-    dateService = inject(DateService);
+    private api = inject(PlanTrankingApi);
+    private storage = inject(PlanTrackingStorage);
+    private dateService = inject(DateService);
 
     userId = signal<string>('');
 
@@ -65,42 +65,30 @@ export class PlanTrackingService {
         );
     }
 
-    createWorkouts(tracking: TrackingAPI): WorkoutSessionVM[] {
-        return this.dateService.daysOfWeek(tracking.startDate, tracking.endDate).map((day) => ({
-            date: day.date,
-            exercises: [],
-            status: 'not_started',
-        }));
-    }
+    createWorkout(dateWorkout: Date) {
+        // const workout = this.trackingSubject.value?.workouts?.filter((w) =>
+        //     this.dateService.isEqualDate(w.date, dateWorkout),
+        // )[0];
+        // console.log(this.api.createWorkoutSession(workout!));
+        // if (!workout) return of(null);
+        // return this.api.createWorkoutSession(workout!);
 
-    // wrappedTrackingToTrackingVM(tracking: TrackingAPI): TrackingVM {
-    //     return {
-    //         ...tracking,
-    //         workouts: this.createWorkouts(tracking),
-    //     };
-    // }
+        const workout = this.trackingSubject.value?.workouts?.filter((w) =>
+            this.dateService.isEqualDate(w.date, dateWorkout),
+        )[0];
+        // if (!workout) return of(null);
+        const id = this.trackingSubject.value;
+        console.log(id);
+        if (id!)
+            this.api.createWorkoutSession(workout!, id.id!).subscribe({
+                next: (res) => console.log(res),
+                error: (err) => console.log(err),
+            });
+    }
 
     setWorkouts(day: Date, workout: WorkoutSessionVM) {
         this._updateWorkout(day, () => workout);
     }
-
-    // toggleExercise(date: Date, exerciseId: string) {
-    //     this._updateWorkout(date, (workout) => ({
-    //         ...workout,
-    //         exercises: workout.exercises.some((e) => e.exerciseId === exerciseId)
-    //             ? workout.exercises.filter((e) => e.exerciseId !== exerciseId)
-    //             : [
-    //                   ...workout.exercises,
-    //                   {
-    //                       exerciseId,
-    //                       series: 0,
-    //                       name:
-    //                           workout.exercises.find((e) => e.exerciseId === exerciseId)?.name ||
-    //                           '',
-    //                   },
-    //               ],
-    //     }));
-    // }
 
     setExercises(date: Date, exercises: ExercisePerformanceVM[]) {
         this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
@@ -141,6 +129,12 @@ export class PlanTrackingService {
             map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
             map((workout) => workout?.exercises.find((e) => e.exerciseId === exerciseId)),
         );
+    }
+
+    sentWorkout(dateWorkout: Date): void {
+        // this._updateWorkout(dateWorkout, (workout) => ({ ...workout, status: 'complete' }));
+        // this.api.createWorkoutSession(this.trackingSubject.value).subscribe();
+        // this.api.updateTracking(this.trackingSubject.value).subscribe();
     }
 
     private _updateWorkout(date: Date, updater: (w: WorkoutSessionVM) => WorkoutSessionVM) {
