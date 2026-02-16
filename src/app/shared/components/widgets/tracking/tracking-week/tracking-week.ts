@@ -8,6 +8,7 @@ import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { Exercise } from '../../../../interfaces/exercise.interface';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { TrackingWorkoutComponent } from '../tracking-workout/tracking-workout';
+import { NavigatorWeek } from './navigator-week/navigator-week';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: ExerciseRoutine[];
@@ -28,7 +29,7 @@ export interface ExerciseRoutine {
 @Component({
     selector: 'app-tracking-week',
     standalone: true,
-    imports: [CommonModule, FormsModule, TrackingWorkoutComponent],
+    imports: [CommonModule, FormsModule, NavigatorWeek],
     templateUrl: './tracking-week.html',
 })
 export class TrackingWeekComponent {
@@ -50,66 +51,11 @@ export class TrackingWeekComponent {
 
     workouts = signal<WorkoutSessionVM[] | undefined>(undefined);
 
-    // tracking = signal<WeekLogCacheVM | null>(null);
-    // exercises: { [key: number]: ExerciseRoutine[] } = {
-    //     1: [
-    //         {
-    //             id: '1',
-    //             name: 'Yoga',
-    //             description: 'Sesión de yoga suave para empezar el día',
-    //             time: 30,
-    //             showInput: false,
-    //             showDeleteButton: true, // 👈 Agregar
-    //         },
-    //         // ... resto
-    //     ],
-    // };
-
     ngOnInit(): void {
         if (this.tracking()) {
-            // if (this.tracking()?.workouts === null) {
-            // this.tracking()?.workouts = [];
             if (this.tracking()?.workouts !== null) this.workouts.set(this.tracking()?.workouts);
-            this.selectDay(this.allDays[0]);
-            // }
+            console.log(this.workouts());
         }
-    }
-    get allDays(): DayWithString[] {
-        const day = this.dateSvc.dateToStringLocal(this.tracking()?.startDate!);
-        const week = this.dateSvc.daysOfWeek(
-            this.tracking()?.startDate!,
-            this.tracking()?.endDate!,
-        );
-        // console.log(day, this.dateSvc.dateToStringLocal(this.tracking()?.endDate!));
-        // console.log(day, week);
-        return week;
-        // return Array.from({ length: this.totalDays }, (_, i) => ({
-        //     number: i + 1,
-        //     label: dayLabels[i % 7],
-        // }));
-    }
-
-    get visibleDays(): DayWithString[] {
-        return this.allDays.slice(
-            this.currentDayIndex,
-            this.currentDayIndex + this.visibleDayCount,
-        );
-    }
-
-    previousDays(): void {
-        if (this.currentDayIndex > 0) {
-            this.currentDayIndex--;
-        }
-    }
-
-    nextDays(): void {
-        if (this.currentDayIndex < this.totalDays - this.visibleDayCount) {
-            this.currentDayIndex++;
-        }
-    }
-
-    selectDay(day: DayWithString): void {
-        this.selectedDay.set(day);
     }
 
     // getDayExercises(dayNumber: number): ExerciseRoutine[] {
@@ -167,7 +113,7 @@ export class TrackingWeekComponent {
     //     this.exercises[currentDay.dayNumber].push(newExercise);
     // }
 
-    toggleExercise(exercise: Exercise): void {}
+    // toggleExercise(exercise: Exercise): void {}
 
     get exercisesSelected(): FormControl<ExerciseRoutine[]> {
         return this.exercisesForm.get('exercisesSelected') as FormControl<ExerciseRoutine[]>;

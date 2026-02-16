@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, Input, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, Input, input, output, signal } from '@angular/core';
 import { WorkoutInProgressFacade } from './workout-in-progress.facade';
 import { ExercisePerformanceVM } from '../../../../../interfaces/tracking.interface';
 import { AccordionItemComponent } from '../../../../ui/accordion-item/accordion-item';
@@ -20,11 +20,12 @@ export class WorkoutInProgess {
     facade = inject(WorkoutInProgressFacade);
 
     exercisesSelected = input<ExercisePerformanceVM[]>([]);
+    removeExerciseEvent = output<string>();
     @Input() workoutDate!: Date | null;
 
     workoutDateChanges = computed(() => this.facade.workoutDate.set(this.workoutDate));
 
-    private openAccordionIndex = signal<string | null>('');
+    private openAccordionIndex = signal<string[]>([]);
 
     private exerciseSetsData = signal<Map<string, SetData[]>>(new Map());
 
@@ -57,11 +58,19 @@ export class WorkoutInProgess {
     }
 
     open(index: string): boolean {
-        return this.openAccordionIndex() === index;
+        return this.openAccordionIndex()?.includes(index) ?? false;
     }
 
     toggleAccordion(index: string): void {
-        this.openAccordionIndex.set(this.openAccordionIndex() === index ? null : index);
+        if (this.openAccordionIndex() === null) {
+            this.openAccordionIndex.set([index]);
+        } else {
+            this.openAccordionIndex.set(
+                this.openAccordionIndex()?.includes(index)
+                    ? this.openAccordionIndex().filter((i) => i !== index)
+                    : [...this.openAccordionIndex(), index],
+            );
+        }
     }
 
     getSets(exercise: ExercisePerformanceVM): SetData[] {
@@ -94,6 +103,13 @@ export class WorkoutInProgess {
     updateWeight(exerciseId: string, setIndex: number, event: Event): void {
         const value = parseFloat((event.target as HTMLInputElement).value) || 0;
         this.updateSetData(exerciseId, setIndex, 'weights', value, true);
+    }
+
+    removeExercise(exerciseId: string): void {
+        // this.exercisesSelected.set(this.exercisesSelected().filter((ex) => ex.exerciseId !== exerciseId));
+        // console.log(exerciseId);
+        this.removeExerciseEvent.emit(exerciseId);
+        // this.facade.removeSet(exerciseId);
     }
 
     // Generic update function

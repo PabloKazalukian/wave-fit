@@ -5,8 +5,6 @@ import { PlanTrackingService } from '../../../../../core/services/trackings/plan
     providedIn: 'root',
 })
 export class TrackingWeekFacade {
-    // constructor() { }
-
     trackingSvc = inject(PlanTrackingService);
 
     trackingPlanVM$ = this.trackingSvc.trackingPlanVM$;

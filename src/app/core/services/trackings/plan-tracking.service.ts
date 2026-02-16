@@ -66,13 +66,6 @@ export class PlanTrackingService {
     }
 
     createWorkout(dateWorkout: Date) {
-        // const workout = this.trackingSubject.value?.workouts?.filter((w) =>
-        //     this.dateService.isEqualDate(w.date, dateWorkout),
-        // )[0];
-        // console.log(this.api.createWorkoutSession(workout!));
-        // if (!workout) return of(null);
-        // return this.api.createWorkoutSession(workout!);
-
         const workout = this.trackingSubject.value?.workouts?.filter((w) =>
             this.dateService.isEqualDate(w.date, dateWorkout),
         )[0];
@@ -84,6 +77,29 @@ export class PlanTrackingService {
                 next: (res) => console.log(res),
                 error: (err) => console.log(err),
             });
+    }
+
+    // Agregar al PlanTrackingService:
+
+    toggleExercise(date: Date, exercise: ExercisePerformanceVM) {
+        this._updateWorkout(date, (workout) => {
+            const exercises = workout.exercises || [];
+            const exists = exercises.some((e) => e.exerciseId === exercise.exerciseId);
+
+            return {
+                ...workout,
+                exercises: exists
+                    ? exercises.filter((e) => e.exerciseId !== exercise.exerciseId)
+                    : [...exercises, exercise],
+            };
+        });
+    }
+
+    removeExercise(date: Date, exerciseId: string) {
+        this._updateWorkout(date, (workout) => ({
+            ...workout,
+            exercises: (workout.exercises || []).filter((e) => e.exerciseId !== exerciseId),
+        }));
     }
 
     setWorkouts(day: Date, workout: WorkoutSessionVM) {

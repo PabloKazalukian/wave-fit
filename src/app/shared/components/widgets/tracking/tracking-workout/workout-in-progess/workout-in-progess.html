@@ -17,74 +17,95 @@
       >
         <div class="space-y-3">
           <!-- Sets display -->
-          @for (set of getSets(exercise); track $index; let i = $index) {
-            <div
-              class="flex items-center justify-between gap-2 py-3 bg-background2 border-b border-primary"
-              [class.border-b-0]="i === getSets(exercise).length - 1"
-            >
-              <!-- Set number -->
+          @if (getSets(exercise).length > 0) {
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-text2">Series:</span>
+              <span class="text-sm text-brand font-semibold">
+                {{ getSets(exercise).length }}
+              </span>
+            </div>
+            @for (set of getSets(exercise); track $index; let i = $index) {
               <div
-                class="flex-shrink-0 w-6 h-6 rounded-full bg-background flex items-center justify-center"
+                class="flex items-center justify-between gap-2 py-4 bg-background2 border-b border-primary"
+                [class.border-b-0]="i === getSets(exercise).length - 1"
               >
-                <span class="text-brand font-semibold">{{ i + 1 }}</span>
-              </div>
-
-              <!-- Reps input -->
-              <div class="flex items-center gap-1">
-                <label class="text-sm text-text2">REPS</label>
-                <div class="flex items-center gap-1">
-                  <button
-                    (click)="decrementReps(exercise.exerciseId!, i)"
-                    class="w-6 h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2"
-                  >
-                    <span class="text-lg">−</span>
-                  </button>
-                  <input
-                    type="number"
-                    [value]="set.reps"
-                    (input)="updateReps(exercise.exerciseId!, i, $event)"
-                    class="w-12 h-6 px-2 bg-background3 border border-background3 text-heading text-center rounded-lg focus:ring-brand focus:border-brand [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  />
-                  <button
-                    (click)="incrementReps(exercise.exerciseId!, i)"
-                    class="w-6 h-6 rounded-full bg-background flex items-center justify-center text-white"
-                  >
-                    <span class="text-lg">+</span>
-                  </button>
+                <!-- Set number -->
+                <div
+                  class="flex-shrink-0 w-6 h-6 rounded-full bg-background flex items-center justify-center"
+                >
+                  <span class="text-brand font-semibold">{{ i + 1 }}</span>
                 </div>
-              </div>
 
-              <!-- Weight input (if uses weight) -->
-              @if (exercise.usesWeight) {
-                <div class="flex items-center gap-2">
-                  <label class="text-sm text-text2">PESO</label>
+                <!-- Reps input -->
+                <div class="flex items-center gap-1">
+                  <label class="text-sm text-text2">REPS</label>
                   <div class="flex items-center gap-1">
                     <button
-                      (click)="decrementWeight(exercise.exerciseId!, i)"
+                      (click)="decrementReps(exercise.exerciseId!, i)"
                       class="w-6 h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2"
                     >
                       <span class="text-lg">−</span>
                     </button>
-                    <div class="flex items-center gap-1">
-                      <input
-                        type="number"
-                        step="2.5"
-                        [value]="set.weights"
-                        (input)="updateWeight(exercise.exerciseId!, i, $event)"
-                        class="w-12 h-6 px-2 bg-background3 border border-background3 text-heading text-center rounded-lg focus:ring-brand focus:border-brand [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                      />
-                      <span class="text-sm text-text2">kg</span>
-                    </div>
+                    <input
+                      type="number"
+                      [value]="set.reps"
+                      (input)="updateReps(exercise.exerciseId!, i, $event)"
+                      class="w-12 h-6 px-2 bg-background3 border border-background3 text-heading text-center rounded-lg focus:ring-brand focus:border-brand [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
                     <button
-                      (click)="incrementWeight(exercise.exerciseId!, i)"
+                      (click)="incrementReps(exercise.exerciseId!, i)"
                       class="w-6 h-6 rounded-full bg-background flex items-center justify-center text-white"
                     >
                       <span class="text-lg">+</span>
                     </button>
                   </div>
                 </div>
-              }
-              <!-- <hr class="border border-primary" /> -->
+
+                <!-- Weight input (if uses weight) -->
+                @if (exercise.usesWeight) {
+                  <div class="flex items-center gap-2">
+                    <label class="text-sm text-text2">PESO</label>
+                    <div class="flex items-center gap-1">
+                      <button
+                        (click)="decrementWeight(exercise.exerciseId!, i)"
+                        class="w-6 h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2"
+                      >
+                        <span class="text-lg">−</span>
+                      </button>
+                      <div class="flex items-center gap-1">
+                        <input
+                          type="number"
+                          step="2.5"
+                          [value]="set.weights"
+                          (input)="updateWeight(exercise.exerciseId!, i, $event)"
+                          class="w-12 h-6 px-2 bg-background3 border border-background3 text-heading text-center rounded-lg focus:ring-brand focus:border-brand [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        />
+                        <span class="text-sm text-text2">kg</span>
+                      </div>
+                      <button
+                        (click)="incrementWeight(exercise.exerciseId!, i)"
+                        class="w-6 h-6 rounded-full bg-background flex items-center justify-center text-white"
+                      >
+                        <span class="text-lg">+</span>
+                      </button>
+                    </div>
+                  </div>
+                }
+                <!-- <hr class="border border-primary" /> -->
+              </div>
+            }
+          } @else {
+            <div class="flex flex-col">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-text2">Series:</span>
+                <span class="text-sm text-brand font-semibold">0</span>
+              </div>
+              <button
+                class="text-lg text-error underline mb-2"
+                (click)="removeExercise(exercise.exerciseId!)"
+              >
+                Quitar Rutina
+              </button>
             </div>
           }
 

@@ -1,14 +1,10 @@
-import { DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { Exercise } from '../../../../interfaces/exercise.interface';
-import {
-    ExercisePerformanceVM,
-    StatusWorkoutSessionEnum,
-    WorkoutSessionVM,
-} from '../../../../interfaces/tracking.interface';
+import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { map, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { map, of, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SelectType } from '../tracking-week/tracking-week';
 
@@ -26,6 +22,16 @@ export class TrackingWorkoutFacade {
 
     workoutDate = signal<Date | null>(null);
     workoutVM = signal<WorkoutSessionVM | null>(null);
+
+    private workoutVM$ = computed(() => {
+        return this.trackingSvc.trackingPlanVM$.pipe(tap((plan) => console.log(plan)));
+        if (this.workoutDate() === null) return null;
+        // const date = this.workoutDate();
+        // this.trackingSvc.getWorkout(date!).subscribe((ex) => console.log(ex));
+        // return date ? this.trackingSvc.getWorkout(date) : null;
+    });
+
+    workoutVMS = toSignal(this.workoutVM$() || of(null), { initialValue: null });
 
     constructor() {
         effect(() =>
@@ -82,6 +88,7 @@ export class TrackingWorkoutFacade {
     }
 
     toggleExercise(ex: ExercisePerformanceVM) {
+        console.log(this.workoutVMS());
         if (this.exercisesSelected().some((e) => e.exerciseId === ex.exerciseId)) {
             this.exercisesSelected.set(
                 this.exercisesSelected().filter((e) => e.exerciseId !== ex.exerciseId),
@@ -96,14 +103,11 @@ export class TrackingWorkoutFacade {
     clear() {
         this.exerciseForm.patchValue({ option: '' });
     }
+
+    removeExercise(exerciseId: string) {
+        this.toggleExercise(this.exercisesSelected().find((ex) => ex.exerciseId === exerciseId)!);
+    }
     startRoutineTracking() {
         this.trackingSvc.createWorkout(this.workoutDate()!);
-        // .subscribe(
-        // {next: ()=> {}, error: () => {}},}
-        // );
-        // this.trackingSvc.setWorkouts(this.workoutDate()!, {
-        //     ...this.workoutVM()!,
-        //     status: StatusWorkoutSessionEnum.NOT_STARTED,
-        // });
     }
 }

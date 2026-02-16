@@ -28,7 +28,8 @@ export class DateService {
         return format(date, 'dd-MM-yyyy');
     }
 
-    daysOfWeek(startDate: Date, endDate: Date): DayWithString[] {
+    daysOfWeek(startDate: Date): DayWithString[] {
+        const endDate = this.addDays(startDate, 6);
         return eachDayOfInterval({ start: startDate, end: endDate }).map((date) => ({
             day: format(date, 'EE', { locale: es }),
             dayNumber: parseInt(format(date, 'dd')),

@@ -26,6 +26,8 @@ export class TrackingWorkoutComponent {
     StatusWorkoutSessionEnum = StatusWorkoutSessionEnum;
     @Input() workoutDate!: Date;
 
+    options = options;
+
     exercisesSelectedOrdered = computed(() => {
         return Object.entries(
             this.facade
@@ -45,8 +47,6 @@ export class TrackingWorkoutComponent {
         );
     });
 
-    options = options;
-
     ngOnInit() {
         if (this.workoutDate !== undefined) this.facade.initFacade(this.workoutDate);
     }
@@ -61,6 +61,10 @@ export class TrackingWorkoutComponent {
 
     startRoutineTracking() {
         this.facade.startRoutineTracking();
+    }
+
+    removeExercise(exerciseId: string) {
+        this.facade.removeExercise(exerciseId);
     }
 
     get selectControl(): FormControl<string> {

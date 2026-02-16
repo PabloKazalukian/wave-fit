@@ -5,7 +5,8 @@
   </div>
 
   <!-- Navegación de días -->
-  <div class="flex items-center justify-between mb-6 gap-2">
+  <app-navigator-week></app-navigator-week>
+  <!-- <div class="flex items-center justify-between mb-6 gap-2">
     <button
       (click)="previousDays()"
       [disabled]="currentDayIndex === 0"
@@ -56,7 +57,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
       </svg>
     </button>
-  </div>
+  </div> -->
 
   <!-- Información del día seleccionado -->
   @if (this.selectedDay() !== null) {
@@ -78,9 +79,9 @@
       @for (workout of this.workouts(); track workout.date) {
         <!-- <p>{{ workout.date }} {{ selectedDay()?.date }}</p> -->
         @if (this.dateSvc.isEqualDate(workout.date, selectedDay()?.date!)) {
-          <div>
+          <!-- <div>
             <app-tracking-workout [workoutDate]="workout.date"> </app-tracking-workout>
-          </div>
+          </div> -->
         }
       }
 
