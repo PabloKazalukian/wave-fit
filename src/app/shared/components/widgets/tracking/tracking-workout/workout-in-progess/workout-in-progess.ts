@@ -108,7 +108,7 @@ export class WorkoutInProgess {
     removeExercise(exerciseId: string): void {
         // this.exercisesSelected.set(this.exercisesSelected().filter((ex) => ex.exerciseId !== exerciseId));
         // console.log(exerciseId);
-        this.removeExerciseEvent.emit(exerciseId);
+        // this.removeExerciseEvent.emit(exerciseId);
         // this.facade.removeSet(exerciseId);
     }
 

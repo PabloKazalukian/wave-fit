@@ -9,6 +9,7 @@ export class AccordionItemComponent {
     @Input() title!: string;
     @Input() open = false;
     @Input() isSelected = false;
+    @Input() isError = false;
 
     @Output() toggle = new EventEmitter<void>();
 

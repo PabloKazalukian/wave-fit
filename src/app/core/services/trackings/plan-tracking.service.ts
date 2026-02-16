@@ -4,6 +4,7 @@ import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-stora
 import { BehaviorSubject, filter, map, Observable, of, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
+    StatusWorkoutSessionEnum,
     TrackingVM,
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
@@ -71,21 +72,25 @@ export class PlanTrackingService {
         );
     }
 
-    createWorkout(dateWorkout: Date) {
+    createWorkout(dateWorkout: Date): Observable<WorkoutSessionVM | null | undefined> {
         const workout = this.trackingSubject.value?.workouts?.filter((w) =>
             this.dateService.isEqualDate(w.date, dateWorkout),
         )[0];
         // if (!workout) return of(null);
         const id = this.trackingSubject.value;
         console.log(id);
-        if (id!)
-            this.api
-                .createWorkoutSession(workout!, id.id!)
-                .pipe(takeUntilDestroyed(this.destroyRef))
-                .subscribe({
-                    next: (res) => console.log(res),
-                    error: (err) => console.log(err),
-                });
+        if (id!) {
+            return this.api.createWorkoutSession(workout!, id.id!).pipe(
+                takeUntilDestroyed(this.destroyRef),
+                tap((res) => {
+                    // console.log(res?.date);
+                    const workout = { ...res!, status: StatusWorkoutSessionEnum.COMPLETE };
+                    this._updateWorkout(res?.date!, () => workout);
+                    // this._persist(this.trackingSubject.value!);
+                }),
+            );
+        }
+        return of(null);
     }
 
     // Agregar al PlanTrackingService:
@@ -174,4 +179,8 @@ export class PlanTrackingService {
         this.trackingSubject.next(tracking);
         this.storage.setTrackingStorage(tracking, this.userId());
     }
+
+    // validateWorkoutSession(date: Date) {
+
+    // }
 }

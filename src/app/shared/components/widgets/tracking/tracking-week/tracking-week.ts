@@ -1,7 +1,7 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
-import { TrackingVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
+import { TrackingVM } from '../../../../interfaces/tracking.interface';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { TrackingWorkoutComponent } from '../tracking-workout/tracking-workout';
@@ -42,11 +42,11 @@ export class TrackingWeekComponent {
 
     loading = signal(true);
 
-    ngOnInit(): void {
-        if (this.tracking()) {
-            // if (this.tracking()?.workouts !== null) this.workouts.set(this.tracking()?.workouts);
-        }
-    }
+    // ngOnInit(): void {
+    // if (this.tracking()) {
+    // if (this.tracking()?.workouts !== null) this.workouts.set(this.tracking()?.workouts);
+    // }
+    // }
 
     // getDayExercises(dayNumber: number): ExerciseRoutine[] {
     //     return this.exercises[dayNumber] || [];

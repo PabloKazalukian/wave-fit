@@ -1,10 +1,9 @@
-import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
-import { Exercise } from '../../../../interfaces/exercise.interface';
-import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
+import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { map, of, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { map, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SelectType } from '../tracking-week/tracking-week';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
@@ -14,6 +13,7 @@ export class TrackingWorkoutFacade {
     destroyRef = inject(DestroyRef);
     exerciseSvc = inject(ExercisesService);
     trackingSvc = inject(PlanTrackingService);
+
     state = inject(WorkoutStateService);
 
     exerciseForm = new FormGroup<SelectType>({
@@ -40,7 +40,6 @@ export class TrackingWorkoutFacade {
     loading = signal(true);
 
     initFacade(workoutDate: Date) {
-        this.workoutDate.set(workoutDate);
         this.trackingSvc
             .getExercises(workoutDate)
             .pipe(
@@ -100,6 +99,12 @@ export class TrackingWorkoutFacade {
         this.toggleExercise(this.exercisesSelected().find((ex) => ex.exerciseId === exerciseId)!);
     }
     startRoutineTracking() {
-        this.trackingSvc.createWorkout(this.workoutDate()!);
+        this.trackingSvc.createWorkout(this.workoutDate()!).subscribe({
+            next: (res) => {
+                console.log(res);
+                // this.
+            },
+            error: () => {},
+        });
     }
 }

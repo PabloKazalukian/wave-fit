@@ -13,20 +13,29 @@
         [title]="exercise.name"
         [open]="open(exercise.exerciseId!)"
         [isSelected]="false"
+        [isError]="getSets(exercise).length === 0"
         (toggle)="toggleAccordion(exercise.exerciseId!)"
       >
         <div class="space-y-3">
           <!-- Sets display -->
           @if (getSets(exercise).length > 0) {
-            <div class="flex items-center gap-2">
-              <span class="text-sm text-text2">Series:</span>
-              <span class="text-sm text-brand font-semibold">
-                {{ getSets(exercise).length }}
-              </span>
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-text2">Series:</span>
+                <span class="text-sm text-brand font-semibold">
+                  {{ getSets(exercise).length }}
+                </span>
+              </div>
+              <button
+                class="text-error underline mb-2"
+                (click)="removeExercise(exercise.exerciseId!)"
+              >
+                Quitar Rutina
+              </button>
             </div>
             @for (set of getSets(exercise); track $index; let i = $index) {
               <div
-                class="flex items-center justify-between gap-2 py-4 bg-background2 border-b border-primary"
+                class="flex items-center justify-start gap-2 py-4 bg-background2 border-b border-primary"
                 [class.border-b-0]="i === getSets(exercise).length - 1"
               >
                 <!-- Set number -->
@@ -96,16 +105,18 @@
             }
           } @else {
             <div class="flex flex-col">
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-text2">Series:</span>
-                <span class="text-sm text-brand font-semibold">0</span>
+              <div class="flex items-center justify-between gap-2">
+                <div class="gap-2">
+                  <span class="text-sm text-text2">Series:</span>
+                  <span class="text-sm text-brand font-semibold">0</span>
+                </div>
+                <button
+                  class="text-error underline mb-2"
+                  (click)="removeExercise(exercise.exerciseId!)"
+                >
+                  Quitar Rutina
+                </button>
               </div>
-              <button
-                class="text-lg text-error underline mb-2"
-                (click)="removeExercise(exercise.exerciseId!)"
-              >
-                Quitar Rutina
-              </button>
             </div>
           }
 

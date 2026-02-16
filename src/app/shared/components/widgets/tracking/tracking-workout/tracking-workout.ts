@@ -11,7 +11,6 @@ import {
     StatusWorkoutSessionEnum,
 } from '../../../../interfaces/tracking.interface';
 import { WorkoutInProgess } from './workout-in-progess/workout-in-progess';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -46,13 +45,6 @@ export class TrackingWorkoutComponent {
                 ),
         );
     });
-
-    // ngOnInit() {
-    //     console.log(this.workoutDate);
-    //     if (this.workoutDate === undefined) return;
-    //     if (this.workoutDate !== undefined && this.workoutDate !== null)
-    //         this.facade.initFacade(this.workoutDate()!);
-    // }
 
     toggleExercise(ex: ExercisePerformanceVM) {
         this.facade.toggleExercise(ex);

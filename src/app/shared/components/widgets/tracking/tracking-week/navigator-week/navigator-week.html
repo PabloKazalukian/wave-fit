@@ -17,11 +17,11 @@
   </button>
 
   <div class="flex gap-2 flex-1 justify-center">
-    @for (day of visibleDays(); track day.dayNumber) {
+    @for (day of visibleDays(); track $index; let i = $index) {
       <button
         (click)="selectDay(day)"
         [class]="
-          this.selectedDay() === day
+          sameDay(day)
             ? 'bg-primary text-background'
             : 'border border-primary bg-background2 text-primary hover:bg-primary/10'
         "
