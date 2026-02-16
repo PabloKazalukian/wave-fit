@@ -1,33 +1,24 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { WorkoutSessionAPI } from '../../../shared/interfaces/api/tracking-api.interface';
+import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
 import {
     ExercisePerformanceVM,
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
 import { PlanTrackingService } from '../trackings/plan-tracking.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { take, takeUntil } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 export class WorkoutStateService {
+    destroyRef = inject(DestroyRef);
+
     private trackingSvc = inject(PlanTrackingService);
     private tracking = toSignal(this.trackingSvc.trackingPlanVM$, { initialValue: null });
 
     selectedDate = signal<Date | null>(null);
 
-    workoutSession = computed(() => {
-        const tracking = this.tracking();
-        const date = this.selectedDate();
-
-        if (!tracking || !date || !tracking.workouts?.length) return null;
-
-        return (
-            tracking.workouts.find(
-                (w) => new Date(w.date).toDateString() === date.toDateString(),
-            ) ?? null
-        );
-    });
+    workoutSession = signal<WorkoutSessionVM | null>(null);
 
     constructor() {
         effect(() => {
@@ -36,21 +27,38 @@ export class WorkoutStateService {
             if (!tracking || !tracking.workouts?.length) return;
 
             // Si todavía no hay fecha seleccionada
+
             if (!this.selectedDate()) {
                 const firstDate = tracking.workouts[0].date;
                 this.selectedDate.set(new Date(firstDate));
+                return;
             }
+            this.trackingSvc
+                .getWorkout(this.selectedDate()!)
+                .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+                .subscribe((workout) => {
+                    if (!workout) return;
+                    this.workoutSession.set(workout);
+                    console.log(this.workoutSession());
+                });
         });
     }
 
     readonly exercises = computed(() => this.workoutSession()?.exercises ?? []);
 
     setDate(date: Date) {
-        this.selectedDate.set(date);
+        // this.selectedDate.set(date);
         this.loadWorkout(date);
     }
 
     updateExercise(ex: ExercisePerformanceVM) {}
 
-    private loadWorkout(date: Date) {}
+    private loadWorkout(date: Date) {
+        this.selectedDate.set(date);
+
+        this.trackingSvc.getWorkout(date).subscribe((workout) => {
+            if (!workout) return;
+            this.workoutSession.set(workout);
+        });
+    }
 }

@@ -7,12 +7,14 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { map, of, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SelectType } from '../tracking-week/tracking-week';
+import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
 
 @Injectable()
 export class TrackingWorkoutFacade {
     destroyRef = inject(DestroyRef);
     exerciseSvc = inject(ExercisesService);
     trackingSvc = inject(PlanTrackingService);
+    state = inject(WorkoutStateService);
 
     exerciseForm = new FormGroup<SelectType>({
         option: new FormControl('', {
@@ -20,25 +22,16 @@ export class TrackingWorkoutFacade {
         }),
     });
 
-    workoutDate = signal<Date | null>(null);
-    workoutVM = signal<WorkoutSessionVM | null>(null);
-
-    private workoutVM$ = computed(() => {
-        return this.trackingSvc.trackingPlanVM$.pipe(tap((plan) => console.log(plan)));
-        if (this.workoutDate() === null) return null;
-        // const date = this.workoutDate();
-        // this.trackingSvc.getWorkout(date!).subscribe((ex) => console.log(ex));
-        // return date ? this.trackingSvc.getWorkout(date) : null;
-    });
-
-    workoutVMS = toSignal(this.workoutVM$() || of(null), { initialValue: null });
+    readonly workoutDate = this.state.selectedDate;
+    readonly workoutVM = this.state.workoutSession;
 
     constructor() {
-        effect(() =>
-            this.trackingSvc
-                .getWorkout(this.workoutDate()!)
-                .subscribe((workout) => this.workoutVM.set(workout!)),
-        );
+        effect(() => {
+            // const workout = this.state.workoutSession();
+            if (!this.workoutVM()) return;
+
+            this.initFacade(this.workoutVM()?.date!);
+        });
     }
 
     exercises = signal<ExercisePerformanceVM[]>([]);
@@ -88,7 +81,6 @@ export class TrackingWorkoutFacade {
     }
 
     toggleExercise(ex: ExercisePerformanceVM) {
-        console.log(this.workoutVMS());
         if (this.exercisesSelected().some((e) => e.exerciseId === ex.exerciseId)) {
             this.exercisesSelected.set(
                 this.exercisesSelected().filter((e) => e.exerciseId !== ex.exerciseId),

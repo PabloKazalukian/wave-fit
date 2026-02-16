@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, signal } from '@angular/core';
 import { DateService, DayWithString } from '../../../../../../core/services/date.service';
 import { TrackingVM } from '../../../../../interfaces/tracking.interface';
 import { WorkoutStateService } from '../../../../../../core/services/workouts/workout-state.service';
@@ -8,7 +8,6 @@ import { PlanTrackingService } from '../../../../../../core/services/trackings/p
 @Component({
     selector: 'app-navigator-week',
     standalone: true,
-    providers: [WorkoutStateService],
     templateUrl: './navigator-week.html',
     styles: ``,
 })
@@ -27,10 +26,13 @@ export class NavigatorWeek {
     workoutDay = this.state.workoutSession();
     selectedDay = signal<DayWithString | null>(null);
 
-    allDays = signal<DayWithString[]>(this.dateSvc.daysOfWeek(this.tracking()?.startDate!));
+    allDays = computed(() => {
+        const t = this.tracking();
+        if (!t) return [];
+        return this.dateSvc.daysOfWeek(t.startDate);
+    });
 
     visibleDays = computed(() => {
-        console.log(this.allDays());
         return this.allDays().slice(
             this.currentDayIndex(),
             this.currentDayIndex() + this.visibleDayCount,
@@ -62,6 +64,7 @@ export class NavigatorWeek {
     }
 
     selectDay(day: DayWithString): void {
+        this.state.setDate(day.date);
         this.selectedDay.set(day);
     }
 }

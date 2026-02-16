@@ -1,33 +1,41 @@
 <div class="w-full">
-  @switch (this.facade.workoutVM()?.status) {
-    @case (this.StatusWorkoutSessionEnum.COMPLETE) {
-      <div class="bg-background3 rounded-lg p-3 mb-4">
-        <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-primary">
-          <h3 class="">Lista de ejercicios:</h3>
-          <p class="text-text2 rounded-2xl bg-background2 px-3">
-            Cantidad:{{ this.facade.exercisesSelected().length }}
-          </p>
-        </div>
-        @for (exerciseCategorized of exercisesSelectedOrdered(); track exerciseCategorized[0]) {
-          <div class="mb-2">
-            <h4 class="border-b-2 border-background4 text-center">{{ exerciseCategorized[0] }}</h4>
-
-            <ul>
-              @for (exercise of exerciseCategorized[1]; track exercise.id) {
-                <li>{{ exercise.name }}</li>
-              }
-            </ul>
+  <p>
+    <span class="text-text2 text-sm">Fecha de inicio:</span>
+    {{ this.facade.workoutVM()?.date }}
+  </p>
+  @if (this.facade.workoutVM()) {
+    @switch (this.facade.workoutVM()?.status) {
+      @case (this.StatusWorkoutSessionEnum.COMPLETE) {
+        <div class="bg-background3 rounded-lg p-3 mb-4">
+          <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-primary">
+            <h3 class="">Lista de ejercicios:</h3>
+            <p class="text-text2 rounded-2xl bg-background2 px-3">
+              Cantidad:{{ this.facade.exercisesSelected().length }}
+            </p>
           </div>
-        }
-      </div>
-    }
-    @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
-      <div class="">
-        <app-workout-in-progess
-          [exercisesSelected]="this.facade.exercisesTracking()"
-          [workoutDate]="this.facade.workoutDate()"
-        ></app-workout-in-progess>
-      </div>
+          @for (exerciseCategorized of exercisesSelectedOrdered(); track exerciseCategorized[0]) {
+            <div class="mb-2">
+              <h4 class="border-b-2 border-background4 text-center">
+                {{ exerciseCategorized[0] }}
+              </h4>
+
+              <ul>
+                @for (exercise of exerciseCategorized[1]; track exercise.id) {
+                  <li>{{ exercise.name }}</li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+      @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
+        <div class="">
+          <app-workout-in-progess
+            [exercisesSelected]="this.facade.exercisesTracking()"
+            [workoutDate]="this.facade.workoutDate()"
+          ></app-workout-in-progess>
+        </div>
+      }
     }
   }
   <div class="mb-4">

@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { PlanTrankingApi } from './plan-tracking/api/plan-tranking-api.service';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
 import { BehaviorSubject, filter, map, Observable, of, tap } from 'rxjs';
@@ -9,11 +9,14 @@ import {
 } from '../../../shared/interfaces/tracking.interface';
 import { DateService } from '../date.service';
 import { TrackingAPI, TrackingCreate } from '../../../shared/interfaces/api/tracking-api.interface';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({
     providedIn: 'root',
 })
 export class PlanTrackingService {
+    destroyRef = inject(DestroyRef);
+
     private trackingSubject = new BehaviorSubject<TrackingVM | null>(null);
     trackingPlanVM$ = this.trackingSubject.asObservable();
 
@@ -34,13 +37,16 @@ export class PlanTrackingService {
         if (stored) {
             this.trackingSubject.next(stored);
         } else {
-            this.api.getTrackingByUser().subscribe((res) => {
-                if (!res) {
-                    return;
-                }
+            this.api
+                .getTrackingByUser()
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe((res) => {
+                    if (!res) {
+                        return;
+                    }
 
-                this._persist(res);
-            });
+                    this._persist(res);
+                });
         }
     }
 
@@ -73,10 +79,13 @@ export class PlanTrackingService {
         const id = this.trackingSubject.value;
         console.log(id);
         if (id!)
-            this.api.createWorkoutSession(workout!, id.id!).subscribe({
-                next: (res) => console.log(res),
-                error: (err) => console.log(err),
-            });
+            this.api
+                .createWorkoutSession(workout!, id.id!)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                    next: (res) => console.log(res),
+                    error: (err) => console.log(err),
+                });
     }
 
     // Agregar al PlanTrackingService:
@@ -145,12 +154,6 @@ export class PlanTrackingService {
             map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
             map((workout) => workout?.exercises.find((e) => e.exerciseId === exerciseId)),
         );
-    }
-
-    sentWorkout(dateWorkout: Date): void {
-        // this._updateWorkout(dateWorkout, (workout) => ({ ...workout, status: 'complete' }));
-        // this.api.createWorkoutSession(this.trackingSubject.value).subscribe();
-        // this.api.updateTracking(this.trackingSubject.value).subscribe();
     }
 
     private _updateWorkout(date: Date, updater: (w: WorkoutSessionVM) => WorkoutSessionVM) {

@@ -2,13 +2,11 @@ import { Component, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule } from '@angular/forms';
 import { TrackingVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
-import { DateService, DayWithString } from '../../../../../core/services/date.service';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { SelectTypeInput } from '../../../../interfaces/input.interface';
-import { Exercise } from '../../../../interfaces/exercise.interface';
-import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { TrackingWorkoutComponent } from '../tracking-workout/tracking-workout';
 import { NavigatorWeek } from './navigator-week/navigator-week';
+import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: ExerciseRoutine[];
@@ -29,32 +27,24 @@ export interface ExerciseRoutine {
 @Component({
     selector: 'app-tracking-week',
     standalone: true,
-    imports: [CommonModule, FormsModule, NavigatorWeek],
+    imports: [CommonModule, FormsModule, NavigatorWeek, TrackingWorkoutComponent],
     templateUrl: './tracking-week.html',
 })
 export class TrackingWeekComponent {
     tracking = input<TrackingVM | null>(null);
-    dateSvc = inject(DateService);
-    exerciseSvc = inject(ExercisesService);
+
+    state = inject(WorkoutStateService);
 
     exercisesForm = new FormGroup<ExercisesType>({
         exercisesSelected: new FormControl<ExerciseRoutine[]>([], { nonNullable: true }),
         categoriesSelected: new FormControl<string[]>([], { nonNullable: true }),
     });
 
-    // startDate = new Date().toLocaleDateString();
-    totalDays = 7;
-    visibleDayCount = 4;
-    currentDayIndex = 0;
-    selectedDay = signal<DayWithString | null>(null);
     loading = signal(true);
-
-    workouts = signal<WorkoutSessionVM[] | undefined>(undefined);
 
     ngOnInit(): void {
         if (this.tracking()) {
-            if (this.tracking()?.workouts !== null) this.workouts.set(this.tracking()?.workouts);
-            console.log(this.workouts());
+            // if (this.tracking()?.workouts !== null) this.workouts.set(this.tracking()?.workouts);
         }
     }
 
