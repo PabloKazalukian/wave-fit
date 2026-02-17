@@ -1,7 +1,7 @@
 <div class="w-full">
-  <p>
-    <span class="text-text2 text-sm">Fecha de inicio:</span>
-    {{ this.facade.workoutVM()?.date }}
+  <p class="mb-2">
+    <span class="text-text2 text-sm">Fecha de Rutina:</span>
+    {{ this.facade.workoutVM()?.date | date: 'dd/MM/yyyy' }}
   </p>
   @if (this.facade.workoutVM()) {
     @switch (this.facade.workoutVM()?.status) {
@@ -14,14 +14,35 @@
             </p>
           </div>
           @for (exerciseCategorized of exercisesSelectedOrdered(); track exerciseCategorized[0]) {
-            <div class="mb-2">
-              <h4 class="border-b-2 border-background4 text-center">
+            <div class="mb-4">
+              <h4 class="border-b-2 border-background4 text-center mb-4">
                 {{ exerciseCategorized[0] }}
               </h4>
 
-              <ul>
-                @for (exercise of exerciseCategorized[1]; track exercise.id) {
-                  <li>{{ exercise.name }}</li>
+              <ul class="flex flex-col gap-2">
+                @for (exercise of exerciseCategorized[1]; track exercise.exerciseId) {
+                  <div class="mb-2">
+                    <div class="flex justify-between pb-2">
+                      <li>{{ exercise.name }}</li>
+                      <li>Series: {{ exercise.series }}</li>
+                    </div>
+
+                    @if (exercise.sets.length === 0) {
+                      <div class="flex gap-2 bg-background2 p-2 rounded-lg text-error2">
+                        <li class="border-r-2 pr-2 border-background4 text-center">1</li>
+                        <li class="text-error2">No completado</li>
+                      </div>
+                    }
+                    @for (item of exercise.sets; track $index) {
+                      <div class="flex gap-2 bg-background2 p-2 rounded-lg">
+                        <li class="border-r-2 pr-2 border-background4 text-center">
+                          {{ $index + 1 }}
+                        </li>
+                        <li>{{ item.reps }}reps</li>
+                        <li>x {{ item?.weights }}kg</li>
+                      </div>
+                    }
+                  </div>
                 }
               </ul>
             </div>
@@ -32,26 +53,34 @@
         <div class="">
           <app-workout-in-progess></app-workout-in-progess>
         </div>
+
+        <div class="mb-4">
+          <app-btn
+            [variant]="'raised'"
+            [text]="'Completar Rutina'"
+            [color]="'primary3'"
+            [isDisabled]="!this.facade.validateWorkout()"
+            (click)="startRoutineTracking()"
+          >
+            <app-icon>
+              <div class="h-6 w-6">
+                @if (this.facade.loading()) {
+                  <app-spinner> </app-spinner>
+                }
+              </div>
+            </app-icon>
+          </app-btn>
+        </div>
+        <div class="w-full">
+          <app-select
+            [text]="'Elige una categoria:'"
+            [options]="options"
+            [control]="selectControl"
+            (clearValue)="this.clear()"
+          ></app-select>
+        </div>
+        <app-exercise-selector></app-exercise-selector>
       }
     }
   }
-  <div class="mb-4">
-    <app-btn
-      [variant]="'raised'"
-      [text]="'Completar Rutina'"
-      [color]="'primary3'"
-      [isDisabled]="!this.facade.validateWorkout()"
-      (click)="startRoutineTracking()"
-    >
-    </app-btn>
-  </div>
-  <div class="w-full">
-    <app-select
-      [text]="'Elige una categoria:'"
-      [options]="options"
-      [control]="selectControl"
-      (clearValue)="this.clear()"
-    ></app-select>
-  </div>
-  <app-exercise-selector></app-exercise-selector>
 </div>

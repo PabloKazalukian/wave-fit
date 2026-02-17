@@ -38,7 +38,6 @@ export class NavigatorWeek {
             dayNumber: this.state.selectedDate()?.getDate(),
             day: this.state.selectedDate()?.toLocaleDateString('es-ES', { weekday: 'long' }),
         };
-        console.log(day);
         return day;
     });
     sameDay(day: DayWithString): boolean {
@@ -49,17 +48,10 @@ export class NavigatorWeek {
     allDays = computed(() => {
         const t = this.tracking();
         if (!t) return [];
-        console.log(this.dateSvc.daysOfWeek(t.startDate));
         return this.dateSvc.daysOfWeek(t.startDate);
     });
 
     visibleDays = computed(() => {
-        console.log(
-            this.allDays().slice(
-                this.currentDayIndex(),
-                this.currentDayIndex() + this.visibleDayCount,
-            ),
-        );
         return this.allDays().slice(
             this.currentDayIndex(),
             this.currentDayIndex() + this.visibleDayCount,

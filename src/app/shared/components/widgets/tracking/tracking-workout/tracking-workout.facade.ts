@@ -41,35 +41,38 @@ export class TrackingWorkoutFacade {
     }
 
     exercises = signal<ExercisePerformanceVM[]>([]);
-    exercisesSelected = signal<ExercisePerformanceVM[]>([]);
+    exercisesSelected = this.state.exercises;
     exercisesTracking = signal<ExercisePerformanceVM[]>([]);
-    loading = signal(true);
+    loading = this.trackingSvc.loading;
 
     validateForm(): boolean {
         return this.exerciseForm.valid;
     }
 
     initFacade(workoutDate: Date) {
-        this.trackingSvc
-            .getExercises(workoutDate)
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                tap((exercises) => this.exercisesTracking.set(exercises)),
-                switchMap(() => this.exerciseSvc.getExercises()), //Asegura que haga la peticion.
-                map(() => this.exerciseSvc.wrapperExerciseAPItoVM()),
-            )
-            .subscribe({
-                next: (allExercises) => {
-                    const exercisesFiltered: ExercisePerformanceVM[] = allExercises.filter((v) =>
-                        this.exercisesTracking().some((ex) => ex.exerciseId === v.exerciseId),
-                    );
+        // this.trackingSvc
+        //     .getExercises(workoutDate)
+        //     .pipe(
+        //         takeUntilDestroyed(this.destroyRef),
+        //         tap((exercises) => this.exercisesTracking.set(exercises)),
+        //         switchMap(() => this.exerciseSvc.getExercises()), //Asegura que haga la peticion.
+        //         map(() => this.exerciseSvc.wrapperExerciseAPItoVM()),
+        //     )
+        //     .subscribe({
+        //         next: (allExercises) => {
+        //             const exercisesFiltered: ExercisePerformanceVM[] = allExercises.filter((v) =>
+        //                 this.exercisesTracking().some((ex) => ex.exerciseId === v.exerciseId),
+        //             );
+        //             console.log(exercisesFiltered);
+        //             console.log(allExercises);
 
-                    this.exercises.set(allExercises);
-                    this.exercisesSelected.set(exercisesFiltered);
-                    this.loading.set(false);
-                },
-                error: () => this.loading.set(false),
-            });
+        //             console.log(this.exercisesTracking());
+        //             this.exercises.set(allExercises);
+        //             // this.exercisesSelected.set(exercisesFiltered);
+        //             this.loading.set(false);
+        //         },
+        //         error: () => this.loading.set(false),
+        //     });
 
         this.exerciseForm.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
@@ -89,25 +92,26 @@ export class TrackingWorkoutFacade {
             });
     }
 
-    toggleExercise(ex: ExercisePerformanceVM) {
-        if (this.exercisesSelected().some((e) => e.exerciseId === ex.exerciseId)) {
-            this.exercisesSelected.set(
-                this.exercisesSelected().filter((e) => e.exerciseId !== ex.exerciseId),
-            );
-        } else {
-            this.exercisesSelected.set([...this.exercisesSelected(), ex]);
-        }
+    // toggleExercise(ex: ExercisePerformanceVM) {
+    //     if (this.exercisesSelected().some((e) => e.exerciseId === ex.exerciseId)) {
+    //         this.exercisesSelected.set(
+    //             this.exercisesSelected().filter((e) => e.exerciseId !== ex.exerciseId),
+    //         );
+    //     } else {
+    //         this.exercisesSelected.set([...this.exercisesSelected(), ex]);
+    //     }
 
-        this.trackingSvc.setExercises(this.workoutDate()!, this.exercisesSelected());
-    }
+    //     this.trackingSvc.setExercises(this.workoutDate()!, this.exercisesSelected());
+    // }
 
     clear() {
         this.exerciseForm.patchValue({ option: '' });
     }
 
-    removeExercise(exerciseId: string) {
-        this.toggleExercise(this.exercisesSelected().find((ex) => ex.exerciseId === exerciseId)!);
-    }
+    // removeExercise(exerciseId: string) {
+
+    //     this.toggleExercise(this.exercisesSelected().find((ex) => ex.exerciseId === exerciseId)!);
+    // }
     startRoutineTracking() {
         this.trackingSvc.createWorkout(this.workoutDate()!).subscribe({
             next: (res) => {

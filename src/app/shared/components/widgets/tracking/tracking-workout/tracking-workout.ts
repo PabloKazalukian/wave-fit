@@ -11,10 +11,21 @@ import {
     StatusWorkoutSessionEnum,
 } from '../../../../interfaces/tracking.interface';
 import { WorkoutInProgess } from './workout-in-progess/workout-in-progess';
+import { IconComponent } from '../../../ui/icon/icon';
+import { SpinnerComponent } from '../../../ui/icon/spinner';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-tracking-workout',
-    imports: [ExerciseSelector, FormSelectComponent, BtnComponent, WorkoutInProgess],
+    imports: [
+        ExerciseSelector,
+        FormSelectComponent,
+        BtnComponent,
+        WorkoutInProgess,
+        IconComponent,
+        SpinnerComponent,
+        DatePipe,
+    ],
     providers: [TrackingWorkoutFacade],
     standalone: true,
     templateUrl: './tracking-workout.html',
@@ -39,16 +50,17 @@ export class TrackingWorkoutComponent {
                         }
 
                         acc[item.category].push(item);
+                        // console.log(acc);
                         return acc;
                     },
-                    {} as { [key: string]: Exercise[] },
+                    {} as { [key: string]: ExercisePerformanceVM[] },
                 ),
         );
     });
 
-    toggleExercise(ex: ExercisePerformanceVM) {
-        this.facade.toggleExercise(ex);
-    }
+    // toggleExercise(ex: ExercisePerformanceVM) {
+    //     this.facade.toggleExercise(ex);
+    // }
 
     clear() {
         this.facade.clear();
@@ -58,9 +70,9 @@ export class TrackingWorkoutComponent {
         this.facade.startRoutineTracking();
     }
 
-    removeExercise(exerciseId: string) {
-        this.facade.removeExercise(exerciseId);
-    }
+    // removeExercise(exerciseId: string) {
+    //     this.facade.removeExercise(exerciseId);
+    // }
 
     get selectControl(): FormControl<string> {
         return this.facade.exerciseForm.get('option') as FormControl<string>;

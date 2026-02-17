@@ -26,6 +26,7 @@ export class PlanTrackingService {
     private dateService = inject(DateService);
 
     userId = signal<string>('');
+    loading = signal(false);
 
     initTracking(userId: string) {
         if (this.userId() !== '') {
@@ -73,6 +74,7 @@ export class PlanTrackingService {
     }
 
     createWorkout(dateWorkout: Date): Observable<WorkoutSessionVM | null | undefined> {
+        this.loading.set(true);
         const workout = this.trackingSubject.value?.workouts?.filter((w) =>
             this.dateService.isEqualDate(w.date, dateWorkout),
         )[0];
@@ -88,6 +90,7 @@ export class PlanTrackingService {
                     this._updateWorkout(res?.date!, () => workout);
                     // this._persist(this.trackingSubject.value!);
                 }),
+                tap(() => this.loading.set(false)),
             );
         }
         return of(null);
