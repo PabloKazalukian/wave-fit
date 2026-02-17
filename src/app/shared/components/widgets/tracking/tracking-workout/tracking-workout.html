@@ -43,6 +43,7 @@
       [variant]="'raised'"
       [text]="'Completar Rutina'"
       [color]="'primary3'"
+      [isDisabled]="!this.facade.validateWorkout()"
       (click)="startRoutineTracking()"
     >
     </app-btn>

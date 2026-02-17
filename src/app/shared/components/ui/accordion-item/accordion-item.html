@@ -1,7 +1,7 @@
 <div
   class="border rounded-md bg-background2 transition-colors duration-300"
   [class.border-accent]="isSelected && !isError"
-  [class.border-primary]="!isSelected && !isError"
+  [class.border-primary2]="!isSelected && !isError"
   [class.border-error]="isError"
   [class.border-2]="isError"
 >
@@ -10,8 +10,8 @@
     (click)="onToggle()"
     class="w-full flex justify-between items-center px-4 py-3 bg-background3 rounded-md transition-colors duration-300"
     [class.text-accent]="isSelected && !isError"
-    [class.text-primary]="!isSelected && !isError"
-    [class.text-error]="isError"
+    [class.text-primary2]="!isSelected && !isError"
+    [class.text-error2]="isError"
   >
     <h4 class="font-semibold">
       {{ title }}

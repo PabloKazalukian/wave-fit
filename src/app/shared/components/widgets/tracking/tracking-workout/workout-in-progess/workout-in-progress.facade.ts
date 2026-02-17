@@ -39,15 +39,18 @@ export class WorkoutInProgressFacade {
     });
 
     updateExercisePerformance(exerciseId: string, sets: SetData[]): void {
-        const currentCache = new Map();
-        currentCache.set(exerciseId, sets);
         this.exercisesSelected.set(
             this.exercisesSelected().map((ex) =>
                 ex.exerciseId === exerciseId ? { ...ex, series: sets.length, sets: sets } : ex,
             ),
         );
-        console.log(this.workoutDate(), this.exercisesSelected());
 
         this.trackingSvc.setExercises(this.workoutDate()!, this.exercisesSelected());
+    }
+    removeExercise(exerciseId: string): void {
+        this.trackingSvc.setExercises(
+            this.workoutDate()!,
+            this.exercisesSelected().filter((ex) => ex.exerciseId !== exerciseId),
+        );
     }
 }

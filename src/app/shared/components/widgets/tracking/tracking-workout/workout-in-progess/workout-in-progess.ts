@@ -20,7 +20,6 @@ export class WorkoutInProgess {
     facade = inject(WorkoutInProgressFacade);
 
     exercisesSelected = input<ExercisePerformanceVM[]>([]);
-    removeExerciseEvent = output<string>();
     @Input() workoutDate!: Date | null;
 
     workoutDateChanges = computed(() => this.facade.workoutDate.set(this.workoutDate));
@@ -103,13 +102,6 @@ export class WorkoutInProgess {
     updateWeight(exerciseId: string, setIndex: number, event: Event): void {
         const value = parseFloat((event.target as HTMLInputElement).value) || 0;
         this.updateSetData(exerciseId, setIndex, 'weights', value, true);
-    }
-
-    removeExercise(exerciseId: string): void {
-        // this.exercisesSelected.set(this.exercisesSelected().filter((ex) => ex.exerciseId !== exerciseId));
-        // console.log(exerciseId);
-        // this.removeExerciseEvent.emit(exerciseId);
-        // this.facade.removeSet(exerciseId);
     }
 
     // Generic update function

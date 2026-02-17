@@ -179,8 +179,4 @@ export class PlanTrackingService {
         this.trackingSubject.next(tracking);
         this.storage.setTrackingStorage(tracking, this.userId());
     }
-
-    // validateWorkoutSession(date: Date) {
-
-    // }
 }

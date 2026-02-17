@@ -27,8 +27,8 @@
                 </span>
               </div>
               <button
-                class="text-error underline mb-2"
-                (click)="removeExercise(exercise.exerciseId!)"
+                class="text-error2 underline mb-2"
+                (click)="this.facade.removeExercise(exercise.exerciseId!)"
               >
                 Quitar Rutina
               </button>
@@ -111,8 +111,8 @@
                   <span class="text-sm text-brand font-semibold">0</span>
                 </div>
                 <button
-                  class="text-error underline mb-2"
-                  (click)="removeExercise(exercise.exerciseId!)"
+                  class="text-error2 underline mb-2"
+                  (click)="this.facade.removeExercise(exercise.exerciseId!)"
                 >
                   Quitar Rutina
                 </button>
@@ -139,5 +139,4 @@
       </app-accordion-item>
     }
   </div>
-  <!-- </div> -->
 </div>

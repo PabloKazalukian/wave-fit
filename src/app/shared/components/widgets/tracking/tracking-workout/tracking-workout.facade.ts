@@ -25,6 +25,12 @@ export class TrackingWorkoutFacade {
     readonly workoutDate = this.state.selectedDate;
     readonly workoutVM = this.state.workoutSession;
 
+    validateWorkout(): boolean {
+        if (this.exercisesSelected().length === 0) return false;
+        if (this.workoutVM()?.exercises.find((ex) => ex.sets.length === 0)) return false;
+        return true;
+    }
+
     constructor() {
         effect(() => {
             // const workout = this.state.workoutSession();
@@ -38,6 +44,10 @@ export class TrackingWorkoutFacade {
     exercisesSelected = signal<ExercisePerformanceVM[]>([]);
     exercisesTracking = signal<ExercisePerformanceVM[]>([]);
     loading = signal(true);
+
+    validateForm(): boolean {
+        return this.exerciseForm.valid;
+    }
 
     initFacade(workoutDate: Date) {
         this.trackingSvc

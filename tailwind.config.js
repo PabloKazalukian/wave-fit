@@ -48,6 +48,7 @@ module.exports = {
   'shadow-success',
   'shadow-surface',
   'shadow-confirm',
+  'bg-backgroundError',
 
 ],
   theme: {
@@ -75,6 +76,7 @@ module.exports = {
         background2: '#151C17',
         background3: '#1C2F22',
         background4: '#295538',
+        backgroundError: '#D4AAAA',
         warning: "#D66F6F",
         warningHover: "#A65353",
 
@@ -127,10 +129,10 @@ module.exports = {
 
         // === ERROR (rojo intenso) ===
         error: "#ba1a1a",
-        error2: "#E04A58",
+        error2: "#EF5443",
         error3: "#9E1622",
         error4: '#ec4899',
-        errorLight: "#F199A0",
+        errorLight: "#FF9E9E",
         errorDark: "#5C0C11",
         errorHover: "#9E1622",
 
