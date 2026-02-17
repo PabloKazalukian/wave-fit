@@ -30,10 +30,7 @@
       }
       @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
         <div class="">
-          <app-workout-in-progess
-            [exercisesSelected]="this.facade.exercisesTracking()"
-            [workoutDate]="this.facade.workoutDate()"
-          ></app-workout-in-progess>
+          <app-workout-in-progess></app-workout-in-progess>
         </div>
       }
     }
@@ -56,9 +53,5 @@
       (clearValue)="this.clear()"
     ></app-select>
   </div>
-  <app-exercise-selector
-    [exercises]="this.facade.exercises()"
-    [exercisesSelected]="this.facade.exercisesSelected()"
-    (changeExercise)="toggleExercise($event)"
-  ></app-exercise-selector>
+  <app-exercise-selector></app-exercise-selector>
 </div>

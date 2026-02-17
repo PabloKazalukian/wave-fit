@@ -1,6 +1,8 @@
-import { Component, input, output } from '@angular/core';
-import { Exercise } from '../../../../interfaces/exercise.interface';
+import { Component, computed, inject } from '@angular/core';
 import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
+import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
 
 @Component({
     selector: 'app-exercise-selector',
@@ -9,12 +11,25 @@ import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface
     styles: ``,
 })
 export class ExerciseSelector {
-    exercises = input<ExercisePerformanceVM[]>();
-    exercisesSelected = input<ExercisePerformanceVM[]>();
-    changeExercise = output<ExercisePerformanceVM>();
+    exercisesSvc = inject(ExercisesService);
+    state = inject(WorkoutStateService);
+
+    exercise = toSignal(this.exercisesSvc.getExercises(), { initialValue: [] });
+
+    exercises = computed(() => this.exercisesSvc.wrapperExerciseAPItoVM());
+
+    readonly exercisesSelected = this.state.exercises;
 
     toggleExercise(ex: ExercisePerformanceVM) {
-        this.changeExercise.emit(ex);
+        const exists = this.exercisesSelected()?.some((e) => e.exerciseId === ex.exerciseId);
+        console.log(exists);
+        if (exists) {
+            this.state.updateExercises(
+                this.exercisesSelected()?.filter((e) => e.exerciseId !== ex.exerciseId) || [],
+            );
+        } else {
+            this.state.updateExercises([...(this.exercisesSelected() || []), ex]);
+        }
     }
 
     isSelected(ex: ExercisePerformanceVM): boolean {

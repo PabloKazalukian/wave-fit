@@ -51,7 +51,22 @@ export class WorkoutStateService {
         this.loadWorkout(date);
     }
 
-    updateExercise(ex: ExercisePerformanceVM) {}
+    updateExercises(exercises: ExercisePerformanceVM[]): void {
+        const date = this.selectedDate();
+        if (!date) return;
+
+        // Actualizar en el tracking service
+        this.trackingSvc.setExercises(date, exercises);
+
+        // Actualizar estado local
+        const currentWorkout = this.workoutSession();
+        if (currentWorkout) {
+            this.workoutSession.set({
+                ...currentWorkout,
+                exercises,
+            });
+        }
+    }
 
     private loadWorkout(date: Date) {
         this.selectedDate.set(date);
