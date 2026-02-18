@@ -1,7 +1,7 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { PlanTrankingApi } from './plan-tracking/api/plan-tranking-api.service';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
-import { BehaviorSubject, filter, map, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, filter, finalize, map, Observable, of, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     StatusWorkoutSessionEnum,
@@ -26,7 +26,7 @@ export class PlanTrackingService {
     private dateService = inject(DateService);
 
     userId = signal<string>('');
-    loading = signal(false);
+    loadingWorkout = signal<{ wokout: Date; state: boolean }>({ wokout: new Date(), state: false });
 
     initTracking(userId: string) {
         if (this.userId() !== '') {
@@ -74,29 +74,52 @@ export class PlanTrackingService {
     }
 
     createWorkout(dateWorkout: Date): Observable<WorkoutSessionVM | null | undefined> {
-        this.loading.set(true);
+        this.loadingWorkout.update((current) => ({ ...current, wokout: dateWorkout, state: true }));
         const workout = this.trackingSubject.value?.workouts?.filter((w) =>
             this.dateService.isEqualDate(w.date, dateWorkout),
         )[0];
-        // if (!workout) return of(null);
+
         const id = this.trackingSubject.value;
-        console.log(id);
+
         if (id!) {
-            return this.api.createWorkoutSession(workout!, id.id!).pipe(
+            return new Observable<WorkoutSessionVM>((observer) => {
+                const timeout = setTimeout(() => {
+                    console.log('workout', workout);
+                    const simulatedResponse = {
+                        ...workout!,
+                        status: StatusWorkoutSessionEnum.COMPLETE,
+                    };
+
+                    // this._updateWorkout(dateWorkout, () => simulatedResponse);
+
+                    observer.next(simulatedResponse);
+                    observer.complete();
+                }, 4000);
+
+                return () => clearTimeout(timeout);
+            }).pipe(
                 takeUntilDestroyed(this.destroyRef),
-                tap((res) => {
-                    // console.log(res?.date);
-                    const workout = { ...res!, status: StatusWorkoutSessionEnum.COMPLETE };
-                    this._updateWorkout(res?.date!, () => workout);
-                    // this._persist(this.trackingSubject.value!);
-                }),
-                tap(() => this.loading.set(false)),
+                finalize(() =>
+                    this.loadingWorkout.update((current) => ({ ...current, state: false })),
+                ),
             );
+            // return this.api.createWorkoutSession(workout!, id.id!).pipe(
+            //     takeUntilDestroyed(this.destroyRef),
+            //     tap((res) => {
+            //         const workout = { ...res!, status: StatusWorkoutSessionEnum.COMPLETE };
+            //         this._updateWorkout(res?.date!, () => workout);
+            //     }),
+            //     tap(() =>
+            //         this.loadingWorkout.update((current) => {
+            //             const newMap = new Map(current);
+            //             newMap.set(dateWorkout, false);
+            //             return newMap;
+            //         }),
+            //     ),
+            // );
         }
         return of(null);
     }
-
-    // Agregar al PlanTrackingService:
 
     toggleExercise(date: Date, exercise: ExercisePerformanceVM) {
         this._updateWorkout(date, (workout) => {

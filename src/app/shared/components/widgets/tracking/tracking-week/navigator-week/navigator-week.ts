@@ -3,12 +3,13 @@ import { DateService, DayWithString } from '../../../../../../core/services/date
 import { WorkoutStateService } from '../../../../../../core/services/workouts/workout-state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
+import { Loading } from '../../../../ui/loading/loading';
 
 @Component({
     selector: 'app-navigator-week',
     standalone: true,
     templateUrl: './navigator-week.html',
-    styles: ``,
+    imports: [Loading],
 })
 export class NavigatorWeek {
     trackingSvc = inject(PlanTrackingService);
@@ -16,21 +17,13 @@ export class NavigatorWeek {
     state = inject(WorkoutStateService);
 
     tracking = toSignal(this.trackingSvc.trackingPlanVM$);
+    readonly loading = this.trackingSvc.loadingWorkout;
 
     totalDays = 7;
     visibleDayCount = 4;
-    currentDayIndex = signal<number>(0); // 0;
-
-    // navigator = signal<number>(0);
+    currentDayIndex = signal<number>(0);
 
     workoutDay = this.state.workoutSession();
-
-    //     DayWithString {
-    //     day: string;
-    //     dayNumber: number;
-    //     date: Date;
-    // }
-    // selectedDay = signal<DayWithString | null>(null);
 
     selectedDay = computed(() => {
         const day = {

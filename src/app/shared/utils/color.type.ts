@@ -7,9 +7,11 @@ export type COLOR_VALUES =
     | 'success'
     | 'warning'
     | 'error'
+    | 'background2'
     | 'text';
 
 export const COLOR_MAP: Record<COLOR_VALUES, string> = {
+    background2: '#151C17',
     primary: '#6366f1',
     secondary: '#64748b',
     accent: '#f472b6',
@@ -20,3 +22,5 @@ export const COLOR_MAP: Record<COLOR_VALUES, string> = {
     warning: '#facc15', // amarillo Tailwind 400/500
     text: '#ffffff', // o #000000 según tu tema, pero DEBE existir
 };
+
+export type LOADER_SIZE = 'sm' | 'md' | 'lg';

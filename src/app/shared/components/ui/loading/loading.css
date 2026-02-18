@@ -1,6 +1,6 @@
 .loader {
-    width: 8px;
-    height: 38px;
+    width: var(--loader-width, 8px);
+    height: var(--loader-height, 38px);
     display: inline-block;
     position: relative;
     border-radius: 4px;
@@ -12,32 +12,34 @@
 @keyframes animloader {
     0% {
         box-shadow:
-            20px -10px var(--loader-color),
-            40px 10px var(--loader-color),
-            60px 0px var(--loader-color);
+            var(--s1) -10px var(--loader-color),
+            var(--s2) 10px var(--loader-color),
+            var(--s3) 0px var(--loader-color);
     }
     25% {
         box-shadow:
-            20px 0px var(--loader-color),
-            40px 0px var(--loader-color),
-            60px 10px var(--loader-color);
+            var(--s1) 0px var(--loader-color),
+            var(--s2) 0px var(--loader-color),
+            var(--s3) 10px var(--loader-color);
     }
     50% {
         box-shadow:
-            20px 10px var(--loader-color),
-            40px -10px var(--loader-color),
-            60px 0px var(--loader-color);
+            var(--s1) 10px var(--loader-color),
+            var(--s2) -10px var(--loader-color),
+            var(--s3) 0px var(--loader-color);
     }
     75% {
         box-shadow:
-            20px 0px var(--loader-color),
-            40px 0px var(--loader-color),
-            60px -10px var(--loader-color);
+            var(--s1) 0px var(--loader-color),
+            var(--s2) 0px var(--loader-color),
+            var(--s3) -10px var(--loader-color);
     }
     100% {
         box-shadow:
-            20px -10px var(--loader-color),
-            40px 10px var(--loader-color),
-            60px 0px var(--loader-color);
+            var(--s1) -10px var(--loader-color),
+            var(--s2) 10px var(--loader-color),
+            var(--s3) 0px var(--loader-color);
     }
 }
+
+

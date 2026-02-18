@@ -6,14 +6,23 @@
   [class.border-2]="isError"
 >
   <!-- Header -->
+  @if (draggable) {
+    <div
+      cdkDragHandle
+      class="cursor-move flex flex-col items-center justify-center text-text2 hover:text-brand"
+      (click)="$event.stopPropagation()"
+    >
+      ☰
+    </div>
+  }
   <button
     (click)="onToggle()"
-    class="w-full flex justify-between items-center px-4 py-3 bg-background3 rounded-md transition-colors duration-300"
+    class="grid grid-cols-[1fr_24px] w-full flex justify-between items-center px-4 py-3 bg-background3 rounded-md transition-colors duration-300"
     [class.text-accent]="isSelected && !isError"
     [class.text-primary2]="!isSelected && !isError"
     [class.text-error2]="isError"
   >
-    <h4 class="font-semibold">
+    <h4 class="font-semibold break-words">
       {{ title }}
     </h4>
 
@@ -37,6 +46,6 @@
     [class.max-h-96]="open"
     [class.py-3]="open"
   >
-    <ng-content></ng-content>
+    <ng-content cdkDragPreview></ng-content>
   </div>
 </div>

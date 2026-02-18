@@ -73,9 +73,11 @@ module.exports = {
       colors: {
 
         background: '#121212',
+        background1: '#151A16',
         background2: '#151C17',
         background3: '#1C2F22',
         background4: '#295538',
+        background5: '#367C4D',
         backgroundError: '#D4AAAA',
         warning: "#D66F6F",
         warningHover: "#A65353",

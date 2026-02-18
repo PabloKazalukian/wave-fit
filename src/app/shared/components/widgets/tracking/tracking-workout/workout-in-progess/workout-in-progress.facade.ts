@@ -2,6 +2,8 @@ import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ExercisePerformanceVM } from '../../../../../interfaces/tracking.interface';
 import { WorkoutStateService } from '../../../../../../core/services/workouts/workout-state.service';
+import { moveItemInArray } from '@angular/cdk/drag-drop';
+import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
 
 interface SetData {
     reps: number;
@@ -10,14 +12,19 @@ interface SetData {
 
 @Injectable()
 export class WorkoutInProgressFacade {
-    private workoutState = inject(WorkoutStateService);
+    private state = inject(WorkoutStateService);
+    trackingSvc = inject(PlanTrackingService);
 
     // Signals para manejo interno del acordeón y sets
     private openAccordionIndex = signal<string[]>([]);
     private exerciseSetsData = signal<Map<string, SetData[]>>(new Map());
 
+    readonly loading = this.trackingSvc.loadingWorkout();
+    readonly workoutDate = this.state.selectedDate();
+
+    loadings = computed(() => this.trackingSvc.loadingWorkout().state === true);
     // Computed desde el service - única fuente de verdad
-    exercises = computed(() => this.workoutState.exercises());
+    exercises = computed(() => this.state.exercises());
 
     constructor() {
         // Sincronizar sets data cuando cambien los exercises del service
@@ -61,6 +68,12 @@ export class WorkoutInProgressFacade {
         });
 
         this.exerciseSetsData.set(newMap);
+    }
+
+    reorderExercises(previousIndex: number, currentIndex: number): void {
+        const updated = [...this.exercises()];
+        moveItemInArray(updated, previousIndex, currentIndex);
+        this.state.updateExercises(updated);
     }
 
     // ===== Reps Operations =====
@@ -123,7 +136,7 @@ export class WorkoutInProgressFacade {
         const updatedExercises = this.exercises().filter((ex) => ex.exerciseId !== exerciseId);
 
         // Actualizar en el service
-        this.workoutState.updateExercises(updatedExercises);
+        this.state.updateExercises(updatedExercises);
 
         // Limpiar datos locales
         const currentMap = new Map(this.exerciseSetsData());
@@ -174,6 +187,6 @@ export class WorkoutInProgressFacade {
         );
 
         // Persistir en el service
-        this.workoutState.updateExercises(updatedExercises);
+        this.state.updateExercises(updatedExercises);
     }
 }

@@ -1,3 +1,13 @@
 <div class="w-full h-full flex items-center justify-start rounded-full pl-5 py-4">
-  <div class="loader" [ngStyle]="{ '--loader-color': resolveColor(color) }"></div>
+  <div
+    class="loader"
+    [ngStyle]="{
+      '--loader-color': resolveColor(color),
+      '--loader-width': resolveSize(size).width,
+      '--loader-height': resolveSize(size).height,
+      '--s1': resolveSize(size).s1,
+      '--s2': resolveSize(size).s2,
+      '--s3': resolveSize(size).s3,
+    }"
+  ></div>
 </div>

@@ -1,5 +1,4 @@
-import { Component, computed, DestroyRef, inject, Input } from '@angular/core';
-import { Exercise } from '../../../../interfaces/exercise.interface';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { ExerciseSelector } from '../../exercises/exercise-selector/exercise-selector';
 import { FormControl } from '@angular/forms';
 import { options } from '../../../../interfaces/input.interface';
@@ -14,6 +13,7 @@ import { WorkoutInProgess } from './workout-in-progess/workout-in-progess';
 import { IconComponent } from '../../../ui/icon/icon';
 import { SpinnerComponent } from '../../../ui/icon/spinner';
 import { DatePipe } from '@angular/common';
+import { Loading } from '../../../ui/loading/loading';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -25,6 +25,7 @@ import { DatePipe } from '@angular/common';
         IconComponent,
         SpinnerComponent,
         DatePipe,
+        Loading,
     ],
     providers: [TrackingWorkoutFacade],
     standalone: true,
@@ -35,7 +36,6 @@ export class TrackingWorkoutComponent {
     facade = inject(TrackingWorkoutFacade);
 
     StatusWorkoutSessionEnum = StatusWorkoutSessionEnum;
-
     options = options;
 
     exercisesSelectedOrdered = computed(() => {
@@ -50,17 +50,12 @@ export class TrackingWorkoutComponent {
                         }
 
                         acc[item.category].push(item);
-                        // console.log(acc);
                         return acc;
                     },
                     {} as { [key: string]: ExercisePerformanceVM[] },
                 ),
         );
     });
-
-    // toggleExercise(ex: ExercisePerformanceVM) {
-    //     this.facade.toggleExercise(ex);
-    // }
 
     clear() {
         this.facade.clear();
@@ -69,10 +64,6 @@ export class TrackingWorkoutComponent {
     startRoutineTracking() {
         this.facade.startRoutineTracking();
     }
-
-    // removeExercise(exerciseId: string) {
-    //     this.facade.removeExercise(exerciseId);
-    // }
 
     get selectControl(): FormControl<string> {
         return this.facade.exerciseForm.get('option') as FormControl<string>;

@@ -6,135 +6,151 @@
     </p>
   </div>
 
-  <div class="flex flex-col gap-2 w-full">
+  <div
+    cdkDropList
+    [cdkDropListData]="facade.exercises()"
+    (cdkDropListDropped)="onDrop($event)"
+    class="flex flex-col gap-2 w-full"
+  >
     @for (exercise of facade.exercises(); track exercise.exerciseId) {
-      <app-accordion-item
-        [title]="exercise.name"
-        [open]="this.facade.isOpen(exercise.exerciseId)"
-        [isSelected]="false"
-        [isError]="facade.getSets(exercise.exerciseId).length === 0"
-        (toggle)="toggleAccordion(exercise.exerciseId)"
-      >
-        <div class="space-y-3">
-          <!-- Sets display -->
-          @if (facade.getSets(exercise.exerciseId).length > 0) {
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-text2">Series:</span>
-                <span class="text-sm text-brand font-semibold">
-                  {{ facade.getSets(exercise.exerciseId).length }}
-                </span>
-              </div>
-              <button
-                class="text-error2 underline mb-2"
-                (click)="removeExercise(exercise.exerciseId)"
-              >
-                Quitar Rutina
-              </button>
-            </div>
-            @for (set of facade.getSets(exercise.exerciseId); track $index; let i = $index) {
-              <div
-                class="flex items-center justify-start gap-2 py-4 bg-background2 border-b border-primary"
-                [class.border-b-0]="i === facade.getSets(exercise.exerciseId).length - 1"
-              >
-                <!-- Set number -->
-                <div
-                  class="flex-shrink-0 w-6 h-6 rounded-full bg-background flex items-center justify-center"
-                >
-                  <span class="text-brand font-semibold">{{ i + 1 }}</span>
-                </div>
-
-                <!-- Reps input -->
-                <div class="flex items-center gap-1">
-                  <label class="text-sm text-text2">REPS</label>
-                  <div class="flex items-center gap-1">
-                    <button
-                      (click)="decrementReps(exercise.exerciseId, i)"
-                      class="w-6 h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2"
-                    >
-                      <span class="text-lg">−</span>
-                    </button>
-                    <input
-                      type="number"
-                      [value]="set.reps"
-                      (input)="updateReps(exercise.exerciseId, i, $event)"
-                      class="w-12 h-6 px-2 bg-background3 border border-background3 text-heading text-center rounded-lg focus:ring-brand focus:border-brand [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                    />
-                    <button
-                      (click)="incrementReps(exercise.exerciseId, i)"
-                      class="w-6 h-6 rounded-full bg-background flex items-center justify-center text-white"
-                    >
-                      <span class="text-lg">+</span>
-                    </button>
+      <div cdkDrag class="flex items-center gap-2 w-full relative">
+        <!-- <div
+          cdkDragHandle
+          class="cursor-move text-text2 hover:text-primary mb-1 absolute top-3 left-3"
+        >
+          ☰
+        </div> -->
+        <div class="w-full">
+          <app-accordion-item
+            [title]="exercise.name"
+            [draggable]="true"
+            [open]="this.facade.isOpen(exercise.exerciseId)"
+            [isSelected]="false"
+            [isError]="facade.getSets(exercise.exerciseId).length === 0"
+            (toggle)="toggleAccordion(exercise.exerciseId)"
+          >
+            <div class="space-y-3">
+              <!-- Sets display -->
+              @if (facade.getSets(exercise.exerciseId).length > 0) {
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 text-primary">
+                    <span class="text-sm text-text2">Series:</span>
+                    <span class="text-sm text-primary font-semibold">
+                      {{ facade.getSets(exercise.exerciseId).length }}
+                    </span>
                   </div>
+                  <button
+                    class="text-error2 underline mb-2"
+                    (click)="removeExercise(exercise.exerciseId)"
+                  >
+                    Quitar Rutina
+                  </button>
                 </div>
+                @for (set of facade.getSets(exercise.exerciseId); track $index; let i = $index) {
+                  <div
+                    class="flex items-center justify-start gap-2 py-4 bg-background2 border-b border-primary"
+                    [class.border-b-0]="i === facade.getSets(exercise.exerciseId).length - 1"
+                  >
+                    <!-- Set number -->
+                    <div
+                      class="flex-shrink-0 w-6 h-6 rounded-full bg-background flex items-center justify-center"
+                    >
+                      <span class="text-primary font-semibold">{{ i + 1 }}</span>
+                    </div>
 
-                <!-- Weight input (if uses weight) -->
-                @if (exercise.usesWeight) {
-                  <div class="flex items-center gap-2">
-                    <label class="text-sm text-text2">PESO</label>
+                    <!-- Reps input -->
                     <div class="flex items-center gap-1">
-                      <button
-                        (click)="decrementWeight(exercise.exerciseId, i)"
-                        class="w-6 h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2"
-                      >
-                        <span class="text-lg">−</span>
-                      </button>
+                      <label class="text-sm text-text2">REPS</label>
                       <div class="flex items-center gap-1">
+                        <button
+                          (click)="decrementReps(exercise.exerciseId, i)"
+                          class="w-6 h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2"
+                        >
+                          <span class="text-lg">−</span>
+                        </button>
                         <input
                           type="number"
-                          step="2.5"
-                          [value]="set.weights"
-                          (input)="updateWeight(exercise.exerciseId, i, $event)"
-                          class="w-12 h-6 px-2 bg-background3 border border-background3 text-heading text-center rounded-lg focus:ring-brand focus:border-brand [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          [value]="set.reps"
+                          (input)="updateReps(exercise.exerciseId, i, $event)"
+                          class="w-12 h-6 px-2 bg-background3 border border-background3 text-primary text-center rounded-lg focus:ring-primary focus:border-primary [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         />
-                        <span class="text-sm text-text2">kg</span>
+                        <button
+                          (click)="incrementReps(exercise.exerciseId, i)"
+                          class="w-6 h-6 rounded-full bg-background flex items-center justify-center text-white"
+                        >
+                          <span class="text-lg">+</span>
+                        </button>
                       </div>
-                      <button
-                        (click)="incrementWeight(exercise.exerciseId, i)"
-                        class="w-6 h-6 rounded-full bg-background flex items-center justify-center text-white"
-                      >
-                        <span class="text-lg">+</span>
-                      </button>
                     </div>
+
+                    <!-- Weight input (if uses weight) -->
+                    @if (exercise.usesWeight) {
+                      <div class="flex items-center gap-2">
+                        <label class="text-sm text-text2">PESO</label>
+                        <div class="flex items-center gap-1">
+                          <button
+                            (click)="decrementWeight(exercise.exerciseId, i)"
+                            class="w-6 h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2"
+                          >
+                            <span class="text-lg">−</span>
+                          </button>
+                          <div class="flex items-center gap-1">
+                            <input
+                              type="number"
+                              step="2.5"
+                              [value]="set.weights"
+                              (input)="updateWeight(exercise.exerciseId, i, $event)"
+                              class="w-12 h-6 px-2 bg-background3 border border-background3 text-primary text-center rounded-lg focus:ring-primary focus:border-primary [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            />
+                            <span class="text-sm text-text2">kg</span>
+                          </div>
+                          <button
+                            (click)="incrementWeight(exercise.exerciseId, i)"
+                            class="w-6 h-6 rounded-full bg-background flex items-center justify-center text-white"
+                          >
+                            <span class="text-lg">+</span>
+                          </button>
+                        </div>
+                      </div>
+                    }
                   </div>
                 }
-              </div>
-            }
-          } @else {
-            <div class="flex flex-col">
-              <div class="flex items-center justify-between gap-2">
-                <div class="gap-2">
-                  <span class="text-sm text-text2">Series:</span>
-                  <span class="text-sm text-brand font-semibold">0</span>
+              } @else {
+                <div class="flex flex-col">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="gap-2">
+                      <span class="text-sm text-text2">Series:</span>
+                      <span class="text-sm text-primary text-primary font-semibold">0</span>
+                    </div>
+                    <button
+                      class="text-error2 underline mb-2"
+                      (click)="removeExercise(exercise.exerciseId)"
+                    >
+                      Quitar Rutina
+                    </button>
+                  </div>
                 </div>
+              }
+
+              <!-- Add/Remove set buttons -->
+              <div class="flex gap-2 mt-3">
                 <button
-                  class="text-error2 underline mb-2"
-                  (click)="removeExercise(exercise.exerciseId)"
+                  (click)="removeSet(exercise.exerciseId)"
+                  class="flex-1 py-2 px-4 bg-background3 hover:bg-background2/80 text-text2 rounded-lg text-sm"
                 >
-                  Quitar Rutina
+                  − Serie
+                </button>
+                <button
+                  (click)="addSet(exercise.exerciseId)"
+                  class="flex-1 py-2 px-4 bg-background text-primary rounded-lg text-sm"
+                >
+                  + Serie
                 </button>
               </div>
             </div>
-          }
-
-          <!-- Add/Remove set buttons -->
-          <div class="flex gap-2 mt-3">
-            <button
-              (click)="removeSet(exercise.exerciseId)"
-              class="flex-1 py-2 px-4 bg-background3 hover:bg-background2/80 text-text2 rounded-lg text-sm"
-            >
-              − Serie
-            </button>
-            <button
-              (click)="addSet(exercise.exerciseId)"
-              class="flex-1 py-2 px-4 bg-background text-brand rounded-lg text-sm"
-            >
-              + Serie
-            </button>
-          </div>
+          </app-accordion-item>
         </div>
-      </app-accordion-item>
+      </div>
     }
   </div>
 </div>

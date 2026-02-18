@@ -28,7 +28,13 @@
         class="flex flex-col items-center justify-center rounded-xl px-3 py-2 min-w-[60px] transition-all"
       >
         <span class="text-xs opacity-70 mb-1">{{ day.day }}</span>
-        <span class="text-lg font-bold">{{ day.dayNumber }}</span>
+        @if (this.loading().state === true && this.loading().wokout === day.date) {
+          <div class="-ml-16 w-8 h-8">
+            <app-loading [color]="'background2'" [size]="'sm'"></app-loading>
+          </div>
+        } @else {
+          <span class="text-lg font-bold">{{ day.dayNumber }}</span>
+        }
       </button>
     }
   </div>
