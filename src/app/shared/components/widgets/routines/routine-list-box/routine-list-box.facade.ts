@@ -14,6 +14,10 @@ export type ExerciseType = FormControlsOf<SelectTypeInput>;
 @Injectable()
 export class RoutineListBoxFacade {
     private destroyRef = inject(DestroyRef);
+
+    private readonly routinesSvc = inject(RoutinesServices);
+    private readonly planSvc = inject(PlansService);
+
     private day = signal<RoutineDayVM | null>(null);
     private isInitialized = false; // NUEVO: flag para evitar llamadas duplicadas
 
@@ -28,9 +32,6 @@ export class RoutineListBoxFacade {
     routinesDays = signal<RoutineDay[]>([]);
     openIndex = signal<number | null>(null);
     isSelected = signal<boolean | null>(null);
-
-    private readonly routinesSvc = inject(RoutinesServices);
-    private readonly planSvc = inject(PlansService);
 
     setDay(day: RoutineDayVM) {
         this.day.set(day);

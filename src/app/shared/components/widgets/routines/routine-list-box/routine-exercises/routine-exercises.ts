@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, effect, Input } from '@angular/core';
 import { Exercise } from '../../../../../interfaces/exercise.interface';
 import { ExerciseCategoryPipe } from '../../../../../pipes/exercise-category.pipe';
 
@@ -11,4 +11,8 @@ import { ExerciseCategoryPipe } from '../../../../../pipes/exercise-category.pip
 })
 export class RoutineExercises {
     @Input() exercises: Exercise[] = [];
+
+    constructor() {
+        effect(() => console.log(this.exercises));
+    }
 }

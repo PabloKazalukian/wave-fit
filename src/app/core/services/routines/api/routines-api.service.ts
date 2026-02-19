@@ -18,6 +18,8 @@ export class RoutinesApiService {
     private readonly authSvc = inject(AuthService);
 
     getRoutines(): Observable<RoutineDay[] | undefined> {
+        console.log('getRoutines');
+
         return this.apollo
             .query<{ routineDays: RoutineDay[] }>({
                 query: gql`
@@ -27,9 +29,12 @@ export class RoutinesApiService {
                             title
                             type
                             exercises {
-                                id
-                                name
-                                category
+                                order
+                                exercise {
+                                    id
+                                    name
+                                    category
+                                }
                             }
                         }
                     }
@@ -37,6 +42,7 @@ export class RoutinesApiService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
+                tap((res) => console.log(res)),
                 map((data) => {
                     return data.data?.routineDays;
                 }),
@@ -44,6 +50,7 @@ export class RoutinesApiService {
     }
 
     getRoutineById(id: string): Observable<RoutineDay | undefined> {
+        console.log('getRoutineById');
         return this.apollo
             .query<{ routineDay: RoutineDay }>({
                 query: gql`
@@ -53,9 +60,12 @@ export class RoutinesApiService {
                             title
                             type
                             exercises {
-                                id
-                                name
-                                category
+                                order
+                                exercise {
+                                    id
+                                    name
+                                    category
+                                }
                             }
                         }
                     }
@@ -94,11 +104,6 @@ export class RoutinesApiService {
                             id
                             title
                             type
-                            exercises {
-                                id
-                                name
-                                category
-                            }
                         }
                     }
                 `,
@@ -148,7 +153,8 @@ export class RoutinesApiService {
         return {
             title: data.title,
             type: data.type,
-            exercises: data.exercises?.map((ex) => ex.id) as string[],
+            exercises:
+                data.exercises?.map((ex, index) => ({ exercise: ex.id!, order: index })) || [],
             planId: data.planId,
         };
     }

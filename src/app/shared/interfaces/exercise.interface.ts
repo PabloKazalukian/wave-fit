@@ -37,3 +37,8 @@ export interface ExerciseTracking {
         reps?: number;
     }[];
 }
+
+export interface ExerciseSend {
+    exercise: string;
+    order: number;
+}

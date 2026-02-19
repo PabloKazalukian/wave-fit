@@ -1,4 +1,4 @@
-import { Exercise, ExerciseCategory } from './exercise.interface';
+import { Exercise, ExerciseCategory, ExerciseSend } from './exercise.interface';
 
 export type DayIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type KindType = 'REST' | 'WORKOUT';
@@ -76,7 +76,7 @@ export interface RoutineDayCreate {
 export interface RoutineDayCreateSend {
     title: string;
     type?: ExerciseCategory[] | string[];
-    exercises?: string[];
+    exercises?: ExerciseSend[];
     planId?: string;
 }
 

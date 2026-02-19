@@ -8,10 +8,11 @@ import {
     RoutineDayCreate,
     RoutineDayCreateSend,
 } from '../../../shared/interfaces/routines.interface';
-import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
+import { ExerciseCategory, ExerciseSend } from '../../../shared/interfaces/exercise.interface';
 import { RoutinesApiService } from './api/routines-api.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinePlanAPI } from '../../../shared/interfaces/api/routines-api.interface';
+import { da } from 'date-fns/locale';
 
 @Injectable({
     providedIn: 'root',
@@ -49,6 +50,7 @@ export class RoutinesServices {
         if (this.routinesCache$.value && !this.loading) {
             return of(this.routinesCache$.value.filter((routine) => routine.id === id)[0]);
         }
+        // console.log('asd');
         return this.api.getRoutineById(id);
     }
 
@@ -139,6 +141,7 @@ export class RoutinesServices {
 
     createRoutine(data: RoutineDayCreate): Observable<any> {
         const payload: RoutineDayCreateSend = this.createRoutinePayload(data);
+        console.log(data);
         return this.apollo
             .mutate<RoutineDayCreate>({
                 mutation: gql`
@@ -165,7 +168,8 @@ export class RoutinesServices {
         return {
             title: data.title,
             type: data.type,
-            exercises: data.exercises?.map((ex) => ex.id) as string[],
+            exercises:
+                data.exercises?.map((ex, index) => ({ exercise: ex.id!, order: index })) || [],
             planId: data.planId,
         };
     }
