@@ -42,69 +42,6 @@ export class TrackingWeekComponent {
 
     loading = signal(true);
 
-    // ngOnInit(): void {
-    // if (this.tracking()) {
-    // if (this.tracking()?.workouts !== null) this.workouts.set(this.tracking()?.workouts);
-    // }
-    // }
-
-    // getDayExercises(dayNumber: number): ExerciseRoutine[] {
-    //     return this.exercises[dayNumber] || [];
-    // }
-
-    // getTotalTime(dayNumber: number): number {
-    //     const exercises = this.getDayExercises(dayNumber);
-    //     return exercises.reduce((total, ex) => total + (ex.time || 0), 0);
-    // }
-
-    // toggleExerciseInput(exercise: ExerciseRoutine): void {
-    //     // console.log(exercise);
-    //     if (exercise.showInput) {
-    //         // Está guardando
-    //         exercise.showInput = false;
-    //         exercise.showDeleteButton = true; // 👈 Mostrar botón X
-    //     } else {
-    //         // Está editando
-    //         exercise.showInput = true;
-    //         exercise.showDeleteButton = false; // 👈 Ocultar botón X
-    //     }
-    // }
-
-    // deleteExercise(exercise: ExerciseRoutine): void {
-    //     // event.stopPropagation(); // Evitar que dispare otros clicks
-
-    //     const currentDay = this.selectedDay();
-    //     if (currentDay === null) return;
-
-    //     const dayExercises = this.exercises[currentDay.dayNumber];
-    //     const index = dayExercises.findIndex((ex) => ex.id === exercise.id);
-
-    //     if (index !== -1) {
-    //         dayExercises.splice(index, 1);
-    //     }
-    // }
-
-    // addNewExercise(name: string): void {
-    //     const currentDay = this.selectedDay();
-    //     if (currentDay === null) return;
-
-    //     const newExercise: ExerciseRoutine = {
-    //         id: Date.now().toString(),
-    //         name: name,
-    //         description: 'Descripción del ejercicio',
-    //         time: null,
-    //         showInput: true,
-    //         showDeleteButton: false, // 👈 Inicializar
-    //     };
-
-    //     if (!this.exercises[currentDay.dayNumber]) {
-    //         this.exercises[currentDay.dayNumber] = [];
-    //     }
-    //     this.exercises[currentDay.dayNumber].push(newExercise);
-    // }
-
-    // toggleExercise(exercise: Exercise): void {}
-
     get exercisesSelected(): FormControl<ExerciseRoutine[]> {
         return this.exercisesForm.get('exercisesSelected') as FormControl<ExerciseRoutine[]>;
     }

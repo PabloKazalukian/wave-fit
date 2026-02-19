@@ -8,9 +8,11 @@ import { inject } from '@angular/core';
 import { HttpLink } from 'apollo-angular/http';
 import { ApolloLink, InMemoryCache } from '@apollo/client';
 import { environment } from './environments/environments';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 bootstrapApplication(AppComponent, {
     providers: [
+        provideAnimations(),
         provideRouter(routes),
         provideHttpClient(),
         provideApollo(() => {

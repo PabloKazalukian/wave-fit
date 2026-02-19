@@ -14,6 +14,7 @@ import { IconComponent } from '../../../ui/icon/icon';
 import { SpinnerComponent } from '../../../ui/icon/spinner';
 import { DatePipe } from '@angular/common';
 import { Loading } from '../../../ui/loading/loading';
+import { switchAnimation } from '../../../../animations/animation';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -30,6 +31,7 @@ import { Loading } from '../../../ui/loading/loading';
     providers: [TrackingWorkoutFacade],
     standalone: true,
     templateUrl: './tracking-workout.html',
+    animations: [switchAnimation],
 })
 export class TrackingWorkoutComponent {
     destroyRef = inject(DestroyRef);
@@ -56,6 +58,8 @@ export class TrackingWorkoutComponent {
                 ),
         );
     });
+
+    // viewStatus = computed(() => this.facade.workoutVM()?.status ?? 'idle');
 
     clear() {
         this.facade.clear();
