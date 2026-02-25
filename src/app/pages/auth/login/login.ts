@@ -112,7 +112,7 @@ export class Login implements OnInit {
 
         const params = new URLSearchParams({
             client_id: environment.client_id,
-            redirect_uri: 'http://localhost:4200/auth/callback',
+            redirect_uri: `${window.location.origin}/auth/callback`,
             response_type: 'code',
             scope: 'openid email profile',
             code_challenge: code_challenge,
