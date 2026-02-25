@@ -7,8 +7,8 @@ import { provideApollo } from 'apollo-angular';
 import { inject } from '@angular/core';
 import { HttpLink } from 'apollo-angular/http';
 import { ApolloLink, InMemoryCache } from '@apollo/client';
-import { environment } from './environments/environments';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { environment } from './environments/environments.prod';
 
 bootstrapApplication(AppComponent, {
     providers: [
