@@ -1,8 +1,9 @@
 import { ExerciseCategory } from './exercise.interface';
 
-export type StatusWorkoutSession = 'not_started' | 'complete';
+export type StatusWorkoutSession = 'not_started' | 'complete' | 'rest';
 export enum StatusWorkoutSessionEnum {
     NOT_STARTED = 'not_started',
+    REST = 'rest',
     COMPLETE = 'complete',
 }
 

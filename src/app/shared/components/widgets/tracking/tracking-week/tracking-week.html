@@ -1,6 +1,44 @@
-<div class="w-full bg-background2 rounded-2xl p-4">
+<div class="w-full bg-background2 rounded-2xl p-4 flex flex-col gap-4">
+  <div class="">
+    <app-btn
+      [text]="'Completar semana'"
+      [variant]="'raised'"
+      [color]="'confirm3'"
+      (click)="completeWeek()"
+    >
+    </app-btn>
+  </div>
+  <app-dialog
+    [isOpen]="showConfirmDialog()"
+    [title]="'Confirmar acción'"
+    [closeOnBackdrop]="true"
+    [locked]="true"
+    (closed)="showConfirmDialog.set(false)"
+  >
+    <div class="flex flex-col gap-4">
+      <p class="text-text2 text-sm md:text-lg leading-relaxed">
+        ¿Estás seguro de que deseas eliminar esta rutina? Esta acción no se puede deshacer.
+      </p>
+
+      <div class="flex flex-col gap-2 mt-2">
+        <app-btn
+          [variant]="'raised'"
+          [text]="'Confirmar'"
+          [color]="'success'"
+          (click)="onConfirm()"
+        ></app-btn>
+        <app-btn
+          [variant]="'outline'"
+          [text]="'Cancelar'"
+          [color]="'error'"
+          (click)="showConfirmDialog.set(false)"
+        ></app-btn>
+      </div>
+    </div>
+  </app-dialog>
+
   <!-- Fecha de inicio -->
-  <div class="mb-4">
+  <div>
     <p class="text-text2 text-sm mb-2">Fecha de inicio: {{ this.tracking()?.startDate | date }}</p>
   </div>
 
@@ -20,12 +58,6 @@
     </div>
   }
   <div class="mb-6">
-    <h2 class="text-xl font-bold text-primary mb-2">
-      <!-- Rutina dia: {{ this.() | date: 'dd/MM/yyyy' }} -->
-    </h2>
-    <!-- @for (workout of this.workouts(); track workout.date) { -->
-    <!-- <p>{{ workout.date }} {{ selectedDay()?.date }}</p> -->
-    <!-- @if (this.dateSvc.isEqualDate(workout.date, selectedDay()?.date!)) { -->
     <div>
       <app-tracking-workout> </app-tracking-workout>
     </div>

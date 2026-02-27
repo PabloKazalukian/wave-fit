@@ -1,4 +1,4 @@
-<div class="bg-background3 rounded-lg p-3 mb-4 w-full">
+<div class="bg-background3 rounded-lg p-3 mb-2 w-full">
   <div class="flex justify-between text-lg mb-2 pb-2">
     <h3 class="">Lista de ejercicios:</h3>
     <p class="text-text2 rounded-2xl bg-background2 px-3">
@@ -14,12 +14,6 @@
   >
     @for (exercise of facade.exercises(); track exercise.exerciseId) {
       <div cdkDrag class="flex items-center gap-2 w-full relative">
-        <!-- <div
-          cdkDragHandle
-          class="cursor-move text-text2 hover:text-primary mb-1 absolute top-3 left-3"
-        >
-          ☰
-        </div> -->
         <div class="w-full">
           <app-accordion-item
             [title]="exercise.name"

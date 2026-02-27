@@ -7,6 +7,9 @@ import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { TrackingWorkoutComponent } from '../tracking-workout/tracking-workout';
 import { NavigatorWeek } from './navigator-week/navigator-week';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
+import { BtnComponent } from '../../../ui/btn/btn';
+import { DialogComponent } from '../../../ui/dialog/dialog';
+import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: ExerciseRoutine[];
@@ -27,20 +30,31 @@ export interface ExerciseRoutine {
 @Component({
     selector: 'app-tracking-week',
     standalone: true,
-    imports: [CommonModule, FormsModule, NavigatorWeek, TrackingWorkoutComponent],
+    imports: [
+        CommonModule,
+        FormsModule,
+        NavigatorWeek,
+        TrackingWorkoutComponent,
+        BtnComponent,
+        DialogComponent,
+    ],
     templateUrl: './tracking-week.html',
 })
 export class TrackingWeekComponent {
     tracking = input<TrackingVM | null>(null);
 
+    showConfirmDialog = signal(false);
+
     state = inject(WorkoutStateService);
+    trackingSvc = inject(PlanTrackingService);
 
     exercisesForm = new FormGroup<ExercisesType>({
         exercisesSelected: new FormControl<ExerciseRoutine[]>([], { nonNullable: true }),
         categoriesSelected: new FormControl<string[]>([], { nonNullable: true }),
     });
 
-    loading = signal(true);
+    // loading = signal(true);
+    loading = this.trackingSvc.loadingWorkout;
 
     get exercisesSelected(): FormControl<ExerciseRoutine[]> {
         return this.exercisesForm.get('exercisesSelected') as FormControl<ExerciseRoutine[]>;
@@ -48,5 +62,17 @@ export class TrackingWeekComponent {
 
     get categoriesSelected(): FormControl<string[]> {
         return this.exercisesForm.get('categoriesSelected') as FormControl<string[]>;
+    }
+
+    completeWeek() {
+        this.showConfirmDialog.set(true);
+        // this.trackingSvc.createTracking();
+    }
+
+    onConfirm() {
+        this.trackingSvc.createTracking().subscribe({
+            next: (res) => console.log(res),
+            error: (err) => console.error(err),
+        });
     }
 }

@@ -3,7 +3,6 @@ import { ExercisesService } from '../../../../../core/services/exercises/exercis
 import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { map, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SelectType } from '../tracking-week/tracking-week';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
@@ -86,5 +85,10 @@ export class TrackingWorkoutFacade {
             },
             error: () => {},
         });
+    }
+
+    setRestDay() {
+        if (!this.workoutDate()) return;
+        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!);
     }
 }

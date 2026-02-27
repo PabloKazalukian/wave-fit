@@ -68,6 +68,12 @@ export class WorkoutStateService {
         }
     }
 
+    // setRestDay() {
+    //     const date = this.selectedDate();
+    //     if (!date) return;
+    //     this.trackingSvc.setRestDay(date);
+    // }
+
     private loadWorkout(date: Date) {
         this.selectedDate.set(date);
 

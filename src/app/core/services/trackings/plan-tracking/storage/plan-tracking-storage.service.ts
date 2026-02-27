@@ -13,7 +13,6 @@ export class PlanTrackingStorage {
     }
 
     setTrackingStorage(payload: TrackingVM, id: string) {
-        console.log(payload);
         localStorage.setItem(`${this.storageKey}${id}`, JSON.stringify(payload));
     }
 

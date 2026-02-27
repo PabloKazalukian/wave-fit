@@ -66,38 +66,60 @@
               </div>
             }
             @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
-              <div [@switchAnimation]="this.facade.workoutVM()">
-                <app-workout-in-progess></app-workout-in-progess>
-              </div>
+              <div class="flex flex-col gap-6">
+                <app-btn
+                  [text]="'Asignar dia como descanso.'"
+                  [color]="'secondary'"
+                  [variant]="'basicLight'"
+                  (click)="this.facade.setRestDay()"
+                ></app-btn>
+                <div [@switchAnimation]="this.facade.workoutVM()">
+                  <app-workout-in-progess></app-workout-in-progess>
+                </div>
 
-              <div>
-                <div class="mb-4">
-                  <app-btn
-                    [variant]="'raised'"
-                    [text]="'Completar Rutina'"
-                    [color]="'primary3'"
-                    [isDisabled]="!this.facade.validateWorkout()"
-                    (click)="startRoutineTracking()"
-                  >
-                    <app-icon>
-                      <div class="h-6 w-6">
-                        @if (this.facade.loading()) {
-                          <app-spinner> </app-spinner>
-                        }
-                      </div>
-                    </app-icon>
-                  </app-btn>
+                <div>
+                  <div class="mb-6">
+                    <app-btn
+                      [variant]="'raised'"
+                      [text]="'Completar Rutina'"
+                      [color]="'primary3'"
+                      [isDisabled]="!this.facade.validateWorkout()"
+                      (click)="startRoutineTracking()"
+                    >
+                      <app-icon>
+                        <div class="h-6 w-6">
+                          @if (this.facade.loading()) {
+                            <app-spinner> </app-spinner>
+                          }
+                        </div>
+                      </app-icon>
+                    </app-btn>
+                  </div>
+                  <div class="w-full">
+                    <app-select
+                      [text]="'Elige una categoria:'"
+                      [options]="options"
+                      [control]="selectControl"
+                      (clearValue)="this.clear()"
+                    ></app-select>
+                  </div>
+                  <app-exercise-selector></app-exercise-selector>
                 </div>
-                <div class="w-full">
-                  <app-select
-                    [text]="'Elige una categoria:'"
-                    [options]="options"
-                    [control]="selectControl"
-                    (clearValue)="this.clear()"
-                  ></app-select>
-                </div>
-                <app-exercise-selector></app-exercise-selector>
               </div>
+            }
+            @case (this.StatusWorkoutSessionEnum.REST) {
+              <div
+                class="border border-secondary bg-background1 rounded-lg p-3 mb-4 flex flex-col gap-6"
+              >
+                <h4 class="text-text2">No se realizo una rutina.</h4>
+              </div>
+              <app-btn
+                [variant]="'basicLight'"
+                [color]="'primary'"
+                [text]="'Asignar dia como rutina'"
+                (click)="this.facade.setRestDay()"
+              >
+              </app-btn>
             }
           }
         </div>

@@ -27,6 +27,7 @@ export class PlanTrackingService {
 
     userId = signal<string>('');
     loadingWorkout = signal<{ wokout: Date; state: boolean }>({ wokout: new Date(), state: false });
+    loading = signal<boolean>(false);
 
     initTracking(userId: string) {
         if (this.userId() !== '') {
@@ -82,41 +83,35 @@ export class PlanTrackingService {
         const id = this.trackingSubject.value;
 
         if (id!) {
-            return new Observable<WorkoutSessionVM>((observer) => {
-                const timeout = setTimeout(() => {
-                    console.log('workout', workout);
-                    const simulatedResponse = {
-                        ...workout!,
-                        status: StatusWorkoutSessionEnum.COMPLETE,
-                    };
+            // return new Observable<WorkoutSessionVM>((observer) => {
+            //     const timeout = setTimeout(() => {
+            //         console.log('workout', workout);
+            //         const simulatedResponse = {
+            //             ...workout!,
+            //             status: StatusWorkoutSessionEnum.COMPLETE,
+            //         };
 
-                    // this._updateWorkout(dateWorkout, () => simulatedResponse);
+            //         // this._updateWorkout(dateWorkout, () => simulatedResponse);
 
-                    observer.next(simulatedResponse);
-                    observer.complete();
-                }, 4000);
+            //         observer.next(simulatedResponse);
+            //         observer.complete();
+            //     }, 4000);
 
-                return () => clearTimeout(timeout);
-            }).pipe(
-                takeUntilDestroyed(this.destroyRef),
-                finalize(() =>
-                    this.loadingWorkout.update((current) => ({ ...current, state: false })),
-                ),
-            );
-            // return this.api.createWorkoutSession(workout!, id.id!).pipe(
+            //     return () => clearTimeout(timeout);
+            // }).pipe(
             //     takeUntilDestroyed(this.destroyRef),
-            //     tap((res) => {
-            //         const workout = { ...res!, status: StatusWorkoutSessionEnum.COMPLETE };
-            //         this._updateWorkout(res?.date!, () => workout);
-            //     }),
-            //     tap(() =>
-            //         this.loadingWorkout.update((current) => {
-            //             const newMap = new Map(current);
-            //             newMap.set(dateWorkout, false);
-            //             return newMap;
-            //         }),
+            //     finalize(() =>
+            //         this.loadingWorkout.update((current) => ({ ...current, state: false })),
             //     ),
             // );
+            return this.api.createWorkoutSession(workout!, id.id!).pipe(
+                takeUntilDestroyed(this.destroyRef),
+                tap((res) => {
+                    const workout = { ...res!, status: StatusWorkoutSessionEnum.COMPLETE };
+                    this._updateWorkout(res?.date!, () => workout);
+                }),
+                tap(() => this.loadingWorkout.update((current) => ({ ...current, state: false }))),
+            );
         }
         return of(null);
     }
@@ -204,5 +199,14 @@ export class PlanTrackingService {
     private _persist(tracking: TrackingVM) {
         this.trackingSubject.next(tracking);
         this.storage.setTrackingStorage(tracking, this.userId());
+    }
+
+    setRestDay(day: Date, workout: WorkoutSessionVM) {
+        const newWorkout =
+            workout.status === StatusWorkoutSessionEnum.REST
+                ? { ...workout, status: StatusWorkoutSessionEnum.NOT_STARTED }
+                : { ...workout, status: StatusWorkoutSessionEnum.REST, exercises: [] };
+
+        this._updateWorkout(day, () => newWorkout);
     }
 }

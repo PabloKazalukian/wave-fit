@@ -19,7 +19,6 @@ export class AppComponent implements OnInit {
             if (event instanceof NavigationStart) {
                 const currentUrl = event.url;
 
-                // Evitamos "/callback"
                 if (!currentUrl.startsWith('/auth/callback')) {
                     this.authStateSvc.me().subscribe({
                         error: () => {

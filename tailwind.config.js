@@ -94,7 +94,7 @@ module.exports = {
 
 
         // === SECONDARY (azul) ===
-        secondary: "#5F99A6",
+        secondary: "#4472B4",
         secondary2: "#5A8DD4",
         secondary3: "#2D5694",
         secondaryLight: "#A1C6EB",

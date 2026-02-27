@@ -26,6 +26,7 @@ export class BtnComponent implements AfterContentInit {
     @Input() isDisabled = false;
     @Input() variant:
         | 'basic'
+        | 'basicLight'
         | 'raised'
         | 'stroked'
         | 'flat'
@@ -77,15 +78,17 @@ export class BtnComponent implements AfterContentInit {
 
         switch (this.variant) {
             case 'basic':
-                return `hover:bg-${cleanColor} hover:text-white`;
+                return `over:bg-${cleanColor} hover:text-white`;
+            case 'basicLight':
+                return `text-${this.color}Light font-semibold tracking-wide border-2 border-${this.color} hover:bg-${cleanColor} hover:text-white`;
             case 'raised':
-                return `bg-${this.color} text-white font-semibold ${this.showIcon() ? 'hover:bg-' + cleanColor + 'Hover' : 'shadow-md hover:bg-' + cleanColor + 'Hover'}`;
+                return `bg-${this.color} text-white font-semibold tracking-wide ${this.showIcon() ? 'hover:bg-' + cleanColor + 'Hover' : 'shadow-md hover:bg-' + cleanColor + 'Hover'}`;
             case 'stroked':
                 return `border border-surface hover:bg-${cleanColor}-hover-faint`;
             case 'flat':
                 return `bg-${color3} text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
             case 'outline':
-                return `text-${this.color} border-2 border-${this.color} font-semibold shadow-md hover:text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
+                return `text-${this.color} border-2 border-${this.color} font-semibold tracking-wide shadow-md hover:text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
             case 'outlineLigth':
                 return `border border-${cleanColor}Light text-${cleanColor}Light hover:text-${this.color}Dark`;
             case 'outlineDark':
