@@ -48,15 +48,6 @@ export interface ExtraSessionAPI {
     notes?: string;
 }
 
-export interface WeekLogDayAPI {
-    order: number; // 1–7
-    date: string; // ISO string desde Mongo
-    isRest: boolean;
-    workoutSessionId?: string | null;
-    extraSessionIds: string[];
-    status: DayStatusAPI;
-}
-
 export interface TrackingAPI {
     id: string;
     userId: string;
@@ -66,6 +57,15 @@ export interface TrackingAPI {
     days: WeekLogDayAPI[];
     completed: boolean;
     notes?: string;
+}
+
+export interface WeekLogDayAPI {
+    order: number; // 1–7
+    date: string; // ISO string desde Mongo
+    isRest: boolean;
+    workoutSessionId?: string | null;
+    extraSessionIds: string[];
+    status: DayStatusAPI;
 }
 
 export type DayStatusVM = 'pending' | 'complete' | 'skipped';

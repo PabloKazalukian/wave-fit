@@ -2,16 +2,18 @@ import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
-import { delay, map, Observable, tap } from 'rxjs';
+import { catchError, delay, map, Observable, of, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     ExtraActivityVM,
+    StatusWorkoutSession,
     StatusWorkoutSessionEnum,
     TrackingVM,
     TrackingVMS,
     WorkoutSessionVM,
 } from '../../../../../shared/interfaces/tracking.interface';
 import {
+    DayStatusAPI,
     ExercisePerformanceAPI,
     ExtraSessionAPI,
     TrackingAPI,
@@ -43,14 +45,17 @@ export class PlanTrankingApi {
 
     getTrackingByUser(): Observable<TrackingVM | undefined | null> {
         return this.apollo
-            .query<{ activeWeekLog: TrackingAPI }>({
+            .query<{ activeWeekLog: { hasActiveWeek: boolean; week: TrackingAPI } }>({
                 query: FIND_ACTIVE_WEEK_LOG,
                 fetchPolicy: 'no-cache',
             })
             .pipe(
+                tap((res) => console.log(res)),
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.activeWeekLog ? this.wrapperTrackingApiToVM(data.activeWeekLog) : null,
+                    data?.activeWeekLog.hasActiveWeek
+                        ? this.wrapperTrackingApiToVM(data.activeWeekLog.week)
+                        : null,
                 ),
             );
     }
@@ -60,13 +65,14 @@ export class PlanTrankingApi {
         weekLogId: string,
     ): Observable<WorkoutSessionVM | undefined | null> {
         const workout = this.wrapperWorkoutSessionVMToApi(payload, weekLogId);
-        // console.log('transformado', workout);
+        console.log('transformado', workout);
         return this.apollo
             .mutate<{ createWorkoutSession: WorkoutSessionAPI }>({
                 mutation: CREATE_WORKOUT_SESSION,
                 variables: { input: workout },
             })
             .pipe(
+                tap((res) => console.log(res)),
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.createWorkoutSession
@@ -74,10 +80,15 @@ export class PlanTrankingApi {
                         : null,
                 ),
                 tap((res) => console.log(res)),
+                catchError((err) => {
+                    console.log(err);
+                    return of(null);
+                }),
             );
     }
 
     createTracking(payload: TrackingCreate): Observable<TrackingVM | undefined | null> {
+        console.log('payload', payload);
         return this.apollo
             .mutate<{ createWeekLog: TrackingAPI }>({
                 mutation: CREATE_WEEK_LOG,
@@ -100,7 +111,7 @@ export class PlanTrankingApi {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.updateWeekLog ? this.wrapperTrackingApiToVM(data.updateWeekLog) : null,
+                    data?.updateWeekLog ? this.wrapperTrackingApiToVMS(data.updateWeekLog) : null,
                 ),
             );
     }
@@ -138,7 +149,7 @@ export class PlanTrankingApi {
     //         completed: payload.completed,
     //     };
     // }
-    private wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVMS {
+    private wrapperTrackingApiToVMS(payload: TrackingAPI): TrackingVMS {
         return {
             id: payload.id,
             userId: payload.userId,
@@ -148,6 +159,21 @@ export class PlanTrankingApi {
             notes: payload.notes,
             completed: payload.completed,
             days: payload.days?.map((d) => this.wrapperWeekLogDayApiToVM(d)) ?? [],
+        };
+    }
+
+    private wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVM {
+        console.log(payload);
+        return {
+            id: payload.id,
+            userId: payload.userId,
+            startDate: new Date(payload.startDate),
+            endDate: new Date(payload.endDate),
+            planId: payload.planId,
+            notes: payload.notes,
+            completed: payload.completed,
+            workouts: payload.days.map((d) => this.wrapperWeekLogDayVMToWorkoutVM(d)),
+            extras: [],
         };
     }
 
@@ -186,7 +212,7 @@ export class PlanTrankingApi {
         trackingId: string,
     ): WorkoutSessionAPI {
         return {
-            id: payload.id,
+            // id: payload.id,
             weekLogId: trackingId,
             date: payload.date,
             exercises: this.wrapperExercisePerformanceVMToApi(payload.exercises),
@@ -246,6 +272,26 @@ export class PlanTrankingApi {
         });
     }
 
+    private wrapperWeekLogDayVMToWorkoutVM(payload: WeekLogDayAPI): WorkoutSessionVM {
+        return {
+            id: payload.workoutSessionId ?? '',
+            date: new Date(payload.date),
+            exercises: [],
+            status: this.wrapperDayStatusApiToStatusWorkoutSession(payload.status),
+            notes: '',
+        };
+    }
+
+    wrapperDayStatusApiToStatusWorkoutSession(payload: DayStatusAPI): StatusWorkoutSession {
+        switch (payload) {
+            case 'pending':
+                return StatusWorkoutSessionEnum.NOT_STARTED;
+            case 'complete':
+                return StatusWorkoutSessionEnum.COMPLETE;
+            case 'skipped':
+                return StatusWorkoutSessionEnum.REST;
+        }
+    }
     // Wrapper: ExtraSessionAPI -> ExtraActivityVM
     private wrapperExtraSessionApiToVM(payload: ExtraSessionAPI): ExtraActivityVM {
         // Mapear el tipo de actividad desde la API al VM

@@ -20,7 +20,7 @@ export class DateService {
 
     todayPlusDays(days: number): { start: Date; end: Date } {
         const start = this.today();
-        const end = this.addDays(start, days);
+        const end = this.addDays(start, days - 1);
         return { start, end };
     }
 

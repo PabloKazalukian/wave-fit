@@ -65,7 +65,7 @@ export class PlanTrackingService {
         const payload: TrackingCreate = {
             startDate: start,
             endDate: end,
-            completed: false,
+            // completed: false,
             // planId: this.userId(),
         };
 
@@ -82,6 +82,7 @@ export class PlanTrackingService {
 
     createWorkout(dateWorkout: Date): Observable<WorkoutSessionVM | null | undefined> {
         this.loadingWorkout.update((current) => ({ ...current, wokout: dateWorkout, state: true }));
+
         const workout = this.trackingSubject.value?.workouts?.filter((w) =>
             this.dateService.isEqualDate(w.date, dateWorkout),
         )[0];

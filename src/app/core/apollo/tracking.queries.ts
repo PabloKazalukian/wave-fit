@@ -21,37 +21,24 @@ export const WEEK_LOG_FIELDS = `
 export const FIND_ACTIVE_WEEK_LOG = gql`
     query findActiveWeekLog {
         activeWeekLog {
-            id
-            startDate
-            endDate
-            userId
-            workouts {
+            hasActiveWeek
+            week {
                 id
-                date
-                routineDayId
-                exercises {
-                    exerciseId
-                    sets {
-                        weights
-                        reps
-                    }
-                    series
-                    notes
+                startDate
+                endDate
+                userId
+                days {
+                    order
+                    date
+                    isRest
+                    workoutSessionId
+                    extraSessionIds
+                    status
                 }
+                planId
                 notes
+                completed
             }
-            extras {
-                id
-                type
-                discipline
-                duration
-                intensityLevel
-                calories
-                notes
-            }
-            planId
-            notes
-            completed
         }
     }
 `;
@@ -59,7 +46,6 @@ export const FIND_ACTIVE_WEEK_LOG = gql`
 export const CREATE_WORKOUT_SESSION = gql`
     mutation CreateWorkoutSession($input: CreateWorkoutSessionInput!) {
         createWorkoutSession(createWorkoutSessionInput: $input) {
-            id
             weekLogId
             date
             routineDayId
@@ -85,29 +71,13 @@ export const CREATE_WEEK_LOG = gql`
             startDate
             endDate
             userId
-            workouts {
-                id
+            days {
+                order
                 date
-                routineDayId
-                exercises {
-                    exerciseId
-                    sets {
-                        weights
-                        reps
-                    }
-                    series
-                    notes
-                }
-                notes
-            }
-            extras {
-                id
-                type
-                discipline
-                duration
-                intensityLevel
-                calories
-                notes
+                isRest
+                workoutSessionId
+                extraSessionIds
+                status
             }
             planId
             notes
