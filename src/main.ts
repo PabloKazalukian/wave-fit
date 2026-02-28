@@ -4,11 +4,15 @@ import { provideHttpClient, HttpHeaders } from '@angular/common/http';
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
 import { provideApollo } from 'apollo-angular';
-import { inject } from '@angular/core';
+import { enableProdMode, inject } from '@angular/core';
 import { HttpLink } from 'apollo-angular/http';
 import { ApolloLink, InMemoryCache } from '@apollo/client';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { environment } from './environments/environments';
+
+if (environment.production) {
+    enableProdMode();
+}
 
 bootstrapApplication(AppComponent, {
     providers: [
