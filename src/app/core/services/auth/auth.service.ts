@@ -3,6 +3,7 @@ import { Apollo, gql } from 'apollo-angular';
 import { tap, Observable, BehaviorSubject, catchError, map, of } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { LoginWithGoogle } from '../../../shared/interfaces/auth.interface';
+import { User } from '../../../pages/user/user';
 
 export interface LoginResponse {
     data: any;
@@ -99,13 +100,18 @@ export class AuthService {
         return this.apollo
             .mutate<{ register: string }>({
                 mutation: gql`
-                    mutation Register($name: String!, $email: String!, $password: String!) {
-                        register(name: $name, email: $email, password: $password)
+                    mutation CreateUser($createUserInput: CreateUserInput!) {
+                        createUser(createUserInput: $createUserInput) {
+                            id
+                            name
+                            email
+                        }
                     }
                 `,
-                variables: { name, email, password },
+                variables: { createUserInput: { name, email, password } },
             })
             .pipe(
+                handleGraphqlError(this),
                 tap((res) => {
                     const token = res.data?.register;
                     if (!token) throw new Error('Token no recibido');
@@ -118,6 +124,22 @@ export class AuthService {
                 catchError(() => {
                     return of(false);
                 }),
+            );
+    }
+
+    isEmailAvailable(email: string) {
+        return this.apollo
+            .query<{ isEmailAvailable: boolean }>({
+                query: gql`
+                    query IsEmailAvailable($email: String!) {
+                        isEmailAvailable(email: $email)
+                    }
+                `,
+                variables: { email },
+            })
+            .pipe(
+                handleGraphqlError(this),
+                map((res) => res.data?.isEmailAvailable),
             );
     }
 

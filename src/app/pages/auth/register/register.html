@@ -48,6 +48,12 @@
             [control]="emailControl"
           ></app-input>
         </div>
+        @if (emailControl.pending) {
+          <span class="text-xs text-gray-400">Verificando disponibilidad...</span>
+        }
+        @if (emailControl.errors?.['emailTaken'] && emailControl.touched) {
+          <app-alert [type]="'error'" [message]="'Este email ya está en uso'"></app-alert>
+        }
 
         <div class="">
           <app-input
@@ -71,7 +77,7 @@
 
         @if (loading() === true) {
           <div class="flex justify-center items-center">
-            <div class="h-24 w-24">
+            <div class="-ml-8 h-24 w-24">
               <app-loading [color]="'primary'"></app-loading>
             </div>
           </div>
@@ -117,7 +123,8 @@
               [color]="'secondary'"
               [variant]="'outline'"
               [routerLink]="'/auth/login'"
-            ></app-btn>
+            >
+            </app-btn>
           </div>
         }
       </form>

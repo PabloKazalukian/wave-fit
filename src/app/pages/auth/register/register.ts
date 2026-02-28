@@ -16,6 +16,7 @@ import { Alert } from '../../../shared/components/ui/alert/alert';
 import { Loading } from '../../../shared/components/ui/loading/loading';
 import { WaveLogoTextComponent } from '../../../shared/components/ui/logos/wave-logo-text/wave-logo-text';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { emailAvailableValidator } from '../../../shared/validators/register.validator';
 
 export interface RegisterFormData {
     name: string;
@@ -67,6 +68,8 @@ export class Register implements OnInit {
                 email: new FormControl('', {
                     nonNullable: true,
                     validators: [Validators.required, Validators.email],
+                    asyncValidators: [emailAvailableValidator(this.authSvc)],
+                    updateOn: 'blur',
                 }),
                 password: new FormControl('', {
                     nonNullable: true,
