@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Apollo, gql } from 'apollo-angular';
+import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
 import { delay, map, Observable, tap } from 'rxjs';
@@ -24,24 +24,13 @@ import {
 } from '../../../../../shared/interfaces/api/tracking-api.interface';
 import { ExercisesService } from '../../../exercises/exercises.service';
 import { ExerciseCategory } from '../../../../../shared/interfaces/exercise.interface';
-
-const WEEK_LOG_FIELDS = `
-    id
-    userId
-    startDate
-    endDate
-    planId
-    notes
-    completed
-    days {
-        order
-        date
-        isRest
-        workoutSessionId
-        extraSessionIds
-        status
-    }
-`;
+import {
+    CREATE_WEEK_LOG,
+    CREATE_WORKOUT_SESSION,
+    FIND_ACTIVE_WEEK_LOG,
+    UPDATE_WEEK_LOG,
+    UPDATE_WEEK_LOG_DAY,
+} from '../../../../apollo/tracking.queries';
 
 @Injectable({
     providedIn: 'root',
@@ -55,43 +44,7 @@ export class PlanTrankingApi {
     getTrackingByUser(): Observable<TrackingVM | undefined | null> {
         return this.apollo
             .query<{ activeWeekLog: TrackingAPI }>({
-                query: gql`
-                    query findActiveWeekLog {
-                        activeWeekLog {
-                            id
-                            startDate
-                            endDate
-                            userId
-                            workouts {
-                                id
-                                date
-                                routineDayId
-                                exercises {
-                                    exerciseId
-                                    sets {
-                                        weights
-                                        reps
-                                    }
-                                    series
-                                    notes
-                                }
-                                notes
-                            }
-                            extras {
-                                id
-                                type
-                                discipline
-                                duration
-                                intensityLevel
-                                calories
-                                notes
-                            }
-                            planId
-                            notes
-                            completed
-                        }
-                    }
-                `,
+                query: FIND_ACTIVE_WEEK_LOG,
                 fetchPolicy: 'no-cache',
             })
             .pipe(
@@ -110,27 +63,7 @@ export class PlanTrankingApi {
         // console.log('transformado', workout);
         return this.apollo
             .mutate<{ createWorkoutSession: WorkoutSessionAPI }>({
-                mutation: gql`
-                    mutation CreateWorkoutSession($input: CreateWorkoutSessionInput!) {
-                        createWorkoutSession(createWorkoutSessionInput: $input) {
-                            id
-                            weekLogId
-                            date
-                            routineDayId
-                            exercises {
-                                exerciseId
-                                series
-                                sets {
-                                    weights
-                                    reps
-                                }
-                                notes
-                            }
-                            status
-                            notes
-                        }
-                    }
-                `,
+                mutation: CREATE_WORKOUT_SESSION,
                 variables: { input: workout },
             })
             .pipe(
@@ -147,43 +80,7 @@ export class PlanTrankingApi {
     createTracking(payload: TrackingCreate): Observable<TrackingVM | undefined | null> {
         return this.apollo
             .mutate<{ createWeekLog: TrackingAPI }>({
-                mutation: gql`
-                    mutation CreateWeekLog($input: CreateWeekLogInput!) {
-                        createWeekLog(createWeekLogInput: $input) {
-                            id
-                            startDate
-                            endDate
-                            userId
-                            workouts {
-                                id
-                                date
-                                routineDayId
-                                exercises {
-                                    exerciseId
-                                    sets {
-                                        weights
-                                        reps
-                                    }
-                                    series
-                                    notes
-                                }
-                                notes
-                            }
-                            extras {
-                                id
-                                type
-                                discipline
-                                duration
-                                intensityLevel
-                                calories
-                                notes
-                            }
-                            planId
-                            notes
-                            completed
-                        }
-                    }
-                `,
+                mutation: CREATE_WEEK_LOG,
                 variables: { input: payload },
             })
             .pipe(
@@ -197,13 +94,7 @@ export class PlanTrankingApi {
     updateTracking(payload: UpdateWeekLogInput): Observable<TrackingVMS | null> {
         return this.apollo
             .mutate<{ updateWeekLog: TrackingAPI }>({
-                mutation: gql`
-                mutation UpdateWeekLog($updateWeekLogInput: UpdateWeekLogInput!) {
-                    updateWeekLog(updateWeekLogInput: $updateWeekLogInput) {
-                        ${WEEK_LOG_FIELDS}
-                    }
-                }
-            `,
+                mutation: UPDATE_WEEK_LOG,
                 variables: { updateWeekLogInput: payload },
             })
             .pipe(
@@ -219,13 +110,7 @@ export class PlanTrankingApi {
     updateTrackingDay(payload: UpdateWeekLogDayInput): Observable<TrackingVM | null> {
         return this.apollo
             .mutate<{ updateWeekLogDay: TrackingAPI }>({
-                mutation: gql`
-                mutation UpdateWeekLogDay($input: UpdateWeekLogDayInput!) {
-                    updateWeekLogDay(input: $input) {
-                        ${WEEK_LOG_FIELDS}
-                    }
-                }
-            `,
+                mutation: UPDATE_WEEK_LOG_DAY,
                 variables: { input: payload },
             })
             .pipe(

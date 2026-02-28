@@ -1,10 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Apollo, gql } from 'apollo-angular';
+import { Apollo } from 'apollo-angular';
 import { AuthService } from '../auth/auth.service';
 import { map, Observable, of, tap } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { Exercise } from '../../../shared/interfaces/exercise.interface';
 import { ExercisePerformanceVM } from '../../../shared/interfaces/tracking.interface';
+import { CREATE_EXERCISE, GET_EXERCISES } from '../../apollo/exercises.queries';
 
 @Injectable({ providedIn: 'root' })
 export class ExercisesService {
@@ -20,16 +21,7 @@ export class ExercisesService {
 
         return this.apollo
             .query<{ exercises: Exercise[] }>({
-                query: gql`
-                    query {
-                        exercises {
-                            id
-                            name
-                            category
-                            usesWeight
-                        }
-                    }
-                `,
+                query: GET_EXERCISES,
                 fetchPolicy: 'no-cache',
             })
             .pipe(
@@ -44,16 +36,7 @@ export class ExercisesService {
     createExercise(exercise: Exercise): Observable<Exercise> {
         return this.apollo
             .mutate<{ createExercise: Exercise }>({
-                mutation: gql`
-                    mutation CreateExercise($input: CreateExerciseInput!) {
-                        createExercise(createExerciseInput: $input) {
-                            id
-                            name
-                            category
-                            usesWeight
-                        }
-                    }
-                `,
+                mutation: CREATE_EXERCISE,
                 variables: { input: exercise },
             })
             .pipe(
