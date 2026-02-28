@@ -6,10 +6,16 @@ import {
     ExercisePerformanceVM,
     StatusWorkoutSessionEnum,
     TrackingVM,
+    TrackingVMS,
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
 import { DateService } from '../date.service';
-import { TrackingAPI, TrackingCreate } from '../../../shared/interfaces/api/tracking-api.interface';
+import {
+    TrackingAPI,
+    TrackingCreate,
+    UpdateWeekLogDayInput,
+    UpdateWeekLogInput,
+} from '../../../shared/interfaces/api/tracking-api.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({
@@ -83,27 +89,6 @@ export class PlanTrackingService {
         const id = this.trackingSubject.value;
 
         if (id!) {
-            // return new Observable<WorkoutSessionVM>((observer) => {
-            //     const timeout = setTimeout(() => {
-            //         console.log('workout', workout);
-            //         const simulatedResponse = {
-            //             ...workout!,
-            //             status: StatusWorkoutSessionEnum.COMPLETE,
-            //         };
-
-            //         // this._updateWorkout(dateWorkout, () => simulatedResponse);
-
-            //         observer.next(simulatedResponse);
-            //         observer.complete();
-            //     }, 4000);
-
-            //     return () => clearTimeout(timeout);
-            // }).pipe(
-            //     takeUntilDestroyed(this.destroyRef),
-            //     finalize(() =>
-            //         this.loadingWorkout.update((current) => ({ ...current, state: false })),
-            //     ),
-            // );
             return this.api.createWorkoutSession(workout!, id.id!).pipe(
                 takeUntilDestroyed(this.destroyRef),
                 tap((res) => {
@@ -209,4 +194,67 @@ export class PlanTrackingService {
 
         this._updateWorkout(day, () => newWorkout);
     }
+
+    completeTracking(): Observable<TrackingVMS | null> {
+        const current: TrackingVM | null = this.trackingSubject.value;
+        if (!current) return of(null);
+
+        this.loading.set(true);
+
+        // Construir days desde workouts (WorkoutSessionVM no tiene order/isRest/extraSessionIds)
+        // Usamos el índice + 1 como order, y asumimos que si tiene id → tiene workout asignado
+        const workoutDays: UpdateWeekLogDayInput[] = (current.workouts ?? []).map((w, i) => ({
+            order: i + 1,
+            workoutSessionId: w.id ?? undefined,
+            extraSessionIds: [], // WorkoutSessionVM no tiene extras, se omiten
+            status: w.id ? 'complete' : 'skipped',
+        }));
+
+        // Los días sin workout (hasta completar 7) se marcan como skipped o rest
+        const totalDays = 7;
+        const days: UpdateWeekLogDayInput[] = Array.from({ length: totalDays }, (_, i) => {
+            const order = i + 1;
+            const existing = workoutDays.find((d) => d.order === order);
+            return existing ?? { order, status: 'skipped', extraSessionIds: [] };
+        });
+
+        const input: UpdateWeekLogInput = {
+            id: current.id,
+            completed: true,
+            notes: current.notes,
+            ...(current.planId ? { planId: current.planId } : {}),
+            startDate: current.startDate.toISOString(),
+            endDate: current.endDate.toISOString(),
+            days,
+        };
+
+        return this.api.updateTracking(input).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            tap((res) => {
+                // if (res) this._persist(res);
+            }),
+            finalize(() => this.loading.set(false)),
+        );
+    }
 }
+// return new Observable<WorkoutSessionVM>((observer) => {
+//     const timeout = setTimeout(() => {
+//         console.log('workout', workout);
+//         const simulatedResponse = {
+//             ...workout!,
+//             status: StatusWorkoutSessionEnum.COMPLETE,
+//         };
+
+//         // this._updateWorkout(dateWorkout, () => simulatedResponse);
+
+//         observer.next(simulatedResponse);
+//         observer.complete();
+//     }, 4000);
+
+//     return () => clearTimeout(timeout);
+// }).pipe(
+//     takeUntilDestroyed(this.destroyRef),
+//     finalize(() =>
+//         this.loadingWorkout.update((current) => ({ ...current, state: false })),
+//     ),
+// );

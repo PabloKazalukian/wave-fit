@@ -2,12 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
-import { map, Observable, tap } from 'rxjs';
+import { delay, map, Observable, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     ExtraActivityVM,
     StatusWorkoutSessionEnum,
     TrackingVM,
+    TrackingVMS,
     WorkoutSessionVM,
 } from '../../../../../shared/interfaces/tracking.interface';
 import {
@@ -15,10 +16,32 @@ import {
     ExtraSessionAPI,
     TrackingAPI,
     TrackingCreate,
+    UpdateWeekLogDayInput,
+    UpdateWeekLogInput,
+    WeekLogDayAPI,
+    WeekLogDayVM,
     WorkoutSessionAPI,
 } from '../../../../../shared/interfaces/api/tracking-api.interface';
 import { ExercisesService } from '../../../exercises/exercises.service';
 import { ExerciseCategory } from '../../../../../shared/interfaces/exercise.interface';
+
+const WEEK_LOG_FIELDS = `
+    id
+    userId
+    startDate
+    endDate
+    planId
+    notes
+    completed
+    days {
+        order
+        date
+        isRest
+        workoutSessionId
+        extraSessionIds
+        status
+    }
+`;
 
 @Injectable({
     providedIn: 'root',
@@ -171,37 +194,17 @@ export class PlanTrankingApi {
             );
     }
 
-    updateTracking(payload: TrackingCreate): Observable<TrackingVM | undefined | null> {
+    updateTracking(payload: UpdateWeekLogInput): Observable<TrackingVMS | null> {
         return this.apollo
             .mutate<{ updateWeekLog: TrackingAPI }>({
                 mutation: gql`
-                    mutation UpdateWeekLog($updateWeekLogInput: UpdateWeekLogInput!) {
-                        updateWeekLog(updateWeekLogInput: $updateWeekLogInput) {
-                            id
-                            userId
-                            startDate
-                            endDate
-                            planId
-                            notes
-                            completed
-                            workouts {
-                                date
-                                status
-                                exercises {
-                                    exerciseId
-                                    name
-                                    category
-                                    usesWeight
-                                    sets {
-                                        reps
-                                        weights
-                                    }
-                                }
-                            }
-                        }
+                mutation UpdateWeekLog($updateWeekLogInput: UpdateWeekLogInput!) {
+                    updateWeekLog(updateWeekLogInput: $updateWeekLogInput) {
+                        ${WEEK_LOG_FIELDS}
                     }
-                `,
-                variables: { input: payload },
+                }
+            `,
+                variables: { updateWeekLogInput: payload },
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
@@ -211,19 +214,68 @@ export class PlanTrankingApi {
             );
     }
 
+    // ─── Update de un día individual ─────────────────────────────────────────────
+
+    updateTrackingDay(payload: UpdateWeekLogDayInput): Observable<TrackingVM | null> {
+        return this.apollo
+            .mutate<{ updateWeekLogDay: TrackingAPI }>({
+                mutation: gql`
+                mutation UpdateWeekLogDay($input: UpdateWeekLogDayInput!) {
+                    updateWeekLogDay(input: $input) {
+                        ${WEEK_LOG_FIELDS}
+                    }
+                }
+            `,
+                variables: { input: payload },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.updateWeekLogDay
+                        ? this.wrapperTrackingApiToVM(data.updateWeekLogDay)
+                        : null,
+                ),
+            );
+    }
+
     //WRAPPERS
 
-    private wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVM {
+    // private wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVM {
+    //     return {
+    //         id: payload.id,
+    //         userId: payload.userId,
+    //         startDate: new Date(payload.startDate),
+    //         endDate: new Date(payload.endDate),
+    //         workouts: payload.workouts?.map((w) => this.wrapperWorkoutSessionApiToVM(w)) ?? [],
+    //         extras: payload.extras?.map((e) => this.wrapperExtraSessionApiToVM(e)) ?? [],
+    //         planId: payload.planId,
+    //         notes: payload.notes,
+    //         completed: payload.completed,
+    //     };
+    // }
+    private wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVMS {
         return {
             id: payload.id,
             userId: payload.userId,
             startDate: new Date(payload.startDate),
             endDate: new Date(payload.endDate),
-            workouts: payload.workouts?.map((w) => this.wrapperWorkoutSessionApiToVM(w)) ?? [],
-            extras: payload.extras?.map((e) => this.wrapperExtraSessionApiToVM(e)) ?? [],
             planId: payload.planId,
             notes: payload.notes,
             completed: payload.completed,
+            days: payload.days?.map((d) => this.wrapperWeekLogDayApiToVM(d)) ?? [],
+        };
+    }
+
+    // ─── WeekLogDayAPI → WeekLogDayVM ────────────────────────────────────────────
+
+    private wrapperWeekLogDayApiToVM(payload: WeekLogDayAPI): WeekLogDayVM {
+        return {
+            order: payload.order,
+            date: new Date(payload.date),
+            isRest: payload.isRest,
+            workoutSessionId: payload.workoutSessionId ?? null,
+            extraSessionIds: payload.extraSessionIds ?? [],
+            status: payload.status,
         };
     }
 

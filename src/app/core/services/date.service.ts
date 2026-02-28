@@ -40,4 +40,8 @@ export class DateService {
     isEqualDate(date1: Date, date2: Date): boolean {
         return isEqual(date1, date2);
     }
+
+    toStringDate(date: Date): string {
+        return format(date, 'dd-MM-yyyy');
+    }
 }

@@ -15,26 +15,32 @@
     [locked]="true"
     (closed)="showConfirmDialog.set(false)"
   >
-    <div class="flex flex-col gap-4">
-      <p class="text-text2 text-sm md:text-lg leading-relaxed">
-        ¿Estás seguro de que deseas eliminar esta rutina? Esta acción no se puede deshacer.
-      </p>
-
-      <div class="flex flex-col gap-2 mt-2">
-        <app-btn
-          [variant]="'raised'"
-          [text]="'Confirmar'"
-          [color]="'success'"
-          (click)="onConfirm()"
-        ></app-btn>
-        <app-btn
-          [variant]="'outline'"
-          [text]="'Cancelar'"
-          [color]="'error'"
-          (click)="showConfirmDialog.set(false)"
-        ></app-btn>
+    @if (this.loading()) {
+      <div class="flex items-center justify-center -ml-24">
+        <app-loading></app-loading>
       </div>
-    </div>
+    } @else {
+      <div class="flex flex-col gap-4">
+        <p class="text-text2 text-sm md:text-lg leading-relaxed">
+          ¿Estás seguro de que deseas eliminar esta rutina? Esta acción no se puede deshacer.
+        </p>
+
+        <div class="flex flex-col gap-2 mt-2">
+          <app-btn
+            [variant]="'raised'"
+            [text]="'Confirmar'"
+            [color]="'success'"
+            (click)="onConfirm()"
+          ></app-btn>
+          <app-btn
+            [variant]="'outline'"
+            [text]="'Cancelar'"
+            [color]="'error'"
+            (click)="showConfirmDialog.set(false)"
+          ></app-btn>
+        </div>
+      </div>
+    }
   </app-dialog>
 
   <!-- Fecha de inicio -->

@@ -1,3 +1,4 @@
+import { WeekLogDayVM } from './api/tracking-api.interface';
 import { ExerciseCategory } from './exercise.interface';
 
 export type StatusWorkoutSession = 'not_started' | 'complete' | 'rest';
@@ -14,9 +15,23 @@ export interface TrackingVM {
     endDate: Date;
     workouts?: WorkoutSessionVM[];
     extras?: ExtraActivityVM[];
-    planId?: string; // plan elegido esa semana
+    planId?: string | null; // plan elegido esa semana
     notes?: string;
     completed: boolean;
+}
+
+export interface TrackingVMS {
+    id: string;
+    userId: string;
+    startDate: Date;
+    endDate: Date;
+    planId?: string | null;
+    days: WeekLogDayVM[];
+    completed: boolean;
+    notes?: string;
+    // Opcionales enriquecidos (si los sigues necesitando en la UI)
+    workouts?: WorkoutSessionVM[];
+    extras?: ExtraActivityVM[];
 }
 
 export interface WorkoutSessionVM {

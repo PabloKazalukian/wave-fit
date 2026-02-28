@@ -10,6 +10,10 @@ import { WorkoutStateService } from '../../../../../core/services/workouts/worko
 import { BtnComponent } from '../../../ui/btn/btn';
 import { DialogComponent } from '../../../ui/dialog/dialog';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { delay } from 'rxjs';
+import { Loading } from '../../../ui/loading/loading';
+import { Router } from '@angular/router';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: ExerciseRoutine[];
@@ -37,16 +41,19 @@ export interface ExerciseRoutine {
         TrackingWorkoutComponent,
         BtnComponent,
         DialogComponent,
+        Loading,
     ],
     templateUrl: './tracking-week.html',
 })
 export class TrackingWeekComponent {
     tracking = input<TrackingVM | null>(null);
+    private readonly router = inject(Router);
 
     showConfirmDialog = signal(false);
 
     state = inject(WorkoutStateService);
     trackingSvc = inject(PlanTrackingService);
+    readonly loading = this.trackingSvc.loading;
 
     exercisesForm = new FormGroup<ExercisesType>({
         exercisesSelected: new FormControl<ExerciseRoutine[]>([], { nonNullable: true }),
@@ -54,7 +61,6 @@ export class TrackingWeekComponent {
     });
 
     // loading = signal(true);
-    loading = this.trackingSvc.loadingWorkout;
 
     get exercisesSelected(): FormControl<ExerciseRoutine[]> {
         return this.exercisesForm.get('exercisesSelected') as FormControl<ExerciseRoutine[]>;
@@ -70,9 +76,17 @@ export class TrackingWeekComponent {
     }
 
     onConfirm() {
-        this.trackingSvc.createTracking().subscribe({
-            next: (res) => console.log(res),
-            error: (err) => console.error(err),
-        });
+        this.loading;
+        this.trackingSvc
+            .completeTracking()
+            .pipe(takeUntilDestroyed(this.state.destroyRef))
+            .subscribe({
+                next: (res) => {
+                    console.log(res);
+                    this.showConfirmDialog.set(false);
+                    this.router.navigate(['/']);
+                },
+                error: (err) => console.error(err),
+            });
     }
 }
