@@ -95,7 +95,31 @@ export class AuthService {
         this.clearSession();
     }
 
-    // saveToken(s: string) {}
+    register(name: string, email: string, password: string) {
+        return this.apollo
+            .mutate<{ register: string }>({
+                mutation: gql`
+                    mutation Register($name: String!, $email: String!, $password: String!) {
+                        register(name: $name, email: $email, password: $password)
+                    }
+                `,
+                variables: { name, email, password },
+            })
+            .pipe(
+                tap((res) => {
+                    const token = res.data?.register;
+                    if (!token) throw new Error('Token no recibido');
+
+                    this.token.set(token);
+                    localStorage.setItem(this.tokenKey, token);
+                    this.isAuthenticatedSubject.next(true);
+                }),
+                map(() => true),
+                catchError(() => {
+                    return of(false);
+                }),
+            );
+    }
 
     loginWithGoogle(code: string, codeVerifier: string) {
         // return true;

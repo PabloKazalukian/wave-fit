@@ -19,7 +19,10 @@ export class AppComponent implements OnInit {
             if (event instanceof NavigationStart) {
                 const currentUrl = event.url;
 
-                if (!currentUrl.startsWith('/auth/callback')) {
+                if (
+                    !currentUrl.startsWith('/auth/callback') &&
+                    !currentUrl.startsWith('/auth/register')
+                ) {
                     this.authStateSvc.me().subscribe({
                         error: () => {
                             this.authStateSvc.logout();

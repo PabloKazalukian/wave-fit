@@ -1,1 +1,126 @@
-<p>register works!</p>
+<div class="flex flex-wrap gap-5 justify-center items-center min-h-screen -mt-32">
+  <div
+    class="flex flex-col items-center justify-center border-2 border-background4 bg-background mt-8 p-8 rounded-3xl shadow-lg space-y-6 w-80"
+  >
+    @if (submitted() && success() === true) {
+      <!-- Success State -->
+      <app-wave-logo-text
+        colorType="gradient-animated"
+        [gradientColors]="['#50C878', '#2D5694']"
+        width="160"
+        height="160"
+      ></app-wave-logo-text>
+
+      <div class="text-center">
+        <app-alert
+          [type]="'success'"
+          [message]="'¡Cuenta creada con éxito! Redirigiendo...'"
+        ></app-alert>
+      </div>
+    } @else {
+      <!-- Logo -->
+      <app-wave-logo-text
+        colorType="gradient-animated"
+        [gradientColors]="['#50C878', '#2D5694']"
+        width="160"
+        height="160"
+      ></app-wave-logo-text>
+
+      <form class="space-y-" (ngSubmit)="onSubmit()" [formGroup]="registerForm">
+        <div class="text-center login-title">
+          <h3 class="text-3xl mb-8">Crear cuenta</h3>
+        </div>
+
+        <div class="">
+          <app-input
+            [label]="'Nombre completo'"
+            [type]="'text'"
+            [placeholder]="'Tu nombre'"
+            [control]="nameControl"
+          ></app-input>
+        </div>
+
+        <div class="">
+          <app-input
+            [label]="'Email'"
+            [type]="'text'"
+            [placeholder]="'pat@example.com'"
+            [control]="emailControl"
+          ></app-input>
+        </div>
+
+        <div class="">
+          <app-input
+            [label]="'Contraseña'"
+            [type]="'password'"
+            [placeholder]="'********'"
+            [control]="passwordControl"
+            [showTogglePassword]="true"
+          ></app-input>
+        </div>
+
+        <div class="mb-12">
+          <app-input
+            [label]="'Repetir contraseña'"
+            [type]="'password'"
+            [placeholder]="'********'"
+            [control]="repeatPasswordControl"
+            [showTogglePassword]="true"
+          ></app-input>
+        </div>
+
+        @if (loading() === true) {
+          <div class="flex justify-center items-center">
+            <div class="h-24 w-24">
+              <app-loading [color]="'primary'"></app-loading>
+            </div>
+          </div>
+        } @else {
+          <div class="">
+            @if (submitted() && success() === false) {
+              <div>
+                <app-alert [type]="'error'" [message]="errorMessage()"></app-alert>
+              </div>
+            }
+
+            @if (
+              registerForm.hasError('passwordsMismatch') &&
+              registerForm.get('repeatPassword')?.touched
+            ) {
+              <div>
+                <app-alert [type]="'error'" [message]="'Las contraseñas no coinciden'"></app-alert>
+              </div>
+            }
+
+            <div class="">
+              <app-btn
+                [text]="'Crear cuenta'"
+                [color]="'primary3'"
+                [variant]="'raised'"
+                [buttonType]="'submit'"
+                [isDisabled]="registerForm.invalid"
+                class="text-md text-error"
+              ></app-btn>
+            </div>
+          </div>
+          <!-- Divider -->
+          <div class="flex items-center w-full my-3">
+            <div class="flex-1 h-px bg-primary"></div>
+            <span class="mx-2 whitespace-nowrap text-gray-400 text-sm">¿Ya tienes cuenta?</span>
+            <div class="flex-1 h-px bg-primary"></div>
+          </div>
+
+          <!-- Link to Login -->
+          <div class="w-full">
+            <app-btn
+              [text]="'Iniciar sesion'"
+              [color]="'secondary'"
+              [variant]="'outline'"
+              [routerLink]="'/auth/login'"
+            ></app-btn>
+          </div>
+        }
+      </form>
+    }
+  </div>
+</div>

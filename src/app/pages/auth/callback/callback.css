@@ -1,0 +1,28 @@
+/* Spinner animation for the status icon */
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin-slow 2s linear infinite;
+}
+
+/* Pulse glow on the status box border */
+@keyframes pulse-glow-primary {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(80, 200, 120, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(80, 200, 120, 0.6);
+  }
+}
+
+.border-primary {
+  animation: pulse-glow-primary 2s ease-in-out infinite;
+}
