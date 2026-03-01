@@ -1,9 +1,11 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/auth-guard';
 
 export const routes: Routes = [
     {
         path: '',
         loadComponent: () => import('./pages/home/home').then((m) => m.Home),
+        canActivate: [authGuard],
     },
     {
         path: 'auth',
@@ -18,21 +20,23 @@ export const routes: Routes = [
         path: 'exercises',
         loadChildren: () =>
             import('./pages/exercises/exercises.routes').then((m) => m.EXERCISES_ROUTES),
+        canActivate: [authGuard],
     },
     {
         path: 'my-day',
         loadComponent: () => import('./pages/my-day/my-day').then((m) => m.MyDay),
-        // canActivate: [authGuard],
+        canActivate: [authGuard],
     },
     {
         path: 'user',
         loadComponent: () => import('./pages/user/user').then((m) => m.User),
-        // canActivate: [authGuard],
+        canActivate: [authGuard],
     },
     {
         path: 'routines',
         loadChildren: () =>
             import('./pages/routines/routines.routes').then((m) => m.ROUTINES_ROUTES),
+        canActivate: [authGuard],
     },
     { path: '**', redirectTo: '' },
 ];

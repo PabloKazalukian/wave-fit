@@ -1,9 +1,9 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { tap, Observable, BehaviorSubject, catchError, map, of } from 'rxjs';
+import { tap, Observable, BehaviorSubject, catchError, map, of, throwError, timeout } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { LoginWithGoogle } from '../../../shared/interfaces/auth.interface';
-import { User } from '../../../pages/user/user';
+import { TokenStorage } from '../../auth/token.storage';
 
 export interface LoginResponse {
     data: any;
@@ -20,16 +20,14 @@ export interface MeResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private storageKey = 'auth_user';
-    private tokenKey = 'token';
-
     private apollo = inject(Apollo);
+    private tokenStorage = inject(TokenStorage);
 
     // Signals de estado
-    user = signal<any | null>(this.getStoredUser());
-    token = signal<string | null>(this.getStoredToken());
+    user = signal<any | null>(this.tokenStorage.getUser());
+    token = signal<string | null>(this.tokenStorage.getToken());
 
-    private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.getAuthenticated());
+    private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.tokenStorage.hasToken());
     isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
     isAuthenticated = computed(() => this.token() !== null);
 
@@ -52,7 +50,7 @@ export class AuthService {
                     if (!token) throw new Error('Token no recibido');
 
                     this.token.set(token);
-                    localStorage.setItem(this.tokenKey, token);
+                    this.tokenStorage.setToken(token);
                     this.isAuthenticatedSubject.next(true);
                 }),
                 map(() => true),
@@ -77,17 +75,14 @@ export class AuthService {
                 fetchPolicy: 'no-cache',
             })
             .pipe(
+                timeout(5000), // 5 segundos máximo
                 tap(({ data }) => {
-                    this.user.set({
-                        id: data?.me.id || null,
-                        email: data?.me.email || null,
-                        role: data?.me.role || null,
-                    });
-                    this.setStoredUser(this.user());
+                    this.user.set(data?.me ?? null);
+                    this.tokenStorage.setUser(this.user());
                 }),
-                handleGraphqlError(this), // ahora correctamente tipado
-                map((res) => {
-                    return res.data?.me;
+                map((res) => res.data?.me),
+                catchError((err) => {
+                    return throwError(() => err);
                 }),
             );
     }
@@ -117,7 +112,7 @@ export class AuthService {
                     if (!token) throw new Error('Token no recibido');
 
                     this.token.set(token);
-                    localStorage.setItem(this.tokenKey, token);
+                    this.tokenStorage.setToken(token);
                     this.isAuthenticatedSubject.next(true);
                 }),
                 map(() => true),
@@ -144,7 +139,6 @@ export class AuthService {
     }
 
     loginWithGoogle(code: string, codeVerifier: string) {
-        // return true;
         return this.apollo
             .mutate<{ loginWithGoogle: LoginWithGoogle }>({
                 mutation: gql`
@@ -165,38 +159,23 @@ export class AuthService {
                     if (!token) throw new Error('Token no recibido');
 
                     this.token.set(token);
-                    localStorage.setItem(this.tokenKey, token);
+                    this.tokenStorage.setToken(token);
                     this.isAuthenticatedSubject.next(true);
                 }),
                 handleGraphqlError(this),
                 catchError(() => {
-                    // console.error(err);
                     return of(false);
                 }),
             );
     }
 
-    // ✅ --- Helpers ---
-    private getStoredUser(): any | null {
-        const data = localStorage.getItem(this.storageKey);
-        return data ? JSON.parse(data) : null;
+    hasToken(): boolean {
+        console.log(this.tokenStorage.hasToken());
+        return this.tokenStorage.hasToken();
     }
 
-    private setStoredUser(user: any): void {
-        localStorage.setItem(this.storageKey, JSON.stringify(user));
-    }
-
-    private getStoredToken(): string | null {
-        return localStorage.getItem(this.tokenKey);
-    }
-
-    private getAuthenticated(): boolean {
-        return !!this.getStoredToken();
-    }
-
-    private clearSession() {
-        localStorage.removeItem(this.tokenKey);
-        localStorage.removeItem(this.storageKey);
+    clearSession() {
+        this.tokenStorage.clear();
         this.user.set(null);
         this.token.set(null);
         this.isAuthenticatedSubject.next(false);
