@@ -9,7 +9,7 @@ import { HttpLink } from 'apollo-angular/http';
 import { ApolloLink, CombinedGraphQLErrors, InMemoryCache } from '@apollo/client';
 import { ErrorLink, onError } from '@apollo/client/link/error';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { environment } from './environments/environments.prod';
+import { environment } from './environments/environments';
 import { provideAuthInitializer } from './app/core/auth/auth.initializer';
 import { TokenStorage } from './app/core/auth/token.storage';
 import { AuthService } from './app/core/services/auth/auth.service';

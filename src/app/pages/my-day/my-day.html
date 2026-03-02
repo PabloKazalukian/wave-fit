@@ -2,55 +2,61 @@
   <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-2">
     <h1 class="text-5xl font-bold text-center">Wave-Fit - Mi Dia</h1>
     <p class="text-center text-lg">Lleva tu progreso fitness en tu mano.</p>
-    @if (!this.routineActivated()) {
+    @if (this.loading()) {
       <div class="mt-4 mx-1">
-        <app-tracking-week [tracking]="this.tracking()"></app-tracking-week>
+        <app-tracking-week-skeleton></app-tracking-week-skeleton>
       </div>
     } @else {
-      <span class="text-text2 text-center text-sm">
-        Crea rutinas personalizadas, rastrea tus ejercicios semanales y alcanza tus metas de forma
-        simple y efectiva.
-      </span>
-      <div class="flex flex-col justify-center items-center space-x-2 mt-2">
-        <div class="flex flex-col justify-center items-center my-4">
-          <p class="text-lg">No hay rutina activa</p>
-          <span class="text-text2 mb-4">Queres crear una?</span>
+      @if (!this.routineActivated()) {
+        <div class="mt-4 mx-1">
+          <app-tracking-week [tracking]="this.tracking()"></app-tracking-week>
         </div>
-        <div class="w-64 flex flex-col gap-4">
-          <app-btn
-            [text]="'Crear rutina'"
-            [descriptionText]="'Crear una rutina'"
-            [variant]="'raised'"
-            size="md"
-            [showIcon]="true"
-            [color]="'primary3'"
-            [routerLink]="'/routines/create'"
-          ></app-btn>
-          <app-btn
-            [text]="'Seleccionar rutina'"
-            [descriptionText]="'Seleccionar una rutina'"
-            [variant]="'raised'"
-            size="md"
-            [showIcon]="true"
-            [color]="'secondary'"
-            [routerLink]="'/routines/create'"
-          ></app-btn>
+      } @else {
+        <span class="text-text2 text-center text-sm">
+          Crea rutinas personalizadas, rastrea tus ejercicios semanales y alcanza tus metas de forma
+          simple y efectiva.
+        </span>
+        <div class="flex flex-col justify-center items-center space-x-2 mt-2">
+          <div class="flex flex-col justify-center items-center my-4">
+            <p class="text-lg">No hay rutina activa</p>
+            <span class="text-text2 mb-4">Queres crear una?</span>
+          </div>
+          <div class="w-64 flex flex-col gap-4">
+            <app-btn
+              [text]="'Crear rutina'"
+              [descriptionText]="'Crear una rutina'"
+              [variant]="'raised'"
+              size="md"
+              [showIcon]="true"
+              [color]="'primary3'"
+              [routerLink]="'/routines/create'"
+            ></app-btn>
+            <app-btn
+              [text]="'Seleccionar rutina'"
+              [descriptionText]="'Seleccionar una rutina'"
+              [variant]="'raised'"
+              size="md"
+              [showIcon]="true"
+              [color]="'secondary'"
+              [routerLink]="'/routines/create'"
+            ></app-btn>
+          </div>
+          <span class="text-text2 my-4"
+            >O tambien puedes iniciar una rutina sin necesidad de crearla</span
+          >
+          <div class="w-64">
+            <app-btn
+              [text]="'Iniciar rutina'"
+              [descriptionText]="'Iniciar sin rutina'"
+              [variant]="'outline'"
+              size="md"
+              [showIcon]="true"
+              [color]="'accent'"
+              (click)="createTracking()"
+            ></app-btn>
+          </div>
         </div>
-        <span class="text-text2 my-4"
-          >O tambien puedes iniciar una rutina sin necesidad de crearla</span
-        >
-        <div class="w-64">
-          <app-btn
-            [text]="'Iniciar rutina'"
-            [descriptionText]="'Iniciar sin rutina'"
-            [variant]="'outline'"
-            size="md"
-            [showIcon]="true"
-            [color]="'accent'"
-            (click)="createTracking()"
-          ></app-btn>
-        </div>
-      </div>
+      }
     }
   </div>
 </div>

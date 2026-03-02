@@ -1,4 +1,4 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
 import { PlanTrankingApi } from './plan-tracking/api/plan-tranking-api.service';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
 import { BehaviorSubject, filter, finalize, map, Observable, of, tap } from 'rxjs';
@@ -10,6 +10,7 @@ import {
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
 import { DateService } from '../date.service';
+import { AuthService } from '../auth/auth.service';
 import {
     TrackingAPI,
     TrackingCreate,
@@ -30,25 +31,45 @@ export class PlanTrackingService {
     private api = inject(PlanTrankingApi);
     private storage = inject(PlanTrackingStorage);
     private dateService = inject(DateService);
+    private authService = inject(AuthService);
 
     userId = signal<string>('');
     loadingWorkout = signal<{ wokout: Date; state: boolean }>({ wokout: new Date(), state: false });
     loading = signal<boolean>(false);
+    loadingTracking = signal<boolean>(false);
 
-    initTracking(userId: string) {
-        if (this.userId() !== '') {
+    constructor() {
+        effect(() => {
+            const user = this.authService.user();
+            if (user?.id) {
+                this.initTracking(user.id);
+            } else {
+                this.userId.set('');
+                this.trackingSubject.next(null);
+            }
+        });
+    }
+
+    private initTracking(userId: string) {
+        if (this.userId() === userId && this.trackingSubject.value) {
             return;
         }
 
         this.userId.set(userId);
+        this.loadingTracking.set(true);
+
         const stored = this.storage.getTrackingStorage(this.userId());
 
         if (stored) {
             this.trackingSubject.next(stored);
+            this.loadingTracking.set(false);
         } else {
             this.api
                 .getTrackingByUser()
-                .pipe(takeUntilDestroyed(this.destroyRef))
+                .pipe(
+                    takeUntilDestroyed(this.destroyRef),
+                    finalize(() => this.loadingTracking.set(false)),
+                )
                 .subscribe((res) => {
                     if (!res) {
                         return;
@@ -65,8 +86,6 @@ export class PlanTrackingService {
         const payload: TrackingCreate = {
             startDate: start,
             endDate: end,
-            // completed: false,
-            // planId: this.userId(),
         };
 
         return this.api.createTracking(payload).pipe(
@@ -202,16 +221,13 @@ export class PlanTrackingService {
 
         this.loading.set(true);
 
-        // Construir days desde workouts (WorkoutSessionVM no tiene order/isRest/extraSessionIds)
-        // Usamos el índice + 1 como order, y asumimos que si tiene id → tiene workout asignado
         const workoutDays: UpdateWeekLogDayInput[] = (current.workouts ?? []).map((w, i) => ({
             order: i + 1,
             workoutSessionId: w.id ?? undefined,
-            extraSessionIds: [], // WorkoutSessionVM no tiene extras, se omiten
+            extraSessionIds: [],
             status: w.id ? 'complete' : 'skipped',
         }));
 
-        // Los días sin workout (hasta completar 7) se marcan como skipped o rest
         const totalDays = 7;
         const days: UpdateWeekLogDayInput[] = Array.from({ length: totalDays }, (_, i) => {
             const order = i + 1;

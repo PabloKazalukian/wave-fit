@@ -6,10 +6,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, switchMap, tap } from 'rxjs';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { TrackingWeekComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-week';
+import { TrackingWeekSkeletonComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-week-skeleton';
 
 @Component({
     selector: 'app-my-day',
-    imports: [BtnComponent, TrackingWeekComponent],
+    imports: [BtnComponent, TrackingWeekComponent, TrackingWeekSkeletonComponent],
     standalone: true,
     templateUrl: './my-day.html',
 })
@@ -20,20 +21,13 @@ export class MyDay implements OnInit {
 
     routineActivated = signal<boolean>(true);
     tracking = signal<TrackingVM | null>(null);
+    readonly loading = this.trackingSvc.loadingTracking;
 
     userId = signal<string>('');
 
     ngOnInit() {
-        this.authSvc
-            .me()
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                tap((user) => {
-                    this.userId.set(user?.id ?? '');
-                }),
-                map(() => this.trackingSvc.initTracking(this.userId())),
-                switchMap(() => this.trackingSvc.trackingPlanVM$),
-            )
+        this.trackingSvc.trackingPlanVM$
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((tracking) => {
                 this.tracking.set(tracking);
                 this.routineActivated.set(!tracking);
