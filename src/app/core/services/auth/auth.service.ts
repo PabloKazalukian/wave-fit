@@ -13,6 +13,7 @@ export interface LoginResponse {
 export interface MeResponse {
     me: {
         id: string;
+        name: string;
         email: string;
         role: string;
     };
@@ -48,8 +49,6 @@ export class AuthService {
                 tap((res) => {
                     const token = res.data?.login;
                     if (!token) throw new Error('Token no recibido');
-
-                    console.log(res);
 
                     this.token.set(token);
                     this.tokenStorage.setToken(token);
@@ -161,7 +160,6 @@ export class AuthService {
                 tap((res) => {
                     const token = res.data?.loginWithGoogle.access_token;
                     if (!token) throw new Error('Token no recibido');
-                    console.log(res);
 
                     this.token.set(token);
                     this.tokenStorage.setToken(token);

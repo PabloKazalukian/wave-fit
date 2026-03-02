@@ -1,48 +1,222 @@
 @if (show) {
-  <header class="flex w-full justify-center items-center fixed top-0 left-0 z-10">
-    <nav class="flex justify-center items-center">
-      <div class="bg-background3 flex justify-center items-center gap-6 px-6 py-4 rounded-xl mt-4">
-        <!--  -->
-        <!-- <app-wave-logo></app-wave-logo> -->
+  <header class="fixed top-0 left-0 z-50 w-full flex justify-center p-4">
+    <nav
+      class="bg-background3 border border-white/10 flex items-center justify-between px-4 w-full max-w-2xl py-3 rounded-2xl shadow-2xl"
+    >
+      <!-- Logo -->
+      <div class="cursor-pointer flex items-center" (click)="goToHome()">
         <app-wave-logo
           colorType="gradient-animated"
           [gradientColors]="['#50C878', '#ec4899', '#66aaf9', '#50C878']"
           width="40"
           height="40"
         />
-        <ul class="text-text2">
+        <span
+          class="ml-2 font-bold text-2xl sm:text-lg bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent"
+          >WaveFit</span
+        >
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-2">
+        <app-btn
+          [routerLink]="'/home'"
+          [text]="'Home'"
+          [color]="isActive('/home') ? 'primary' : 'text'"
+          [variant]="isActive('/home') ? 'outline' : 'ghost'"
+        ></app-btn>
+
+        <app-btn
+          [routerLink]="'/my-day'"
+          [text]="'Mi Día'"
+          [color]="isActive('/my-day') ? 'primary' : 'text'"
+          [variant]="isActive('/my-day') ? 'outline' : 'ghost'"
+        ></app-btn>
+
+        <!-- Rutinas Dropdown -->
+        <div class="relative">
+          <app-btn
+            [text]="'Rutinas'"
+            [color]="isActive('/routines') ? 'primary' : 'text'"
+            [variant]="isActive('/routines') ? 'outline' : 'ghost'"
+            (click)="toggleRoutinesDropdown($event)"
+          >
+            <span
+              class="ml-1 text-[10px] transition-transform duration-300"
+              [class.rotate-180]="isRoutinesDropdownOpen()"
+              >▼</span
+            >
+          </app-btn>
+
+          @if (isRoutinesDropdownOpen()) {
+            <div
+              class="absolute top-full left-0 mt-2 w-48 bg-background3 border border-white/10 rounded-xl shadow-xl overflow-hidden py-2 dropdown-menu"
+              (click)="$event.stopPropagation()"
+            >
+              <a
+                routerLink="/routines"
+                class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
+                [class.text-primary]="currentUrl() === '/routines'"
+                (click)="closeDropdowns()"
+                >Ver rutinas</a
+              >
+              <a
+                routerLink="/routines/create"
+                class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
+                [class.text-primary]="currentUrl() === '/routines/create'"
+                (click)="closeDropdowns()"
+                >Crear rutina</a
+              >
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- User Profile Dropdown -->
+      <div class="hidden md:flex relative">
+        <app-btn
+          [text]="userName()"
+          [color]="'primary'"
+          [variant]="'outline'"
+          (click)="toggleUserDropdown($event)"
+        >
+          <span
+            class="ml-1 text-[10px] transition-transform duration-300"
+            [class.rotate-180]="isUserDropdownOpen()"
+            >▼</span
+          >
+        </app-btn>
+
+        @if (isUserDropdownOpen()) {
+          <div
+            class="absolute top-full right-0 mt-2 w-48 bg-background3 border border-white/10 rounded-xl shadow-xl overflow-hidden py-2 dropdown-menu"
+            (click)="$event.stopPropagation()"
+          >
+            <a
+              routerLink="/profile"
+              class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
+              [class.text-primary]="isActive('/profile')"
+              (click)="closeDropdowns()"
+              >Ver perfil</a
+            >
+            <hr class="border-white/5 my-1" />
+            <button
+              class="w-full text-left px-4 py-2 text-error hover:bg-error/10 transition-colors"
+              (click)="logout(); closeDropdowns()"
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button
+          (click)="toggleMobileMenu()"
+          class="p-2 text-text2 hover:text-primary transition-colors"
+        >
+          @if (!isMobileMenuOpen()) {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-8 w-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              />
+            </svg>
+          } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-8 w-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          }
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    @if (isMobileMenuOpen()) {
+      <div
+        class="fixed inset-0 top-[88px] bg-background/95 backdrop-blur-lg md:hidden z-40 overflow-y-auto animate-in fade-in slide-in-from-top duration-300"
+      >
+        <div class="flex flex-col p-6 gap-4">
           <app-btn
             [routerLink]="'/home'"
             [text]="'Home'"
-            [color]="'text'"
-            [variant]="'basic'"
+            [color]="isActive('/home') ? 'primary' : 'text'"
+            [variant]="'ghost'"
+            (click)="toggleMobileMenu()"
           ></app-btn>
-        </ul>
-        <ul class="text-text2">
           <app-btn
             [routerLink]="'/my-day'"
-            [text]="'Mi Dia'"
-            [color]="'text'"
-            [variant]="'basic'"
+            [text]="'Mi Día'"
+            [color]="isActive('/my-day') ? 'primary' : 'text'"
+            [variant]="'ghost'"
+            (click)="toggleMobileMenu()"
           ></app-btn>
-        </ul>
-        <ul class="text-text2">
-          <app-btn
-            [routerLink]="'/routines'"
-            [text]="'Programar Rutina'"
-            [color]="'text'"
-            [variant]="'basic'"
-          ></app-btn>
-        </ul>
-        <ul class="text-text2 w-20">
-          <app-btn
-            [text]="'Logout'"
-            [variant]="'raised'"
-            [color]="'primaryDark'"
-            (click)="logout()"
-          ></app-btn>
-        </ul>
+
+          <div class="border-t border-white/10 pt-4">
+            <span class="text-xs text-text2/50 uppercase tracking-wider mb-2 block">Rutinas</span>
+            <div class="flex flex-col gap-2 pl-4">
+              <a
+                routerLink="/routines"
+                class="text-text2 py-2"
+                [class.text-primary]="isActive('/routines')"
+                (click)="toggleMobileMenu()"
+                >Ver rutinas</a
+              >
+              <a
+                routerLink="/routines/creator"
+                class="text-text2 py-2"
+                [class.text-primary]="isActive('/routines/creator')"
+                (click)="toggleMobileMenu()"
+                >Crear rutina</a
+              >
+            </div>
+          </div>
+
+          <div class="border-t border-white/10 pt-4">
+            <span class="text-xs text-text2/50 uppercase tracking-wider mb-2 block"
+              >Usuario: {{ userName() }}</span
+            >
+            <div class="flex flex-col gap-2 pl-4">
+              <a
+                routerLink="/profile"
+                class="text-text2 py-2"
+                [class.text-primary]="isActive('/profile')"
+                (click)="toggleMobileMenu()"
+                >Ver perfil</a
+              >
+              <button class="text-error py-2 text-left" (click)="logout(); toggleMobileMenu()">
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </nav>
+    }
   </header>
 }
+
+<div
+  class="fixed inset-0 z-30"
+  *ngIf="isRoutinesDropdownOpen() || isUserDropdownOpen()"
+  (click)="closeDropdowns()"
+></div>
