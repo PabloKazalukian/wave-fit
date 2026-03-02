@@ -4,6 +4,7 @@ import { tap, Observable, BehaviorSubject, catchError, map, of, throwError, time
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { LoginWithGoogle } from '../../../shared/interfaces/auth.interface';
 import { TokenStorage } from '../../auth/token.storage';
+import { User } from '../../../shared/interfaces/token.interface';
 
 export interface LoginResponse {
     data: any;
@@ -148,6 +149,11 @@ export class AuthService {
                     mutation LoginWithGoogle($code: String!, $codeVerifier: String!) {
                         loginWithGoogle(code: $code, codeVerifier: $codeVerifier) {
                             access_token
+                            user {
+                                id
+                                name
+                                email
+                            }
                         }
                     }
                 `,
@@ -158,11 +164,16 @@ export class AuthService {
             })
             .pipe(
                 tap((res) => {
+                    console.log(res);
                     const token = res.data?.loginWithGoogle.access_token;
+                    const user = res.data?.loginWithGoogle.user!;
                     if (!token) throw new Error('Token no recibido');
 
                     this.token.set(token);
                     this.tokenStorage.setToken(token);
+                    this.userIdSubject.next(user?.id);
+                    this.tokenStorage.setUser(user);
+                    this.user.set(user);
                     this.isAuthenticatedSubject.next(true);
                 }),
                 handleGraphqlError(this),
