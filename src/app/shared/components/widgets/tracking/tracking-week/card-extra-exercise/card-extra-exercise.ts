@@ -1,5 +1,5 @@
 import { Component, input, output, signal } from '@angular/core';
-import { ExerciseRoutine } from '../tracking-week';
+// import { ExerciseRoutine } from '../tracking-week';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -11,17 +11,14 @@ import { FormsModule } from '@angular/forms';
     styles: ``,
 })
 export class CardExtraExercise {
-    exercise = input<ExerciseRoutine>({} as ExerciseRoutine);
-
-    deleteExercise = output<ExerciseRoutine>();
-    toggleInput = output<void>();
-
-    toggleExerciseInput(exercise: ExerciseRoutine) {
-        this.toggleInput.emit();
-    }
-
-    deleteExercises(exercise: ExerciseRoutine, event: Event) {
-        event.stopPropagation();
-        this.deleteExercise.emit(exercise);
-    }
+    // exercise = input<ExerciseRoutine>({} as ExerciseRoutine);
+    // deleteExercise = output<ExerciseRoutine>();
+    // toggleInput = output<void>();
+    // toggleExerciseInput(exercise: ExerciseRoutine) {
+    //     this.toggleInput.emit();
+    // }
+    // deleteExercises(exercise: ExerciseRoutine, event: Event) {
+    //     event.stopPropagation();
+    //     this.deleteExercise.emit(exercise);
+    // }
 }

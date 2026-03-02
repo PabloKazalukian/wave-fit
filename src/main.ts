@@ -36,8 +36,11 @@ bootstrapApplication(AppComponent, {
             const errorLink = new ErrorLink(({ error }) => {
                 let unauthorized = false;
 
+                console.log(error);
+
                 if (CombinedGraphQLErrors.is(error)) {
                     for (const gqlError of error.errors) {
+                        console.log(gqlError);
                         if (gqlError.extensions?.['code'] === 'UNAUTHENTICATED') {
                             unauthorized = true;
                             break;

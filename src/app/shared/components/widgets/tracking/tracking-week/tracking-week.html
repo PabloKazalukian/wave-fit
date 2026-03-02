@@ -4,39 +4,43 @@
       [text]="'Completar semana'"
       [variant]="'raised'"
       [color]="'confirm3'"
-      (click)="completeWeek()"
+      (click)="facade.completeWeek()"
     >
     </app-btn>
   </div>
   <app-dialog
-    [isOpen]="showConfirmDialog()"
-    [title]="'Confirmar acción'"
+    [isOpen]="facade.showConfirmDialog()"
+    [title]="facade.isWeekComplete() ? 'Confirmar acción' : 'Semana incompleta'"
     [closeOnBackdrop]="true"
     [locked]="true"
-    (closed)="showConfirmDialog.set(false)"
+    (closed)="facade.showConfirmDialog.set(false)"
   >
-    @if (this.loading()) {
+    @if (facade.loading()) {
       <div class="flex items-center justify-center -ml-24">
         <app-loading></app-loading>
       </div>
     } @else {
       <div class="flex flex-col gap-4">
         <p class="text-text2 text-sm md:text-lg leading-relaxed">
-          ¿Estás seguro de que deseas eliminar esta rutina? Esta acción no se puede deshacer.
+          {{
+            facade.isWeekComplete()
+              ? '¿Estás seguro de que deseas completar la semana? Esta acción finalizará tu seguimiento actual.'
+              : 'Aún tienes entrenamientos sin asignar o completar esta semana. ¿Deseas completarla de todos modos?'
+          }}
         </p>
 
         <div class="flex flex-col gap-2 mt-2">
           <app-btn
             [variant]="'raised'"
             [text]="'Confirmar'"
-            [color]="'success'"
-            (click)="onConfirm()"
+            [color]="facade.isWeekComplete() ? 'success' : 'error'"
+            (click)="facade.isWeekComplete() ? facade.onConfirm() : facade.onConfirmIncomplete()"
           ></app-btn>
           <app-btn
             [variant]="'outline'"
             [text]="'Cancelar'"
             [color]="'error'"
-            (click)="showConfirmDialog.set(false)"
+            (click)="facade.showConfirmDialog.set(false)"
           ></app-btn>
         </div>
       </div>
