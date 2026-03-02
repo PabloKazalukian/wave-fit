@@ -81,7 +81,7 @@ export class AuthService {
                 timeout(5000), // 5 segundos máximo
                 tap(({ data }) => {
                     this.user.set(data?.me ?? null);
-                    console.log(data);
+                    this.userIdSubject.next(data?.me?.id ?? null);
                     this.tokenStorage.setUser(this.user());
                 }),
                 map((res) => res.data?.me),

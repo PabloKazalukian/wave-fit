@@ -39,6 +39,7 @@ export class PlanTrackingService {
     loadingTracking = signal<boolean>(false);
 
     user$ = toSignal(this.authService.user$);
+
     constructor() {
         effect(() => {
             if (this.user$()) {
