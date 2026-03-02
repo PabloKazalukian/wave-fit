@@ -4,11 +4,13 @@ import { Apollo, gql } from 'apollo-angular';
 import { map, Observable, tap } from 'rxjs';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import {
+    KindEnum,
     RoutineDay,
     RoutineDayCreate,
     RoutineDayCreateSend,
 } from '../../../../shared/interfaces/routines.interface';
 import { ExerciseCategory } from '../../../../shared/interfaces/exercise.interface';
+import { RoutineDayAPI } from '../../../../shared/interfaces/api/routines-api.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -19,7 +21,7 @@ export class RoutinesApiService {
 
     getRoutines(): Observable<RoutineDay[] | undefined> {
         return this.apollo
-            .query<{ routineDays: RoutineDay[] }>({
+            .query<{ routineDays: RoutineDayAPI[] }>({
                 query: gql`
                     query {
                         routineDays {
@@ -40,9 +42,7 @@ export class RoutinesApiService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                map((data) => {
-                    return data.data?.routineDays;
-                }),
+                map((data) => this.wrappedRoutineDayAPItoRoutineDay(data.data?.routineDays!)),
             );
     }
 
@@ -143,6 +143,17 @@ export class RoutinesApiService {
                 tap((res) => console.log('Routine created successfully:', res)),
                 // map((res) => res.data),
             );
+    }
+
+    wrappedRoutineDayAPItoRoutineDay(data: RoutineDayAPI[]): RoutineDay[] {
+        return data.map((r) => {
+            return {
+                id: r.id,
+                title: r.title,
+                exercises: r.exercises?.map((ex) => ex.exercise) || [],
+                kind: KindEnum.workout,
+            };
+        });
     }
 
     private createRoutinePayload(data: RoutineDayCreate): RoutineDayCreateSend {

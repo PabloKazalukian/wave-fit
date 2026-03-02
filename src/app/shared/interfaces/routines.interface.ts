@@ -62,6 +62,7 @@ export interface RoutineDayVM {
     id?: string;
     expanded: boolean;
     day: DayIndex;
+    exercises?: Exercise[];
 }
 
 export interface RoutineDayCreate {

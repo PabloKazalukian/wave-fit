@@ -29,9 +29,9 @@ export class RoutineListBoxComponent implements OnInit {
 
     @Input() day!: RoutineDayVM;
     exerciseForm: FormGroup = this.facade.exerciseForm;
-    routinesDays: WritableSignal<RoutineDay[]> = this.facade.routinesDays;
+    routinesDays = this.facade.routinesDays;
 
-    routineSelected: WritableSignal<RoutineDay | null> = this.facade.routineSelected;
+    routineSelected = this.facade.routineSelected;
     openIndex: WritableSignal<number | null> = this.facade.openIndex;
 
     isSearchedRoutines = signal<boolean>(false);
@@ -60,7 +60,9 @@ export class RoutineListBoxComponent implements OnInit {
 
     getNameOfSelectControl(): string {
         const value = options.filter((e) => e.value === this.selectControl.value);
-        return value[0].name || '';
+        console.log(value, this.selectControl.value);
+        // return value[0].name || '';
+        return 'hola';
     }
     addRoutine(day: RoutineDay) {
         this.facade.addRoutine(day);
