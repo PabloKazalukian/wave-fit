@@ -22,8 +22,12 @@
         (click)="selectDay(day)"
         [class]="
           sameDay(day)
-            ? 'bg-primary text-background'
-            : 'border border-primary bg-background2 text-primary hover:bg-primary/10'
+            ? day.state === 'rest'
+              ? 'bg-secondary text-background'
+              : 'bg-primary text-background'
+            : day.state === 'rest'
+              ? 'border border-secondary bg-background2 text-secondary hover:bg-secondary/10'
+              : 'border border-primary bg-background2 text-primary hover:bg-primary/10'
         "
         class="flex flex-col items-center justify-center rounded-xl px-3 py-2 min-w-[60px] transition-all"
       >

@@ -28,6 +28,14 @@ export class DateService {
         return format(date, 'dd-MM-yyyy');
     }
 
+    dateToStringLocalWithDay(date: Date): string {
+        return format(date, 'EE dd', { locale: es });
+    }
+
+    dateToNumber(date: Date): number {
+        return parseInt(format(date, 'dd'));
+    }
+
     daysOfWeek(startDate: Date): DayWithString[] {
         const endDate = this.addDays(startDate, 6);
         return eachDayOfInterval({ start: startDate, end: endDate }).map((date) => ({

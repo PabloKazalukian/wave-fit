@@ -1,9 +1,17 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { DateService, DayWithString } from '../../../../../../core/services/date.service';
+import { DateService } from '../../../../../../core/services/date.service';
 import { WorkoutStateService } from '../../../../../../core/services/workouts/workout-state.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
 import { Loading } from '../../../../ui/loading/loading';
+import { StatusWorkoutSession } from '../../../../../interfaces/tracking.interface';
+
+interface DayWithState {
+    day: string;
+    dayNumber: number;
+    date: Date;
+    state: StatusWorkoutSession;
+}
 
 @Component({
     selector: 'app-navigator-week',
@@ -28,20 +36,27 @@ export class NavigatorWeek {
     selectedDay = computed(() => {
         const day = {
             date: this.state.selectedDate(),
-            dayNumber: this.state.selectedDate()?.getDate(),
-            day: this.state.selectedDate()?.toLocaleDateString('es-ES', { weekday: 'long' }),
+            dayNumber: this.dateSvc.dateToNumber(this.state.selectedDate()!),
+            day: this.dateSvc.dateToStringLocalWithDay(this.state.selectedDate()!),
         };
         return day;
     });
-    sameDay(day: DayWithString): boolean {
+    sameDay(day: DayWithState): boolean {
         if (this.selectedDay() === null || this.selectedDay()?.date === null) return false;
         return this.dateSvc.isEqualDate(this.selectedDay()?.date!, day.date);
     }
 
     allDays = computed(() => {
         const t = this.tracking();
-        if (!t) return [];
-        return this.dateSvc.daysOfWeek(t.startDate);
+        if (!t || !t.workouts) return [];
+        return t.workouts.map((w) => {
+            return {
+                date: w.date,
+                dayNumber: this.dateSvc.dateToNumber(w.date),
+                day: this.dateSvc.dateToStringLocalWithDay(w.date),
+                state: w.status,
+            };
+        });
     });
 
     visibleDays = computed(() => {
@@ -75,7 +90,7 @@ export class NavigatorWeek {
         }
     }
 
-    selectDay(day: DayWithString): void {
+    selectDay(day: DayWithState): void {
         this.state.setDate(day.date);
     }
 }
