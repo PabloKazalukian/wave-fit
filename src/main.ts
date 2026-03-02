@@ -29,7 +29,6 @@ bootstrapApplication(AppComponent, {
             const tokenStorage = inject(TokenStorage);
             const injector = inject(Injector);
 
-            // Configura la URL desde environment
             const uri = environment.graphqlUri;
 
             const errorLink = onError(({ error }) => {
@@ -44,16 +43,19 @@ bootstrapApplication(AppComponent, {
                             err.extensions?.code === 'UNAUTHENTICATED' ||
                             err.message.includes('Unauthorized')
                         ) {
+                            console.log('0');
                             unauthorized = true;
                         }
                     }
                 }
 
                 if (networkError?.statusCode === 401) {
+                    console.log('1');
                     unauthorized = true;
                 }
 
                 if (unauthorized) {
+                    console.log('2');
                     injector.get(AuthService).logout();
                     injector.get(Router).navigate(['/auth/login']);
                 }

@@ -53,25 +53,7 @@
   <!-- Logo Central -->
 
   <!-- Active Week Status -->
-  <div class="bg-background2 border-2 border-primary rounded-2xl p-4 mb-6">
-    <div class="flex items-center justify-between mb-2">
-      <span class="text-sm font-medium text-primary">Semana Activa:</span>
-      <span class="px-3 py-1 bg-error/20 text-error text-xs rounded-full border-2 border-error/30">
-        @if (weekActive) {
-          Activa
-        } @else {
-          No iniciada
-        }
-      </span>
-    </div>
-    <p class="text-xs text-text2">
-      @if (weekActive) {
-        Continúa con tu rutina de esta semana
-      } @else {
-        Comienza tu primera semana de entrenamiento ahora
-      }
-    </p>
-  </div>
+  <app-tracking-active></app-tracking-active>
 
   <app-btn
     text="comenzar ahora"

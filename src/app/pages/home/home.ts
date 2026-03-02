@@ -2,17 +2,16 @@ import { Component } from '@angular/core';
 import { WaveLogoTextComponent } from '../../shared/components/ui/logos/wave-logo-text/wave-logo-text';
 import { CommonModule } from '@angular/common';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
+import { TrackingActiveComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-active/tracking-active';
 
 @Component({
     selector: 'app-home',
     standalone: true,
     templateUrl: './home.html',
     styleUrl: './home.css',
-    imports: [WaveLogoTextComponent, CommonModule, BtnComponent],
+    imports: [WaveLogoTextComponent, CommonModule, BtnComponent, TrackingActiveComponent],
 })
 export class Home {
-    weekActive = false;
-
     features = [
         {
             icon: '💪',

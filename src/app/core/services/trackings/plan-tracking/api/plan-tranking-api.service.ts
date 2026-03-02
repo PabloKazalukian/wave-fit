@@ -81,14 +81,12 @@ export class PlanTrankingApi {
                 ),
                 tap((res) => console.log(res)),
                 catchError((err) => {
-                    console.log(err);
                     return of(null);
                 }),
             );
     }
 
     createTracking(payload: TrackingCreate): Observable<TrackingVM | undefined | null> {
-        console.log('payload', payload);
         return this.apollo
             .mutate<{ createWeekLog: TrackingAPI }>({
                 mutation: CREATE_WEEK_LOG,
@@ -136,19 +134,6 @@ export class PlanTrankingApi {
 
     //WRAPPERS
 
-    // private wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVM {
-    //     return {
-    //         id: payload.id,
-    //         userId: payload.userId,
-    //         startDate: new Date(payload.startDate),
-    //         endDate: new Date(payload.endDate),
-    //         workouts: payload.workouts?.map((w) => this.wrapperWorkoutSessionApiToVM(w)) ?? [],
-    //         extras: payload.extras?.map((e) => this.wrapperExtraSessionApiToVM(e)) ?? [],
-    //         planId: payload.planId,
-    //         notes: payload.notes,
-    //         completed: payload.completed,
-    //     };
-    // }
     private wrapperTrackingApiToVMS(payload: TrackingAPI): TrackingVMS {
         return {
             id: payload.id,
@@ -235,24 +220,17 @@ export class PlanTrankingApi {
         }));
     }
 
-    // Wrapper: ExercisePerformanceAPI[] -> ExercisePerformanceVM[]
     private wrapperExercisePerformanceApiToVM(
         payload: ExercisePerformanceAPI[],
     ): ExercisePerformanceVM[] {
         if (payload.length === 0) return [];
 
-        // Obtener todos los ejercicios una sola vez
         const allExercises = this.exerciseSvc.exercises();
 
-        // Crear un Map para búsqueda rápida por ID
         const exercisesMap = new Map(allExercises.map((ex) => [ex.id, ex]));
 
-        // Mapear cada ExercisePerformanceAPI a ExercisePerformanceVM
         return payload.map((performance) => {
-            // Buscar el ejercicio correspondiente
             const exercise = exercisesMap.get(performance.exerciseId);
-
-            // Si no se encuentra el ejercicio, usar valores por defecto
             const name = exercise?.name || 'Ejercicio desconocido';
             const usesWeight = exercise?.usesWeight || false;
             const category = exercise?.category || ExerciseCategory.CARDIO;
@@ -291,34 +269,5 @@ export class PlanTrankingApi {
             case 'skipped':
                 return StatusWorkoutSessionEnum.REST;
         }
-    }
-    // Wrapper: ExtraSessionAPI -> ExtraActivityVM
-    private wrapperExtraSessionApiToVM(payload: ExtraSessionAPI): ExtraActivityVM {
-        // Mapear el tipo de actividad desde la API al VM
-        let type: 'running' | 'yoga' | 'cycling' | 'other';
-
-        switch (payload.discipline.toLowerCase()) {
-            case 'running':
-            case 'correr':
-                type = 'running';
-                break;
-            case 'yoga':
-                type = 'yoga';
-                break;
-            case 'bicicleta':
-            case 'cycling':
-            case 'ciclismo':
-                type = 'cycling';
-                break;
-            default:
-                type = 'other';
-        }
-
-        return {
-            id: payload.id,
-            type,
-            duration: payload.duration,
-            distance: undefined, // No está en la API, podrías calcularlo o agregarlo
-        };
     }
 }

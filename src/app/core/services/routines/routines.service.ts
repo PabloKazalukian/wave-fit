@@ -50,7 +50,6 @@ export class RoutinesServices {
         if (this.routinesCache$.value && !this.loading) {
             return of(this.routinesCache$.value.filter((routine) => routine.id === id)[0]);
         }
-        // console.log('asd');
         return this.api.getRoutineById(id);
     }
 
@@ -130,9 +129,6 @@ export class RoutinesServices {
     getRoutinesByCategory(category: ExerciseCategory): Observable<RoutineDay[] | null> {
         return this.getAllRoutines().pipe(
             takeUntilDestroyed(this.destroyRef),
-            // tap((e) => {
-            //     console.log(e);
-            // }),
             switchMap((list) =>
                 of(list ? list.filter((r) => r.type?.includes(category) && r !== undefined) : null),
             ),
@@ -141,7 +137,6 @@ export class RoutinesServices {
 
     createRoutine(data: RoutineDayCreate): Observable<any> {
         const payload: RoutineDayCreateSend = this.createRoutinePayload(data);
-        console.log(data);
         return this.apollo
             .mutate<RoutineDayCreate>({
                 mutation: gql`
@@ -157,11 +152,7 @@ export class RoutinesServices {
                     createRoutineDayInput: payload,
                 },
             })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                tap((res) => console.log('Routine created successfully:', res)),
-                // map((res) => res.data),
-            );
+            .pipe(handleGraphqlError(this.authSvc));
     }
 
     private createRoutinePayload(data: RoutineDayCreate): RoutineDayCreateSend {

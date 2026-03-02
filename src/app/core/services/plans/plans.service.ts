@@ -131,7 +131,6 @@ export class PlansService {
     }
 
     wrapperRoutinePlanVMtoRoutinePlan(routinePlanVM: RoutinePlanVM): RoutinePlanSend {
-        console.log(routinePlanVM.weekly_distribution);
         return {
             name: routinePlanVM.name,
             description: routinePlanVM.description,

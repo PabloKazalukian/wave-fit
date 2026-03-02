@@ -18,8 +18,6 @@ export class RoutinesApiService {
     private readonly authSvc = inject(AuthService);
 
     getRoutines(): Observable<RoutineDay[] | undefined> {
-        console.log('getRoutines');
-
         return this.apollo
             .query<{ routineDays: RoutineDay[] }>({
                 query: gql`
@@ -42,7 +40,6 @@ export class RoutinesApiService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                tap((res) => console.log(res)),
                 map((data) => {
                     return data.data?.routineDays;
                 }),
@@ -50,7 +47,6 @@ export class RoutinesApiService {
     }
 
     getRoutineById(id: string): Observable<RoutineDay | undefined> {
-        console.log('getRoutineById');
         return this.apollo
             .query<{ routineDay: RoutineDay }>({
                 query: gql`
