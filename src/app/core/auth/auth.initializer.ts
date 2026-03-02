@@ -1,7 +1,7 @@
 import { APP_INITIALIZER, Provider } from '@angular/core';
 import { AuthService } from '../services/auth/auth.service';
 import { TokenStorage } from './token.storage';
-import { firstValueFrom, catchError, of, timeout } from 'rxjs';
+import { firstValueFrom, catchError, of, timeout, tap } from 'rxjs';
 
 export function authInitializerFactory(authService: AuthService, tokenStorage: TokenStorage) {
     return () => {

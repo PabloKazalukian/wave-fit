@@ -32,6 +32,6 @@ export class TokenStorage {
     }
 
     hasToken(): boolean {
-        return !!this.getToken();
+        return this.getToken() !== null;
     }
 }

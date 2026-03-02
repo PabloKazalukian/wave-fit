@@ -17,7 +17,7 @@ import {
     UpdateWeekLogDayInput,
     UpdateWeekLogInput,
 } from '../../../shared/interfaces/api/tracking-api.interface';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
     providedIn: 'root',
@@ -38,11 +38,11 @@ export class PlanTrackingService {
     loading = signal<boolean>(false);
     loadingTracking = signal<boolean>(false);
 
+    user$ = toSignal(this.authService.user$);
     constructor() {
         effect(() => {
-            const user = this.authService.user();
-            if (user?.id) {
-                this.initTracking(user.id);
+            if (this.user$()) {
+                this.initTracking(this.user$()!);
             } else {
                 this.userId.set('');
                 this.trackingSubject.next(null);

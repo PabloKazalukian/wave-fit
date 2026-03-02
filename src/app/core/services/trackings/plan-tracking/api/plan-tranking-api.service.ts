@@ -148,7 +148,6 @@ export class PlanTrankingApi {
     }
 
     private wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVM {
-        console.log(payload);
         return {
             id: payload.id,
             userId: payload.userId,

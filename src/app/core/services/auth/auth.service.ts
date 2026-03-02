@@ -49,6 +49,8 @@ export class AuthService {
                     const token = res.data?.login;
                     if (!token) throw new Error('Token no recibido');
 
+                    console.log(res);
+
                     this.token.set(token);
                     this.tokenStorage.setToken(token);
                     this.isAuthenticatedSubject.next(true);
@@ -67,6 +69,7 @@ export class AuthService {
                     query Me {
                         me {
                             id
+                            name
                             email
                             role
                         }
@@ -78,6 +81,7 @@ export class AuthService {
                 timeout(5000), // 5 segundos máximo
                 tap(({ data }) => {
                     this.user.set(data?.me ?? null);
+                    console.log(data);
                     this.tokenStorage.setUser(this.user());
                 }),
                 map((res) => res.data?.me),
@@ -157,6 +161,7 @@ export class AuthService {
                 tap((res) => {
                     const token = res.data?.loginWithGoogle.access_token;
                     if (!token) throw new Error('Token no recibido');
+                    console.log(res);
 
                     this.token.set(token);
                     this.tokenStorage.setToken(token);
