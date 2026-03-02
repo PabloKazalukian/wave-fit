@@ -6,10 +6,10 @@ import { routes } from './app/app.routes';
 import { provideApollo } from 'apollo-angular';
 import { enableProdMode, inject, Injector } from '@angular/core';
 import { HttpLink } from 'apollo-angular/http';
-import { ApolloLink, InMemoryCache } from '@apollo/client';
-import { onError } from '@apollo/client/link/error';
+import { ApolloLink, CombinedGraphQLErrors, InMemoryCache } from '@apollo/client';
+import { ErrorLink, onError } from '@apollo/client/link/error';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { environment } from './environments/environments';
+import { environment } from './environments/environments.prod';
 import { provideAuthInitializer } from './app/core/auth/auth.initializer';
 import { TokenStorage } from './app/core/auth/token.storage';
 import { AuthService } from './app/core/services/auth/auth.service';
@@ -31,43 +31,46 @@ bootstrapApplication(AppComponent, {
 
             const uri = environment.graphqlUri;
 
-            const errorLink = onError(({ error }) => {
+            let isHandlingAuthError = false;
+
+            const errorLink = new ErrorLink(({ error }) => {
                 let unauthorized = false;
 
-                const graphQLErrors = (error as any)?.graphQLErrors;
-                const networkError = (error as any)?.networkError;
-
-                if (graphQLErrors) {
-                    for (const err of graphQLErrors) {
-                        if (
-                            err.extensions?.code === 'UNAUTHENTICATED' ||
-                            err.message.includes('Unauthorized')
-                        ) {
-                            console.log('0');
+                if (CombinedGraphQLErrors.is(error)) {
+                    for (const gqlError of error.errors) {
+                        if (gqlError.extensions?.['code'] === 'UNAUTHENTICATED') {
                             unauthorized = true;
+                            break;
                         }
+                    }
+                } else {
+                    // Network error (ej: 401 HTTP)
+                    if ((error as any)?.status === 401) {
+                        unauthorized = true;
                     }
                 }
 
-                if (networkError?.statusCode === 401) {
-                    console.log('1');
-                    unauthorized = true;
-                }
+                if (unauthorized && !isHandlingAuthError) {
+                    isHandlingAuthError = true;
 
-                if (unauthorized) {
-                    console.log('2');
-                    injector.get(AuthService).logout();
-                    injector.get(Router).navigate(['/auth/login']);
+                    const authService = injector.get(AuthService);
+                    authService.logout();
+
+                    setTimeout(() => {
+                        isHandlingAuthError = false;
+                    }, 500);
                 }
             });
 
             const authLink = new ApolloLink((operation, forward) => {
                 const token = tokenStorage.getToken();
+
                 if (token) {
                     operation.setContext({
                         headers: new HttpHeaders().set('Authorization', `Bearer ${token}`),
                     });
                 }
+
                 return forward(operation);
             });
 

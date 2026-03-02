@@ -170,7 +170,6 @@ export class AuthService {
     }
 
     hasToken(): boolean {
-        console.log(this.tokenStorage.hasToken());
         return this.tokenStorage.hasToken();
     }
 
