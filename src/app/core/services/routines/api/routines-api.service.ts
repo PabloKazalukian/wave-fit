@@ -150,6 +150,15 @@ export class RoutinesApiService {
             return {
                 id: r.id,
                 title: r.title,
+                type:
+                    r.exercises?.reduce((acc, ex) => {
+                        if (ex.exercise.category) {
+                            if (!acc.includes(ex.exercise.category)) {
+                                acc.push(ex.exercise.category);
+                            }
+                        }
+                        return acc;
+                    }, [] as ExerciseCategory[]) || [],
                 exercises: r.exercises?.map((ex) => ex.exercise) || [],
                 kind: KindEnum.workout,
             };

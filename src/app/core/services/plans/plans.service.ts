@@ -74,7 +74,17 @@ export class PlansService {
     removeDayRoutine(dayToRemove: DayIndex) {
         this.routinePlanVM$.pipe(take(1)).subscribe((plan) => {
             const routineDays = plan.routineDays.map((d) =>
-                d.day === dayToRemove ? { ...d, id: undefined } : d,
+                d.day === dayToRemove
+                    ? {
+                          day: d.day,
+                          kind: 'REST' as const,
+                          title: '',
+                          expanded: d.expanded,
+                          id: undefined,
+                          type: undefined,
+                          exercises: undefined,
+                      }
+                    : d,
             );
             const updatePlan: RoutinePlanVM = { ...plan, routineDays };
             this.setRoutinePlan(updatePlan);
@@ -107,10 +117,26 @@ export class PlansService {
 
     setDayRoutine(dayIndex: number, routine: RoutineDayVM) {
         const plan = this.currentValue();
+        console.log(routine);
         const routineDays = plan.routineDays.map((d, i) => (i === dayIndex ? routine : d));
 
         const updated = { ...plan, routineDays };
         this.setRoutinePlan(updated);
+    }
+
+    setWeeklyDistribution(distribution: string) {
+        const plan = this.currentValue();
+        const updated = { ...plan, weekly_distribution: distribution };
+        this.setRoutinePlan(updated);
+    }
+
+    setExpandedDay(dayIndex: number) {
+        const plan = this.currentValue();
+        const routineDays = plan.routineDays.map((d, i) => ({
+            ...d,
+            expanded: i === dayIndex,
+        }));
+        this.setRoutinePlan({ ...plan, routineDays });
     }
 
     setDayRoutines(routineDays: RoutineDayVM[]) {

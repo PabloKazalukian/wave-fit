@@ -1,17 +1,16 @@
 // week-day-cell.component.ts
 import {
     Component,
-    Input,
-    Output,
-    EventEmitter,
     ChangeDetectionStrategy,
     OnInit,
     DestroyRef,
     inject,
     signal,
+    computed,
+    effect,
 } from '@angular/core';
+import { DayPlanStateService } from '../../../../../core/services/plans/day-plan-state.service';
 import { filter, tap } from 'rxjs';
-import { RoutineDayVM } from '../../../../../shared/interfaces/routines.interface';
 import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
 import { SelectType, SelectTypeInput } from '../../../../../shared/interfaces/input.interface';
@@ -19,6 +18,7 @@ import { FormControlsOf } from '../../../../../shared/utils/form-types.util';
 import { FormControl, FormGroup } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../../../../core/services/auth/auth.service';
+import { PlansService } from '../../../../../core/services/plans/plans.service';
 
 type selectFormType = FormControlsOf<SelectTypeInput>;
 
@@ -32,13 +32,31 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
 })
 export class WeekDayCellComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
+    private readonly authSvc = inject(AuthService);
+    public readonly stateSvc = inject(DayPlanStateService);
+    private readonly plansSvc = inject(PlansService);
 
-    @Input() day!: RoutineDayVM;
-    @Output() kindChange = new EventEmitter<'REST' | 'WORKOUT'>();
+    constructor() {
+        effect(() => {
+            const currentDay = this.day();
+            if (currentDay && this.selectControl.value !== currentDay.kind) {
+                this.selectControl.setValue(currentDay.kind as string, { emitEvent: false });
+                this.isExpanded.set(currentDay.kind === 'WORKOUT');
+            }
+        });
+    }
+
+    // Recibimos solo el número de día
+    dayNumber = this.stateSvc.indexDay;
+
+    // Derivamos el objeto day del state
+    day = computed(() => {
+        const plan = this.stateSvc.routinePlan();
+        return plan?.routineDays.find((d) => d.day === this.dayNumber());
+    });
 
     selectForm!: FormGroup<selectFormType>;
-    userId!: string;
-
+    userId = this.authSvc.user().id;
     isExpanded = signal<boolean>(false);
 
     options: SelectType[] = [
@@ -46,24 +64,16 @@ export class WeekDayCellComponent implements OnInit {
         { name: 'Descanso', value: 'REST' },
     ];
 
-    private readonly authSvc = inject(AuthService);
-
     ngOnInit(): void {
         this.selectForm = this.initForm();
-        this.authSvc.user$
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                filter((user) => !!user),
-                tap((user) => (this.userId = user ? user : '')),
-            )
-            .subscribe();
 
         this.selectControl.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((newValue) => {
-                this.onKindChange(newValue as 'REST' | 'WORKOUT');
+                if (newValue) {
+                    this.onKindChange(newValue as 'REST' | 'WORKOUT');
+                }
             });
-        if (this.day.kind) this.selectControl.setValue(this.day.kind);
     }
 
     initForm(): FormGroup<selectFormType> {
@@ -73,19 +83,15 @@ export class WeekDayCellComponent implements OnInit {
     }
 
     onKindChange(kind: 'REST' | 'WORKOUT') {
-        this.kindChange.emit(kind);
+        this.stateSvc.setKind(kind);
 
         this.isExpanded.set(kind === 'WORKOUT');
-    }
-    onExpandToggle(event: MouseEvent): void {
-        event.stopPropagation();
-
-        this.day.expanded = !this.day.expanded;
     }
 
     onClear() {
         this.selectControl.setValue('REST');
-        this.onKindChange('REST');
+        this.plansSvc.removeDayRoutine(this.dayNumber());
+        this.isExpanded.set(false);
     }
 
     get selectControl(): FormControl<string | null> {

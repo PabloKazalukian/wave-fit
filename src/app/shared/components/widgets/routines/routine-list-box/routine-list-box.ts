@@ -1,6 +1,6 @@
 // routine-list-box.component.ts
-import { Component, Input, OnInit, inject, signal, WritableSignal } from '@angular/core';
-import { RoutineDay, RoutineDayVM } from '../../../../interfaces/routines.interface';
+import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { RoutineDay } from '../../../../interfaces/routines.interface';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { options } from '../../../../interfaces/input.interface';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -25,45 +25,39 @@ import { RoutineListBoxFacade } from './routine-list-box.facade';
     ],
 })
 export class RoutineListBoxComponent implements OnInit {
-    private facade = inject(RoutineListBoxFacade);
-
-    @Input() day!: RoutineDayVM;
+    facade = inject(RoutineListBoxFacade);
     exerciseForm: FormGroup = this.facade.exerciseForm;
-    routinesDays = this.facade.routinesDays;
 
-    routineSelected = this.facade.routineSelected;
     openIndex: WritableSignal<number | null> = this.facade.openIndex;
 
     isSearchedRoutines = signal<boolean>(false);
     isShowExercises = false;
 
     show = false;
-    creatingRoutine = signal<boolean>(false);
 
     isSelected = signal<boolean | null>(null);
 
     options = options;
 
     ngOnInit(): void {
-        this.facade.setDay(this.day);
+        this.facade.init();
     }
 
     showExercise() {
         if (this.selectControl.invalid) {
-            console.log('invalid');
             this.selectControl.markAsTouched();
             return;
         }
         this.show = !this.show;
-        this.creatingRoutine.set(this.show);
+        this.facade.creatingRoutine.set(this.show);
     }
 
     getNameOfSelectControl(): string {
         const value = options.filter((e) => e.value === this.selectControl.value);
-        console.log(value, this.selectControl.value);
-        // return value[0].name || '';
-        return 'hola';
+        if (value.length === 0) return '';
+        return value[0].name || '';
     }
+
     addRoutine(day: RoutineDay) {
         this.facade.addRoutine(day);
     }

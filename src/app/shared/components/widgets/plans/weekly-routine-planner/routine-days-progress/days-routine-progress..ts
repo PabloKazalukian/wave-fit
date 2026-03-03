@@ -1,8 +1,11 @@
 import { NgClass } from '@angular/common';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { PlansService } from '../../../../../../core/services/plans/plans.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { DayPlanStateService } from '../../../../../../core/services/plans/day-plan-state.service';
+import { RoutineDayVM } from '../../../../../interfaces/routines.interface';
+import { map } from 'rxjs';
 
 @Component({
     selector: 'app-days-routine-progress.',
@@ -11,20 +14,27 @@ import { toSignal } from '@angular/core/rxjs-interop';
     templateUrl: './days-routine-progress.html',
 })
 export class DaysRoutineProgress {
-    distribution = input<string>('');
-    daysSelected = input<number>(0);
-    routinePlan;
-    private readonly planService = inject(PlansService);
+    public readonly stateSvc = inject(DayPlanStateService);
+    public readonly plansSvc = inject(PlansService);
 
-    constructor() {
-        this.routinePlan = toSignal(this.planService.routinePlanVM$, {
-            initialValue: null,
-        });
-    }
+    distribution = toSignal(
+        this.plansSvc.routinePlanVM$.pipe(map((plan) => plan?.weekly_distribution)),
+    );
+    daysSelected = signal<number>(0); // Este sigue siendo el conteo de rutinas
+
+    days = computed(() => this.routinePlan()?.routineDays || []);
+    controlChange = effect(() => {
+        const d = this.days();
+        const count = d.reduce((count, current) => count + (current.kind === 'WORKOUT' ? 1 : 0), 0);
+        this.daysSelected.set(count);
+    });
+    routinePlan = this.stateSvc.routinePlan;
+    indexDay = this.stateSvc.indexDay; // Se agrega para trackear el día seleccionado
 
     // Parseamos solo el primer número
     target = computed(() => {
-        const [first] = this.distribution().split('/');
+        if (!this.distribution()) return 0;
+        const [first] = this.distribution()!.split('/');
         return Number(first ?? 0);
     });
 
@@ -32,9 +42,7 @@ export class DaysRoutineProgress {
         const plan = this.routinePlan();
         if (!plan) return 0;
 
-        // const target_ = this.target();
-        return plan.routineDays.reduce((acc, routine) => {
-            // console.log(routine);
+        return plan.routineDays.reduce((acc: number, routine: RoutineDayVM) => {
             if (routine.id) return acc + 1;
             else return acc;
         }, 0);
@@ -51,14 +59,10 @@ export class DaysRoutineProgress {
     });
 
     changeDistribution() {
-        const payload = this.daysSelected().toString();
-        this.planService.routinePlanVM$.subscribe({
-            next: (plan) => {
-                if (plan?.weekly_distribution) {
-                    plan.weekly_distribution = payload;
-                    this.planService.setRoutinePlan(plan);
-                }
-            },
-        });
+        this.plansSvc.setWeeklyDistribution(this.daysSelected().toString());
+    }
+
+    setDay(day: number) {
+        this.stateSvc.setDay(day);
     }
 }

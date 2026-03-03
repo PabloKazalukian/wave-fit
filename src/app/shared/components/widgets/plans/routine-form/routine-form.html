@@ -42,7 +42,6 @@
     @if (this.facade.show()) {
       <div>
         <app-weekly-routine-planner
-          [distribution]="selectControl.value"
           [loading]="this.facade.loading()"
           [notification]="this.facade.notification()"
           (showNotification)="this.facade.handleCloseNotification()"

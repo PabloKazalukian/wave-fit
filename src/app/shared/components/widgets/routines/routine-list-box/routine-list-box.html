@@ -1,9 +1,10 @@
 <div class="flex gap-8 flex-col item-center justify-center w-full">
-  @if (!routineSelected()) {
+  @if (this.facade.isRoutine()) {
     <div class="w-full">
       <app-select
         [text]="'Elige una categoria:'"
         [options]="options"
+        (clearValue)="this.facade.removeCateogry()"
         [control]="selectControl"
       ></app-select>
     </div>
@@ -18,14 +19,14 @@
     </div>
   }
 
-  @if (!creatingRoutine()) {
-    @if (routinesDays().length === 0) {
+  @if (!this.facade.creatingRoutine()) {
+    @if (this.facade.routinesByCategory().length === 0) {
       <app-btn [text]="'No hay Rutinas'" [variant]="'outline'" [color]="'primary'"></app-btn>
     } @else {
       <div class="">
-        @if (routineSelected() !== null) {
+        @if (this.facade.routineSelected()?.id) {
           <app-accordion-item
-            [title]="routineSelected()?.title || ''"
+            [title]="this.facade.routineSelected()?.title || ''"
             [open]="openIndex() === 0"
             (toggle)="toggleAccordion(0)"
             [isSelected]="true"
@@ -34,15 +35,15 @@
               Quitar Rutina
             </button>
 
-            @if (routineSelected()?.exercises) {
-              <app-routine-exercises [exercises]="routineSelected()?.exercises || []" />
+            @if (this.facade.routineSelected()?.exercises) {
+              <app-routine-exercises [exercises]="this.facade.routineSelected()?.exercises || []" />
             } @else {
               <p class="text-sm text-gray-400">No hay ejercicios.</p>
             }
           </app-accordion-item>
         } @else {
           <!-- Caso: listado de todas las rutinas -->
-          @for (r of routinesDays(); track r.id; let i = $index) {
+          @for (r of this.facade.routinesByCategory(); track r.id; let i = $index) {
             @if (!show) {
               <app-accordion-item
                 [title]="r.title"
@@ -77,7 +78,7 @@
       ></app-routine-exercise-form>
     </div>
   } @else {
-    @if (routineSelected() === null) {
+    @if (this.facade.routineSelected()?.id === undefined) {
       <app-btn
         [text]="'Crear Rutina '"
         [variant]="'raised'"

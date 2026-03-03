@@ -1,15 +1,9 @@
-import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
-import { filter, switchMap, tap, take } from 'rxjs/operators';
+import { switchMap, tap, take } from 'rxjs/operators';
 import { PlansService } from './plans.service';
-import {
-    RoutinePlanVM,
-    RoutineDayVM,
-    RoutinePlan,
-    RoutineDay,
-    DayIndex,
-} from '../../../shared/interfaces/routines.interface';
+import { RoutineDayVM, RoutineDay, DayIndex } from '../../../shared/interfaces/routines.interface';
 import { RoutinesServices } from '../routines/routines.service';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
 
@@ -21,32 +15,26 @@ export class DayPlanStateService {
     private plansSvc = inject(PlansService);
     private routinesSvc = inject(RoutinesServices);
 
-    // Mantenemos trackeado el plan de la semana que se está creando/editando (viene de PlansService)
-    public readonly trackedPlan = toSignal(this.plansSvc.routinePlanVM$, { initialValue: null });
+    public readonly routinePlan = toSignal(this.plansSvc.routinePlanVM$, { initialValue: null });
 
-    // Estado local
-    selectedDay = signal<number | null>(null); // Mapeado a DayIndex (1 al 7)
-    selectedCategory = signal<ExerciseCategory | null>(null);
-    routinePlan = signal<RoutineDay[]>([]); // Almacena TODAS las rutinas disponibles
+    indexDay = signal<DayIndex>(1);
+    routineDays = signal<RoutineDay[]>([]);
 
-    // Disparador para control de concurrencia al seleccionar dia
     private daySelectSubject = new Subject<number>();
 
     constructor() {
-        // Cargar todas las rutinas disponibles en `routinePlan` al inicializar
         this.routinesSvc
             .getAllRoutines()
             .pipe(take(1), takeUntilDestroyed(this.destroyRef))
             .subscribe((routines) => {
                 if (routines) {
-                    this.routinePlan.set(routines);
+                    this.routineDays.set(routines);
                 }
             });
 
-        // Control de concurrencia para selectDay
         this.daySelectSubject
             .pipe(
-                tap((day) => this.selectedDay.set(day)),
+                tap((day) => this.indexDay.set(day as DayIndex)),
                 switchMap(async (day) => {
                     return day;
                 }),
@@ -55,32 +43,70 @@ export class DayPlanStateService {
             .subscribe();
     }
 
-    // Filtrar las rutinas disponibles (`routinePlan`) por la categoria seleccionada (`selectedCategory`)
-    readonly routinesDays = computed<RoutineDay[]>(() => {
+    routinaDay = computed(() => {
+        const plan = this.routinePlan();
+        const dayIdx = this.indexDay();
+        console.log(plan);
+        console.log(dayIdx);
+        if (dayIdx) {
+            return plan?.routineDays[dayIdx - 1];
+        }
+        return null;
+    });
+
+    readonly selectedCategory = computed<ExerciseCategory | null>(() => {
+        const selected = this.routinaDay();
+        return selected?.type && selected.type.length > 0 ? selected.type[0] : null;
+    });
+
+    readonly routinesByCategory = computed<RoutineDay[]>(() => {
         const category = this.selectedCategory();
-        const allRoutines = this.routinePlan();
+        const allRoutines = this.routineDays();
 
         if (!category || !allRoutines.length) return [];
 
         return allRoutines.filter((r) => r.type?.includes(category));
     });
 
-    // Obtener el dia especifico de la semana (RoutineDayVM) que estamos creando basandonos en el selectedDay
-    readonly routineSelected = computed<RoutineDayVM | null>(() => {
-        const plan = this.trackedPlan();
-        const dayIdx = this.selectedDay();
-
-        if (!plan || !dayIdx) return null;
-
-        const foundDay = plan.routineDays.find((d) => d.day === dayIdx);
-        return foundDay || null;
+    readonly expandedDays = computed(() => {
+        const plan = this.routinePlan();
+        if (!plan) return [];
+        return plan.routineDays.filter((d) => d.expanded);
     });
 
     setDay(day: number): void {
+        this.plansSvc.setExpandedDay(day - 1);
         this.daySelectSubject.next(day);
     }
 
-    setCategory(category: ExerciseCategory | null): void {
-        this.selectedCategory.set(category);
+    setKind(kind: 'REST' | 'WORKOUT'): void {
+        const dayIdx = this.indexDay();
+        const currentDay = this.routinaDay();
+        if (!dayIdx || !currentDay) return;
+
+        const updatedDay: RoutineDayVM = {
+            ...currentDay,
+            kind: kind,
+            id: kind === 'REST' ? undefined : currentDay.id,
+            type: kind === 'REST' ? undefined : currentDay.type,
+            exercises: kind === 'REST' ? undefined : currentDay.exercises,
+            title: kind === 'REST' ? '' : currentDay.title,
+        };
+
+        this.plansSvc.setDayRoutine(dayIdx - 1, updatedDay);
+    }
+
+    clearRoutine(): void {
+        const dayIdx = this.indexDay();
+        if (!dayIdx) return;
+
+        const day = this.routinaDay();
+        if (!day) return;
+
+        this.plansSvc.setDayRoutine(dayIdx - 1, {
+            ...day,
+            id: undefined,
+            type: undefined,
+        });
     }
 }

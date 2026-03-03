@@ -12,7 +12,5 @@ import { ExerciseCategoryPipe } from '../../../../../pipes/exercise-category.pip
 export class RoutineExercises {
     @Input() exercises: Exercise[] = [];
 
-    constructor() {
-        effect(() => console.log(this.exercises));
-    }
+    // constructor() {}
 }

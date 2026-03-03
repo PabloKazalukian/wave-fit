@@ -1,9 +1,8 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal, effect, computed } from '@angular/core';
 import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { FormControl, FormGroup } from '@angular/forms';
 import { RoutineDay, RoutineDayVM, DayIndex } from '../../../../interfaces/routines.interface';
-import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -16,12 +15,22 @@ export type ExerciseType = FormControlsOf<SelectTypeInput>;
 export class RoutineListBoxFacade {
     private destroyRef = inject(DestroyRef);
 
-    private readonly routinesSvc = inject(RoutinesServices);
     private readonly planSvc = inject(PlansService);
     private readonly state = inject(DayPlanStateService);
 
-    private day = signal<RoutineDayVM | null>(null);
-    private isInitialized = false;
+    constructor() {
+        effect(() => {
+            const routine = this.state.routinaDay();
+            if (routine?.type && routine.type.length > 0) {
+                const currentVal = this.exerciseForm.get('option')?.value;
+                if (currentVal !== routine.type[0]) {
+                    this.exerciseForm.patchValue({ option: routine.type[0] }, { emitEvent: false });
+                }
+            } else {
+                this.exerciseForm.patchValue({ option: '' }, { emitEvent: false });
+            }
+        });
+    }
 
     exerciseForm = new FormGroup<ExerciseType>({
         option: new FormControl('', {
@@ -30,87 +39,95 @@ export class RoutineListBoxFacade {
         }),
     });
 
-    routineSelected = this.state.routineSelected;
-    routinesDays = this.state.routinesDays;
+    readonly routinesByCategory = this.state.routinesByCategory;
+    readonly routineSelected = this.state.routinaDay;
+
+    isRoutine = computed(() => {
+        const routine = this.state.routinaDay();
+        return routine?.id === undefined || routine?.id === null;
+    });
+
+    creatingRoutine = signal<boolean>(false);
 
     openIndex = signal<number | null>(null);
     isSelected = signal<boolean | null>(null);
 
-    setDay(day: RoutineDayVM) {
-        this.day.set(day);
-
-        // Asignamos el dia seleccionado numericamente al indexState
-        this.state.setDay(day.day as DayIndex);
-
-        if (day.type && day.type.length > 0) {
-            this.exerciseForm.patchValue({ option: day.type[0] }, { emitEvent: false });
-            this.state.setCategory(day.type[0]);
+    init() {
+        const routine = this.state.routinaDay();
+        if (routine?.type) {
+            if (routine.type.length > 0) {
+                this.exerciseForm.patchValue({ option: routine.type[0] }, { emitEvent: false });
+            }
+        } else {
+            this.exerciseForm.patchValue({ option: '' }, { emitEvent: false });
         }
-
-        if (!this.isInitialized) {
-            this.isInitialized = true;
-            this.setupFormListener();
-        }
+        this.setupFormListener();
     }
 
     private setupFormListener() {
-        this.exerciseForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-            next: (newValue) => {
-                const day = this.day();
-                if (!day || newValue.option === undefined) return;
+        this.exerciseForm
+            .get('option')
+            ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (newValue) => {
+                    const dayIdx = this.state.indexDay();
+                    if (!dayIdx || newValue === undefined) return;
 
-                if (newValue.option === '') {
-                    this.state.setCategory(null);
-                    const newDay = { ...day, type: undefined };
-                    this.planSvc.setDayRoutine(day.day - 1, newDay);
-                    return;
-                }
-
-                const exerCat = ExerciseCategory;
-
-                if (Object.keys(exerCat).includes(newValue.option)) {
-                    this.state.setCategory(newValue.option as ExerciseCategory);
-                    this.planSvc.setDayRoutine(day.day - 1, {
-                        ...day,
-                        type: [newValue.option as ExerciseCategory],
+                    if (newValue === '') {
+                        this.state.clearRoutine();
+                        this.exerciseForm.patchValue({ option: '' }, { emitEvent: false });
+                        this.creatingRoutine.set(false);
+                        return;
+                    }
+                    const routine = this.state.routinaDay();
+                    if (!routine) return;
+                    this.planSvc.setDayRoutine(dayIdx - 1, {
+                        ...routine,
+                        type: [newValue as ExerciseCategory],
                     });
-                }
-            },
-        });
+                },
+            });
     }
 
     addRoutine(routine: RoutineDay) {
-        const day = this.day();
-        if (!day) return;
+        const dayIdx = this.state.indexDay();
+        const currentDay = this.state.routinaDay();
 
-        const index = this.routinesDays().findIndex((r) => r.id === routine.id);
-        this.openIndex.set(index);
+        if (!dayIdx || !currentDay) return;
 
-        const routineToSave: RoutineDayVM = {
-            ...routine,
+        const newDay = this.state.routineDays().find((d) => d.id === currentDay.id);
+        console.log(routine);
+
+        this.planSvc.setDayRoutine(dayIdx - 1, {
+            ...currentDay,
             id: routine.id,
-            kind: 'WORKOUT',
-            day: day.day,
-            expanded: true,
+            title: routine.title,
+            exercises: routine.exercises,
             type: routine.type,
-        };
+        });
+    }
 
-        this.planSvc.setDayRoutine(day.day - 1, routineToSave);
+    removeCateogry() {
+        const dayIdx = this.state.indexDay();
+        const currentDay = this.state.routinaDay();
+        if (!dayIdx || !currentDay) return;
+        this.exerciseForm.patchValue({ option: '' }, { emitEvent: false });
+        this.creatingRoutine.set(false);
+
+        this.planSvc.setDayRoutine(dayIdx - 1, {
+            ...currentDay,
+            type: undefined,
+        });
     }
 
     removeRoutine() {
-        const value = this.routineSelected();
-        const day = this.day();
+        const dayIdx = this.state.indexDay();
+        const currentDay = this.state.routinaDay();
+        if (!dayIdx || !currentDay) return;
 
-        if (!value || !day) return;
-
-        this.openIndex.set(null);
-
-        this.planSvc.setDayRoutine(day.day - 1, {
-            ...day,
+        this.planSvc.setDayRoutine(dayIdx - 1, {
+            ...currentDay,
             id: undefined,
         });
-
-        this.planSvc.removeDayRoutine(day.day);
     }
 }

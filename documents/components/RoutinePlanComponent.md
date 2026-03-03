@@ -13,9 +13,9 @@ RoutinePlanForm (Página Principal)
   │
   └─→ WeeklyRoutinePlannerComponent
         │
-        ├─→ DayOfRoutineComponent (muestra día individual)
-        │
         ├─→ DaysRoutineProgressComponent (muestra progreso)
+        │
+        ├─→ DayOfRoutineComponent (muestra día individual)
         │
         └─→ WeekDayCellComponent (celda de día)
               │

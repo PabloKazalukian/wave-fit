@@ -30,7 +30,6 @@ export class RoutinesServices {
 
     getAllRoutines(): Observable<RoutineDay[] | null> {
         if (this.routinesCache$.value && this.routinesCache$.value && !this.loading) {
-            // this.routines$.subscribe((e) => console.log(e));
             return this.routinesCache$.asObservable() as Observable<any[]>;
         }
 
@@ -129,7 +128,6 @@ export class RoutinesServices {
     getRoutinesByCategory(category: ExerciseCategory): Observable<RoutineDay[] | null> {
         return this.getAllRoutines().pipe(
             takeUntilDestroyed(this.destroyRef),
-            tap((list) => console.log(list)),
             switchMap((list) =>
                 of(list ? list.filter((r) => r.type?.includes(category) && r !== undefined) : null),
             ),
