@@ -9,6 +9,7 @@ import {
 } from '../../../shared/interfaces/routines.interface';
 import { PlansStorageService } from './storage/plans-storage.service';
 import { PlansApiService } from './api/plans-api.service';
+import { wrapperRoutinePlanVMtoRoutinePlan } from '../../../shared/wrappers/plans.wrapper';
 
 @Injectable({
     providedIn: 'root',
@@ -117,7 +118,6 @@ export class PlansService {
 
     setDayRoutine(dayIndex: number, routine: RoutineDayVM) {
         const plan = this.currentValue();
-        console.log(routine);
         const routineDays = plan.routineDays.map((d, i) => (i === dayIndex ? routine : d));
 
         const updated = { ...plan, routineDays };
@@ -157,13 +157,7 @@ export class PlansService {
     }
 
     wrapperRoutinePlanVMtoRoutinePlan(routinePlanVM: RoutinePlanVM): RoutinePlanSend {
-        return {
-            name: routinePlanVM.name,
-            description: routinePlanVM.description,
-            weekly_distribution: routinePlanVM.weekly_distribution,
-            routineDays: routinePlanVM.routineDays.map((d) => d?.id || ''),
-            createdBy: routinePlanVM.createdBy,
-        };
+        return wrapperRoutinePlanVMtoRoutinePlan(routinePlanVM);
     }
 
     private clearPlan() {

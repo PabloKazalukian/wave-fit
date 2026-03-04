@@ -72,9 +72,10 @@
     <app-btn [text]="'Cancelar'" [variant]="'raised'" [color]="'error'" (click)="showExercise()">
     </app-btn>
 
-    <div class="flex">
+    <div class="w-full">
       <app-routine-exercise-form
         [categoryExercise]="selectControl.value"
+        (routineCreated)="showExercise()"
       ></app-routine-exercise-form>
     </div>
   } @else {

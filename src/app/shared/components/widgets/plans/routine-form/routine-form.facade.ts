@@ -45,6 +45,8 @@ export class RoutinePlanFormFacade {
     show = signal<boolean>(false);
     loading = signal<boolean>(false);
     notification = signal<typeNotification>(initValueNotification);
+    showConfirmSave = signal<boolean>(false);
+    showConfirmCancel = signal<boolean>(false);
 
     complete = signal<boolean>(false);
 
@@ -136,7 +138,15 @@ export class RoutinePlanFormFacade {
         this.routineForm.markAllAsTouched();
 
         this.routineForm.patchValue({ name: this.routineForm.get('name')?.value });
-        if (this.routineForm.invalid) return EMPTY;
+
+        if (this.routineForm.invalid) {
+            this.notification.set({
+                show: true,
+                type: notificationEnum.error,
+                message: 'Por favor, completa los campos requeridos correctamente.',
+            });
+            return EMPTY;
+        }
 
         const businessErrors = this.validateBusinessRules();
 
@@ -153,18 +163,6 @@ export class RoutinePlanFormFacade {
 
         const currentName = this.routineForm.get('name')?.value || '';
 
-        // return timer(2000).pipe(
-        //     map(() => {
-        //         this.loading.set(false);
-        //         this.notification.set({
-        //             show: true,
-        //             type: notificationEnum.success,
-        //             message: 'Rutina creada correctamente',
-        //         });
-        //         this.complete.set(true);
-        //     }),
-        // );
-
         return this.planService.validateTitleUnique(currentName).pipe(
             switchMap((isValid) => {
                 if (!isValid) {
@@ -178,8 +176,7 @@ export class RoutinePlanFormFacade {
                     return EMPTY;
                 }
 
-                return timer(2000).pipe(
-                    switchMap(() => this.planService.submitPlan(this.routineForm.getRawValue())),
+                return this.planService.submitPlan(this.routineForm.getRawValue()).pipe(
                     tap({
                         next: () => {
                             this.loading.set(false);

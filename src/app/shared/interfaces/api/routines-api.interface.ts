@@ -6,7 +6,7 @@ export interface RoutinePlanAPI {
     name: string;
     description: string;
     weekly_distribution?: string;
-    routineDays?: string[];
+    routineDays?: RoutineDayAPI[];
     createdBy?: string;
 }
 

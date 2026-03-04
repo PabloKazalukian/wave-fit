@@ -44,12 +44,106 @@
       }
       @if (this.facade.show()) {
         <div>
-          <app-weekly-routine-planner
-            [loading]="this.facade.loading()"
-            [notification]="this.facade.notification()"
-            (showNotification)="this.facade.handleCloseNotification()"
-            (outputSavePlan)="onSubmit()"
-          ></app-weekly-routine-planner>
+          <div class="px-4">
+            <app-weekly-routine-planner></app-weekly-routine-planner>
+          </div>
+
+          <div class="flex flex-col gap-3 px-4 mt-6">
+            <app-btn
+              [text]="'Guardar Plan'"
+              [variant]="'raised'"
+              [color]="'secondaryDark'"
+              [isDisabled]="facade.loading()"
+              (click)="onSubmit()"
+            >
+              <app-icon>
+                <div class="h-6 w-6">
+                  @if (facade.loading()) {
+                    <app-spinner> </app-spinner>
+                  }
+                </div>
+              </app-icon>
+            </app-btn>
+
+            <app-btn
+              [text]="'Cancelar'"
+              [variant]="'outline'"
+              [color]="'error'"
+              (click)="onCancelRequested()"
+            >
+            </app-btn>
+          </div>
+
+          <!-- Dialog de Confirmación para Guardar -->
+          <app-dialog
+            [isOpen]="facade.showConfirmSave()"
+            [title]="'Confirmar Creación de Rutina'"
+            [closeOnBackdrop]="true"
+            [locked]="true"
+            (closed)="facade.showConfirmSave.set(false)"
+          >
+            <div class="flex flex-col gap-4">
+              <p class="text-text2 text-sm md:text-lg leading-relaxed">
+                ¿Estás seguro de que deseas guardar esta rutina semanal? Una vez guardada, estará
+                disponible en tu lista de rutinas.
+              </p>
+
+              <div class="flex flex-col gap-2 mt-2">
+                <app-btn
+                  [variant]="'raised'"
+                  [text]="'Confirmar Guardado'"
+                  [color]="'success'"
+                  (click)="confirmSave()"
+                ></app-btn>
+                <app-btn
+                  [variant]="'outline'"
+                  [text]="'Cancelar'"
+                  [color]="'error'"
+                  (click)="facade.showConfirmSave.set(false)"
+                ></app-btn>
+              </div>
+            </div>
+          </app-dialog>
+
+          <!-- Dialog de Confirmación para Cancelar -->
+          <app-dialog
+            [isOpen]="facade.showConfirmCancel()"
+            [title]="'Confirmar Cancelación'"
+            [closeOnBackdrop]="true"
+            [locked]="true"
+            (closed)="facade.showConfirmCancel.set(false)"
+          >
+            <div class="flex flex-col gap-4">
+              <p class="text-text2 text-sm md:text-lg leading-relaxed">
+                ¿Estás seguro de que deseas cancelar? Los cambios que hayas realizado no se
+                guardarán.
+              </p>
+
+              <div class="flex flex-col gap-2 mt-2">
+                <app-btn
+                  [variant]="'raised'"
+                  [text]="'Sí, Cancelar'"
+                  [color]="'error'"
+                  (click)="confirmCancel()"
+                ></app-btn>
+                <app-btn
+                  [variant]="'outline'"
+                  [text]="'Continuar Editando'"
+                  [color]="'primary'"
+                  (click)="facade.showConfirmCancel.set(false)"
+                ></app-btn>
+              </div>
+            </div>
+          </app-dialog>
+
+          @if (facade.notification().show) {
+            <app-notification
+              [message]="facade.notification().message"
+              [type]="facade.notification().type"
+              [isVisible]="facade.notification().show"
+              (onClose)="facade.handleCloseNotification()"
+            ></app-notification>
+          }
         </div>
       }
     </div>

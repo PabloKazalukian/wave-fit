@@ -6,15 +6,22 @@ import {
     RoutinePlan,
     RoutinePlanCreate,
     RoutinePlanSend,
+    RoutinePlanVM,
 } from '../../../../shared/interfaces/routines.interface';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable, take, tap } from 'rxjs';
 import {
     CREATE_ROUTINE_PLAN,
     GET_PLANS,
     GET_ROUTINE_PLAN,
     IS_ROUTINE_TITLE_AVAILABLE,
 } from '../../../apollo/plans.queries';
+import {
+    wrapperRoutineDayAPItoRoutineDay,
+    wrapperRoutineDayAPItoRoutineDayVM,
+    wrapperRoutineDayToExerciseIds,
+} from '../../../../shared/wrappers/routines.wrapper';
+import { RoutinePlanAPI } from '../../../../shared/interfaces/api/routines-api.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -32,6 +39,7 @@ export class PlansApiService {
 
     createPlan(planInput: RoutinePlanSend): Observable<RoutinePlan | null | undefined> {
         //aca debe llegar limpito
+        console.log(planInput);
         return this.apollo
             .mutate<{ createRoutinePlan: RoutinePlan }>({
                 mutation: CREATE_ROUTINE_PLAN,
@@ -46,9 +54,9 @@ export class PlansApiService {
             );
     }
 
-    getRoutinePlanById(id: string): Observable<RoutinePlanCreate | null | undefined> {
+    getRoutinePlanById(id: string): Observable<RoutinePlanVM | undefined> {
         return this.apollo
-            .query<{ routinePlan: RoutinePlanCreate | null }>({
+            .query<{ routinePlan: RoutinePlanAPI | null }>({
                 query: GET_ROUTINE_PLAN,
                 variables: {
                     id: id,
@@ -57,6 +65,14 @@ export class PlansApiService {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map((value) => value.data?.routinePlan),
+                map((plan) => {
+                    if (!plan || !plan.routineDays) return undefined;
+                    return {
+                        ...plan,
+                        weekly_distribution: plan.weekly_distribution || '',
+                        routineDays: wrapperRoutineDayAPItoRoutineDayVM(plan.routineDays),
+                    };
+                }),
             );
     }
 
@@ -70,6 +86,7 @@ export class PlansApiService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
+                take(1),
                 map(({ data }) => {
                     console.log(data);
                     return data?.isRoutineTitleAvailable;
@@ -77,9 +94,6 @@ export class PlansApiService {
             );
     }
     createInputExercise(routineDay: RoutineDayCreate): string[] {
-        if (routineDay.exercises === undefined) {
-            return [''];
-        }
-        return routineDay.exercises.map((ex) => (ex.id ? ex.id : ''));
+        return wrapperRoutineDayToExerciseIds(routineDay);
     }
 }

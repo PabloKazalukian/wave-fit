@@ -9,6 +9,11 @@ import { RoutinePlanFormFacade } from './routine-form.facade';
 import { SuccessScreen } from '../../../ui/success-screen/success-screen';
 import { Router } from '@angular/router';
 import { timer } from 'rxjs';
+import { BtnComponent } from '../../../ui/btn/btn';
+import { DialogComponent } from '../../../ui/dialog/dialog';
+import { Notification } from '../../../ui/notification/notification';
+import { IconComponent } from '../../../ui/icon/icon';
+import { SpinnerComponent } from '../../../ui/icon/spinner';
 
 // type RoutinePlanType = FormControlsOf<RoutinePlanCreate>;
 
@@ -21,6 +26,11 @@ import { timer } from 'rxjs';
         FormInputComponent,
         WeeklyRoutinePlannerComponent,
         SuccessScreen,
+        BtnComponent,
+        DialogComponent,
+        Notification,
+        IconComponent,
+        SpinnerComponent,
     ],
     providers: [RoutinePlanFormFacade],
 })
@@ -43,21 +53,40 @@ export class RoutinePlanForm implements OnInit {
     }
 
     onSubmit(): void {
-        // event.preventDefault();
+        this.facade.routineForm.markAllAsTouched();
+        if (this.facade.routineForm.valid) {
+            this.facade.showConfirmSave.set(true);
+        } else {
+            this.facade.notification.set({
+                show: true,
+                type: 'error',
+                message: 'Por favor, completa los campos requeridos correctamente.',
+            });
+        }
+    }
+
+    confirmSave(): void {
+        this.facade.showConfirmSave.set(false);
         this.facade.show.set(true);
         this.facade.submitPlan().subscribe({
             next: (res: RoutinePlan) => {
-                {
-                    // console.log(res);
-                    this.facade.complete.set(true);
-                    timer(3000).subscribe(() => {
-                        this.facade.show.set(false);
-                        this.router.navigate(['/routines/show/' + res?.id]);
-                    });
-                }
+                this.facade.complete.set(true);
+                timer(3000).subscribe(() => {
+                    this.facade.show.set(false);
+                    this.router.navigate(['/routines/show/' + res?.id]);
+                });
             },
             error: (err) => console.error(err),
         });
+    }
+
+    onCancelRequested(): void {
+        this.facade.showConfirmCancel.set(true);
+    }
+
+    confirmCancel(): void {
+        this.facade.showConfirmCancel.set(false);
+        this.router.navigate(['/routines/create']); // Or wherever appropriate
     }
 
     onRestart(): void {

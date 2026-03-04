@@ -11,6 +11,10 @@ import {
 } from '../../../../shared/interfaces/routines.interface';
 import { ExerciseCategory } from '../../../../shared/interfaces/exercise.interface';
 import { RoutineDayAPI } from '../../../../shared/interfaces/api/routines-api.interface';
+import {
+    wrapperRoutineDayAPItoRoutineDay,
+    wrapperRoutineDayCreateToPayload,
+} from '../../../../shared/wrappers/routines.wrapper';
 
 @Injectable({
     providedIn: 'root',
@@ -42,7 +46,7 @@ export class RoutinesApiService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                map((data) => this.wrappedRoutineDayAPItoRoutineDay(data.data?.routineDays!)),
+                map((data) => this.wrapperRoutineDayAPItoRoutineDay(data.data?.routineDays!)),
             );
     }
 
@@ -111,16 +115,6 @@ export class RoutinesApiService {
             );
     }
 
-    // createRoutinePlan(data: any): Observable<any> {
-    //     return this.apollo.mutate({
-    //         mutation: gql`
-    //         mutation {
-
-    //         }
-    //         `,
-    //     });
-    // }
-
     createRoutine(data: RoutineDayCreate): Observable<any> {
         const payload: RoutineDayCreateSend = this.createRoutinePayload(data);
         return this.apollo
@@ -145,33 +139,11 @@ export class RoutinesApiService {
             );
     }
 
-    wrappedRoutineDayAPItoRoutineDay(data: RoutineDayAPI[]): RoutineDay[] {
-        return data.map((r) => {
-            return {
-                id: r.id,
-                title: r.title,
-                type:
-                    r.exercises?.reduce((acc, ex) => {
-                        if (ex.exercise.category) {
-                            if (!acc.includes(ex.exercise.category)) {
-                                acc.push(ex.exercise.category);
-                            }
-                        }
-                        return acc;
-                    }, [] as ExerciseCategory[]) || [],
-                exercises: r.exercises?.map((ex) => ex.exercise) || [],
-                kind: KindEnum.workout,
-            };
-        });
+    wrapperRoutineDayAPItoRoutineDay(data: RoutineDayAPI[]): RoutineDay[] {
+        return wrapperRoutineDayAPItoRoutineDay(data);
     }
 
     private createRoutinePayload(data: RoutineDayCreate): RoutineDayCreateSend {
-        return {
-            title: data.title,
-            type: data.type,
-            exercises:
-                data.exercises?.map((ex, index) => ({ exercise: ex.id!, order: index })) || [],
-            planId: data.planId,
-        };
+        return wrapperRoutineDayCreateToPayload(data);
     }
 }

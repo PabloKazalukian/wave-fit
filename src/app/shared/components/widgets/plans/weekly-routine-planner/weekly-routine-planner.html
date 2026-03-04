@@ -9,31 +9,4 @@
       <app-week-day-cell> </app-week-day-cell>
     </div>
   </div>
-  @if (this.notification()?.show) {
-    <app-notification
-      [message]="notification()?.message || ''"
-      [type]="notification()?.type || 'success'"
-      [isVisible]="notification()?.show || false"
-      (onClose)="handleCloseNotification()"
-    ></app-notification>
-  }
-
-  <div>
-    <app-btn
-      [text]="'Guardar plan'"
-      [variant]="'raised'"
-      [color]="'secondaryDark'"
-      [showIcon]="true"
-      size="md"
-      (click)="savePlan()"
-    >
-      <app-icon>
-        <div class="h-6 w-6">
-          @if (this.loading()) {
-            <app-spinner> </app-spinner>
-          }
-        </div>
-      </app-icon>
-    </app-btn>
-  </div>
 </div>

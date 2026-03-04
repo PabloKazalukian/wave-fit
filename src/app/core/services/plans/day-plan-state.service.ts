@@ -18,7 +18,7 @@ export class DayPlanStateService {
     public readonly routinePlan = toSignal(this.plansSvc.routinePlanVM$, { initialValue: null });
 
     indexDay = signal<DayIndex>(1);
-    routineDays = signal<RoutineDay[]>([]);
+    routineDays = toSignal(this.routinesSvc.routines$, { initialValue: [] });
 
     private daySelectSubject = new Subject<number>();
 
@@ -26,11 +26,7 @@ export class DayPlanStateService {
         this.routinesSvc
             .getAllRoutines()
             .pipe(take(1), takeUntilDestroyed(this.destroyRef))
-            .subscribe((routines) => {
-                if (routines) {
-                    this.routineDays.set(routines);
-                }
-            });
+            .subscribe();
 
         this.daySelectSubject
             .pipe(
@@ -46,8 +42,6 @@ export class DayPlanStateService {
     routinaDay = computed(() => {
         const plan = this.routinePlan();
         const dayIdx = this.indexDay();
-        console.log(plan);
-        console.log(dayIdx);
         if (dayIdx) {
             return plan?.routineDays[dayIdx - 1];
         }

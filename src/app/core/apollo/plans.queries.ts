@@ -38,9 +38,12 @@ export const GET_ROUTINE_PLAN = gql`
                 title
                 type
                 exercises {
-                    id
-                    name
-                    category
+                    order
+                    exercise {
+                        id
+                        name
+                        category
+                    }
                 }
             }
             createdBy

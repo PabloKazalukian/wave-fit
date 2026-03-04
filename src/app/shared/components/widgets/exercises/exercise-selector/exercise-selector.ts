@@ -2,6 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { wrapperExerciseAPItoVM } from '../../../../wrappers/exercises.wrapper';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
 
 @Component({
@@ -16,7 +17,7 @@ export class ExerciseSelector {
 
     exercise = toSignal(this.exercisesSvc.getExercises(), { initialValue: [] });
 
-    exercises = computed(() => this.exercisesSvc.wrapperExerciseAPItoVM());
+    exercises = computed(() => wrapperExerciseAPItoVM(this.exercisesSvc.exercises()));
 
     readonly exercisesSelected = this.state.exercises;
 

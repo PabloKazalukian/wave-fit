@@ -5,6 +5,7 @@ import { map, Observable, of, tap } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { Exercise } from '../../../shared/interfaces/exercise.interface';
 import { ExercisePerformanceVM } from '../../../shared/interfaces/tracking.interface';
+import { wrapperExerciseAPItoVM } from '../../../shared/wrappers/exercises.wrapper';
 import { CREATE_EXERCISE, GET_EXERCISES } from '../../apollo/exercises.queries';
 
 @Injectable({ providedIn: 'root' })
@@ -51,13 +52,6 @@ export class ExercisesService {
     }
 
     wrapperExerciseAPItoVM(): ExercisePerformanceVM[] {
-        return this.exercises().map((ex) => ({
-            exerciseId: ex.id!,
-            name: ex.name,
-            series: 0,
-            category: ex.category,
-            sets: [],
-            usesWeight: ex.usesWeight,
-        }));
+        return wrapperExerciseAPItoVM(this.exercises());
     }
 }

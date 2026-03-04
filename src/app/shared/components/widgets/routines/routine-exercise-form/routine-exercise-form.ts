@@ -1,4 +1,13 @@
-import { Component, effect, inject, input, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    effect,
+    inject,
+    input,
+    OnInit,
+    signal,
+    Output,
+    EventEmitter,
+} from '@angular/core';
 import { Exercise } from '../../../../interfaces/exercise.interface';
 import { Loading } from '../../../ui/loading/loading';
 import { FormControl } from '@angular/forms';
@@ -19,6 +28,8 @@ import { RoutineExerciseFormFacade } from './routine-exercise-form.facade';
 export class RoutineExerciseForm implements OnInit {
     facade = inject(RoutineExerciseFormFacade);
     private readonly routineSvc = inject(RoutinesServices);
+
+    @Output() routineCreated = new EventEmitter<void>();
 
     // input() signal reemplaza @Input() + ngOnChanges
     readonly categoryExercise = input.required<string>();
@@ -55,7 +66,14 @@ export class RoutineExerciseForm implements OnInit {
         const newRoutine = this.facade.routineForm.value as RoutineDayCreate;
 
         this.routineSvc.createRoutine(newRoutine).subscribe({
-            next: () => this.facade.loadingCreate.set(false),
+            next: () => {
+                this.facade.success.set(true);
+                this.routineSvc.updateAllRoutines().subscribe();
+                setTimeout(() => {
+                    this.facade.loadingCreate.set(false);
+                    this.routineCreated.emit();
+                }, 2000);
+            },
             error: () => this.facade.loadingCreate.set(false),
         });
     }

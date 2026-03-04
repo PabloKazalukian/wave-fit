@@ -24,6 +24,7 @@ import {
     WeekLogDayVM,
     WorkoutSessionAPI,
 } from '../../../../../shared/interfaces/api/tracking-api.interface';
+import * as trackingWrappers from '../../../../../shared/wrappers/tracking.wrapper';
 import { ExercisesService } from '../../../exercises/exercises.service';
 import { ExerciseCategory } from '../../../../../shared/interfaces/exercise.interface';
 import {
@@ -54,7 +55,7 @@ export class PlanTrankingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.activeWeekLog.hasActiveWeek
-                        ? this.wrapperTrackingApiToVM(data.activeWeekLog.week)
+                        ? trackingWrappers.wrapperTrackingApiToVM(data.activeWeekLog.week)
                         : null,
                 ),
             );
@@ -76,7 +77,10 @@ export class PlanTrankingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.createWorkoutSession
-                        ? this.wrapperWorkoutSessionApiToVM(data.createWorkoutSession)
+                        ? trackingWrappers.wrapperWorkoutSessionApiToVM(
+                              data.createWorkoutSession,
+                              this.exerciseSvc.exercises(),
+                          )
                         : null,
                 ),
                 tap((res) => console.log(res)),
@@ -95,7 +99,9 @@ export class PlanTrankingApi {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.createWeekLog ? this.wrapperTrackingApiToVM(data.createWeekLog) : null,
+                    data?.createWeekLog
+                        ? trackingWrappers.wrapperTrackingApiToVM(data.createWeekLog)
+                        : null,
                 ),
             );
     }
@@ -109,7 +115,9 @@ export class PlanTrankingApi {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.updateWeekLog ? this.wrapperTrackingApiToVMS(data.updateWeekLog) : null,
+                    data?.updateWeekLog
+                        ? trackingWrappers.wrapperTrackingApiToVMS(data.updateWeekLog)
+                        : null,
                 ),
             );
     }
@@ -126,147 +134,16 @@ export class PlanTrankingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.updateWeekLogDay
-                        ? this.wrapperTrackingApiToVM(data.updateWeekLogDay)
+                        ? trackingWrappers.wrapperTrackingApiToVM(data.updateWeekLogDay)
                         : null,
                 ),
             );
-    }
-
-    //WRAPPERS
-
-    private wrapperTrackingApiToVMS(payload: TrackingAPI): TrackingVMS {
-        return {
-            id: payload.id,
-            userId: payload.userId,
-            startDate: new Date(payload.startDate),
-            endDate: new Date(payload.endDate),
-            planId: payload.planId,
-            notes: payload.notes,
-            completed: payload.completed,
-            days: payload.days?.map((d) => this.wrapperWeekLogDayApiToVM(d)) ?? [],
-        };
-    }
-
-    private wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVM {
-        return {
-            id: payload.id,
-            userId: payload.userId,
-            startDate: new Date(payload.startDate),
-            endDate: new Date(payload.endDate),
-            planId: payload.planId,
-            notes: payload.notes,
-            completed: payload.completed,
-            workouts: payload.days.map((d) => this.wrapperWeekLogDayVMToWorkoutVM(d)),
-            extras: [],
-        };
-    }
-
-    // ─── WeekLogDayAPI → WeekLogDayVM ────────────────────────────────────────────
-
-    private wrapperWeekLogDayApiToVM(payload: WeekLogDayAPI): WeekLogDayVM {
-        return {
-            order: payload.order,
-            date: new Date(payload.date),
-            isRest: payload.isRest,
-            workoutSessionId: payload.workoutSessionId ?? null,
-            extraSessionIds: payload.extraSessionIds ?? [],
-            status: payload.status,
-        };
-    }
-
-    // Wrapper: WorkoutSessionAPI -> WorkoutSessionVM
-    private wrapperWorkoutSessionApiToVM(payload: WorkoutSessionAPI): WorkoutSessionVM {
-        // Determinar el status basado en la información disponible
-        let status: StatusWorkoutSessionEnum;
-        !payload.exercises || payload.exercises.length === 0
-            ? (status = StatusWorkoutSessionEnum.NOT_STARTED)
-            : (status = StatusWorkoutSessionEnum.COMPLETE);
-
-        return {
-            id: payload.id,
-            date: payload.date ? new Date(payload.date) : new Date(),
-            exercises: this.wrapperExercisePerformanceApiToVM(payload.exercises || []),
-            status,
-            notes: payload.notes,
-        };
     }
 
     private wrapperWorkoutSessionVMToApi(
         payload: WorkoutSessionVM,
         trackingId: string,
     ): WorkoutSessionAPI {
-        return {
-            // id: payload.id,
-            weekLogId: trackingId,
-            date: payload.date,
-            exercises: this.wrapperExercisePerformanceVMToApi(payload.exercises),
-            status: payload.status,
-            notes: payload.notes,
-        };
-    }
-
-    private wrapperExercisePerformanceVMToApi(
-        payload: ExercisePerformanceVM[],
-    ): ExercisePerformanceAPI[] {
-        return payload.map((e) => ({
-            exerciseId: e.exerciseId,
-            series: e.series,
-            sets: e.sets.map((s) => ({
-                reps: s.reps,
-                weights: s.weights,
-            })),
-            notes: e.notes,
-        }));
-    }
-
-    private wrapperExercisePerformanceApiToVM(
-        payload: ExercisePerformanceAPI[],
-    ): ExercisePerformanceVM[] {
-        if (payload.length === 0) return [];
-
-        const allExercises = this.exerciseSvc.exercises();
-
-        const exercisesMap = new Map(allExercises.map((ex) => [ex.id, ex]));
-
-        return payload.map((performance) => {
-            const exercise = exercisesMap.get(performance.exerciseId);
-            const name = exercise?.name || 'Ejercicio desconocido';
-            const usesWeight = exercise?.usesWeight || false;
-            const category = exercise?.category || ExerciseCategory.CARDIO;
-
-            return {
-                exerciseId: performance.exerciseId,
-                name,
-                category,
-                series: performance.series,
-                sets: performance.sets.map((set) => ({
-                    reps: set.reps,
-                    weights: set.weights,
-                })),
-                usesWeight,
-                notes: performance.notes,
-            };
-        });
-    }
-
-    private wrapperWeekLogDayVMToWorkoutVM(payload: WeekLogDayAPI): WorkoutSessionVM {
-        return {
-            id: payload.workoutSessionId ?? '',
-            date: new Date(payload.date),
-            exercises: [],
-            status: this.wrapperDayStatusApiToStatusWorkoutSession(payload.status),
-            notes: '',
-        };
-    }
-
-    wrapperDayStatusApiToStatusWorkoutSession(payload: DayStatusAPI): StatusWorkoutSession {
-        switch (payload) {
-            case 'pending':
-                return StatusWorkoutSessionEnum.NOT_STARTED;
-            case 'complete':
-                return StatusWorkoutSessionEnum.COMPLETE;
-            case 'skipped':
-                return StatusWorkoutSessionEnum.REST;
-        }
+        return trackingWrappers.wrapperWorkoutSessionVMToApi(payload, trackingId);
     }
 }

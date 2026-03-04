@@ -5,6 +5,7 @@ import { PlanTrackingService } from '../../../../../core/services/trackings/plan
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SelectType } from '../tracking-week/tracking-week';
+import { wrapperExerciseAPItoVM } from '../../../../wrappers/exercises.wrapper';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
 
 @Injectable()
@@ -59,7 +60,7 @@ export class TrackingWorkoutFacade {
         this.exerciseForm.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((val) => {
-                const allExercises = this.exerciseSvc.wrapperExerciseAPItoVM();
+                const allExercises = wrapperExerciseAPItoVM(this.exerciseSvc.exercises());
                 if (!val.option) {
                     this.exercises.set([...this.exercisesSelected(), ...allExercises]);
                 } else {

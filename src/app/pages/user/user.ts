@@ -31,27 +31,9 @@ export class User {
 
     previousDay() {
         this.currentDate.setDate(this.currentDate.getDate() - 1);
-        this.loadDayData(); // Mock load from service
     }
 
     nextDay() {
         this.currentDate.setDate(this.currentDate.getDate() + 1);
-        this.loadDayData(); // Mock
-    }
-
-    loadDayData() {
-        // Aquí llamarías a service mock para calorías, macros, agua, meals por fecha
-        // Por ahora, reset a vacíos o ejemplos
-        this.consumedCalories = 0;
-        this.waterAmount = 0;
-        this.macros = { proteins: 0, fats: 0, carbs: 0 };
-        this.meals = { desayuno: [], almuerzo: [], merienda: [], cena: [] };
-        this.pieChartData = [this.consumedCalories, 1800 - this.consumedCalories];
-    }
-
-    addMeal(mealType: string) {
-        // Por ahora, console log o nada, ya que no implementar dialogo
-        console.log(`Abrir dialogo para agregar plato a ${mealType}`);
-        // En futuro: Abrir modal con platos user o crear nuevo
     }
 }

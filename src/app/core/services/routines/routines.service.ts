@@ -29,10 +29,14 @@ export class RoutinesServices {
     private readonly api = inject(RoutinesApiService);
 
     getAllRoutines(): Observable<RoutineDay[] | null> {
-        if (this.routinesCache$.value && this.routinesCache$.value && !this.loading) {
+        if (this.routinesCache$.value && !this.loading) {
             return this.routinesCache$.asObservable() as Observable<any[]>;
         }
 
+        return this.updateAllRoutines();
+    }
+
+    updateAllRoutines(): Observable<RoutineDay[] | null> {
         this.loading = true;
 
         return this.api.getRoutines().pipe(

@@ -48,6 +48,7 @@ export class RoutineExerciseFormFacade {
 
     loading = signal(true);
     loadingCreate = signal(false);
+    success = signal(false);
     exercises = signal<Exercise[]>([]);
     categories = signal<string[]>([]);
 
