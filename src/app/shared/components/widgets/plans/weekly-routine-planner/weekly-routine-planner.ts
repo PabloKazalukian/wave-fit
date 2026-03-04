@@ -2,7 +2,6 @@ import {
     Component,
     ChangeDetectionStrategy,
     signal,
-    effect,
     inject,
     Output,
     computed,

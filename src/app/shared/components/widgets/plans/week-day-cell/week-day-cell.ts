@@ -10,7 +10,6 @@ import {
     effect,
 } from '@angular/core';
 import { DayPlanStateService } from '../../../../../core/services/plans/day-plan-state.service';
-import { filter, tap } from 'rxjs';
 import { RoutineListBoxComponent } from '../../../../../shared/components/widgets/routines/routine-list-box/routine-list-box';
 import { FormSelectComponent } from '../../../../../shared/components/ui/select/select';
 import { SelectType, SelectTypeInput } from '../../../../../shared/interfaces/input.interface';

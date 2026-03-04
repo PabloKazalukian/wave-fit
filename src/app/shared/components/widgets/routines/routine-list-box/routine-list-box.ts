@@ -33,7 +33,7 @@ export class RoutineListBoxComponent implements OnInit {
     isSearchedRoutines = signal<boolean>(false);
     isShowExercises = false;
 
-    show = false;
+    show = signal<boolean>(false);
 
     isSelected = signal<boolean | null>(null);
 
@@ -48,8 +48,8 @@ export class RoutineListBoxComponent implements OnInit {
             this.selectControl.markAsTouched();
             return;
         }
-        this.show = !this.show;
-        this.facade.creatingRoutine.set(this.show);
+        this.show.set(!this.show());
+        this.facade.creatingRoutine.set(this.show());
     }
 
     getNameOfSelectControl(): string {
@@ -64,6 +64,12 @@ export class RoutineListBoxComponent implements OnInit {
 
     removeRoutine() {
         this.facade.removeRoutine();
+    }
+
+    removeCateogry() {
+        this.facade.removeCateogry();
+        this.show.set(false);
+        this.facade.creatingRoutine.set(this.show());
     }
 
     toggleAccordion(i: number) {

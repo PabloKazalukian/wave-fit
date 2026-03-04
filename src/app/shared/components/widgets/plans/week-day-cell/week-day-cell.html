@@ -1,10 +1,10 @@
 <div
-  class="bg-surface mx-2 my-8 rounded-md flex flex-col gap-8 items-center justify-center"
+  class="border-2 bg-background1 border-background3 py-4 my-8 rounded-2xl flex flex-col gap-4 items-center justify-center"
   [class.opacity-50]="day()?.kind === 'REST'"
   [class.grayscale-50]="day()?.kind === 'REST'"
   role="listitem"
 >
-  <div class="flex flex-col w-64 gap-4 items-center mb-8 spin-slow">
+  <div class="flex flex-col w-full px-4 gap-4 items-center mb-8 spin-slow">
     <div class="font-bold text-[0.95rem]">Día {{ dayNumber() }}</div>
     <div class="w-full">
       <app-select

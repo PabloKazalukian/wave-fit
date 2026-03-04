@@ -54,7 +54,7 @@ export class BtnComponent implements AfterContentInit {
             ? 'flex items-center justify-center space-x-2'
             : 'text-center';
 
-        return `w-full rounded-2xl font-sm transition-colors focus:outline-none focus:ring-0 ${sizeClasses} ${iconSpacing}`;
+        return `w-full rounded-2xl font-sm transition-colors focus:outline-none focus:ring-0 tracking-wide ${sizeClasses} ${iconSpacing}`;
     }
 
     private getSizeClasses(): string {

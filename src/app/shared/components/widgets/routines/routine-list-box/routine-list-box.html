@@ -1,10 +1,10 @@
-<div class="flex gap-8 flex-col item-center justify-center w-full">
+<div class="flex gap-4 flex-col item-center justify-center w-full">
   @if (this.facade.isRoutine()) {
     <div class="w-full">
       <app-select
         [text]="'Elige una categoria:'"
         [options]="options"
-        (clearValue)="this.facade.removeCateogry()"
+        (clearValue)="this.removeCateogry()"
         [control]="selectControl"
       ></app-select>
     </div>
@@ -44,7 +44,7 @@
         } @else {
           <!-- Caso: listado de todas las rutinas -->
           @for (r of this.facade.routinesByCategory(); track r.id; let i = $index) {
-            @if (!show) {
+            @if (!show()) {
               <app-accordion-item
                 [title]="r.title"
                 [open]="openIndex() === i"
@@ -68,7 +68,7 @@
     }
   }
 
-  @if (show) {
+  @if (show()) {
     <app-btn [text]="'Cancelar'" [variant]="'raised'" [color]="'error'" (click)="showExercise()">
     </app-btn>
 
@@ -79,13 +79,15 @@
     </div>
   } @else {
     @if (this.facade.routineSelected()?.id === undefined) {
-      <app-btn
-        [text]="'Crear Rutina '"
-        [variant]="'raised'"
-        [color]="'primary3'"
-        (click)="showExercise()"
-      >
-      </app-btn>
+      @if (this.facade.routineSelected()?.type) {
+        <app-btn
+          [text]="'Crear Rutina '"
+          [variant]="'raised'"
+          [color]="'primary3'"
+          (click)="showExercise()"
+        >
+        </app-btn>
+      }
     } @else {
       <app-btn
         [text]="'Cambiar Rutina '"
