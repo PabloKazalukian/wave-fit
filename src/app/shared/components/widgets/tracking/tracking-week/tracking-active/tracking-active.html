@@ -1,19 +1,39 @@
 <div class="bg-background2 border-2 border-primary rounded-2xl p-4 mb-6">
   <div class="flex items-center justify-between mb-2">
-    <span class="text-sm font-medium text-primary">Semana Activa:</span>
-    <span class="px-3 py-1 bg-error/20 text-error text-xs rounded-full border-2 border-error/30">
-      @if (weekActive) {
-        Activa
-      } @else {
-        No iniciada
-      }
-    </span>
-  </div>
-  <p class="text-xs text-text2">
+    <span class="text-lg font-medium text-primary">Semana Activa:</span>
     @if (weekActive) {
-      Continúa con tu rutina de esta semana
+      <span
+        class="px-3 py-1 bg-success/20 text-success text-xs rounded-full border-2 border-success/30"
+      >
+        Activa
+      </span>
     } @else {
-      Comienza tu primera semana de entrenamiento ahora
+      <span class="px-3 py-1 bg-error/20 text-error text-xs rounded-full border-2 border-error/30">
+        No iniciada
+      </span>
     }
-  </p>
+  </div>
+  <div class="flex items-center justify-between">
+    @if (weekActive) {
+      <p class="text-md text-text2">Continúa con tu rutina de esta semana</p>
+      <app-btn
+        text="Ir a mi día"
+        [routerLink]="'/my-day'"
+        [showIcon]="true"
+        size="sm"
+        variant="raised"
+        color="primary"
+      ></app-btn>
+    } @else {
+      <p class="text-xs text-text2">Comienza tu primera semana de entrenamiento ahora</p>
+      <app-btn
+        text="comenzar ahora"
+        [routerLink]="'/routines'"
+        [showIcon]="true"
+        variant="raised"
+        size="sm"
+        color="primary"
+      ></app-btn>
+    }
+  </div>
 </div>
