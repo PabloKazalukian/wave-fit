@@ -65,7 +65,8 @@ export class PlanTrankingApi {
         payload: WorkoutSessionVM,
         weekLogId: string,
     ): Observable<WorkoutSessionVM | undefined | null> {
-        const workout = this.wrapperWorkoutSessionVMToApi(payload, weekLogId);
+        let workout = this.wrapperWorkoutSessionVMToApi(payload, weekLogId);
+        workout.status = StatusWorkoutSessionEnum.COMPLETE;
         console.log('transformado', workout);
         return this.apollo
             .mutate<{ createWorkoutSession: WorkoutSessionAPI }>({

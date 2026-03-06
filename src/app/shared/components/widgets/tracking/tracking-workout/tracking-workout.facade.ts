@@ -16,17 +16,15 @@ export class TrackingWorkoutFacade {
 
     state = inject(WorkoutStateService);
 
-    // loadingWorkout = this.trackingSvc.loadingWorkout
     loadings = computed(() => this.trackingSvc.loadingWorkout().state === true);
-
-    exerciseForm = new FormGroup<SelectType>({
-        option: new FormControl('', {
-            nonNullable: true,
-        }),
-    });
 
     readonly workoutDate = this.state.selectedDate;
     readonly workoutVM = this.state.workoutSession;
+
+    exercises = signal<ExercisePerformanceVM[]>([]);
+    exercisesSelected = this.state.exercises;
+    exercisesTracking = signal<ExercisePerformanceVM[]>([]);
+    loading = this.trackingSvc.loadingWorkout;
 
     validateWorkout(): boolean {
         if (
@@ -39,45 +37,8 @@ export class TrackingWorkoutFacade {
         return true;
     }
 
-    constructor() {
-        effect(() => {
-            if (!this.workoutVM()) return;
+    constructor() {}
 
-            this.initFacade();
-        });
-    }
-
-    exercises = signal<ExercisePerformanceVM[]>([]);
-    exercisesSelected = this.state.exercises;
-    exercisesTracking = signal<ExercisePerformanceVM[]>([]);
-    loading = this.trackingSvc.loadingWorkout;
-
-    validateForm(): boolean {
-        return this.exerciseForm.valid;
-    }
-
-    initFacade() {
-        this.exerciseForm.valueChanges
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((val) => {
-                const allExercises = wrapperExerciseAPItoVM(this.exerciseSvc.exercises());
-                if (!val.option) {
-                    this.exercises.set([...this.exercisesSelected(), ...allExercises]);
-                } else {
-                    this.exercises.set([
-                        ...this.exercisesSelected(),
-                        ...allExercises.filter(
-                            (e) =>
-                                e.category === val.option && !this.exercisesSelected().includes(e),
-                        ),
-                    ]);
-                }
-            });
-    }
-
-    clear() {
-        this.exerciseForm.patchValue({ option: '' });
-    }
     startRoutineTracking() {
         this.trackingSvc.createWorkout(this.workoutDate()!).subscribe({
             next: (res) => {

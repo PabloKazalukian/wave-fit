@@ -107,10 +107,10 @@ export class PlanTrackingService {
             this.dateService.isEqualDate(w.date, dateWorkout),
         )[0];
 
-        const id = this.trackingSubject.value;
+        const idTracking = this.trackingSubject.value;
 
-        if (id!) {
-            return this.api.createWorkoutSession(workout!, id.id!).pipe(
+        if (idTracking!) {
+            return this.api.createWorkoutSession(workout!, idTracking.id!).pipe(
                 takeUntilDestroyed(this.destroyRef),
                 tap((res) => {
                     const workout = { ...res!, status: StatusWorkoutSessionEnum.COMPLETE };
@@ -216,7 +216,7 @@ export class PlanTrackingService {
         this._updateWorkout(day, () => newWorkout);
     }
 
-    completeTracking(): Observable<TrackingVMS | null> {
+    completeTracking(complete: boolean): Observable<TrackingVMS | null> {
         const current: TrackingVM | null = this.trackingSubject.value;
         if (!current) return of(null);
 
@@ -238,7 +238,7 @@ export class PlanTrackingService {
 
         const input: UpdateWeekLogInput = {
             id: current.id,
-            completed: true,
+            completed: complete,
             notes: current.notes,
             ...(current.planId ? { planId: current.planId } : {}),
             startDate: current.startDate.toISOString(),
@@ -255,24 +255,3 @@ export class PlanTrackingService {
         );
     }
 }
-// return new Observable<WorkoutSessionVM>((observer) => {
-//     const timeout = setTimeout(() => {
-//         console.log('workout', workout);
-//         const simulatedResponse = {
-//             ...workout!,
-//             status: StatusWorkoutSessionEnum.COMPLETE,
-//         };
-
-//         // this._updateWorkout(dateWorkout, () => simulatedResponse);
-
-//         observer.next(simulatedResponse);
-//         observer.complete();
-//     }, 4000);
-
-//     return () => clearTimeout(timeout);
-// }).pipe(
-//     takeUntilDestroyed(this.destroyRef),
-//     finalize(() =>
-//         this.loadingWorkout.update((current) => ({ ...current, state: false })),
-//     ),
-// );

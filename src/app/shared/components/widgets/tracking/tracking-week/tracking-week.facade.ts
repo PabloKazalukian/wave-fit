@@ -39,7 +39,7 @@ export class TrackingWeekFacade {
 
     private executeComplete() {
         this.trackingSvc
-            .completeTracking()
+            .completeTracking(true)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
