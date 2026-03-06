@@ -11,12 +11,12 @@ export function authInitializerFactory(authService: AuthService, tokenStorage: T
             return Promise.resolve(true);
         }
 
-        if (tokenStorage.hasToken()) {
+        if (authService.hasSession()) {
             return firstValueFrom(
                 authService.me().pipe(
                     timeout(5000),
                     catchError(() => {
-                        authService.logout();
+                        // authService.logout(); // me() already calls clearSession() on error
                         return of(true);
                     }),
                 ),

@@ -27,18 +27,17 @@ export class AuthService {
 
     // Signals de estado
     user = signal<any | null>(this.tokenStorage.getUser());
-    token = signal<string | null>(this.tokenStorage.getToken());
 
-    private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.tokenStorage.hasToken());
+    private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.user() !== null);
     isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-    isAuthenticated = computed(() => this.token() !== null);
+    isAuthenticated = computed(() => this.user() !== null);
 
     private userIdSubject = new BehaviorSubject<string | null>(this.user()?.id || null);
     user$ = this.userIdSubject.asObservable();
 
     login(identifier: string, password: string) {
         return this.apollo
-            .mutate<{ login: string }>({
+            .mutate<{ login: boolean }>({
                 mutation: gql`
                     mutation Login($identifier: String!, $password: String!) {
                         login(identifier: $identifier, password: $password)
@@ -48,11 +47,8 @@ export class AuthService {
             })
             .pipe(
                 tap((res) => {
-                    const token = res.data?.login;
-                    if (!token) throw new Error('Token no recibido');
-
-                    this.token.set(token);
-                    this.tokenStorage.setToken(token);
+                    const success = res.data?.login;
+                    if (!success) throw new Error('Login fallido');
                     this.isAuthenticatedSubject.next(true);
                 }),
                 map(() => true),
@@ -83,21 +79,34 @@ export class AuthService {
                     this.user.set(data?.me ?? null);
                     this.userIdSubject.next(data?.me?.id ?? null);
                     this.tokenStorage.setUser(this.user());
+                    this.isAuthenticatedSubject.next(this.user() !== null);
                 }),
                 map((res) => res.data?.me),
                 catchError((err) => {
+                    this.clearSession();
                     return throwError(() => err);
                 }),
             );
     }
 
     logout(): void {
-        this.clearSession();
+        this.apollo
+            .mutate({
+                mutation: gql`
+                    mutation Logout {
+                        logout
+                    }
+                `,
+            })
+            .subscribe({
+                next: () => this.clearSession(),
+                error: () => this.clearSession(),
+            });
     }
 
     register(name: string, email: string, password: string) {
         return this.apollo
-            .mutate<{ register: string }>({
+            .mutate<{ createUser: any }>({
                 mutation: gql`
                     mutation CreateUser($createUserInput: CreateUserInput!) {
                         createUser(createUserInput: $createUserInput) {
@@ -112,12 +121,8 @@ export class AuthService {
             .pipe(
                 handleGraphqlError(this),
                 tap((res) => {
-                    const token = res.data?.register;
-                    if (!token) throw new Error('Token no recibido');
-
-                    this.token.set(token);
-                    this.tokenStorage.setToken(token);
-                    this.isAuthenticatedSubject.next(true);
+                    // After registration, we might need a login or the backend might set the cookie automatically
+                    // Assuming for now the user needs to login or we call me()
                 }),
                 map(() => true),
                 catchError(() => {
@@ -148,7 +153,6 @@ export class AuthService {
                 mutation: gql`
                     mutation LoginWithGoogle($code: String!, $codeVerifier: String!) {
                         loginWithGoogle(code: $code, codeVerifier: $codeVerifier) {
-                            access_token
                             user {
                                 id
                                 name
@@ -164,13 +168,7 @@ export class AuthService {
             })
             .pipe(
                 tap((res) => {
-                    console.log(res);
-                    const token = res.data?.loginWithGoogle.access_token;
                     const user = res.data?.loginWithGoogle.user!;
-                    if (!token) throw new Error('Token no recibido');
-
-                    this.token.set(token);
-                    this.tokenStorage.setToken(token);
                     this.userIdSubject.next(user?.id);
                     this.tokenStorage.setUser(user);
                     this.user.set(user);
@@ -183,14 +181,13 @@ export class AuthService {
             );
     }
 
-    hasToken(): boolean {
-        return this.tokenStorage.hasToken();
+    hasSession(): boolean {
+        return this.user() !== null;
     }
 
     clearSession() {
         this.tokenStorage.clear();
         this.user.set(null);
-        this.token.set(null);
         this.isAuthenticatedSubject.next(false);
     }
 }

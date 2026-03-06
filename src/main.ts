@@ -26,7 +26,6 @@ bootstrapApplication(AppComponent, {
         provideAuthInitializer(),
         provideApollo(() => {
             const httpLink = inject(HttpLink);
-            const tokenStorage = inject(TokenStorage);
             const injector = inject(Injector);
 
             const uri = environment.graphqlUri;
@@ -36,18 +35,14 @@ bootstrapApplication(AppComponent, {
             const errorLink = new ErrorLink(({ error }) => {
                 let unauthorized = false;
 
-                console.log(error);
-
                 if (CombinedGraphQLErrors.is(error)) {
                     for (const gqlError of error.errors) {
-                        console.log(gqlError);
                         if (gqlError.extensions?.['code'] === 'UNAUTHENTICATED') {
                             unauthorized = true;
                             break;
                         }
                     }
                 } else {
-                    console.log(error);
                     // Network error (ej: 401 HTTP)
                     if ((error as any)?.status === 401) {
                         unauthorized = true;
@@ -66,20 +61,8 @@ bootstrapApplication(AppComponent, {
                 }
             });
 
-            const authLink = new ApolloLink((operation, forward) => {
-                const token = tokenStorage.getToken();
-
-                if (token) {
-                    operation.setContext({
-                        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`),
-                    });
-                }
-
-                return forward(operation);
-            });
-
             return {
-                link: ApolloLink.from([errorLink, authLink, httpLink.create({ uri })]),
+                link: ApolloLink.from([errorLink, httpLink.create({ uri, withCredentials: true })]),
                 cache: new InMemoryCache(),
             };
         }),
