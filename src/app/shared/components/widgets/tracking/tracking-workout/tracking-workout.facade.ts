@@ -1,11 +1,7 @@
-import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup } from '@angular/forms';
-import { SelectType } from '../tracking-week/tracking-week';
-import { wrapperExerciseAPItoVM } from '../../../../wrappers/exercises.wrapper';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
 
 @Injectable()
@@ -16,7 +12,7 @@ export class TrackingWorkoutFacade {
 
     state = inject(WorkoutStateService);
 
-    loadings = computed(() => this.trackingSvc.loadingWorkout().state === true);
+    loadings = computed(() => this.trackingSvc.loadingWorkoutCreation().state === true);
 
     readonly workoutDate = this.state.selectedDate;
     readonly workoutVM = this.state.workoutSession;
@@ -24,7 +20,7 @@ export class TrackingWorkoutFacade {
     exercises = signal<ExercisePerformanceVM[]>([]);
     exercisesSelected = this.state.exercises;
     exercisesTracking = signal<ExercisePerformanceVM[]>([]);
-    loading = this.trackingSvc.loadingWorkout;
+    loading = this.trackingSvc.loadingWorkoutCreation;
 
     validateWorkout(): boolean {
         if (

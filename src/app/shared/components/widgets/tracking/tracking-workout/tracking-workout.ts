@@ -10,7 +10,7 @@ import {
 import { WorkoutInProgess } from './workout-in-progess/workout-in-progess';
 import { IconComponent } from '../../../ui/icon/icon';
 import { SpinnerComponent } from '../../../ui/icon/spinner';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Loading } from '../../../ui/loading/loading';
 import { switchAnimation } from '../../../../animations/animation';
 

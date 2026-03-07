@@ -25,7 +25,7 @@ export class NavigatorWeek {
     state = inject(WorkoutStateService);
 
     tracking = toSignal(this.trackingSvc.trackingPlanVM$);
-    readonly loading = this.trackingSvc.loadingWorkout;
+    readonly loading = this.trackingSvc.loadingWorkoutCreation;
 
     totalDays = 7;
     visibleDayCount = 4;

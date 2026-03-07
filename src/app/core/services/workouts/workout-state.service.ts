@@ -5,7 +5,7 @@ import {
 } from '../../../shared/interfaces/tracking.interface';
 import { PlanTrackingService } from '../trackings/plan-tracking.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { take, takeUntil } from 'rxjs';
+import { take } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',

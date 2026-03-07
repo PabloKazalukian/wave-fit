@@ -19,7 +19,7 @@ export class MyDay implements OnInit {
     trackingSvc = inject(PlanTrackingService);
     authSvc = inject(AuthService);
 
-    routineActivated = signal<boolean>(true);
+    hasActiveTracking = signal<boolean>(true);
     tracking = signal<TrackingVM | null>(null);
     readonly loading = this.trackingSvc.loadingTracking;
 
@@ -30,14 +30,14 @@ export class MyDay implements OnInit {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((tracking) => {
                 this.tracking.set(tracking);
-                this.routineActivated.set(!tracking);
+                this.hasActiveTracking.set(!tracking);
             });
     }
 
     createTracking() {
         this.trackingSvc.createTracking().subscribe({
             next: (res) => {
-                this.routineActivated.set(false);
+                this.hasActiveTracking.set(false);
                 if (res) this.tracking.set(res);
                 console.log(res);
             },

@@ -1,5 +1,5 @@
 import { DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
-import { PlanTrankingApi } from './plan-tracking/api/plan-tranking-api.service';
+import { PlanTrackingApi } from './plan-tracking/api/plan-tranking-api.service';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
 import { BehaviorSubject, filter, finalize, map, Observable, of, tap } from 'rxjs';
 import {
@@ -12,7 +12,6 @@ import {
 import { DateService } from '../date.service';
 import { AuthService } from '../auth/auth.service';
 import {
-    TrackingAPI,
     TrackingCreate,
     UpdateWeekLogDayInput,
     UpdateWeekLogInput,
@@ -28,13 +27,16 @@ export class PlanTrackingService {
     private trackingSubject = new BehaviorSubject<TrackingVM | null>(null);
     trackingPlanVM$ = this.trackingSubject.asObservable();
 
-    private api = inject(PlanTrankingApi);
+    private api = inject(PlanTrackingApi);
     private storage = inject(PlanTrackingStorage);
     private dateService = inject(DateService);
     private authService = inject(AuthService);
 
     userId = signal<string>('');
-    loadingWorkout = signal<{ wokout: Date; state: boolean }>({ wokout: new Date(), state: false });
+    loadingWorkoutCreation = signal<{ wokout: Date; state: boolean }>({
+        wokout: new Date(),
+        state: false,
+    });
     loading = signal<boolean>(false);
     loadingTracking = signal<boolean>(false);
 
@@ -101,7 +103,11 @@ export class PlanTrackingService {
     }
 
     createWorkout(dateWorkout: Date): Observable<WorkoutSessionVM | null | undefined> {
-        this.loadingWorkout.update((current) => ({ ...current, wokout: dateWorkout, state: true }));
+        this.loadingWorkoutCreation.update((current) => ({
+            ...current,
+            wokout: dateWorkout,
+            state: true,
+        }));
 
         const workout = this.trackingSubject.value?.workouts?.filter((w) =>
             this.dateService.isEqualDate(w.date, dateWorkout),
@@ -116,7 +122,9 @@ export class PlanTrackingService {
                     const workout = { ...res!, status: StatusWorkoutSessionEnum.COMPLETE };
                     this._updateWorkout(res?.date!, () => workout);
                 }),
-                tap(() => this.loadingWorkout.update((current) => ({ ...current, state: false }))),
+                tap(() =>
+                    this.loadingWorkoutCreation.update((current) => ({ ...current, state: false })),
+                ),
             );
         }
         return of(null);

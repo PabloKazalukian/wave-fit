@@ -7,7 +7,7 @@
         <app-tracking-week-skeleton></app-tracking-week-skeleton>
       </div>
     } @else {
-      @if (!this.routineActivated()) {
+      @if (!this.hasActiveTracking()) {
         <div class="mt-4 mx-1">
           <app-tracking-week [tracking]="this.tracking()"></app-tracking-week>
         </div>

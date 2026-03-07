@@ -38,7 +38,7 @@ import {
 @Injectable({
     providedIn: 'root',
 })
-export class PlanTrankingApi {
+export class PlanTrackingApi {
     private readonly apollo = inject(Apollo);
 
     authSvc = inject(AuthService);

@@ -47,15 +47,12 @@
     }
   </app-dialog>
 
-  <!-- Fecha de inicio -->
   <div>
     <p class="text-text2 text-sm mb-2">Fecha de inicio: {{ this.tracking()?.startDate | date }}</p>
   </div>
 
   <app-navigator-week></app-navigator-week>
 
-  <!-- Información del día seleccionado -->
-  <!-- @if (this.selectedDay() !== null) { -->
   @if (this.tracking()?.planId) {
     <div class="mb-6">
       <h2 class="text-xl font-bold text-primary mb-2">Ejercicios</h2>
@@ -71,31 +68,5 @@
     <div>
       <app-tracking-workout> </app-tracking-workout>
     </div>
-    <!-- } -->
-    <!-- } -->
-
-    <!-- <div class="bg-background3 rounded-lg p-3">
-        <div class="flex justify-between items-center text-sm">
-          <span class="text-text2">Total de ejercicios:</span>
-          <span class="font-semibold">{{ getDayExercises(selectedDay()).length }}</span>
-        </div>
-        <div class="flex justify-between items-center text-sm mt-1">
-          <span class="text-text2">Tiempo estimado:</span>
-          <span class="font-semibold">{{ getTotalTime(this.selectedDay()) }} min</span>
-        </div>
-      </div> -->
   </div>
-
-  <!-- <div class="flex flex-col gap-3">
-      @for (exercise of getDayExercises(selectedDay()); track exercise.id) {
-        <app-card-extra-exercise
-          [exercise]="exercise"
-          (toggleInput)="toggleExerciseInput(exercise)"
-          (deleteExercise)="deleteExercise(exercise)"
-        ></app-card-extra-exercise>
-      }
-
-      <app-card-add-extra (addExercise)="addNewExercise($event)"></app-card-add-extra>
-    </div> -->
-  <!-- }} -->
 </div>

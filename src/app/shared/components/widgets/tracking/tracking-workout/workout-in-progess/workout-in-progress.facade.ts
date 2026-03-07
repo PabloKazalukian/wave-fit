@@ -19,10 +19,10 @@ export class WorkoutInProgressFacade {
     private openAccordionIndex = signal<string[]>([]);
     private exerciseSetsData = signal<Map<string, SetData[]>>(new Map());
 
-    readonly loading = this.trackingSvc.loadingWorkout();
+    readonly loading = this.trackingSvc.loadingWorkoutCreation();
     readonly workoutDate = this.state.selectedDate();
 
-    loadings = computed(() => this.trackingSvc.loadingWorkout().state === true);
+    loadings = computed(() => this.trackingSvc.loadingWorkoutCreation().state === true);
     // Computed desde el service - única fuente de verdad
     exercises = computed(() => this.state.exercises());
 
