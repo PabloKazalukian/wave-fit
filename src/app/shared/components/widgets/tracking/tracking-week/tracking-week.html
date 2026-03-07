@@ -47,6 +47,36 @@
     }
   </app-dialog>
 
+  <app-dialog
+    [isOpen]="facade.outOfDateRange() && facade.showOutOfRangeDialog()"
+    [title]="'Fecha actual fuera de rango'"
+    [closeOnBackdrop]="true"
+    [locked]="true"
+    (closed)="facade.showOutOfRangeDialog.set(false)"
+  >
+    <div class="flex flex-col gap-4">
+      <p class="text-text2 text-sm md:text-lg leading-relaxed">
+        Estás fuera de las fechas de la rutina. ¿Deseas terminar la rutina (incompleta) o seguir con
+        la rutina?
+      </p>
+
+      <div class="flex flex-col gap-2 mt-2">
+        <app-btn
+          [variant]="'raised'"
+          [text]="'Terminar rutina'"
+          [color]="'error'"
+          (click)="facade.onConfirmOutOfRange()"
+        ></app-btn>
+        <app-btn
+          [variant]="'outline'"
+          [text]="'Seguir con la rutina'"
+          [color]="'primary'"
+          (click)="facade.onCancelOutOfRange()"
+        ></app-btn>
+      </div>
+    </div>
+  </app-dialog>
+
   <div>
     <p class="text-text2 text-sm mb-2">Fecha de inicio: {{ this.tracking()?.startDate | date }}</p>
   </div>

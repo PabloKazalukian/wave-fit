@@ -40,6 +40,7 @@ export interface WorkoutSessionVM {
     exercises: ExercisePerformanceVM[];
     status: StatusWorkoutSession;
     notes?: string;
+    planId?: string;
 }
 export interface ExercisePerformanceVM {
     exerciseId: string;

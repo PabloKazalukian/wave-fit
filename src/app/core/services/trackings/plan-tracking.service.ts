@@ -1,265 +1,73 @@
-import { DestroyRef, effect, inject, Injectable, signal } from '@angular/core';
-import { PlanTrackingApi } from './plan-tracking/api/plan-tranking-api.service';
-import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
-import { BehaviorSubject, filter, finalize, map, Observable, of, tap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { PlanTrackingDomainService } from './plan-tracking-domain.service';
+import { PlanTrackingStateService } from './plan-tracking-state.service';
+import { Observable } from 'rxjs';
 import {
     ExercisePerformanceVM,
-    StatusWorkoutSessionEnum,
     TrackingVM,
     TrackingVMS,
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
-import { DateService } from '../date.service';
-import { AuthService } from '../auth/auth.service';
-import {
-    TrackingCreate,
-    UpdateWeekLogDayInput,
-    UpdateWeekLogInput,
-} from '../../../shared/interfaces/api/tracking-api.interface';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 @Injectable({
     providedIn: 'root',
 })
 export class PlanTrackingService {
-    destroyRef = inject(DestroyRef);
+    private domain = inject(PlanTrackingDomainService);
+    private state = inject(PlanTrackingStateService);
 
-    private trackingSubject = new BehaviorSubject<TrackingVM | null>(null);
-    trackingPlanVM$ = this.trackingSubject.asObservable();
-
-    private api = inject(PlanTrackingApi);
-    private storage = inject(PlanTrackingStorage);
-    private dateService = inject(DateService);
-    private authService = inject(AuthService);
-
-    userId = signal<string>('');
-    loadingWorkoutCreation = signal<{ wokout: Date; state: boolean }>({
-        wokout: new Date(),
-        state: false,
-    });
-    loading = signal<boolean>(false);
-    loadingTracking = signal<boolean>(false);
-
-    user$ = toSignal(this.authService.user$);
-
-    constructor() {
-        effect(() => {
-            if (this.user$()) {
-                this.initTracking(this.user$()!);
-            } else {
-                this.userId.set('');
-                this.trackingSubject.next(null);
-            }
-        });
-    }
-
-    private initTracking(userId: string) {
-        if (this.userId() === userId && this.trackingSubject.value) {
-            return;
-        }
-
-        this.userId.set(userId);
-        this.loadingTracking.set(true);
-
-        const stored = this.storage.getTrackingStorage(this.userId());
-
-        if (stored) {
-            this.trackingSubject.next(stored);
-            this.loadingTracking.set(false);
-        } else {
-            this.api
-                .getTrackingByUser()
-                .pipe(
-                    takeUntilDestroyed(this.destroyRef),
-                    finalize(() => this.loadingTracking.set(false)),
-                )
-                .subscribe((res) => {
-                    if (!res) {
-                        return;
-                    }
-
-                    this._persist(res);
-                });
-        }
-    }
+    readonly tracking$ = this.state.tracking$;
+    readonly tracking = this.state.tracking;
+    readonly loading = this.state.loading;
+    readonly loadingTracking = this.state.loadingTracking;
+    readonly loadingWorkoutCreation = this.state.loadingWorkoutCreation;
+    readonly trackingPlanVM$ = this.state.tracking$; // Alias for backward compatibility
 
     createTracking(): Observable<TrackingVM | null | undefined> {
-        const { start, end } = this.dateService.todayPlusDays(7);
-
-        const payload: TrackingCreate = {
-            startDate: start,
-            endDate: end,
-        };
-
-        return this.api.createTracking(payload).pipe(
-            tap((res) => {
-                if (res !== undefined && res !== null) {
-                    this.storage.setTrackingStorage(res, this.userId());
-                    this.trackingSubject.next(res);
-                }
-            }),
-            map((res) => this.trackingSubject.value),
-        );
+        return this.domain.createTracking();
     }
 
     createWorkout(dateWorkout: Date): Observable<WorkoutSessionVM | null | undefined> {
-        this.loadingWorkoutCreation.update((current) => ({
-            ...current,
-            wokout: dateWorkout,
-            state: true,
-        }));
-
-        const workout = this.trackingSubject.value?.workouts?.filter((w) =>
-            this.dateService.isEqualDate(w.date, dateWorkout),
-        )[0];
-
-        const idTracking = this.trackingSubject.value;
-
-        if (idTracking!) {
-            return this.api.createWorkoutSession(workout!, idTracking.id!).pipe(
-                takeUntilDestroyed(this.destroyRef),
-                tap((res) => {
-                    const workout = { ...res!, status: StatusWorkoutSessionEnum.COMPLETE };
-                    this._updateWorkout(res?.date!, () => workout);
-                }),
-                tap(() =>
-                    this.loadingWorkoutCreation.update((current) => ({ ...current, state: false })),
-                ),
-            );
-        }
-        return of(null);
+        return this.domain.createWorkout(dateWorkout);
     }
 
-    toggleExercise(date: Date, exercise: ExercisePerformanceVM) {
-        this._updateWorkout(date, (workout) => {
-            const exercises = workout.exercises || [];
-            const exists = exercises.some((e) => e.exerciseId === exercise.exerciseId);
-
-            return {
-                ...workout,
-                exercises: exists
-                    ? exercises.filter((e) => e.exerciseId !== exercise.exerciseId)
-                    : [...exercises, exercise],
-            };
-        });
+    toggleExercise(date: Date, exercise: ExercisePerformanceVM): void {
+        this.domain.toggleExercise(date, exercise);
     }
 
-    removeExercise(date: Date, exerciseId: string) {
-        this._updateWorkout(date, (workout) => ({
-            ...workout,
-            exercises: (workout.exercises || []).filter((e) => e.exerciseId !== exerciseId),
-        }));
+    removeExercise(date: Date, exerciseId: string): void {
+        this.domain.removeExercise(date, exerciseId);
     }
 
-    setWorkouts(day: Date, workout: WorkoutSessionVM) {
-        this._updateWorkout(day, () => workout);
+    setWorkouts(day: Date, workout: WorkoutSessionVM): void {
+        this.domain.setWorkouts(day, workout);
     }
 
-    setExercises(date: Date, exercises: ExercisePerformanceVM[]) {
-        this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
+    setExercises(date: Date, exercises: ExercisePerformanceVM[]): void {
+        this.domain.setExercises(date, exercises);
     }
 
-    get getWorkouts(): Observable<WorkoutSessionVM[]> {
-        return this.trackingPlanVM$.pipe(
-            filter((tracking) => !!tracking),
-            map((tracking) => tracking.workouts || []),
-        );
-    }
-
-    getExercises(workoutDate: Date): Observable<ExercisePerformanceVM[]> {
-        return this.trackingPlanVM$.pipe(
-            filter((tracking) => !!tracking),
-            map(
-                (tracking) =>
-                    tracking.workouts?.filter((w) =>
-                        this.dateService.isEqualDate(w.date, workoutDate),
-                    ) || [],
-            ),
-            map((workouts) => workouts[0]?.exercises || []),
-        );
-    }
-
-    getWorkout(date: Date): Observable<WorkoutSessionVM | undefined> {
-        return this.trackingPlanVM$.pipe(
-            filter((tracking) => !!tracking),
-            map((tracking) => tracking.workouts || []),
-            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
-        );
-    }
-
-    getExercise(date: Date, exerciseId: string): Observable<ExercisePerformanceVM | undefined> {
-        return this.trackingPlanVM$.pipe(
-            filter((tracking) => !!tracking),
-            map((tracking) => tracking.workouts || []),
-            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
-            map((workout) => workout?.exercises.find((e) => e.exerciseId === exerciseId)),
-        );
-    }
-
-    private _updateWorkout(date: Date, updater: (w: WorkoutSessionVM) => WorkoutSessionVM) {
-        const current = this.trackingSubject.value;
-        if (!current) return;
-
-        const updated = {
-            ...current,
-            workouts: current.workouts?.map((w) =>
-                this.dateService.isEqualDate(w.date, date) ? updater(w) : w,
-            ),
-        };
-
-        this._persist(updated);
-    }
-
-    private _persist(tracking: TrackingVM) {
-        this.trackingSubject.next(tracking);
-        this.storage.setTrackingStorage(tracking, this.userId());
-    }
-
-    setRestDay(day: Date, workout: WorkoutSessionVM) {
-        const newWorkout =
-            workout.status === StatusWorkoutSessionEnum.REST
-                ? { ...workout, status: StatusWorkoutSessionEnum.NOT_STARTED }
-                : { ...workout, status: StatusWorkoutSessionEnum.REST, exercises: [] };
-
-        this._updateWorkout(day, () => newWorkout);
+    setRestDay(day: Date, workout: WorkoutSessionVM): void {
+        this.domain.setRestDay(day, workout);
     }
 
     completeTracking(complete: boolean): Observable<TrackingVMS | null> {
-        const current: TrackingVM | null = this.trackingSubject.value;
-        if (!current) return of(null);
+        return this.domain.completeTracking(complete);
+    }
 
-        this.loading.set(true);
+    get getWorkouts(): Observable<WorkoutSessionVM[]> {
+        return this.domain.getWorkouts();
+    }
 
-        const workoutDays: UpdateWeekLogDayInput[] = (current.workouts ?? []).map((w, i) => ({
-            order: i + 1,
-            workoutSessionId: w.id ?? undefined,
-            extraSessionIds: [],
-            status: w.id ? 'complete' : 'skipped',
-        }));
+    getExercises(workoutDate: Date): Observable<ExercisePerformanceVM[]> {
+        return this.domain.getExercises(workoutDate);
+    }
 
-        const totalDays = 7;
-        const days: UpdateWeekLogDayInput[] = Array.from({ length: totalDays }, (_, i) => {
-            const order = i + 1;
-            const existing = workoutDays.find((d) => d.order === order);
-            return existing ?? { order, status: 'skipped', extraSessionIds: [] };
-        });
+    getWorkout(date: Date): Observable<WorkoutSessionVM | undefined> {
+        return this.domain.getWorkout(date);
+    }
 
-        const input: UpdateWeekLogInput = {
-            id: current.id,
-            completed: complete,
-            notes: current.notes,
-            ...(current.planId ? { planId: current.planId } : {}),
-            startDate: current.startDate.toISOString(),
-            endDate: current.endDate.toISOString(),
-            days,
-        };
-
-        return this.api.updateTracking(input).pipe(
-            takeUntilDestroyed(this.destroyRef),
-            tap((res) => {
-                // if (res) this._persist(res);
-            }),
-            finalize(() => this.loading.set(false)),
-        );
+    getExercise(date: Date, exerciseId: string): Observable<ExercisePerformanceVM | undefined> {
+        return this.domain.getExercise(date, exerciseId);
     }
 }

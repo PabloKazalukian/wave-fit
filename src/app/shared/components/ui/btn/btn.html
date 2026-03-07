@@ -25,11 +25,13 @@
   </a>
 } @else {
   <button [type]="buttonType" [disabled]="isDisabled" [class]="classList">
-    <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
-    @if (this.descriptionText !== '') {
-      <!-- Descripción -->
-      <small class="block text-xs opacity-75">{{ this.descriptionText }}</small>
-    }
+    <div [ngClass]="this.descriptionText ? 'flex flex-col justify-start items-start w-full' : ''">
+      <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
+      @if (this.descriptionText !== '') {
+        <!-- Descripción -->
+        <small class="block text-xs opacity-75">{{ this.descriptionText }}</small>
+      }
+    </div>
 
     @if (showIcon()) {
       @if (icon) {

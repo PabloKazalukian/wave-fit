@@ -5,6 +5,7 @@ import {
     WorkoutSessionAPI,
     WeekLogDayAPI,
     WeekLogDayVM,
+    UpdateWeekLogDayInput,
 } from '../interfaces/api/tracking-api.interface';
 import {
     ExercisePerformanceVM,
@@ -82,6 +83,18 @@ export function wrapperWorkoutSessionVMToApi(
         exercises: wrapperExercisePerformanceVMToApi(payload.exercises),
         status: payload.status,
         notes: payload.notes,
+    };
+}
+
+export function wrapperWorkoutToUpdateWeekLogDayInput(
+    payload: WorkoutSessionVM,
+    status: DayStatusAPI,
+    order: number,
+): UpdateWeekLogDayInput {
+    return {
+        workoutSessionId: payload.id,
+        status,
+        order,
     };
 }
 

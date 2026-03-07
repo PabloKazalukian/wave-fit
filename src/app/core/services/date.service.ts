@@ -52,4 +52,8 @@ export class DateService {
     toStringDate(date: Date): string {
         return format(date, 'dd-MM-yyyy');
     }
+
+    formatDate(date: Date): string {
+        return format(date, 'yyyy-MM-dd');
+    }
 }

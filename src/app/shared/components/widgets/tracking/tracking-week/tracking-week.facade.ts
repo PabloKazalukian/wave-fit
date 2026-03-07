@@ -15,6 +15,9 @@ export class TrackingWeekFacade {
     readonly loading = this.trackingSvc.loading;
     readonly tracking = signal<TrackingVM | null>(null);
 
+    readonly outOfDateRange = this.state.outOfDateRange;
+    showOutOfRangeDialog = signal(true);
+
     showConfirmDialog = signal(false);
 
     isWeekComplete = computed(() => {
@@ -30,16 +33,25 @@ export class TrackingWeekFacade {
     }
 
     onConfirm() {
-        this.executeComplete();
+        this.executeComplete(true);
     }
 
     onConfirmIncomplete() {
-        this.executeComplete();
+        this.executeComplete(false);
     }
 
-    private executeComplete() {
+    onConfirmOutOfRange() {
+        this.executeComplete(false);
+        this.showOutOfRangeDialog.set(false);
+    }
+
+    onCancelOutOfRange() {
+        this.showOutOfRangeDialog.set(false);
+    }
+
+    private executeComplete(isComplete: boolean) {
         this.trackingSvc
-            .completeTracking(true)
+            .completeTracking(isComplete)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {

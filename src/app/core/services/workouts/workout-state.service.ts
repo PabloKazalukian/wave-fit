@@ -6,6 +6,7 @@ import {
 import { PlanTrackingService } from '../trackings/plan-tracking.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs';
+import { DateService } from '../date.service';
 
 @Injectable({
     providedIn: 'root',
@@ -14,9 +15,11 @@ export class WorkoutStateService {
     destroyRef = inject(DestroyRef);
 
     private trackingSvc = inject(PlanTrackingService);
+    private dateSvc = inject(DateService);
     private tracking = toSignal(this.trackingSvc.trackingPlanVM$, { initialValue: null });
 
     selectedDate = signal<Date | null>(null);
+    outOfDateRange = signal<boolean>(false);
 
     workoutSession = signal<WorkoutSessionVM | null>(null);
 
@@ -29,8 +32,20 @@ export class WorkoutStateService {
             // Si todavía no hay fecha seleccionada
 
             if (!this.selectedDate()) {
-                const firstDate = tracking.workouts[0].date;
-                this.selectedDate.set(new Date(firstDate));
+                const today = this.dateSvc.today();
+                const startDate = new Date(tracking.startDate);
+                const endDate = new Date(tracking.endDate);
+
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+
+                if (today >= startDate && today <= endDate) {
+                    this.selectedDate.set(today);
+                } else {
+                    const firstDate = tracking.workouts[0].date;
+                    this.selectedDate.set(new Date(firstDate));
+                    this.outOfDateRange.set(true);
+                }
                 return;
             }
             this.trackingSvc

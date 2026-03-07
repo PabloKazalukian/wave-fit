@@ -31,6 +31,7 @@ import {
     CREATE_WEEK_LOG,
     CREATE_WORKOUT_SESSION,
     FIND_ACTIVE_WEEK_LOG,
+    SYNC_WEEK_LOG_DAYS,
     UPDATE_WEEK_LOG,
     UPDATE_WEEK_LOG_DAY,
 } from '../../../../apollo/tracking.queries';
@@ -51,7 +52,6 @@ export class PlanTrackingApi {
                 fetchPolicy: 'no-cache',
             })
             .pipe(
-                tap((res) => console.log(res)),
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.activeWeekLog.hasActiveWeek
@@ -67,14 +67,12 @@ export class PlanTrackingApi {
     ): Observable<WorkoutSessionVM | undefined | null> {
         let workout = this.wrapperWorkoutSessionVMToApi(payload, weekLogId);
         workout.status = StatusWorkoutSessionEnum.COMPLETE;
-        console.log('transformado', workout);
         return this.apollo
             .mutate<{ createWorkoutSession: WorkoutSessionAPI }>({
                 mutation: CREATE_WORKOUT_SESSION,
                 variables: { input: workout },
             })
             .pipe(
-                tap((res) => console.log(res)),
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.createWorkoutSession
@@ -84,10 +82,6 @@ export class PlanTrackingApi {
                           )
                         : null,
                 ),
-                tap((res) => console.log(res)),
-                catchError((err) => {
-                    return of(null);
-                }),
             );
     }
 
@@ -136,6 +130,22 @@ export class PlanTrackingApi {
                 map(({ data }) =>
                     data?.updateWeekLogDay
                         ? trackingWrappers.wrapperTrackingApiToVM(data.updateWeekLogDay)
+                        : null,
+                ),
+            );
+    }
+
+    syncTrackingDays(weekLogId: string): Observable<TrackingVM | null> {
+        return this.apollo
+            .mutate<{ syncWeekLogDays: TrackingAPI }>({
+                mutation: SYNC_WEEK_LOG_DAYS,
+                variables: { weekLogId },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.syncWeekLogDays
+                        ? trackingWrappers.wrapperTrackingApiToVM(data.syncWeekLogDays)
                         : null,
                 ),
             );

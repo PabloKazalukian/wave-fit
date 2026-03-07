@@ -101,3 +101,11 @@ export const UPDATE_WEEK_LOG_DAY = gql`
         }
     }
 `;
+
+export const SYNC_WEEK_LOG_DAYS = gql`
+    mutation SyncWeekLogDays($weekLogId: String!) {
+        syncWeekLogDays(weekLogId: $weekLogId) {
+            ${WEEK_LOG_FIELDS}
+        }
+    }
+`;
