@@ -11,6 +11,7 @@ import {
     TrackingVM,
     TrackingVMS,
     WorkoutSessionVM,
+    WeekLogDayVM,
 } from '../../../../../shared/interfaces/tracking.interface';
 import {
     DayStatusAPI,
@@ -21,7 +22,6 @@ import {
     UpdateWeekLogDayInput,
     UpdateWeekLogInput,
     WeekLogDayAPI,
-    WeekLogDayVM,
     WorkoutSessionAPI,
 } from '../../../../../shared/interfaces/api/tracking-api.interface';
 import * as trackingWrappers from '../../../../../shared/wrappers/tracking.wrapper';
@@ -55,7 +55,10 @@ export class PlanTrackingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.activeWeekLog.hasActiveWeek
-                        ? trackingWrappers.wrapperTrackingApiToVM(data.activeWeekLog.week)
+                        ? trackingWrappers.wrapperTrackingApiToVM(
+                              data.activeWeekLog.week,
+                              this.exerciseSvc.exercises(),
+                          )
                         : null,
                 ),
             );
@@ -95,7 +98,10 @@ export class PlanTrackingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.createWeekLog
-                        ? trackingWrappers.wrapperTrackingApiToVM(data.createWeekLog)
+                        ? trackingWrappers.wrapperTrackingApiToVM(
+                              data.createWeekLog,
+                              this.exerciseSvc.exercises(),
+                          )
                         : null,
                 ),
             );
@@ -111,7 +117,10 @@ export class PlanTrackingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.updateWeekLog
-                        ? trackingWrappers.wrapperTrackingApiToVMS(data.updateWeekLog)
+                        ? trackingWrappers.wrapperTrackingApiToVMS(
+                              data.updateWeekLog,
+                              this.exerciseSvc.exercises(),
+                          )
                         : null,
                 ),
             );
@@ -129,7 +138,10 @@ export class PlanTrackingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.updateWeekLogDay
-                        ? trackingWrappers.wrapperTrackingApiToVM(data.updateWeekLogDay)
+                        ? trackingWrappers.wrapperTrackingApiToVM(
+                              data.updateWeekLogDay,
+                              this.exerciseSvc.exercises(),
+                          )
                         : null,
                 ),
             );
@@ -145,7 +157,10 @@ export class PlanTrackingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.syncWeekLogDays
-                        ? trackingWrappers.wrapperTrackingApiToVM(data.syncWeekLogDays)
+                        ? trackingWrappers.wrapperTrackingApiToVM(
+                              data.syncWeekLogDays,
+                              this.exerciseSvc.exercises(),
+                          )
                         : null,
                 ),
             );

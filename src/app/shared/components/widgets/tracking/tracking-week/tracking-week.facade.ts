@@ -37,7 +37,7 @@ export class TrackingWeekFacade {
     }
 
     onConfirmIncomplete() {
-        this.executeComplete(false);
+        this.executeComplete(true);
     }
 
     onConfirmOutOfRange() {

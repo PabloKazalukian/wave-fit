@@ -4,7 +4,6 @@ import {
     TrackingAPI,
     WorkoutSessionAPI,
     WeekLogDayAPI,
-    WeekLogDayVM,
     UpdateWeekLogDayInput,
 } from '../interfaces/api/tracking-api.interface';
 import {
@@ -14,10 +13,14 @@ import {
     TrackingVM,
     TrackingVMS,
     WorkoutSessionVM,
+    WeekLogDayVM,
 } from '../interfaces/tracking.interface';
 import { Exercise, ExerciseCategory } from '../interfaces/exercise.interface';
 
-export function wrapperTrackingApiToVMS(payload: TrackingAPI): TrackingVMS {
+export function wrapperTrackingApiToVMS(
+    payload: TrackingAPI,
+    allExercises: Exercise[],
+): TrackingVMS {
     return {
         id: payload.id,
         userId: payload.userId,
@@ -26,11 +29,11 @@ export function wrapperTrackingApiToVMS(payload: TrackingAPI): TrackingVMS {
         planId: payload.planId,
         notes: payload.notes,
         completed: payload.completed,
-        days: payload.days?.map((d) => wrapperWeekLogDayApiToVM(d)) ?? [],
+        days: payload.days?.map((d) => wrapperWeekLogDayApiToVM(d, allExercises)) ?? [],
     };
 }
 
-export function wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVM {
+export function wrapperTrackingApiToVM(payload: TrackingAPI, allExercises: Exercise[]): TrackingVM {
     return {
         id: payload.id,
         userId: payload.userId,
@@ -39,17 +42,21 @@ export function wrapperTrackingApiToVM(payload: TrackingAPI): TrackingVM {
         planId: payload.planId,
         notes: payload.notes,
         completed: payload.completed,
-        workouts: payload.days.map((d) => wrapperWeekLogDayVMToWorkoutVM(d)),
+        workouts: payload.days.map((d) => wrapperWeekLogDayVMToWorkoutVM(d, allExercises)),
         extras: [],
     };
 }
 
-export function wrapperWeekLogDayApiToVM(payload: WeekLogDayAPI): WeekLogDayVM {
+export function wrapperWeekLogDayApiToVM(
+    payload: WeekLogDayAPI,
+    allExercises: Exercise[],
+): WeekLogDayVM {
     return {
         order: payload.order,
         date: new Date(payload.date),
         isRest: payload.isRest,
         workoutSessionId: payload.workoutSessionId ?? null,
+        exercises: wrapperExercisePerformanceApiToVM(payload.exercises || [], allExercises),
         extraSessionIds: payload.extraSessionIds ?? [],
         status: payload.status,
     };
@@ -141,11 +148,14 @@ export function wrapperExercisePerformanceApiToVM(
     });
 }
 
-export function wrapperWeekLogDayVMToWorkoutVM(payload: WeekLogDayAPI): WorkoutSessionVM {
+export function wrapperWeekLogDayVMToWorkoutVM(
+    payload: WeekLogDayAPI,
+    allExercises: Exercise[],
+): WorkoutSessionVM {
     return {
         id: payload.workoutSessionId ?? '',
         date: new Date(payload.date),
-        exercises: [],
+        exercises: wrapperExercisePerformanceApiToVM(payload.exercises || [], allExercises),
         status: wrapperDayStatusApiToStatusWorkoutSession(payload.status),
         notes: '',
     };

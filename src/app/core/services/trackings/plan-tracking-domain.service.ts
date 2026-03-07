@@ -18,10 +18,6 @@ import {
     UpdateWeekLogInput,
 } from '../../../shared/interfaces/api/tracking-api.interface';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import {
-    wrapperWorkoutSessionVMToApi,
-    wrapperWorkoutToUpdateWeekLogDayInput,
-} from '../../../shared/wrappers/tracking.wrapper';
 
 @Injectable({
     providedIn: 'root',
@@ -68,6 +64,9 @@ export class PlanTrackingDomainService {
                 .pipe(
                     takeUntilDestroyed(this.destroyRef),
                     finalize(() => this.state.setLoadingTracking(false)),
+                    tap((res) => {
+                        console.log(res);
+                    }),
                 )
                 .subscribe((res) => {
                     if (!res) {

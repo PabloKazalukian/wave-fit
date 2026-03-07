@@ -13,6 +13,15 @@ export const WEEK_LOG_FIELDS = `
         date
         isRest
         workoutSessionId
+        exercises {
+            exerciseId
+            series
+            sets {
+                weights
+                reps
+            }
+            notes
+        }
         extraSessionIds
         status
     }
@@ -32,6 +41,15 @@ export const FIND_ACTIVE_WEEK_LOG = gql`
                     date
                     isRest
                     workoutSessionId
+                    exercises {
+                        exerciseId
+                        series
+                        sets {
+                            weights
+                            reps
+                        }
+                        notes
+                    }
                     extraSessionIds
                     status
                 }

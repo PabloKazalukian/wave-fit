@@ -1,5 +1,16 @@
-import { WeekLogDayVM } from './api/tracking-api.interface';
 import { ExerciseCategory } from './exercise.interface';
+
+export type DayStatusVM = 'pending' | 'complete' | 'skipped';
+
+export interface WeekLogDayVM {
+    order: number;
+    date: Date;
+    isRest: boolean;
+    workoutSessionId?: string | null;
+    exercises: ExercisePerformanceVM[];
+    extraSessionIds: string[];
+    status: DayStatusVM;
+}
 
 export type StatusWorkoutSession = 'not_started' | 'complete' | 'rest';
 export enum StatusWorkoutSessionEnum {

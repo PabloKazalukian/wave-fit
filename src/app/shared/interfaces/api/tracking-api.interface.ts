@@ -1,4 +1,9 @@
-import { ExtraActivityVM, StatusWorkoutSession, WorkoutSessionVM } from '../tracking.interface';
+import {
+    ExercisePerformanceVM,
+    ExtraActivityVM,
+    StatusWorkoutSession,
+    WorkoutSessionVM,
+} from '../tracking.interface';
 export type DayStatusAPI = 'pending' | 'complete' | 'skipped';
 
 export interface TrackingCreate {
@@ -64,21 +69,20 @@ export interface WeekLogDayAPI {
     date: string; // ISO string desde Mongo
     isRest: boolean;
     workoutSessionId?: string | null;
+    exercises?: ExercisePerformanceAPI[];
     extraSessionIds: string[];
     status: DayStatusAPI;
 }
 
-export type DayStatusVM = 'pending' | 'complete' | 'skipped';
-
-export interface WeekLogDayVM {
-    order: number;
-    date: Date;
-    isRest: boolean;
-    workoutSessionId?: string | null;
-    // Los exercises/extras se resuelven aparte si hace falta mostrarlos
-    extraSessionIds: string[];
-    status: DayStatusVM;
-}
+// export interface WeekLogDayVM {
+//     order: number;
+//     date: Date;
+//     isRest: boolean;
+//     workoutSessionId?: string | null;
+//     exercises: ExercisePerformanceVM[];
+//     extraSessionIds: string[];
+//     status: DayStatusVM;
+// }
 
 // ─── Input para update ───────────────────────────────────────────────────────
 
