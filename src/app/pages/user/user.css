@@ -1,0 +1,53 @@
+/* Profile card entrance animation */
+.profile-card {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Avatar subtle glow */
+.avatar-circle {
+  transition: box-shadow 0.2s ease;
+}
+
+.avatar-circle:hover {
+  box-shadow: 0 0 18px rgba(var(--color-primary-rgb, 80, 200, 120), 0.3);
+}
+
+/* Edit button */
+.edit-btn {
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.edit-btn:hover {
+  transform: scale(1.04);
+}
+
+/* History items hover effect */
+.history-item {
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.history-item:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  transform: translateX(2px);
+}
+
+/* Section titles */
+.section-title {
+  letter-spacing: 0.08em;
+}

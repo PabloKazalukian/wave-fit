@@ -1,84 +1,142 @@
-<div class="container px-4 py-4 max-w-lg mx-auto mt-8">
-  <div class="text-primary bg-background2 py-8 rounded-xl">
-    <h1 class="text-5xl font-bold text-center">Wave-Fit</h1>
-    <p class="text-center text-lg mt-4">
-      Tu seguimiento diario de calorías, macros, agua y comidas.
-    </p>
-    <div class="flex justify-center items-center mt-6 space-x-4"></div>
-  </div>
+<div class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  <!-- ─── Profile Card ─────────────────────────────────────────────────── -->
+  <div class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
+    <!-- Avatar + Name + Edit -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-4">
+        <!-- Avatar placeholder -->
+        <div
+          class="avatar-circle w-16 h-16 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden flex-shrink-0"
+        >
+          <span class="text-3xl font-bold text-primary select-none">
+            {{ (user()?.name | slice: 0 : 1) || '?' }}
+          </span>
+        </div>
 
-  <!-- Fecha con flechas -->
-  <div class="flex justify-center items-center mt-8 space-x-4">
-    <button (click)="previousDay()" class="bg-primary hover:bg-primaryHover px-4 py-2 rounded-xl">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-    <h2 class="text-3xl font-bold">{{ currentDate | date: 'dd/MM' }}</h2>
-    <button (click)="nextDay()" class="bg-primary hover:bg-primaryHover px-4 py-2 rounded-xl">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-      </svg>
-    </button>
-  </div>
-
-  <!-- Calorías + macros -->
-  <div class="flex flex-wrap justify-center mt-8 gap-8 bg-background rounded-xl p-6">
-    <div class="flex flex-col items-center">
-      <p class="text-2xl mb-4">Calorías diarias objetivo: 1800</p>
-      <div class="w-32 h-32">
-        <!-- Chart futuro -->
+        <!-- Name + email -->
+        <div>
+          <h2 class="text-xl font-bold text-text1 leading-tight">
+            {{ user()?.name || 'Usuario' }}
+          </h2>
+          <p class="text-sm text-text2 mt-0.5">{{ user()?.email || '' }}</p>
+        </div>
       </div>
-      <p class="mt-4">Consumidas: {{ consumedCalories }} / 1800</p>
+
+      <!-- Edit button -->
+      <button
+        class="edit-btn flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-background4 text-xs font-medium text-text2 hover:border-primary hover:text-primary transition-all"
+      >
+        ✏️ <span>Editar</span>
+      </button>
     </div>
-    <div class="flex flex-col items-start">
-      <p class="text-2xl mb-4">Macros ingeridos</p>
-      <div class="bg-background2 p-4 rounded">
-        <p>Proteínas: {{ macros.proteins }}g</p>
-        <p>Grasas: {{ macros.fats }}g</p>
-        <p>Carbohidratos: {{ macros.carbs }}g</p>
+
+    <!-- Divider -->
+    <hr class="border-background4 mb-4" />
+
+    <!-- Active week widget (reused from home) -->
+    <app-tracking-active></app-tracking-active>
+
+    <!-- Weeks done stat -->
+    <div class="flex items-center justify-between bg-background3 rounded-xl px-4 py-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🏆</span>
+        <span class="text-sm text-text2">Semanas completadas</span>
       </div>
+      <span class="text-2xl font-bold text-primary">{{ totalWeeksDoneHardcoded }}</span>
     </div>
   </div>
 
-  <!-- Agua -->
-  <div class="flex justify-center mt-8">
-    <div class="bg-background2 p-4 rounded-xl w-1/2 text-center">
-      <p class="text-2xl">Agua consumida: {{ waterAmount }} ml / 2000 ml objetivo</p>
+  <!-- ─── History: Weekly Trackings ────────────────────────────────────── -->
+  <section class="mb-6">
+    <h3
+      class="section-title text-base font-semibold text-text2 uppercase tracking-wider mb-3 flex items-center gap-2"
+    >
+      <span>📅</span> Historial de Semanas
+    </h3>
+
+    <div class="space-y-3">
+      @for (tracking of weeklyTrackings; track tracking.id) {
+        <div
+          class="bg-background2 border-2 border-background4 rounded-xl px-4 py-3 flex items-center justify-between history-item"
+        >
+          <div>
+            <p class="text-sm font-medium text-text1">
+              {{ formatDate(tracking.startDate) }} → {{ formatDate(tracking.endDate) }}
+            </p>
+            @if (tracking.planId) {
+              <p class="text-xs text-text2 mt-0.5">Plan asignado</p>
+            }
+          </div>
+
+          @if (tracking.completed) {
+            <span
+              class="px-2.5 py-1 bg-success/20 text-success text-xs rounded-full border border-success/30 font-medium"
+            >
+              ✓ Completada
+            </span>
+          } @else {
+            <span
+              class="px-2.5 py-1 bg-warning/20 text-warning text-xs rounded-full border border-warning/30 font-medium"
+            >
+              En progreso
+            </span>
+          }
+        </div>
+      }
     </div>
-  </div>
+  </section>
 
-  <!-- Comidas -->
-  <div class="flex flex-col mt-8 space-y-8">
-    <!-- @for(type of meals ; track meals){
+  <!-- ─── History: Routines Used ────────────────────────────────────────── -->
+  <section class="mb-6">
+    <h3
+      class="section-title text-base font-semibold text-text2 uppercase tracking-wider mb-3 flex items-center gap-2"
+    >
+      <span>💪</span> Rutinas Utilizadas
+    </h3>
 
-        <ng-container>
-            <div class="bg-background p-4 rounded-3xl shadow-lg">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-2xl text-primary capitalize">{{ type }}</h3>
-                    <button (click)="addMeal(type)"
-                        class="bg-confirm hover:bg-confirmHover px-4 py-2 rounded text-xl">+</button>
-                </div>
-                <ul class="mt-4">
-                    @for (plato of meals[type]; track plato ){
-
-                    <li *ngFor="let plato of meals[type]">{{ plato.name }} - {{ plato.calories }} cal</li>
-                    }
-                </ul>
+    <div class="grid grid-cols-2 gap-3">
+      @for (routine of routinesUsed; track routine.id) {
+        <div class="bg-background2 border-2 border-background4 rounded-xl p-3 history-item">
+          <p class="text-sm font-semibold text-text1 mb-1.5">{{ routine.title }}</p>
+          @if (routine.type?.length) {
+            <div class="flex flex-wrap gap-1">
+              @for (cat of routine.type; track cat) {
+                <span class="text-xs px-2 py-0.5 bg-primary/15 text-primary rounded-full">
+                  {{ categoryLabel(cat) }}
+                </span>
+              }
             </div>
-        </ng-container>
-        } -->
-  </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ─── History: Exercises Used ──────────────────────────────────────── -->
+  <section class="mb-6">
+    <h3
+      class="section-title text-base font-semibold text-text2 uppercase tracking-wider mb-3 flex items-center gap-2"
+    >
+      <span>🏋️</span> Ejercicios Usados
+    </h3>
+
+    <div class="space-y-2">
+      @for (exercise of exercisesUsed; track exercise.name) {
+        <div
+          class="bg-background2 border-2 border-background4 rounded-xl px-4 py-3 flex items-center justify-between history-item"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-lg">{{ exercise.usesWeight ? '🏋️' : '🤸' }}</span>
+            <div>
+              <p class="text-sm font-medium text-text1">{{ exercise.name }}</p>
+              <span class="text-xs text-text2">{{ categoryLabel(exercise.category) }}</span>
+            </div>
+          </div>
+          <span class="text-xs px-2.5 py-1 bg-background4 rounded-full text-text2">
+            {{ exercise.usesWeight ? 'Con peso' : 'Sin peso' }}
+          </span>
+        </div>
+      }
+    </div>
+  </section>
 </div>

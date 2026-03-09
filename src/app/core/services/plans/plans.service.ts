@@ -161,9 +161,8 @@ export class PlansService {
     }
 
     private clearPlan() {
-        console.log('estoy borrando cosas');
-        // this.plansSubject.next(null);
-        // this.planStorage.removePlanStorage(this.userId());
-        // this.userId.set('');
+        this.plansSubject.next(null);
+        this.planStorage.removePlanStorage(this.userId());
+        this.userId.set('');
     }
 }

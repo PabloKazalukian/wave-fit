@@ -64,9 +64,6 @@ export class PlanTrackingDomainService {
                 .pipe(
                     takeUntilDestroyed(this.destroyRef),
                     finalize(() => this.state.setLoadingTracking(false)),
-                    tap((res) => {
-                        console.log(res);
-                    }),
                 )
                 .subscribe((res) => {
                     if (!res) {
@@ -185,7 +182,6 @@ export class PlanTrackingDomainService {
 
         this.state.setLoading(true);
 
-        console.log(current.workouts);
         const workoutDays: UpdateWeekLogDayInput[] = (current.workouts ?? []).map((w, i) => ({
             order: i + 1,
             workoutSessionId: w.id ?? undefined,
@@ -209,7 +205,6 @@ export class PlanTrackingDomainService {
             endDate: this.dateService.formatDate(current.endDate),
             days,
         };
-        console.log(input);
 
         return this.api.updateTracking(input).pipe(
             takeUntilDestroyed(this.destroyRef),
