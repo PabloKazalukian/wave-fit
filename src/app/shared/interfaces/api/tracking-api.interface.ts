@@ -1,9 +1,4 @@
-import {
-    ExercisePerformanceVM,
-    ExtraActivityVM,
-    StatusWorkoutSession,
-    WorkoutSessionVM,
-} from '../tracking.interface';
+import { StatusWorkoutSession } from '../tracking.interface';
 export type DayStatusAPI = 'pending' | 'complete' | 'skipped';
 
 export interface TrackingCreate {
@@ -13,17 +8,7 @@ export interface TrackingCreate {
     notes?: string;
     completed?: boolean;
 }
-// export interface TrackingAPI {
-//     id: string;
-//     userId: string;
-//     startDate: Date;
-//     endDate: Date;
-//     workouts?: WorkoutSessionAPI[];
-//     extras?: ExtraSessionAPI[];
-//     planId?: string; // plan elegido esa semana
-//     notes?: string;
-//     completed: boolean;
-// }
+
 export interface WorkoutSessionAPI {
     id?: string;
     date?: Date;
@@ -74,17 +59,7 @@ export interface WeekLogDayAPI {
     status: DayStatusAPI;
 }
 
-// export interface WeekLogDayVM {
-//     order: number;
-//     date: Date;
-//     isRest: boolean;
-//     workoutSessionId?: string | null;
-//     exercises: ExercisePerformanceVM[];
-//     extraSessionIds: string[];
-//     status: DayStatusVM;
-// }
-
-// ─── Input para update ───────────────────────────────────────────────────────
+//───────────────────────────────────────────────────────
 
 export interface UpdateWeekLogInput {
     id: string;

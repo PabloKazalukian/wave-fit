@@ -2,31 +2,22 @@ import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
-import { catchError, delay, map, Observable, of, tap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import {
-    ExercisePerformanceVM,
-    ExtraActivityVM,
-    StatusWorkoutSession,
     StatusWorkoutSessionEnum,
     TrackingVM,
     TrackingVMS,
     WorkoutSessionVM,
-    WeekLogDayVM,
 } from '../../../../../shared/interfaces/tracking.interface';
 import {
-    DayStatusAPI,
-    ExercisePerformanceAPI,
-    ExtraSessionAPI,
     TrackingAPI,
     TrackingCreate,
     UpdateWeekLogDayInput,
     UpdateWeekLogInput,
-    WeekLogDayAPI,
     WorkoutSessionAPI,
 } from '../../../../../shared/interfaces/api/tracking-api.interface';
 import * as trackingWrappers from '../../../../../shared/wrappers/tracking.wrapper';
 import { ExercisesService } from '../../../exercises/exercises.service';
-import { ExerciseCategory } from '../../../../../shared/interfaces/exercise.interface';
 import {
     CREATE_WEEK_LOG,
     CREATE_WORKOUT_SESSION,
