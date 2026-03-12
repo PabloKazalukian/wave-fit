@@ -120,6 +120,31 @@
         [size]="'md'"
         (click)="initTrackingWithRoutinePlan()"
       ></app-btn>
+      <app-dialog
+        [isOpen]="showDialog()"
+        [title]="'Error'"
+        (confirm)="showDialog.set(false)"
+        [closeOnBackdrop]="false"
+        [locked]="true"
+      >
+        Ya tienes una rutina semanal activa. Debes completarla antes de iniciar una nueva.
+        <div class="flex flex-col gap-2 mt-4">
+          <app-btn
+            [text]="'Ir a mi semana'"
+            [variant]="'outline'"
+            [color]="'error'"
+            [size]="'md'"
+            (click)="navigateToMyDay()"
+          ></app-btn>
+          <app-btn
+            [text]="'volver'"
+            [variant]="'outline'"
+            [color]="'primary'"
+            [size]="'md'"
+            (click)="showDialog.set(false)"
+          ></app-btn>
+        </div>
+      </app-dialog>
     </div>
   }
 </div>

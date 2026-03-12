@@ -44,7 +44,9 @@ export class RoutinesServices {
                 this.loading = false;
                 this.routinesCache$.next(res || []);
             }),
+            tap((res) => console.log(res)),
             switchMap(() => this.routinesCache$.asObservable()),
+            tap((res) => console.log(this.routinesCache$)),
         );
     }
 

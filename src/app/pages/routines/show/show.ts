@@ -8,10 +8,12 @@ import { AccordionItemComponent } from '../../../shared/components/ui/accordion-
 import { ExerciseCategoryPipe } from '../../../shared/pipes/exercise-category.pipe';
 import { BtnComponent } from '../../../shared/components/ui/btn/btn';
 import { NgClass } from '@angular/common';
+import { PlanTrackingService } from '../../../core/services/trackings/plan-tracking.service';
+import { DialogComponent } from '../../../shared/components/ui/dialog/dialog';
 
 @Component({
     selector: 'app-show',
-    imports: [AccordionItemComponent, ExerciseCategoryPipe, BtnComponent, NgClass],
+    imports: [AccordionItemComponent, ExerciseCategoryPipe, BtnComponent, NgClass, DialogComponent],
     standalone: true,
     templateUrl: './show.html',
     styles: ``,
@@ -29,9 +31,12 @@ export class Show implements OnInit {
     private openAccordionIndex = signal<number | null>(0);
     openIndex = signal<number | null>(null);
 
+    showDialog = signal<boolean>(false);
+
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly svcRoutines = inject(PlansService);
+    private readonly svcTracking = inject(PlanTrackingService);
 
     exerciseCategory = ExerciseCategory;
 
@@ -57,25 +62,38 @@ export class Show implements OnInit {
         this.openAccordionIndex.set(this.openAccordionIndex() === index ? null : index);
     }
 
+    navigateToMyDay() {
+        this.router.navigate(['/my-day']);
+    }
+
     initTrackingWithRoutinePlan(): void {
-        const plan = this.routinePlan();
+        const plan = this.routinePlan() as any; // Cast to access id if needed, anyway RoutinePlan has id
         if (!plan) return;
+
+        // Verificar si ya tiene una semana activa
+        if (this.svcTracking.tracking()) {
+            // alert('Ya tienes una semana activa. Debes completarla antes de iniciar una nueva.');
+            this.showDialog.set(true);
+            // this.router.navigate(['/tracking', this.svcTracking.tracking()?.id]);
+            return;
+        }
 
         this.isStartingRoutine.set(true);
 
-        //     this.svcRoutines
-        //         .initWeeklyTracking(plan)
-        //         .pipe(takeUntilDestroyed(this.destroyRef))
-        //         .subscribe({
-        //             next: (result) => {
-        //                 this.isStartingRoutine.set(false);
-        //                 // Navegar al tracking creado o a la pantalla de rutina activa
-        //                 this.router.navigate(['/tracking', result?.id]);
-        //             },
-        //             error: (err) => {
-        //                 console.error('Error iniciando rutina semanal:', err);
-        //                 this.isStartingRoutine.set(false);
-        //             },
-        //         });
+        this.svcTracking
+            .createTracking(plan.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (result) => {
+                    this.isStartingRoutine.set(false);
+                    if (result) {
+                        this.router.navigate(['/tracking', result.id]);
+                    }
+                },
+                error: (err) => {
+                    console.error('Error iniciando rutina semanal:', err);
+                    this.isStartingRoutine.set(false);
+                },
+            });
     }
 }

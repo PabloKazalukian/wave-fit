@@ -63,6 +63,9 @@ export class PlanTrackingDomainService {
                 .getTrackingByUser()
                 .pipe(
                     takeUntilDestroyed(this.destroyRef),
+                    tap((res) => {
+                        console.log(res);
+                    }),
                     finalize(() => this.state.setLoadingTracking(false)),
                 )
                 .subscribe((res) => {
@@ -75,12 +78,13 @@ export class PlanTrackingDomainService {
         }
     }
 
-    createTracking(): Observable<TrackingVM | null | undefined> {
+    createTracking(planId?: string): Observable<TrackingVM | null | undefined> {
         const { start, end } = this.dateService.todayPlusDays(7);
 
         const payload: TrackingCreate = {
             startDate: start,
             endDate: end,
+            planId,
         };
 
         return this.api.createTracking(payload).pipe(

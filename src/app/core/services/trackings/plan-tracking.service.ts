@@ -23,8 +23,8 @@ export class PlanTrackingService {
     readonly loadingWorkoutCreation = this.state.loadingWorkoutCreation;
     readonly trackingPlanVM$ = this.state.tracking$; // Alias for backward compatibility
 
-    createTracking(): Observable<TrackingVM | null | undefined> {
-        return this.domain.createTracking();
+    createTracking(planId?: string): Observable<TrackingVM | null | undefined> {
+        return this.domain.createTracking(planId);
     }
 
     createWorkout(dateWorkout: Date): Observable<WorkoutSessionVM | null | undefined> {
