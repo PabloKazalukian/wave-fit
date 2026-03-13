@@ -38,6 +38,7 @@ export class BtnComponent implements AfterContentInit {
     @Input() routerLink?: string;
     @Input() buttonType: 'button' | 'submit' | 'reset' = 'button';
     @Input() size: 'sm' | 'md' = 'sm';
+    @Input() fragment?: string;
     showIcon = input<boolean>(false);
 
     // @ContentChild('iconTemplate') iconTemplate?: TemplateRef<any>;

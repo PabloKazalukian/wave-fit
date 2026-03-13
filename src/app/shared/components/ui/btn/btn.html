@@ -1,5 +1,5 @@
 @if (routerLink && !isDisabled) {
-  <a [routerLink]="routerLink" [class]="'block ' + classList">
+  <a [routerLink]="routerLink" [fragment]="fragment" [class]="'block ' + classList">
     <div class="flex flex-col w-full">
       <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
     </div>

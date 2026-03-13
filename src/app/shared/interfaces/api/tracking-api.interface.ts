@@ -65,6 +65,7 @@ export interface UpdateWeekLogInput {
     id: string;
     startDate?: string;
     endDate?: string;
+    userId?: string;
     planId?: string;
     days?: UpdateWeekLogDayInput[];
     completed?: boolean;

@@ -125,7 +125,3 @@ La documentación técnica de componentes se encuentra en [`/documents`](./docum
 **Pablo Kazalukian**
 
 ---
-
-<p align="center">
-  Hecho con ❤️ y mucha proteína 💪
-</p>

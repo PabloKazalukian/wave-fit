@@ -99,6 +99,7 @@ export class PlanTrackingApi {
     }
 
     updateTracking(payload: UpdateWeekLogInput): Observable<TrackingVMS | null> {
+        console.log(payload);
         return this.apollo
             .mutate<{ updateWeekLog: TrackingAPI }>({
                 mutation: UPDATE_WEEK_LOG,

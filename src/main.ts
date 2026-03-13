@@ -1,5 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter, Router, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, HttpHeaders } from '@angular/common/http';
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
@@ -21,7 +21,7 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
     providers: [
         provideAnimations(),
-        provideRouter(routes),
+        provideRouter(routes, withInMemoryScrolling({ anchorScrolling: 'enabled' })),
         provideHttpClient(),
         provideAuthInitializer(),
         provideApollo(() => {

@@ -2,7 +2,18 @@ import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingApi } from './plan-tracking/api/plan-tranking-api.service';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
 import { PlanTrackingStateService } from './plan-tracking-state.service';
-import { filter, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
+import {
+    delay,
+    filter,
+    finalize,
+    map,
+    Observable,
+    of,
+    switchMap,
+    take,
+    tap,
+    timeInterval,
+} from 'rxjs';
 import {
     ExercisePerformanceVM,
     StatusWorkoutSessionEnum,
@@ -190,6 +201,7 @@ export class PlanTrackingDomainService {
             order: i + 1,
             workoutSessionId: w.id ?? undefined,
             extraSessionIds: [],
+            isRest: w.id ? false : true,
             status: w.id ? 'complete' : 'skipped',
         }));
 
@@ -203,6 +215,7 @@ export class PlanTrackingDomainService {
         const input: UpdateWeekLogInput = {
             id: current.id,
             completed: complete,
+            userId: this.state.userId(),
             notes: current.notes,
             ...(current.planId ? { planId: current.planId } : {}),
             startDate: this.dateService.formatDate(current.startDate),
@@ -217,6 +230,7 @@ export class PlanTrackingDomainService {
                     this.storage.removeTrackingStorage(this.state.userId());
                 }
             }),
+            delay(2000),
             finalize(() => this.state.setLoading(false)),
         );
     }
