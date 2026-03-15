@@ -15,6 +15,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { requiredArray } from '../../../../validators/array.validator';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
+import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: Exercise[];
@@ -27,6 +28,7 @@ type RoutineDayType = FormControlsOf<RoutineDayCreate>;
 export class RoutineExerciseFormFacade {
     private destroyRef = inject(DestroyRef);
     private readonly exerciseSvc = inject(ExercisesService);
+    private readonly routineSvc = inject(RoutinesServices);
     private readonly injector = inject(Injector);
 
     routineForm = new FormGroup<RoutineDayType>({
@@ -123,5 +125,33 @@ export class RoutineExerciseFormFacade {
                 },
                 error: () => this.loading.set(false),
             });
+    }
+
+    submitRoutine(onSuccess: () => void): void {
+        this.loadingCreate.set(true);
+
+        if (this.routineForm.invalid) {
+            this.routineForm.markAllAsTouched();
+            this.loadingCreate.set(false);
+            return;
+        }
+
+        const newRoutine = this.routineForm.value as RoutineDayCreate;
+
+        this.routineSvc.createRoutine(newRoutine).subscribe({
+            next: () => {
+                this.success.set(true);
+                this.routineSvc.updateAllRoutines().subscribe({
+                    next: () => {
+                        setTimeout(() => {
+                            this.loadingCreate.set(false);
+                            onSuccess();
+                        }, 2000);
+                    },
+                    error: () => this.loadingCreate.set(false)
+                });
+            },
+            error: () => this.loadingCreate.set(false),
+        });
     }
 }

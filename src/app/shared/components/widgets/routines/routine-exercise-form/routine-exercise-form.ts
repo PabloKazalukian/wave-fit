@@ -13,8 +13,6 @@ import { Loading } from '../../../ui/loading/loading';
 import { FormControl } from '@angular/forms';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { FormInputComponent } from '../../../ui/input/input';
-import { RoutineDayCreate } from '../../../../interfaces/routines.interface';
-import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
 import { ExerciseCreate } from '../../exercises/exercise-create/exercise-create';
 import { RoutineExerciseFormFacade } from './routine-exercise-form.facade';
 
@@ -27,18 +25,14 @@ import { RoutineExerciseFormFacade } from './routine-exercise-form.facade';
 })
 export class RoutineExerciseForm implements OnInit {
     facade = inject(RoutineExerciseFormFacade);
-    private readonly routineSvc = inject(RoutinesServices);
 
     @Output() routineCreated = new EventEmitter<void>();
 
-    // input() signal reemplaza @Input() + ngOnChanges
     readonly categoryExercise = input.required<string>();
 
     showCreateExercise = signal(false);
 
     constructor() {
-        // effect() reacciona automáticamente a cada cambio de categoryExercise
-        // Se ejecuta también en la primera emisión, por eso podemos quitar ngOnInit para la carga inicial
         effect(() => {
             const category = this.categoryExercise();
             this.facade.onCategoryChange(category);
@@ -46,35 +40,14 @@ export class RoutineExerciseForm implements OnInit {
     }
 
     ngOnInit(): void {
-        // initRoutineFacade ya no necesita llamarse aquí porque el effect
-        // del constructor maneja tanto la primera carga como los cambios.
-        // Solo inicializamos el facade una vez para el form sync.
         this.facade.initRoutineFacade(this.categoryExercise());
 
         setTimeout(() => this.facade.loading.set(false), 200);
     }
 
     onSubmit(): void {
-        this.facade.loadingCreate.set(true);
-
-        if (this.facade.routineForm.invalid) {
-            this.facade.routineForm.markAllAsTouched();
-            this.facade.loadingCreate.set(false);
-            return;
-        }
-
-        const newRoutine = this.facade.routineForm.value as RoutineDayCreate;
-
-        this.routineSvc.createRoutine(newRoutine).subscribe({
-            next: () => {
-                this.facade.success.set(true);
-                this.routineSvc.updateAllRoutines().subscribe();
-                setTimeout(() => {
-                    this.facade.loadingCreate.set(false);
-                    this.routineCreated.emit();
-                }, 2000);
-            },
-            error: () => this.facade.loadingCreate.set(false),
+        this.facade.submitRoutine(() => {
+            this.routineCreated.emit();
         });
     }
 

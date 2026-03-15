@@ -5,6 +5,7 @@ import {
     WorkoutSessionAPI,
     WeekLogDayAPI,
     UpdateWeekLogDayInput,
+    UpdateWeekLogInput,
 } from '../interfaces/api/tracking-api.interface';
 import {
     ExercisePerformanceVM,
@@ -173,4 +174,27 @@ export function wrapperDayStatusApiToStatusWorkoutSession(
         case 'skipped':
             return StatusWorkoutSessionEnum.REST;
     }
+}
+
+export function wrapperWorkoutSessionVMtoUpdateWeekLogDayInput(
+    workouts: WorkoutSessionVM[],
+): UpdateWeekLogDayInput[] {
+    return (workouts ?? []).map((w, i) => ({
+        order: i + 1,
+        workoutSessionId: w.id ?? undefined,
+        extraSessionIds: [],
+        isRest: w.id ? false : true,
+        status: w.id ? 'complete' : 'skipped',
+    }));
+}
+
+export function emptyDay(
+    workoutDays: UpdateWeekLogDayInput[],
+    totalDays: number,
+): UpdateWeekLogDayInput[] {
+    return Array.from({ length: totalDays }, (_, i) => {
+        const order = i + 1;
+        const existing = workoutDays.find((d) => d.order === order);
+        return existing ?? { order, status: 'skipped', extraSessionIds: [] };
+    });
 }

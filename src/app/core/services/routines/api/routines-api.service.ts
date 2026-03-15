@@ -43,6 +43,7 @@ export class RoutinesApiService {
                         }
                     }
                 `,
+                fetchPolicy: 'network-only',
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
@@ -92,6 +93,7 @@ export class RoutinesApiService {
                     }
                 }
             `,
+            fetchPolicy: 'network-only',
         });
     }
 
@@ -108,6 +110,7 @@ export class RoutinesApiService {
                     }
                 `,
                 variables: { category },
+                fetchPolicy: 'network-only',
             })
             .pipe(
                 map((res) => res.data),

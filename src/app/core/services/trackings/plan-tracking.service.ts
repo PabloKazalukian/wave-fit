@@ -1,13 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { PlanTrackingDomainService } from './plan-tracking-domain.service';
 import { PlanTrackingStateService } from './plan-tracking-state.service';
-import { Observable } from 'rxjs';
+import { filter, map, Observable } from 'rxjs';
 import {
     ExercisePerformanceVM,
     TrackingVM,
     TrackingVMS,
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
+import { DateService } from '../date.service';
 
 @Injectable({
     providedIn: 'root',
@@ -15,6 +16,7 @@ import {
 export class PlanTrackingService {
     private domain = inject(PlanTrackingDomainService);
     private state = inject(PlanTrackingStateService);
+    private dateService = inject(DateService);
 
     readonly tracking$ = this.state.tracking$;
     readonly tracking = this.state.tracking;
@@ -56,18 +58,40 @@ export class PlanTrackingService {
     }
 
     get getWorkouts(): Observable<WorkoutSessionVM[]> {
-        return this.domain.getWorkouts();
+        return this.state.tracking$.pipe(
+            filter((tracking) => !!tracking),
+            map((tracking) => tracking?.workouts || []),
+        );
     }
 
     getExercises(workoutDate: Date): Observable<ExercisePerformanceVM[]> {
-        return this.domain.getExercises(workoutDate);
+        return this.state.tracking$.pipe(
+            filter((tracking) => !!tracking),
+            map(
+                (tracking) =>
+                    tracking?.workouts?.filter((w) =>
+                        this.dateService.isEqualDate(w.date, workoutDate),
+                    ) || [],
+            ),
+            map((workouts) => workouts[0]?.exercises || []),
+        );
     }
 
     getWorkout(date: Date): Observable<WorkoutSessionVM | undefined> {
-        return this.domain.getWorkout(date);
+        return this.state.tracking$.pipe(
+            filter((tracking) => !!tracking),
+            map((tracking) => tracking?.workouts || []),
+            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
+        );
     }
 
     getExercise(date: Date, exerciseId: string): Observable<ExercisePerformanceVM | undefined> {
-        return this.domain.getExercise(date, exerciseId);
+        return this.state.tracking$.pipe(
+            filter((tracking) => !!tracking),
+            map((tracking) => tracking?.workouts || []),
+            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
+            map((workout) => workout?.exercises.find((e) => e.exerciseId === exerciseId)),
+        );
     }
 }
+

@@ -1,6 +1,6 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { BehaviorSubject, filter, map, Observable, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, delay, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../auth/auth.service';
 import {
@@ -40,8 +40,11 @@ export class RoutinesServices {
         this.loading = true;
 
         return this.api.getRoutines().pipe(
+            delay(2000),
             tap((res) => {
                 this.loading = false;
+                console.log(res);
+                console.log(this.routines$);
                 this.routinesCache$.next(res || []);
             }),
             tap((res) => console.log(res)),
@@ -105,31 +108,6 @@ export class RoutinesServices {
                 map((res) => res.data?.routinePlan),
             );
     }
-
-    // getRoutinesByCategory(category: ExerciseCategory): Observable<any> {
-    //     return this.apollo
-    //         .query({
-    //             query: gql`
-    //                 query GetRoutines($category: ExerciseCategory!) {
-    //                     routinesByCategory(input: { category: $category }) {
-    //                         id
-    //                         title
-    //                         type
-    //                         exercises {
-    //                             id
-    //                             name
-    //                             category
-    //                         }
-    //                     }
-    //                 }
-    //             `,
-    //             variables: { category },
-    //         })
-    //         .pipe(
-    //             map((res) => res.data),
-    //             handleGraphqlError(this.authSvc),
-    //         );
-    // }
 
     getRoutinesByCategory(category: ExerciseCategory): Observable<RoutineDay[] | null> {
         return this.getAllRoutines().pipe(

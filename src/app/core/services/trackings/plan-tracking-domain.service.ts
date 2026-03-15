@@ -2,18 +2,7 @@ import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingApi } from './plan-tracking/api/plan-tranking-api.service';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
 import { PlanTrackingStateService } from './plan-tracking-state.service';
-import {
-    delay,
-    filter,
-    finalize,
-    map,
-    Observable,
-    of,
-    switchMap,
-    take,
-    tap,
-    timeInterval,
-} from 'rxjs';
+import { delay, filter, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     StatusWorkoutSessionEnum,
@@ -29,6 +18,10 @@ import {
     UpdateWeekLogInput,
 } from '../../../shared/interfaces/api/tracking-api.interface';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import {
+    emptyDay,
+    wrapperWorkoutSessionVMtoUpdateWeekLogDayInput,
+} from '../../../shared/wrappers/tracking.wrapper';
 
 @Injectable({
     providedIn: 'root',
@@ -193,35 +186,16 @@ export class PlanTrackingDomainService {
 
     completeTracking(complete: boolean): Observable<TrackingVMS | null> {
         const current: TrackingVM | null = this.state.getTrackingValue();
-        if (!current) return of(null);
+        if (!current || !current.workouts) return of(null);
 
         this.state.setLoading(true);
 
-        const workoutDays: UpdateWeekLogDayInput[] = (current.workouts ?? []).map((w, i) => ({
-            order: i + 1,
-            workoutSessionId: w.id ?? undefined,
-            extraSessionIds: [],
-            isRest: w.id ? false : true,
-            status: w.id ? 'complete' : 'skipped',
-        }));
+        const workoutDays = wrapperWorkoutSessionVMtoUpdateWeekLogDayInput(current.workouts);
 
         const totalDays = 7;
-        const days: UpdateWeekLogDayInput[] = Array.from({ length: totalDays }, (_, i) => {
-            const order = i + 1;
-            const existing = workoutDays.find((d) => d.order === order);
-            return existing ?? { order, status: 'skipped', extraSessionIds: [] };
-        });
+        const days = emptyDay(workoutDays, totalDays);
 
-        const input: UpdateWeekLogInput = {
-            id: current.id,
-            completed: complete,
-            userId: this.state.userId(),
-            notes: current.notes,
-            ...(current.planId ? { planId: current.planId } : {}),
-            startDate: this.dateService.formatDate(current.startDate),
-            endDate: this.dateService.formatDate(current.endDate),
-            days,
-        };
+        const input: UpdateWeekLogInput = this.transformUpdateWeekLogInput(days, current, complete);
 
         return this.api.updateTracking(input).pipe(
             takeUntilDestroyed(this.destroyRef),
@@ -232,43 +206,6 @@ export class PlanTrackingDomainService {
             }),
             delay(2000),
             finalize(() => this.state.setLoading(false)),
-        );
-    }
-
-    getWorkouts(): Observable<WorkoutSessionVM[]> {
-        return this.state.tracking$.pipe(
-            filter((tracking) => !!tracking),
-            map((tracking) => tracking?.workouts || []),
-        );
-    }
-
-    getExercises(workoutDate: Date): Observable<ExercisePerformanceVM[]> {
-        return this.state.tracking$.pipe(
-            filter((tracking) => !!tracking),
-            map(
-                (tracking) =>
-                    tracking?.workouts?.filter((w) =>
-                        this.dateService.isEqualDate(w.date, workoutDate),
-                    ) || [],
-            ),
-            map((workouts) => workouts[0]?.exercises || []),
-        );
-    }
-
-    getWorkout(date: Date): Observable<WorkoutSessionVM | undefined> {
-        return this.state.tracking$.pipe(
-            filter((tracking) => !!tracking),
-            map((tracking) => tracking?.workouts || []),
-            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
-        );
-    }
-
-    getExercise(date: Date, exerciseId: string): Observable<ExercisePerformanceVM | undefined> {
-        return this.state.tracking$.pipe(
-            filter((tracking) => !!tracking),
-            map((tracking) => tracking?.workouts || []),
-            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
-            map((workout) => workout?.exercises.find((e) => e.exerciseId === exerciseId)),
         );
     }
 
@@ -283,5 +220,22 @@ export class PlanTrackingDomainService {
     private _persist(tracking: TrackingVM) {
         this.state.setTracking(tracking);
         this.storage.setTrackingStorage(tracking, this.state.userId());
+    }
+
+    private transformUpdateWeekLogInput(
+        days: UpdateWeekLogDayInput[],
+        current: TrackingVM,
+        complete: boolean,
+    ): UpdateWeekLogInput {
+        return {
+            id: current.id,
+            completed: complete,
+            userId: this.state.userId(),
+            notes: current.notes,
+            ...(current.planId ? { planId: current.planId } : {}),
+            startDate: this.dateService.formatDate(current.startDate),
+            endDate: this.dateService.formatDate(current.endDate),
+            days,
+        };
     }
 }
