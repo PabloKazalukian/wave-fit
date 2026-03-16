@@ -39,9 +39,7 @@ export class ExerciseCreateFacade {
         }),
         description: new FormControl('', { nonNullable: true }),
         category: new FormControl<ExerciseCategory | null>(null, {
-            // nonNullable: true,
             validators: [noEmpty],
-            // validators: [],
         }),
         usesWeight: new FormControl(false, { nonNullable: true }),
     });
@@ -58,16 +56,11 @@ export class ExerciseCreateFacade {
     initFacade() {
         setTimeout(() => {
             this.loading.set(false);
-            //     this.complete.set(true);
             this.complete.set(true);
-
-            // this.showNotification.set(true);
-            // this.notification.set('success');
         }, 1000);
         this.selectForm.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((value) => {
-                console.log(value);
                 this.routineExerciseCreateForm.patchValue({
                     category: value.option as ExerciseCategory,
                 });
@@ -75,12 +68,10 @@ export class ExerciseCreateFacade {
     }
 
     submit(): Observable<Exercise> | null {
-        // this.loading.set(true);
         if (this.routineExerciseCreateForm.invalid || this.selectForm.invalid) {
             this.selectForm.markAllAsTouched();
 
             this.routineExerciseCreateForm.markAllAsTouched();
-            console.log('fail');
             setTimeout(() => {
                 this.loading.set(false);
             }, 1000);
@@ -98,20 +89,5 @@ export class ExerciseCreateFacade {
         return this.exerciseSvc
             .createExercise(newExercise)
             .pipe(takeUntilDestroyed(this.destroyRef));
-        // .subscribe({
-        //     next: (response) => {
-        //         console.log('Exercise created successfully:', response);
-        //         // this.loading.set(false);
-        //         this.complete.set(true);
-        //     },
-        //     error: (error) => {
-        //         this.complete.set(false);
-
-        //         console.error('Error creating exercise:', error);
-        //     },
-        //     complete: () => {
-        //         this.loading.set(false);
-        //     },
-        // });
     }
 }

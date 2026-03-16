@@ -39,7 +39,6 @@ export class MyDay implements OnInit {
             next: (res) => {
                 this.hasActiveTracking.set(false);
                 if (res) this.tracking.set(res);
-                console.log(res);
             },
             error: (err) => {},
         });

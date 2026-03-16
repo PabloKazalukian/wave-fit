@@ -137,7 +137,6 @@ export class RoutinesApiService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                tap((res) => console.log('Routine created successfully:', res)),
                 // map((res) => res.data),
             );
     }

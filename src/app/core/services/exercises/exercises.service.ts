@@ -23,7 +23,7 @@ export class ExercisesService {
         return this.apollo
             .query<{ exercises: Exercise[] }>({
                 query: GET_EXERCISES,
-                fetchPolicy: 'no-cache',
+                fetchPolicy: 'network-only',
             })
             .pipe(
                 tap(({ data }) => {

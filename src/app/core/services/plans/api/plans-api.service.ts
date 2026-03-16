@@ -39,7 +39,6 @@ export class PlansApiService {
 
     createPlan(planInput: RoutinePlanSend): Observable<RoutinePlan | null | undefined> {
         //aca debe llegar limpito
-        console.log(planInput);
         return this.apollo
             .mutate<{ createRoutinePlan: RoutinePlan }>({
                 mutation: CREATE_ROUTINE_PLAN,
@@ -47,9 +46,6 @@ export class PlansApiService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                tap((e) => {
-                    console.log(e);
-                }),
                 map(({ data }) => data?.createRoutinePlan),
             );
     }
@@ -88,7 +84,6 @@ export class PlansApiService {
                 handleGraphqlError(this.authSvc),
                 take(1),
                 map(({ data }) => {
-                    console.log(data);
                     return data?.isRoutineTitleAvailable;
                 }),
             );

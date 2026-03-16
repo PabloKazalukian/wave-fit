@@ -96,7 +96,6 @@ export class RoutineListBoxFacade {
         if (!dayIdx || !currentDay) return;
 
         const newDay = this.state.routineDays().find((d) => d.id === currentDay.id);
-        console.log(routine);
 
         this.planSvc.setDayRoutine(dayIdx - 1, {
             ...currentDay,

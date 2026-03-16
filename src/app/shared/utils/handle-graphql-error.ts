@@ -6,14 +6,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 export function handleGraphqlError<T>(authSvc: AuthService): OperatorFunction<T, T> {
     return catchError((error) => {
-        console.log('handleGraphqlError', error);
-        // console.log(CombinedGraphQLErrors.is(error));
-
         if (CombinedGraphQLErrors.is(error)) {
             // TypeScript now knows `error` is a `CombinedGraphQLErrors` object
             const [errors] = formattedGraphQLErrors(error);
-
-            console.log('err', errors);
             if (errors.message === 'Unauthorized') {
                 authSvc.logout();
                 throwError(() => new Error('UNAUTHORIZED'));

@@ -52,7 +52,6 @@ export function wrapperWeekLogDayApiToVM(
     payload: WeekLogDayAPI,
     allExercises: Exercise[],
 ): WeekLogDayVM {
-    console.log(payload);
     return {
         order: payload.order,
         date: new Date(payload.date),

@@ -1,9 +1,10 @@
-import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
 import { StatusWorkoutSessionEnum, TrackingVM } from '../../../../interfaces/tracking.interface';
+import { PlansApiService } from '../../../../../core/services/plans/api/plans-api.service';
 
 @Injectable()
 export class TrackingWeekFacade {
@@ -11,9 +12,29 @@ export class TrackingWeekFacade {
     private readonly destroyRef = inject(DestroyRef);
     private readonly state = inject(WorkoutStateService);
     private readonly trackingSvc = inject(PlanTrackingService);
+    private readonly planApi = inject(PlansApiService);
 
     readonly loading = this.trackingSvc.loading;
     readonly tracking = signal<TrackingVM | null>(null);
+    readonly planName = signal<string>('');
+
+    constructor() {
+        effect(() => {
+            const t = this.tracking();
+            if (t?.planId) {
+                this.planApi.getRoutinePlanById(t.planId).subscribe({
+                    next: (plan) => {
+                        if (plan) {
+                            this.planName.set(plan.name);
+                        }
+                    },
+                    error: (err) => console.error(err)
+                });
+            } else {
+                this.planName.set('');
+            }
+        }, { allowSignalWrites: true });
+    }
 
     readonly outOfDateRange = this.state.outOfDateRange;
     showOutOfRangeDialog = signal(true);

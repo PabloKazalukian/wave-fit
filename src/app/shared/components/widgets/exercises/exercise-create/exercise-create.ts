@@ -34,7 +34,6 @@ export class ExerciseCreate implements OnInit {
         this.facade.submit()?.subscribe({
             next: (response) => {
                 console.log('Exercise created successfully:', response);
-                // this.loading.set(false);
                 this.facade.complete.set(false);
                 this.facade.showNotification.set(true);
                 this.facade.notification.set('success');

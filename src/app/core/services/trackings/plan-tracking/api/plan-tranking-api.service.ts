@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
-import { map, Observable } from 'rxjs';
+import { map, Observable, switchMap, tap } from 'rxjs';
 import {
     StatusWorkoutSessionEnum,
     TrackingVM,
@@ -37,22 +37,26 @@ export class PlanTrackingApi {
     exerciseSvc = inject(ExercisesService);
 
     getTrackingByUser(): Observable<TrackingVM | undefined | null> {
-        return this.apollo
-            .query<{ activeWeekLog: { hasActiveWeek: boolean; week: TrackingAPI } }>({
-                query: FIND_ACTIVE_WEEK_LOG,
-                fetchPolicy: 'no-cache',
-            })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map(({ data }) =>
-                    data?.activeWeekLog.hasActiveWeek
-                        ? trackingWrappers.wrapperTrackingApiToVM(
-                              data.activeWeekLog.week,
-                              this.exerciseSvc.exercises(),
-                          )
-                        : null,
-                ),
-            );
+        return this.exerciseSvc.getExercises().pipe(
+            switchMap(() =>
+                this.apollo
+                    .query<{ activeWeekLog: { hasActiveWeek: boolean; week: TrackingAPI } }>({
+                        query: FIND_ACTIVE_WEEK_LOG,
+                        fetchPolicy: 'no-cache',
+                    })
+                    .pipe(
+                        handleGraphqlError(this.authSvc),
+                        map(({ data }) =>
+                            data?.activeWeekLog.hasActiveWeek
+                                ? trackingWrappers.wrapperTrackingApiToVM(
+                                      data.activeWeekLog.week,
+                                      this.exerciseSvc.exercises(),
+                                  )
+                                : null,
+                        ),
+                    ),
+            ),
+        );
     }
 
     createWorkoutSession(
@@ -99,7 +103,6 @@ export class PlanTrackingApi {
     }
 
     updateTracking(payload: UpdateWeekLogInput): Observable<TrackingVMS | null> {
-        console.log(payload);
         return this.apollo
             .mutate<{ updateWeekLog: TrackingAPI }>({
                 mutation: UPDATE_WEEK_LOG,

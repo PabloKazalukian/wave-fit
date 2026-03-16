@@ -67,9 +67,6 @@ export class PlanTrackingDomainService {
                 .getTrackingByUser()
                 .pipe(
                     takeUntilDestroyed(this.destroyRef),
-                    tap((res) => {
-                        console.log(res);
-                    }),
                     finalize(() => this.state.setLoadingTracking(false)),
                 )
                 .subscribe((res) => {

@@ -38,7 +38,6 @@ export class TrackingWorkoutFacade {
     startRoutineTracking() {
         this.trackingSvc.createWorkout(this.workoutDate()!).subscribe({
             next: (res) => {
-                console.log(res);
                 // this.
             },
             error: () => {},
