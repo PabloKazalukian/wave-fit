@@ -37,9 +37,9 @@
       <div class="bg-background2 rounded-2xl p-4 border-2 border-background4">
         <div class="flex items-center space-x-3 mb-2">
           <div
-            class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-2xl"
+            class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary3"
           >
-            {{ feature.icon }}
+            <lucide-icon [img]="feature.icon" [strokeWidth]="2" size="28"></lucide-icon>
           </div>
           <h3 class="font-semibold text-lg text-primary">{{ feature.title }}</h3>
         </div>
@@ -73,9 +73,9 @@
           >
             <div class="flex items-start space-x-4">
               <div
-                class="w-12 h-12 bg-background3 rounded-xl flex items-center justify-center text-2xl shrink-0 shadow-sm border border-white/5"
+                class="w-12 h-12 bg-background3 text-primary2 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-white/5"
               >
-                {{ feature.icon }}
+                <lucide-icon [img]="feature.icon" [strokeWidth]="2" size="24"></lucide-icon>
               </div>
               <div>
                 <h4 class="font-semibold text-lg text-primary2 mb-1">{{ feature.title }}</h4>

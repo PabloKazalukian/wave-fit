@@ -1,4 +1,7 @@
 <div class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  <div class="bg-background2 border-2 border-background4 rounded-xl p-4 mb-6">
+    <p class="text-sm text-text2">*Información: La siguiente secciones no estan implementadas.</p>
+  </div>
   <!-- ─── Profile Card ─────────────────────────────────────────────────── -->
   <div class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
     <!-- Avatar + Name + Edit -->
@@ -39,7 +42,12 @@
     <!-- Weeks done stat -->
     <div class="flex items-center justify-between bg-background3 rounded-xl px-4 py-3">
       <div class="flex items-center gap-2">
-        <span class="text-xl">🏆</span>
+        <lucide-icon
+          [img]="AwardIcon"
+          [strokeWidth]="2"
+          size="24"
+          class="text-primary2"
+        ></lucide-icon>
         <span class="text-sm text-text2">Semanas completadas</span>
       </div>
       <span class="text-2xl font-bold text-primary">{{ totalWeeksDoneHardcoded }}</span>
@@ -51,7 +59,13 @@
     <h3
       class="section-title text-base font-semibold text-text2 uppercase tracking-wider mb-3 flex items-center gap-2"
     >
-      <span>📅</span> Historial de Semanas
+      <lucide-icon
+        [img]="TrophyIcon"
+        [strokeWidth]="2.5"
+        size="20"
+        class="text-primary"
+      ></lucide-icon>
+      Historial de Semanas
     </h3>
 
     <div class="space-y-3">
@@ -91,7 +105,13 @@
     <h3
       class="section-title text-base font-semibold text-text2 uppercase tracking-wider mb-3 flex items-center gap-2"
     >
-      <span>💪</span> Rutinas Utilizadas
+      <lucide-icon
+        [img]="BicepsFlexedIcon"
+        [strokeWidth]="2.5"
+        size="20"
+        class="text-primary"
+      ></lucide-icon>
+      Rutinas Utilizadas
     </h3>
 
     <div class="grid grid-cols-2 gap-3">
@@ -117,7 +137,13 @@
     <h3
       class="section-title text-base font-semibold text-text2 uppercase tracking-wider mb-3 flex items-center gap-2"
     >
-      <span>🏋️</span> Ejercicios Usados
+      <lucide-icon
+        [img]="DumbbellIcon"
+        [strokeWidth]="2.5"
+        size="20"
+        class="text-primary"
+      ></lucide-icon>
+      Ejercicios Usados
     </h3>
 
     <div class="space-y-2">
@@ -126,7 +152,13 @@
           class="bg-background2 border-2 border-background4 rounded-xl px-4 py-3 flex items-center justify-between history-item"
         >
           <div class="flex items-center gap-3">
-            <span class="text-lg">{{ exercise.usesWeight ? '🏋️' : '🤸' }}</span>
+            <div class="text-primary">
+              <lucide-icon
+                [img]="exercise.usesWeight ? DumbbellIcon : TargetIcon"
+                [strokeWidth]="2"
+                size="24"
+              ></lucide-icon>
+            </div>
             <div>
               <p class="text-sm font-medium text-text1">{{ exercise.name }}</p>
               <span class="text-xs text-text2">{{ categoryLabel(exercise.category) }}</span>

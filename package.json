@@ -37,6 +37,7 @@
     "apollo-angular": "^12.1.0",
     "date-fns": "^4.1.0",
     "graphql": "^16",
+    "lucide-angular": "^0.577.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

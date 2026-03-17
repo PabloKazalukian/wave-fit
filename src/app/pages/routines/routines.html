@@ -16,6 +16,18 @@
     </div>
   </div>
 
+  <div class="bg-background">
+    <div class="flex flex-col gap-2 space-x-3 mb-2">
+      <div class="flex justify-start items-center gap-1 p-2">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-text2">
+          <lucide-icon [img]="feature.icon" [strokeWidth]="2.3" size="28"></lucide-icon>
+        </div>
+        <h3 class="font-semibold text-lg text-primary">{{ feature.title }}</h3>
+      </div>
+      <p class="text-text2">{{ feature.description }}</p>
+    </div>
+  </div>
+
   @if (loading()) {
     <div class="mt-4 mx-1">
       <app-tracking-week-skeleton></app-tracking-week-skeleton>
@@ -31,12 +43,13 @@
             <input
               type="text"
               [formControl]="searchControl"
-              placeholder="Ej: Hipertrofia, Fuerza..."
+              placeholder="Ej: Full Body, Fuerza..."
               class="w-full bg-background2 text-text1 px-4 py-2 rounded-lg border border-transparent focus:border-primary outline-none transition-all"
             />
           </div>
 
           <div class="w-full md:w-48">
+            <label class="text-sm text-text2 mb-1">Distribucion Semanal:</label>
             <app-select
               [placeholder]="'Distribución'"
               [text]="'Días / semana:'"
@@ -82,8 +95,4 @@
       </div>
     </div>
   }
-
-  <div class="mt-8">
-    <!-- <app-exercises-table [enableSelection]="true" /> -->
-  </div>
 </div>

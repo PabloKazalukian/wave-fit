@@ -17,6 +17,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ExerciseCategory } from '../../shared/interfaces/exercise.interface';
+import { LucideAngularModule, Dumbbell, Info, BookOpen } from 'lucide-angular';
 
 type selectFormType = FormControlsOf<SelectTypeInput>;
 
@@ -29,6 +30,7 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
         TrackingWeekSkeletonComponent,
         CommonModule,
         ReactiveFormsModule,
+        LucideAngularModule,
     ],
     standalone: true,
     templateUrl: './routines.html',
@@ -46,6 +48,13 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
 })
 export class Routines implements OnInit {
     private destroyRef = inject(DestroyRef);
+
+    feature = {
+        icon: BookOpen,
+        title: '¿Por dónde empezar?',
+        description:
+            'Explorá los planes semanales disponibles y seleccioná el que mejor se adapte a vos para iniciar el seguimiento de tus entrenamientos. También podés crear tu propio plan desde cero.',
+    };
 
     options: SelectType[] = [
         { name: '1/7', value: '1' },

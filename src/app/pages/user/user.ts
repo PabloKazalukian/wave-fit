@@ -5,10 +5,11 @@ import { TrackingActiveComponent } from '../../shared/components/widgets/trackin
 import { ExerciseCategory } from '../../shared/interfaces/exercise.interface';
 import { TrackingVM } from '../../shared/interfaces/tracking.interface';
 import { RoutineDay } from '../../shared/interfaces/routines.interface';
+import { LucideAngularModule, Trophy, Award, Dumbbell, BicepsFlexed, Target } from 'lucide-angular';
 
 @Component({
     selector: 'app-user',
-    imports: [CommonModule, TrackingActiveComponent],
+    imports: [CommonModule, TrackingActiveComponent, LucideAngularModule],
     standalone: true,
     templateUrl: './user.html',
     styleUrl: './user.css',
@@ -17,6 +18,12 @@ export class User {
     private authService = inject(AuthService);
 
     user = this.authService.user;
+
+    readonly TrophyIcon = Trophy;
+    readonly AwardIcon = Award;
+    readonly DumbbellIcon = Dumbbell;
+    readonly BicepsFlexedIcon = BicepsFlexed;
+    readonly TargetIcon = Target;
 
     // ── Hardcoded mock history data ──────────────────────────────────────────
 
