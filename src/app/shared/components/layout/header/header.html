@@ -97,7 +97,7 @@
               class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
               [class.text-primary]="isActive('/user')"
               (click)="closeDropdowns()"
-              >Ver perfil</a
+              >Mi perfil</a
             >
             <hr class="border-white/5 my-1" />
             <button
@@ -198,11 +198,11 @@
             >
             <div class="flex flex-col gap-2 pl-4">
               <a
-                routerLink="/profile"
+                routerLink="/user"
                 class="text-text2 py-2"
-                [class.text-primary]="isActive('/profile')"
+                [class.text-primary]="isActive('/user')"
                 (click)="toggleMobileMenu()"
-                >Ver perfil</a
+                >Mi perfil</a
               >
               <button class="text-error py-2 text-left" (click)="logout(); toggleMobileMenu()">
                 Cerrar sesión

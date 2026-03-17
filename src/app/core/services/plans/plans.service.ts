@@ -160,6 +160,10 @@ export class PlansService {
         return wrapperRoutinePlanVMtoRoutinePlan(routinePlanVM);
     }
 
+    removePlan() {
+        this.clearPlan();
+    }
+
     private clearPlan() {
         this.plansSubject.next(null);
         this.planStorage.removePlanStorage(this.userId());

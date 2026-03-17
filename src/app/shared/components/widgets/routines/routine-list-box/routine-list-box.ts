@@ -9,6 +9,7 @@ import { RoutineExerciseForm } from '../routine-exercise-form/routine-exercise-f
 import { RoutineExercises } from './routine-exercises/routine-exercises';
 import { AccordionItemComponent } from '../../../ui/accordion-item/accordion-item';
 import { RoutineListBoxFacade } from './routine-list-box.facade';
+import { Loading } from '../../../ui/loading/loading';
 
 @Component({
     selector: 'app-routine-list-box',
@@ -22,6 +23,7 @@ import { RoutineListBoxFacade } from './routine-list-box.facade';
         RoutineExerciseForm,
         RoutineExercises,
         AccordionItemComponent,
+        Loading,
     ],
 })
 export class RoutineListBoxComponent implements OnInit {

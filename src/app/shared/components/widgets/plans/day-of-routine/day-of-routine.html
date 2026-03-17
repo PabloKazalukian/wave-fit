@@ -34,7 +34,11 @@
   >
     <p class="text-text3">Día {{ computedDayPlan()?.day }}</p>
     <p class="text-sm mb-1" [class.text-text2]="computedDayPlan()?.kind === 'REST'">
-      {{ computedDayPlan()?.kind }}
+      @if (computedDayPlan()?.kind === 'WORKOUT') {
+        Día de ejercicio
+      } @else if (computedDayPlan()?.kind === 'REST') {
+        Día de descanso
+      }
     </p>
   </div>
   @if (computedDayPlan()?.kind === 'WORKOUT') {

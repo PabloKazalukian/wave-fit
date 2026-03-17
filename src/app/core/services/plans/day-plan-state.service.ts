@@ -18,7 +18,7 @@ export class DayPlanStateService {
     public readonly routinePlan = toSignal(this.plansSvc.routinePlanVM$, { initialValue: null });
 
     indexDay = signal<DayIndex>(1);
-    routineDays = toSignal(this.routinesSvc.routines$, { initialValue: [] });
+    routineDays = toSignal(this.routinesSvc.routines$);
 
     private daySelectSubject = new Subject<number>();
 
@@ -53,9 +53,11 @@ export class DayPlanStateService {
         return selected?.type && selected.type.length > 0 ? selected.type[0] : null;
     });
 
-    readonly routinesByCategory = computed<RoutineDay[]>(() => {
+    readonly routinesByCategory = computed<RoutineDay[] | undefined>(() => {
         const category = this.selectedCategory();
         const allRoutines = this.routineDays();
+
+        if (allRoutines === undefined) return undefined;
 
         if (!category || !allRoutines.length) return [];
 

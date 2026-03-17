@@ -20,7 +20,11 @@
   }
 
   @if (!this.facade.creatingRoutine()) {
-    @if (this.facade.routinesByCategory().length === 0) {
+    @if (this.facade.routinesByCategory() === undefined) {
+      <div class="flex justify-center w-full py-4">
+        <app-loading></app-loading>
+      </div>
+    } @else if (this.facade.routinesByCategory()?.length === 0) {
       <app-btn [text]="'No hay Rutinas'" [variant]="'outline'" [color]="'primary'"></app-btn>
     } @else {
       <div class="">

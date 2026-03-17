@@ -209,6 +209,11 @@ export class RoutinePlanFormFacade {
         );
     }
 
+    removeForm() {
+        this.routineForm.reset();
+        this.planService.removePlan();
+    }
+
     private validateBusinessRules(): string[] {
         const { weekly_distribution, routineDays } = this.routineForm.getRawValue();
 

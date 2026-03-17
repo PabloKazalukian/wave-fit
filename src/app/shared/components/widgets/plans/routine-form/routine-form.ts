@@ -86,7 +86,8 @@ export class RoutinePlanForm implements OnInit {
 
     confirmCancel(): void {
         this.facade.showConfirmCancel.set(false);
-        this.router.navigate(['/routines/create']); // Or wherever appropriate
+        this.facade.removeForm();
+        this.router.navigate(['/routines']);
     }
 
     onRestart(): void {

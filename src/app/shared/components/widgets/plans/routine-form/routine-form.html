@@ -1,11 +1,15 @@
-<div class="bg-background2 py-8 rounded-2xl px-4">
+<div class="bg-background2 py-8 rounded-2xl px-4 mt-2">
   @if (this.facade.complete()) {
     <app-success-screen
       [title]="'¡Rutina creada con éxito!'"
       [description]="'Serás redirigido a tu nueva rutina en un instante. ¡Que la disfrutes!'"
     ></app-success-screen>
   } @else {
-    <div class="px-4">
+    <div class="">
+      <p class="bg-background text-text2 rounded-lg p-2 font-bold text-center text-sm mb-2">
+        Este formulario guarda tus datos en tu sesion, para una mejor experiencia, para borrarlos
+        debes guardar la rutina o cancelar.
+      </p>
       <h3 class="text-2xl text-primary mb-6">Rutina:</h3>
       <div class="">
         <app-input
@@ -44,7 +48,7 @@
       }
       @if (this.facade.show()) {
         <div>
-          <div class="px-4">
+          <div class="">
             <app-weekly-routine-planner></app-weekly-routine-planner>
           </div>
 
