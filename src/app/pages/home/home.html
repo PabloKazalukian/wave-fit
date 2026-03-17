@@ -55,8 +55,49 @@
   <!-- Active Week Status -->
   <app-tracking-active></app-tracking-active>
 
+  <!-- Próximamente Section -->
+  <div class="mt-16 mb-8 relative">
+    <div class="absolute -top-4 -left-4 w-20 h-20 bg-primary/10 rounded-full blur-xl"></div>
+    <div class="relative">
+      <h2 class="text-3xl font-bold mb-3 text-primary2">Próximamente</h2>
+      <h3 class="text-xl font-semibold mb-3 text-primary">WaveFit está creciendo</h3>
+      <p class="text-text2 mb-8 leading-relaxed">
+        Esto es solo el comienzo. Hay mucho más en camino para ayudarte a entrenar mejor, con más
+        inteligencia y menos fricción.
+      </p>
+
+      <div class="grid grid-cols-1 gap-4">
+        @for (feature of upcomingFeatures; track feature.title) {
+          <div
+            class="bg-background2/50 backdrop-blur-sm rounded-2xl p-5 border border-primary/20 hover:border-primary/40 transition-colors"
+          >
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-12 h-12 bg-background3 rounded-xl flex items-center justify-center text-2xl shrink-0 shadow-sm border border-white/5"
+              >
+                {{ feature.icon }}
+              </div>
+              <div>
+                <h4 class="font-semibold text-lg text-primary2 mb-1">{{ feature.title }}</h4>
+                <p class="text-sm text-text2 leading-relaxed">
+                  {{ feature.description }}
+                </p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="mt-10 bg-gradient-to-r from-primary/10 to-transparent p-6 rounded-2xl">
+        <p class="text-primary2 font-medium text-lg italic">
+          Mientras tanto, empezá a entrenar. Ya tenés todo lo que necesitás para comenzar hoy.
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- Additional Info -->
-  <div class="mt-8 text-center">
+  <div class="mt-12 text-center pb-8 border-t border-background4 pt-6">
     <p class="text-xs text-text2">Simple • Completo • A tu ritmo</p>
   </div>
 </div>
