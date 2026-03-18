@@ -199,6 +199,7 @@ export class PlanTrackingDomainService {
             tap((res) => {
                 if (res) {
                     this.storage.removeTrackingStorage(this.state.userId());
+                    this.state.setTracking(null);
                 }
             }),
             delay(2000),
