@@ -33,6 +33,14 @@ export class PlanTrackingService {
         return this.domain.createWorkout(dateWorkout);
     }
 
+    findAll(): Observable<TrackingVM[] | null> {
+        return this.domain.findAllTrackingByUser();
+    }
+
+    findById(id: string): Observable<TrackingVM | null> {
+        return this.domain.findById(id);
+    }
+
     toggleExercise(date: Date, exercise: ExercisePerformanceVM): void {
         this.domain.toggleExercise(date, exercise);
     }

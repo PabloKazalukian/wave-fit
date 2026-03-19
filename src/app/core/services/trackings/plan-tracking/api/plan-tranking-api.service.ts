@@ -22,6 +22,8 @@ import {
     CREATE_WEEK_LOG,
     CREATE_WORKOUT_SESSION,
     FIND_ACTIVE_WEEK_LOG,
+    FIND_ALL_TRACKING_BY_USER,
+    FIND_BY_ID,
     SYNC_WEEK_LOG_DAYS,
     UPDATE_WEEK_LOG,
     UPDATE_WEEK_LOG_DAY,
@@ -154,6 +156,40 @@ export class PlanTrackingApi {
                     data?.syncWeekLogDays
                         ? trackingWrappers.wrapperTrackingApiToVM(
                               data.syncWeekLogDays,
+                              this.exerciseSvc.exercises(),
+                          )
+                        : null,
+                ),
+            );
+    }
+
+    findAllTrackingByUser(): Observable<TrackingVM[] | null> {
+        return this.apollo
+            .query<{ findAll: TrackingAPI[] }>({ query: FIND_ALL_TRACKING_BY_USER })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.findAll
+                        ? data.findAll.map((tracking) =>
+                              trackingWrappers.wrapperTrackingApiToVM(
+                                  tracking,
+                                  this.exerciseSvc.exercises(),
+                              ),
+                          )
+                        : null,
+                ),
+            );
+    }
+
+    findById(id: string): Observable<TrackingVM | null> {
+        return this.apollo
+            .query<{ findById: TrackingAPI }>({ query: FIND_BY_ID, variables: { id } })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.findById
+                        ? trackingWrappers.wrapperTrackingApiToVM(
+                              data.findById,
                               this.exerciseSvc.exercises(),
                           )
                         : null,

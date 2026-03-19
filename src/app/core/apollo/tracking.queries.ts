@@ -127,3 +127,19 @@ export const SYNC_WEEK_LOG_DAYS = gql`
         }
     }
 `;
+
+export const FIND_ALL_TRACKING_BY_USER = gql`
+    query findAll {
+        findAll {
+            ${WEEK_LOG_FIELDS}
+        }
+    }
+`;
+
+export const FIND_BY_ID = gql`
+    query findOne($id: String!) {
+        findOne(id: $id) {
+            ${WEEK_LOG_FIELDS}
+        }
+    }
+`;

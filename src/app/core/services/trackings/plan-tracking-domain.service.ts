@@ -79,6 +79,14 @@ export class PlanTrackingDomainService {
         }
     }
 
+    findAllTrackingByUser(): Observable<TrackingVM[] | null> {
+        return this.api.findAllTrackingByUser();
+    }
+
+    findById(id: string): Observable<TrackingVM | null> {
+        return this.api.findById(id);
+    }
+
     createTracking(planId?: string): Observable<TrackingVM | null | undefined> {
         const { start, end } = this.dateService.todayPlusDays(7);
 
