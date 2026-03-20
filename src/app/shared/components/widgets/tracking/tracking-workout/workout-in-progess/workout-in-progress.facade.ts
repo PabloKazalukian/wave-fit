@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ExercisePerformanceVM } from '../../../../../interfaces/tracking.interface';
-import { WorkoutStateService } from '../../../../../../core/services/workouts/workout-state.service';
+import { WorkoutStateService } from '../../../../../../core/services/workouts/workout.state';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
 

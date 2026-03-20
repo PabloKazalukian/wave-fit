@@ -13,7 +13,7 @@ import {
     Target,
     ChevronRight,
 } from 'lucide-angular';
-import { TrackingListState } from '../../core/services/trackings/tracking-list-state.service';
+import { TrackingListState } from '../../core/services/trackings/tracking-list.state';
 
 @Component({
     selector: 'app-user',

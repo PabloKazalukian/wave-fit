@@ -1,16 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 
-import { RoutinesApiService } from './routines-api.service';
+import { RoutinesApiService } from './routines.api';
 
 describe('RoutinesApiService', () => {
-  let service: RoutinesApiService;
+    let service: RoutinesApiService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(RoutinesApiService);
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(RoutinesApiService);
+    });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });

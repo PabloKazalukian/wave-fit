@@ -15,7 +15,7 @@
           class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
           [ngClass]="{
             'bg-success/20 text-success border border-success/30': tracking.completed,
-            'bg-warning/20 text-warning border border-warning/30': !tracking.completed
+            'bg-warning/20 text-warning border border-warning/30': !tracking.completed,
           }"
         >
           {{ tracking.completed ? 'Completada' : 'En progreso' }}
@@ -52,21 +52,44 @@
 
         <!-- Workouts Info -->
         <section>
-          <h3 class="text-sm font-bold text-text2 uppercase tracking-widest mb-3 px-1">Días de Entrenamiento</h3>
+          <h3 class="text-sm font-bold text-text2 uppercase tracking-widest mb-3 px-1">
+            Días de Entrenamiento
+          </h3>
           <div class="space-y-3">
             @for (workout of tracking.workouts; track $index) {
               <div class="bg-background2 border-2 border-background4 rounded-xl p-4">
                 <div class="flex items-center justify-between mb-2">
                   <p class="font-bold text-text1">{{ formatDate(workout.date) }}</p>
-                  <span class="text-xs font-medium text-text2 px-2 py-0.5 bg-background3 rounded-lg">
+                  <span
+                    class="text-xs font-medium text-text2 px-2 py-0.5 bg-background3 rounded-lg"
+                  >
                     {{ workout.exercises.length }} ejercicios
                   </span>
                 </div>
-                <div class="space-y-1.5">
+                <div class="space-y-3">
                   @for (ex of workout.exercises; track ex.exerciseId) {
-                    <div class="flex items-center justify-between text-sm">
-                      <span class="text-text1">{{ ex.name }}</span>
-                      <span class="text-text3 text-xs">{{ ex.series }} series</span>
+                    <div class="border-b border-background4 last:border-0 pb-3 last:pb-0">
+                      <div class="flex items-center justify-between text-sm mb-1.5">
+                        <span class="font-semibold text-text1">{{ ex.name }}</span>
+                        <span class="text-text3 text-xs">{{ ex.series }} series</span>
+                      </div>
+                      <div class="flex flex-wrap gap-x-2 gap-y-1.5">
+                        @for (set of ex.sets; track $index) {
+                          <div
+                            class="flex items-center gap-1 text-[14px] leading-none py-1 px-1.5 bg-background3 rounded border border-background4/50"
+                          >
+                            <span class="font-bold text-primary/80">x{{ $index + 1 }}</span>
+                            <span class="text-text2">reps:</span>
+                            <span class="font-semibold text-text1">{{ set.reps }}</span>
+                            @if (set.weights) {
+                              <span class="text-text2 ml-0.5">weight:</span>
+                              <span class="font-semibold text-text1 text-nowrap"
+                                >{{ set.weights }}kg</span
+                              >
+                            }
+                          </div>
+                        }
+                      </div>
                     </div>
                   }
                 </div>
@@ -80,16 +103,22 @@
         @if (tracking.notes) {
           <section>
             <h3 class="text-sm font-bold text-text2 uppercase tracking-widest mb-3 px-1">Notas</h3>
-            <div class="bg-background2 border-2 border-background4 rounded-xl p-4 italic text-text2">
+            <div
+              class="bg-background2 border-2 border-background4 rounded-xl p-4 italic text-text2"
+            >
               {{ tracking.notes }}
             </div>
           </section>
         }
       </div>
     } @else if (asyncLoaded) {
-      <div class="text-center py-12 bg-background2 border-2 border-dashed border-background4 rounded-2xl">
+      <div
+        class="text-center py-12 bg-background2 border-2 border-dashed border-background4 rounded-2xl"
+      >
         <p class="text-text2">No se encontró la información de este tracking.</p>
-        <a routerLink=".." class="text-primary hover:underline mt-4 inline-block">Volver al historial</a>
+        <a routerLink=".." class="text-primary hover:underline mt-4 inline-block"
+          >Volver al historial</a
+        >
       </div>
     } @else {
       <!-- Skeleton -->

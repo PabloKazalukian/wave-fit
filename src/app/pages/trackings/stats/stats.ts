@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { TrackingListState } from '../../../core/services/trackings/tracking-list-state.service';
+import { TrackingListState } from '../../../core/services/trackings/tracking-list.state';
 import { CommonModule } from '@angular/common';
 
 @Component({

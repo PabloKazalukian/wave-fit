@@ -1,16 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PlansApiService } from './plans-api.service';
+import { PlansApiService } from './plans.api';
 
 describe('PlansApiService', () => {
-  let service: PlansApiService;
+    let service: PlansApiService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(PlansApiService);
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(PlansApiService);
+    });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });

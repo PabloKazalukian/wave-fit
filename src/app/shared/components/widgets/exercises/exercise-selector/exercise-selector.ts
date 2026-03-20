@@ -3,7 +3,7 @@ import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { wrapperExerciseAPItoVM } from '../../../../wrappers/exercises.wrapper';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
+import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { options } from '../../../../interfaces/input.interface';
 import { CommonModule } from '@angular/common';

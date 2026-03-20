@@ -2,9 +2,9 @@ import { computed, DestroyRef, inject, Injectable, signal, effect } from '@angul
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
+import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { StatusWorkoutSessionEnum, TrackingVM } from '../../../../interfaces/tracking.interface';
-import { PlansApiService } from '../../../../../core/services/plans/api/plans-api.service';
+import { PlansApiService } from '../../../../../core/services/plans/api/plans.api';
 
 @Injectable()
 export class TrackingWeekFacade {
@@ -19,21 +19,24 @@ export class TrackingWeekFacade {
     readonly planName = signal<string>('');
 
     constructor() {
-        effect(() => {
-            const t = this.tracking();
-            if (t?.planId) {
-                this.planApi.getRoutinePlanById(t.planId).subscribe({
-                    next: (plan) => {
-                        if (plan) {
-                            this.planName.set(plan.name);
-                        }
-                    },
-                    error: (err) => console.error(err)
-                });
-            } else {
-                this.planName.set('');
-            }
-        }, { allowSignalWrites: true });
+        effect(
+            () => {
+                const t = this.tracking();
+                if (t?.planId) {
+                    this.planApi.getRoutinePlanById(t.planId).subscribe({
+                        next: (plan) => {
+                            if (plan) {
+                                this.planName.set(plan.name);
+                            }
+                        },
+                        error: (err) => console.error(err),
+                    });
+                } else {
+                    this.planName.set('');
+                }
+            },
+            { allowSignalWrites: true },
+        );
     }
 
     readonly outOfDateRange = this.state.outOfDateRange;

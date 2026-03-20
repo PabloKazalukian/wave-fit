@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { PlanTrackingDomainService } from './plan-tracking-domain.service';
-import { PlanTrackingStateService } from './plan-tracking-state.service';
+import { PlanTrackingDomainService } from './plan-tracking.domain';
+import { PlanTrackingStateService } from './plan-tracking.state';
 import { filter, map, Observable } from 'rxjs';
 import {
     ExercisePerformanceVM,

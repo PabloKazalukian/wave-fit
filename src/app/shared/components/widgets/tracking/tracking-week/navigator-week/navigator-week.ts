@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { DateService } from '../../../../../../core/services/date.service';
-import { WorkoutStateService } from '../../../../../../core/services/workouts/workout-state.service';
+import { WorkoutStateService } from '../../../../../../core/services/workouts/workout.state';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
 import { Loading } from '../../../../ui/loading/loading';

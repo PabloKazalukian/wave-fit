@@ -1,8 +1,7 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
-import { PlanTrackingApi } from './plan-tracking/api/plan-tranking-api.service';
-import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking-storage.service';
-import { PlanTrackingStateService } from './plan-tracking-state.service';
-import { delay, filter, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
+import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking.storage';
+import { PlanTrackingStateService } from './plan-tracking.state';
+import { delay, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     StatusWorkoutSessionEnum,
@@ -22,6 +21,7 @@ import {
     emptyDay,
     wrapperWorkoutSessionVMtoUpdateWeekLogDayInput,
 } from '../../../shared/wrappers/tracking.wrapper';
+import { PlanTrackingApi } from './plan-tracking/api/plan-tranking.api';
 
 @Injectable({
     providedIn: 'root',

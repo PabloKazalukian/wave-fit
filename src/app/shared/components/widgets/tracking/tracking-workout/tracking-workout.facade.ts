@@ -2,7 +2,7 @@ import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core'
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout-state.service';
+import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 
 @Injectable()
 export class TrackingWorkoutFacade {

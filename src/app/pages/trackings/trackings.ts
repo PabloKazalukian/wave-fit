@@ -1,5 +1,5 @@
 import { inject, Component } from '@angular/core';
-import { TrackingListState } from '../../core/services/trackings/tracking-list-state.service';
+import { TrackingListState } from '../../core/services/trackings/tracking-list.state';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Trophy, ChevronRight } from 'lucide-angular';

@@ -22,7 +22,13 @@ export class Callback implements OnInit {
     ngOnInit(): void {
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
+        const error = params.get('error');
         const codeVerifier = sessionStorage.getItem('pkce_verifier');
+
+        if (error === 'access_denied') {
+            this.router.navigate(['/auth/login']);
+            return;
+        }
 
         if (!code || !codeVerifier) return;
 

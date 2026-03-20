@@ -7,8 +7,8 @@ import {
     RoutinePlanSend,
     RoutinePlanVM,
 } from '../../../shared/interfaces/routines.interface';
-import { PlansStorageService } from './storage/plans-storage.service';
-import { PlansApiService } from './api/plans-api.service';
+import { PlansStorageService } from './storage/plans.storage';
+import { PlansApiService } from './api/plans.api';
 import { wrapperRoutinePlanVMtoRoutinePlan } from '../../../shared/wrappers/plans.wrapper';
 
 @Injectable({

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TrackingListState } from '../../../core/services/trackings/tracking-list-state.service';
+import { TrackingListState } from '../../../core/services/trackings/tracking-list.state';
 import { CommonModule } from '@angular/common';
 import { map, Observable, switchMap, tap } from 'rxjs';
 import { LucideAngularModule, ChevronLeft, Calendar, ClipboardList } from 'lucide-angular';

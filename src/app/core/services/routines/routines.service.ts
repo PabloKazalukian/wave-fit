@@ -9,7 +9,7 @@ import {
     RoutineDayCreateSend,
 } from '../../../shared/interfaces/routines.interface';
 import { ExerciseCategory, ExerciseSend } from '../../../shared/interfaces/exercise.interface';
-import { RoutinesApiService } from './api/routines-api.service';
+import { RoutinesApiService } from './api/routines.api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinePlanAPI } from '../../../shared/interfaces/api/routines-api.interface';
 import { da } from 'date-fns/locale';
