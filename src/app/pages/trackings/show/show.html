@@ -1,1 +1,102 @@
-<p>show works!</p>
+<div class="container px-4 py-8 max-w-lg mx-auto">
+  <header class="mb-8">
+    <a
+      routerLink=".."
+      class="inline-flex items-center gap-1 text-sm font-medium text-text2 hover:text-primary transition-colors mb-4"
+    >
+      <lucide-icon [img]="ChevronLeftIcon" size="16"></lucide-icon>
+      Volver al historial
+    </a>
+
+    @if (tracking$ | async; as tracking) {
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold text-text1">Detalle de Semana</h2>
+        <span
+          class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+          [ngClass]="{
+            'bg-success/20 text-success border border-success/30': tracking.completed,
+            'bg-warning/20 text-warning border border-warning/30': !tracking.completed
+          }"
+        >
+          {{ tracking.completed ? 'Completada' : 'En progreso' }}
+        </span>
+      </div>
+
+      <div class="grid gap-6">
+        <!-- Date Range Card -->
+        <div class="bg-background2 border-2 border-background4 rounded-2xl p-5">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-primary/10 rounded-lg text-primary">
+              <lucide-icon [img]="CalendarIcon" size="24"></lucide-icon>
+            </div>
+            <div>
+              <p class="text-xs text-text2 font-medium uppercase tracking-widest">Periodo</p>
+              <p class="text-lg font-bold text-text1">
+                {{ formatDate(tracking.startDate) }} — {{ formatDate(tracking.endDate) }}
+              </p>
+            </div>
+          </div>
+
+          @if (tracking.planId) {
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-secondary/10 rounded-lg text-secondary">
+                <lucide-icon [img]="ClipboardListIcon" size="24"></lucide-icon>
+              </div>
+              <div>
+                <p class="text-xs text-text2 font-medium uppercase tracking-widest">Plan</p>
+                <p class="text-base font-semibold text-text1">Plan de Entrenamiento Activo</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Workouts Info -->
+        <section>
+          <h3 class="text-sm font-bold text-text2 uppercase tracking-widest mb-3 px-1">Días de Entrenamiento</h3>
+          <div class="space-y-3">
+            @for (workout of tracking.workouts; track $index) {
+              <div class="bg-background2 border-2 border-background4 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="font-bold text-text1">{{ formatDate(workout.date) }}</p>
+                  <span class="text-xs font-medium text-text2 px-2 py-0.5 bg-background3 rounded-lg">
+                    {{ workout.exercises.length }} ejercicios
+                  </span>
+                </div>
+                <div class="space-y-1.5">
+                  @for (ex of workout.exercises; track ex.exerciseId) {
+                    <div class="flex items-center justify-between text-sm">
+                      <span class="text-text1">{{ ex.name }}</span>
+                      <span class="text-text3 text-xs">{{ ex.series }} series</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @empty {
+              <p class="text-center py-6 text-text3 italic">No hay sesiones registradas</p>
+            }
+          </div>
+        </section>
+
+        @if (tracking.notes) {
+          <section>
+            <h3 class="text-sm font-bold text-text2 uppercase tracking-widest mb-3 px-1">Notas</h3>
+            <div class="bg-background2 border-2 border-background4 rounded-xl p-4 italic text-text2">
+              {{ tracking.notes }}
+            </div>
+          </section>
+        }
+      </div>
+    } @else if (asyncLoaded) {
+      <div class="text-center py-12 bg-background2 border-2 border-dashed border-background4 rounded-2xl">
+        <p class="text-text2">No se encontró la información de este tracking.</p>
+        <a routerLink=".." class="text-primary hover:underline mt-4 inline-block">Volver al historial</a>
+      </div>
+    } @else {
+      <!-- Skeleton -->
+      <div class="animate-pulse space-y-4">
+        <div class="h-32 bg-background2 rounded-2xl"></div>
+        <div class="h-48 bg-background2 rounded-2xl"></div>
+      </div>
+    }
+  </header>
+</div>

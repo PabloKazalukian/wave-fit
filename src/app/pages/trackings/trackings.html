@@ -1,1 +1,60 @@
-<p>trackings works!</p>
+<div class="container px-4 py-8 max-w-lg mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-text1 flex items-center gap-2">
+      <lucide-icon [img]="TrophyIcon" size="24" class="text-primary"></lucide-icon>
+      Historial de Tracking
+    </h2>
+    <a routerLink="stats" class="text-sm font-medium text-primary hover:underline">
+      Ver Estadísticas
+    </a>
+  </div>
+
+  <div class="space-y-4">
+    @if (trackings$ | async; as trackings) {
+      @for (tracking of trackings; track tracking.id) {
+        <a
+          [routerLink]="[tracking.id]"
+          class="block bg-background2 border-2 border-background4 rounded-xl px-5 py-4 hover:border-primary/50 transition-all group"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-base font-semibold text-text1">
+                {{ formatDate(tracking.startDate) }} — {{ formatDate(tracking.endDate) }}
+              </p>
+              <div class="flex items-center gap-2 mt-1">
+                <span
+                  class="text-xs px-2 py-0.5 rounded-full font-medium"
+                  [ngClass]="{
+                    'bg-success/20 text-success border border-success/30': tracking.completed,
+                    'bg-warning/20 text-warning border border-warning/30': !tracking.completed
+                  }"
+                >
+                  {{ tracking.completed ? '✓ Completada' : 'En progreso' }}
+                </span>
+                @if (tracking.planId) {
+                  <span class="text-xs text-text2">• Plan asignado</span>
+                }
+              </div>
+            </div>
+            <lucide-icon
+              [img]="ChevronRightIcon"
+              size="20"
+              class="text-text3 group-hover:text-primary transition-colors"
+            ></lucide-icon>
+          </div>
+        </a>
+      } @empty {
+        <div class="text-center py-12 bg-background2 border-2 border-dashed border-background4 rounded-2xl">
+          <p class="text-text2">No tienes trackings registrados aún.</p>
+        </div>
+      }
+    } @else {
+      <!-- Skeleton or Loading -->
+      <div class="space-y-4">
+        <div class="h-20 bg-background2 animate-pulse rounded-xl"></div>
+        <div class="h-20 bg-background2 animate-pulse rounded-xl"></div>
+        <div class="h-20 bg-background2 animate-pulse rounded-xl"></div>
+      </div>
+    }
+  </div>
+</div>

@@ -183,13 +183,13 @@ export class PlanTrackingApi {
 
     findById(id: string): Observable<TrackingVM | null> {
         return this.apollo
-            .query<{ findById: TrackingAPI }>({ query: FIND_BY_ID, variables: { id } })
+            .query<{ findOne: TrackingAPI }>({ query: FIND_BY_ID, variables: { id } })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.findById
+                    data?.findOne
                         ? trackingWrappers.wrapperTrackingApiToVM(
-                              data.findById,
+                              data.findOne,
                               this.exerciseSvc.exercises(),
                           )
                         : null,

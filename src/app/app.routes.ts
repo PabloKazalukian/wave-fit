@@ -34,8 +34,18 @@ export const routes: Routes = [
     },
     {
         path: 'user',
-        loadComponent: () => import('./pages/user/user').then((m) => m.User),
         canActivate: [authGuard],
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('./pages/user/user').then((m) => m.User),
+            },
+            {
+                path: 'trackings',
+                loadChildren: () =>
+                    import('./pages/trackings/tracking.routes').then((m) => m.TRACKINGS_ROUTES),
+            },
+        ],
     },
     {
         path: 'routines',

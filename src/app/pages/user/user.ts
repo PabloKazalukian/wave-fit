@@ -3,58 +3,42 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { TrackingActiveComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-active/tracking-active';
 import { ExerciseCategory } from '../../shared/interfaces/exercise.interface';
-import { TrackingVM } from '../../shared/interfaces/tracking.interface';
-import { RoutineDay } from '../../shared/interfaces/routines.interface';
-import { LucideAngularModule, Trophy, Award, Dumbbell, BicepsFlexed, Target } from 'lucide-angular';
+import { RouterLink } from '@angular/router';
+import {
+    LucideAngularModule,
+    Trophy,
+    Award,
+    Dumbbell,
+    BicepsFlexed,
+    Target,
+    ChevronRight,
+} from 'lucide-angular';
+import { TrackingListState } from '../../core/services/trackings/tracking-list-state.service';
 
 @Component({
     selector: 'app-user',
-    imports: [CommonModule, TrackingActiveComponent, LucideAngularModule],
+    imports: [CommonModule, TrackingActiveComponent, LucideAngularModule, RouterLink],
     standalone: true,
     templateUrl: './user.html',
     styleUrl: './user.css',
 })
 export class User {
     private authService = inject(AuthService);
+    private trackingFacade = inject(TrackingListState);
 
     user = this.authService.user;
+    trackings$ = this.trackingFacade.trackings$;
+    stats$ = this.trackingFacade.getStats();
 
     readonly TrophyIcon = Trophy;
     readonly AwardIcon = Award;
     readonly DumbbellIcon = Dumbbell;
     readonly BicepsFlexedIcon = BicepsFlexed;
     readonly TargetIcon = Target;
+    readonly ChevronRightIcon = ChevronRight;
 
-    // ── Hardcoded mock history data ──────────────────────────────────────────
-
-    weeklyTrackings: TrackingVM[] = [
-        {
-            id: '1',
-            userId: 'u1',
-            startDate: new Date('2025-02-03'),
-            endDate: new Date('2025-02-09'),
-            completed: true,
-            planId: 'plan-1',
-        },
-        {
-            id: '2',
-            userId: 'u1',
-            startDate: new Date('2025-02-10'),
-            endDate: new Date('2025-02-16'),
-            completed: true,
-            planId: 'plan-1',
-        },
-        {
-            id: '3',
-            userId: 'u1',
-            startDate: new Date('2025-02-17'),
-            endDate: new Date('2025-02-23'),
-            completed: false,
-            planId: 'plan-2',
-        },
-    ];
-
-    routinesUsed: RoutineDay[] = [
+    // ── Pre-existing mock data (keeping routines and exercises for now as they are not part of the refactor) ──
+    routinesUsed = [
         {
             id: 'r1',
             title: 'Push Day',
@@ -90,17 +74,6 @@ export class User {
         { name: 'Plancha', category: ExerciseCategory.CORE, usesWeight: false },
     ];
 
-    get completedWeeks(): number {
-        return this.weeklyTrackings.filter((t) => t.completed).length;
-    }
-
-    get totalWeeks(): number {
-        return this.weeklyTrackings.length;
-    }
-
-    // Hardcoded total weeks done (as instructed)
-    totalWeeksDoneHardcoded = 8;
-
     trackByFn(_index: number, item: any) {
         return item.id ?? item.name;
     }
@@ -125,6 +98,6 @@ export class User {
         return new Intl.DateTimeFormat('es-AR', {
             day: '2-digit',
             month: 'short',
-        }).format(date);
+        }).format(new Date(date));
     }
 }
