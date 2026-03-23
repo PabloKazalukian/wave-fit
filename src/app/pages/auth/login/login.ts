@@ -83,17 +83,21 @@ export class Login implements OnInit {
                 .login(this.identifierControl.value, this.passwordControl.value)
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe({
-                    next: () => {
+                    next: (success) => {
                         this.loading = false;
-                        this.login = false;
-                        if (this.contactForm.get('remember')?.value) {
-                            this.credentialsSvc.saveCredentials({
-                                remember: this.contactForm.get('remember')?.value ?? false,
-                                identifier: this.contactForm.get('identifier')?.value ?? '',
-                                password: this.contactForm.get('password')?.value ?? '',
-                            });
+                        if (success) {
+                            this.login = true;
+                            if (this.contactForm.get('remember')?.value) {
+                                this.credentialsSvc.saveCredentials({
+                                    remember: this.contactForm.get('remember')?.value ?? false,
+                                    identifier: this.contactForm.get('identifier')?.value ?? '',
+                                    password: this.contactForm.get('password')?.value ?? '',
+                                });
+                            }
+                            this.router.navigate(['/home']);
+                        } else {
+                            this.login = false;
                         }
-                        this.router.navigate(['/home']);
                     },
                     error: (error) => {
                         this.loading = false;

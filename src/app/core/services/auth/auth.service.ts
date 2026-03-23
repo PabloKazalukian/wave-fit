@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { tap, Observable, BehaviorSubject, catchError, map, of, throwError, timeout } from 'rxjs';
+import { tap, Observable, BehaviorSubject, catchError, map, of, throwError, timeout, switchMap } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { LoginWithGoogle } from '../../../shared/interfaces/auth.interface';
 import { TokenStorage } from '../../auth/token.storage';
@@ -46,13 +46,15 @@ export class AuthService {
                 variables: { identifier, password },
             })
             .pipe(
-                tap((res) => {
+                switchMap((res) => {
                     const success = res.data?.login;
                     if (!success) throw new Error('Login fallido');
                     this.isAuthenticatedSubject.next(true);
+                    return this.me();
                 }),
                 map(() => true),
-                catchError(() => {
+                catchError((err) => {
+                    console.error('Login error:', err);
                     return of(false);
                 }),
             );
