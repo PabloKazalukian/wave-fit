@@ -31,7 +31,7 @@ Dumb Components → Facade → Domain Service → (API/Storage Services + State 
 
 | Documento                                            | Página       | Descripción                           |
 | ---------------------------------------------------- | ------------ | ------------------------------------- |
-| [MyDayComponent.md](./MyDayComponent.md)             | /my-day      | Seguimiento de entrenamientos diarios |
+| [MyWeekComponent.md](./MyWeekComponent.md)           | /my-week     | Seguimiento de entrenamientos diarios |
 | [RoutinePlanComponent.md](./RoutinePlanComponent.md) | /routines/\* | Creación de rutinas semanales         |
 
 ---
@@ -44,17 +44,17 @@ Dumb Components → Facade → Domain Service → (API/Storage Services + State 
 | `/home`       | Dashboard                 | -                                                   |
 | `/exercises`  | Biblioteca de ejercicios  | ExercisesService                                    |
 | `/routines/*` | Gestión de rutinas        | PlansService, DayPlanStateService, RoutinesServices |
-| `/my-day`     | Tracking del día          | PlanTrackingService, WorkoutStateService            |
+| `/my-week`    | Tracking del día          | PlanTrackingService, WorkoutStateService            |
 | `/user`       | Perfil                    | AuthService, UserService                            |
 
 ---
 
 ## Jerarquías de Componentes
 
-### MyDay (/my-day)
+### MyWeek (/my-week)
 
 ```
-MyDay
+MyWeek
   └─→ TrackingWeekComponent
         ├─→ NavigatorWeek
         └─→ TrackingWorkoutComponent
@@ -101,7 +101,7 @@ src/app/
 │   ├── home/
 │   ├── exercises/
 │   ├── routines/
-│   ├── my-day/
+│   ├── my-week/
 │   └── user/
 ├── shared/
 │   ├── components/widgets/

@@ -1,13 +1,13 @@
-# 📅 Mi Día — MyDay Flow
+# 📅 Mi Semana — MyWeek Flow
 
-Documentación técnica de la página `MyDay`, su jerarquía de componentes y el flujo de datos para el seguimiento (tracking) de entrenamientos diarios.
+Documentación técnica de la página `MyWeek`, su jerarquía de componentes y el flujo de datos para el seguimiento (tracking) de entrenamientos diarios.
 
 ---
 
 ## 🎨 Jerarquía de Componentes
 
 ```
-MyDay (Página / Container)
+MyWeek (Página / Container)
   │
   └─→ TrackingWeekComponent (Vista semanal)
         │
@@ -145,7 +145,7 @@ export interface ExercisePerformanceVM {
 
 ### 1. Inicialización de la Página
 
-1. `MyDay` inyecta `PlanTrackingService`
+1. `MyWeek` inyecta `PlanTrackingService`
 2. `PlanTrackingDomainService` detecta usuario y llama `initTracking()`
 3. Se suscribe a `trackingPlanVM$` (alias de `tracking$`)
 4. Si no hay tracking activo, muestra opciones para "Crear" o "Seleccionar" rutina

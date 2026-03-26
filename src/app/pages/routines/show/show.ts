@@ -62,8 +62,8 @@ export class Show implements OnInit {
         this.openAccordionIndex.set(this.openAccordionIndex() === index ? null : index);
     }
 
-    navigateToMyDay() {
-        this.router.navigate(['/my-day']);
+    navigateToMyWeek() {
+        this.router.navigate(['/my-week']);
     }
 
     initTrackingWithRoutinePlan(): void {

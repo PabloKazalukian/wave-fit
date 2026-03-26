@@ -1,4 +1,11 @@
 <div class="w-full bg-background2 rounded-2xl p-4 flex flex-col gap-4">
+  <div>
+    <app-info-card
+      [title]="feature.title"
+      [description]="feature.description"
+      [icon]="feature.icon"
+    ></app-info-card>
+  </div>
   <div class="">
     <app-btn
       [text]="'Completar semana'"
@@ -8,6 +15,11 @@
     >
     </app-btn>
   </div>
+  <div class="flex flex-col gap-2">
+    <p>Fecha de inicio: {{ this.tracking()?.startDate | date }}</p>
+    <p>Fecha de fin: {{ this.tracking()?.endDate | date }}</p>
+  </div>
+
   <app-dialog
     [isOpen]="facade.showConfirmDialog()"
     [title]="facade.isWeekComplete() ? 'Confirmar acción' : 'Semana incompleta'"

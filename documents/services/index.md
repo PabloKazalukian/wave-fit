@@ -39,9 +39,9 @@ Documentación de la arquitectura de servicios del frontend.
 
 ### Tracking
 
-| Documento                                                    | Descripción                                 |
-| ------------------------------------------------------------ | ------------------------------------------- |
-| [MyDayComponent.md](/documents/components/MyDayComponent.md) | Flujo de tracking con arquitectura completa |
+| Documento                                                      | Descripción                                 |
+| -------------------------------------------------------------- | ------------------------------------------- |
+| [MyWeekComponent.md](/documents/components/MyWeekComponent.md) | Flujo de tracking con arquitectura completa |
 
 ### Plans
 

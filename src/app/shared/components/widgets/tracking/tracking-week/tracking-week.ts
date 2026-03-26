@@ -10,6 +10,8 @@ import { Loading } from '../../../ui/loading/loading';
 import { TrackingWeekFacade } from './tracking-week.facade';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { SelectTypeInput } from '../../../../interfaces/input.interface';
+import { BookOpen, Dumbbell } from 'lucide-angular';
+import { InfoCard } from '../../../ui/info-card/info-card';
 
 export type SelectType = FormControlsOf<SelectTypeInput>;
 
@@ -24,6 +26,7 @@ export type SelectType = FormControlsOf<SelectTypeInput>;
         BtnComponent,
         DialogComponent,
         Loading,
+        InfoCard,
     ],
     providers: [TrackingWeekFacade],
     templateUrl: './tracking-week.html',
@@ -31,6 +34,12 @@ export type SelectType = FormControlsOf<SelectTypeInput>;
 export class TrackingWeekComponent {
     tracking = input<TrackingVM | null>(null);
     facade = inject(TrackingWeekFacade);
+
+    feature = {
+        icon: Dumbbell,
+        title: 'Progresión Semanal',
+        description: 'Lleva tu progresion de esta semana',
+    };
 
     constructor() {
         effect(() => {

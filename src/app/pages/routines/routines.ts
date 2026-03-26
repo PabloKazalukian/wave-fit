@@ -18,6 +18,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ExerciseCategory } from '../../shared/interfaces/exercise.interface';
 import { LucideAngularModule, Dumbbell, Info, BookOpen } from 'lucide-angular';
+import { InfoCard } from '../../shared/components/ui/info-card/info-card';
 
 type selectFormType = FormControlsOf<SelectTypeInput>;
 
@@ -31,6 +32,7 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
         CommonModule,
         ReactiveFormsModule,
         LucideAngularModule,
+        InfoCard,
     ],
     standalone: true,
     templateUrl: './routines.html',

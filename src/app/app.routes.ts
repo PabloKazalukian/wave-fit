@@ -28,8 +28,8 @@ export const routes: Routes = [
         canActivate: [authGuard],
     },
     {
-        path: 'my-day',
-        loadComponent: () => import('./pages/my-day/my-day').then((m) => m.MyDay),
+        path: 'my-week',
+        loadComponent: () => import('./pages/my-week/my-week').then((m) => m.MyWeek),
         canActivate: [authGuard],
     },
     {

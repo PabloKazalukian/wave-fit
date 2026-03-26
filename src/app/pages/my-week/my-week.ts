@@ -9,12 +9,12 @@ import { TrackingWeekComponent } from '../../shared/components/widgets/tracking/
 import { TrackingWeekSkeletonComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-week-skeleton';
 
 @Component({
-    selector: 'app-my-day',
+    selector: 'app-my-week',
     imports: [BtnComponent, TrackingWeekComponent, TrackingWeekSkeletonComponent],
     standalone: true,
-    templateUrl: './my-day.html',
+    templateUrl: './my-week.html',
 })
-export class MyDay implements OnInit {
+export class MyWeek implements OnInit {
     destroyRef = inject(DestroyRef);
     trackingSvc = inject(PlanTrackingService);
     authSvc = inject(AuthService);

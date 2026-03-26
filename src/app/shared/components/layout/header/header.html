@@ -27,10 +27,10 @@
         ></app-btn>
 
         <app-btn
-          [routerLink]="'/my-day'"
-          [text]="'Mi Día'"
-          [color]="isActive('/my-day') ? 'primary' : 'text'"
-          [variant]="isActive('/my-day') ? 'outline' : 'ghost'"
+          [routerLink]="'/my-week'"
+          [text]="'Mi Semana'"
+          [color]="isActive('/my-week') ? 'primary' : 'text'"
+          [variant]="isActive('/my-week') ? 'outline' : 'ghost'"
         ></app-btn>
 
         <!-- Rutinas Dropdown -->
@@ -165,9 +165,9 @@
             (click)="toggleMobileMenu()"
           ></app-btn>
           <app-btn
-            [routerLink]="'/my-day'"
-            [text]="'Mi Día'"
-            [color]="isActive('/my-day') ? 'primary' : 'text'"
+            [routerLink]="'/my-week'"
+            [text]="'Mi Semana'"
+            [color]="isActive('/my-week') ? 'primary' : 'text'"
             [variant]="'ghost'"
             (click)="toggleMobileMenu()"
           ></app-btn>
