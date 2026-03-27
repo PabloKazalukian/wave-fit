@@ -93,6 +93,7 @@ export class PlanTrackingApi {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
+                tap((data) => console.log(data)),
                 map(({ data }) =>
                     data?.createWeekLog
                         ? trackingWrappers.wrapperTrackingApiToVM(
