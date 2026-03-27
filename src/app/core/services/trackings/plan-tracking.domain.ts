@@ -189,7 +189,7 @@ export class PlanTrackingDomainService {
         this._updateWorkout(day, () => newWorkout);
     }
 
-    completeTracking(complete: boolean): Observable<TrackingVMS | null> {
+    completeTracking(): Observable<TrackingVMS | null> {
         const current: TrackingVM | null = this.state.getTrackingValue();
         if (!current || !current.workouts) return of(null);
 
@@ -200,7 +200,7 @@ export class PlanTrackingDomainService {
         const totalDays = 7;
         const days = emptyDay(workoutDays, totalDays);
 
-        const input: UpdateWeekLogInput = this.transformUpdateWeekLogInput(days, current, complete);
+        const input: UpdateWeekLogInput = this.transformUpdateWeekLogInput(days, current);
 
         return this.api.updateTracking(input).pipe(
             takeUntilDestroyed(this.destroyRef),
@@ -231,11 +231,10 @@ export class PlanTrackingDomainService {
     private transformUpdateWeekLogInput(
         days: UpdateWeekLogDayInput[],
         current: TrackingVM,
-        complete: boolean,
     ): UpdateWeekLogInput {
         return {
             id: current.id,
-            completed: complete,
+            completed: true,
             userId: this.state.userId(),
             notes: current.notes,
             ...(current.planId ? { planId: current.planId } : {}),
