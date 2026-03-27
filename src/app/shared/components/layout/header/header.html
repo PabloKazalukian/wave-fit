@@ -33,12 +33,12 @@
           [variant]="isActive('/my-week') ? 'outline' : 'ghost'"
         ></app-btn>
 
-        <!-- Rutinas Dropdown -->
+        <!-- Planes Dropdown -->
         <div class="relative">
           <app-btn
-            [text]="'Rutinas'"
-            [color]="isActive('/routines') ? 'primary' : 'text'"
-            [variant]="isActive('/routines') ? 'outline' : 'ghost'"
+            [text]="'Planes'"
+            [color]="isActive('/plans') ? 'primary' : 'text'"
+            [variant]="isActive('/plans') ? 'outline' : 'ghost'"
             (click)="toggleRoutinesDropdown($event)"
           >
             <span
@@ -54,18 +54,18 @@
               (click)="$event.stopPropagation()"
             >
               <a
-                routerLink="/routines"
+                routerLink="/plans"
                 class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
-                [class.text-primary]="currentUrl() === '/routines'"
+                [class.text-primary]="currentUrl() === '/plans'"
                 (click)="closeDropdowns()"
-                >Ver rutinas</a
+                >Ver planes</a
               >
               <a
-                routerLink="/routines/create"
+                routerLink="/plans/create"
                 class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
-                [class.text-primary]="currentUrl() === '/routines/create'"
+                [class.text-primary]="currentUrl() === '/plans/create'"
                 (click)="closeDropdowns()"
-                >Crear rutina</a
+                >Crear un plan semanal</a
               >
             </div>
           }
@@ -173,21 +173,21 @@
           ></app-btn>
 
           <div class="border-t border-white/10 pt-4">
-            <span class="text-xs text-text2/50 uppercase tracking-wider mb-2 block">Rutinas</span>
+            <span class="text-xs text-text2/50 uppercase tracking-wider mb-2 block">Planes</span>
             <div class="flex flex-col gap-2 pl-4">
               <a
                 routerLink="/routines"
                 class="text-text2 py-2"
                 [class.text-primary]="isActive('/routines')"
                 (click)="toggleMobileMenu()"
-                >Ver rutinas</a
+                >Ver Planes</a
               >
               <a
                 routerLink="/routines/creator"
                 class="text-text2 py-2"
                 [class.text-primary]="isActive('/routines/creator')"
                 (click)="toggleMobileMenu()"
-                >Crear rutina</a
+                >Crear un plan semanal</a
               >
             </div>
           </div>

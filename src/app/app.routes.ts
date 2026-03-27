@@ -48,6 +48,11 @@ export const routes: Routes = [
         ],
     },
     {
+        path: 'plans',
+        loadChildren: () => import('./pages/plans/plans.routes').then((m) => m.PLANS_ROUTES),
+        canActivate: [authGuard],
+    },
+    {
         path: 'routines',
         loadChildren: () =>
             import('./pages/routines/routines.routes').then((m) => m.ROUTINES_ROUTES),

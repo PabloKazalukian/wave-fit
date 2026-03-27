@@ -8,16 +8,12 @@
   </div>
   <div class="">
     <app-btn
-      [text]="'Completar semana'"
+      [text]="'Finalizar semana'"
       [variant]="'raised'"
       [color]="'confirm3'"
       (click)="facade.completeWeek()"
     >
     </app-btn>
-  </div>
-  <div class="flex flex-col gap-2">
-    <p>Fecha de inicio: {{ this.tracking()?.startDate | date }}</p>
-    <p>Fecha de fin: {{ this.tracking()?.endDate | date }}</p>
   </div>
 
   <app-dialog
@@ -89,8 +85,20 @@
     </div>
   </app-dialog>
 
-  <div>
-    <p class="text-text2 text-sm mb-2">Fecha de inicio: {{ this.tracking()?.startDate | date }}</p>
+  <div class="bg-background rounded-2xl p-4 flex items-center justify-evenly gap-4 mb-2 mx-8">
+    <div class="flex flex-col">
+      <span class="text-xs text-text2">Inicio</span>
+      <span class="text-sm font-medium">
+        {{ tracking()?.startDate | date: 'dd/MM/yyyy' }}
+      </span>
+    </div>
+    <div class="text-text2 text-2xl">→</div>
+    <div class="flex flex-col">
+      <span class="text-xs text-text2">Final</span>
+      <span class="text-sm font-medium text-confirm2">
+        {{ tracking()?.endDate | date: 'dd/MM/yyyy' }}
+      </span>
+    </div>
   </div>
 
   <app-navigator-week></app-navigator-week>

@@ -11,7 +11,7 @@
         size="md"
         [showIcon]="true"
         [color]="'primary'"
-        [routerLink]="'/routines/create'"
+        [routerLink]="'/plans/create'"
       ></app-btn>
     </div>
   </div>
@@ -21,18 +21,6 @@
     [description]="feature.description"
     [icon]="feature.icon"
   ></app-info-card>
-
-  <div class="bg-background">
-    <div class="flex flex-col gap-2 space-x-3 mb-2">
-      <div class="flex justify-start items-center gap-1 p-2">
-        <div class="w-10 h-10 rounded-lg flex items-center justify-center text-text2">
-          <lucide-icon [img]="feature.icon" [strokeWidth]="2.3" size="28"></lucide-icon>
-        </div>
-        <h3 class="font-semibold text-lg text-primary">{{ feature.title }}</h3>
-      </div>
-      <p class="text-text2">{{ feature.description }}</p>
-    </div>
-  </div>
 
   @if (loading()) {
     <div class="mt-4 mx-1">

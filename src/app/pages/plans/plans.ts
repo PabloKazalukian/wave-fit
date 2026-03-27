@@ -23,7 +23,7 @@ import { InfoCard } from '../../shared/components/ui/info-card/info-card';
 type selectFormType = FormControlsOf<SelectTypeInput>;
 
 @Component({
-    selector: 'app-routines',
+    selector: 'app-plans',
     imports: [
         FormSelectComponent,
         BtnComponent,
@@ -35,7 +35,7 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
         InfoCard,
     ],
     standalone: true,
-    templateUrl: './routines.html',
+    templateUrl: './plans.html',
     animations: [
         trigger('chipAnimation', [
             transition(':enter', [
@@ -48,7 +48,7 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
         ]),
     ],
 })
-export class Routines implements OnInit {
+export class Plans implements OnInit {
     private destroyRef = inject(DestroyRef);
 
     feature = {
