@@ -61,8 +61,8 @@ export class PlanTrackingService {
         this.domain.setRestDay(day, workout);
     }
 
-    completeTracking(): Observable<TrackingVMS | null> {
-        return this.domain.completeTracking();
+    completeTracking(complete: boolean): Observable<TrackingVMS | null> {
+        return this.domain.completeTracking(complete);
     }
 
     get getWorkouts(): Observable<WorkoutSessionVM[]> {

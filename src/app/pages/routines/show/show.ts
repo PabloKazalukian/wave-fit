@@ -87,7 +87,7 @@ export class Show implements OnInit {
                 next: (result) => {
                     this.isStartingRoutine.set(false);
                     if (result) {
-                        this.router.navigate(['/tracking', result.id]);
+                        this.router.navigate(['/my-week']);
                     }
                 },
                 error: (err) => {
