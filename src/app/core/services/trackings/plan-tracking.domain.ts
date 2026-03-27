@@ -22,7 +22,6 @@ import {
     wrapperWorkoutSessionVMtoUpdateWeekLogDayInput,
 } from '../../../shared/wrappers/tracking.wrapper';
 import { PlanTrackingApi } from './plan-tracking/api/plan-tranking.api';
-import { PlansApiService } from '../plans/api/plans.api';
 
 @Injectable({
     providedIn: 'root',
@@ -35,7 +34,6 @@ export class PlanTrackingDomainService {
     private storage = inject(PlanTrackingStorage);
     private dateService = inject(DateService);
     private authService = inject(AuthService);
-    private routinePlanApi = inject(PlansApiService);
 
     user$ = toSignal(this.authService.user$);
 
@@ -101,15 +99,6 @@ export class PlanTrackingDomainService {
         return this.api.createTracking(payload).pipe(
             tap((res) => {
                 if (res !== undefined && res !== null) {
-                    if (!planId) {
-                        this.storage.setTrackingStorage(res, this.state.userId());
-                    } else {
-                        this.routinePlanApi.getRoutinePlanById(planId).subscribe((plan) => {
-                            console.log(plan);
-
-                            // this.storage.setTrackingStorage(res, this.state.userId());
-                        });
-                    }
                     this.state.setTracking(res);
                 }
             }),
@@ -142,7 +131,6 @@ export class PlanTrackingDomainService {
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
                 if (res) {
-                    // Actualizamos el workout en el estado con el ID y datos devueltos por la API
                     const newWorkout = { ...res, status: StatusWorkoutSessionEnum.COMPLETE };
                     this._updateWorkout(res.date, () => newWorkout);
                 }
@@ -155,7 +143,6 @@ export class PlanTrackingDomainService {
             }),
             switchMap((workoutRes) => {
                 if (!workoutRes) return of(null);
-                // Sincronizamos los días del tracking usando el ID del tracking actual
                 return this.api.syncTrackingDays(tracking.id!).pipe(map(() => workoutRes));
             }),
         );

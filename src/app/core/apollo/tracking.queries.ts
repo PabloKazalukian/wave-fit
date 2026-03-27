@@ -94,6 +94,15 @@ export const CREATE_WEEK_LOG = gql`
                 date
                 isRest
                 workoutSessionId
+                exercises {
+                    exerciseId
+                    series
+                    sets {
+                        weights
+                        reps
+                    }
+                    notes
+                }
                 extraSessionIds
                 status
             }
