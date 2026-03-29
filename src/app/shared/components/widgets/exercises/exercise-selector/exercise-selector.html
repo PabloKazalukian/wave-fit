@@ -1,53 +1,70 @@
 <div class="flex flex-col gap-4 mb-4">
-  <div class="relative">
+  <h5 class="text-lg font-bold text-primary text-center">Agregar ejercicios</h5>
+  <div class="relative flex flex-col gap-1">
+    <label for="search" class="">Buscador de ejercicios:</label>
     <input
       [formControl]="searchControl"
       type="text"
-      placeholder="Buscar ejercicio..."
+      placeholder="Press Militar, Curl de biceps, etc..."
       class="w-full bg-background2 text-text1 border border-primary rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
     />
   </div>
 
-  <div class="flex flex-wrap gap-2">
-    @for (opt of options; track opt.value) {
+  <div class="flex flex-col gap-2 mb-1">
+    <p class="text-text2">Filtrar por grupo muscular:</p>
+    <div class="flex flex-wrap gap-2">
       <div
         class="py-1 px-2 rounded-full border cursor-pointer transition-all duration-200 text-xs"
         [ngClass]="
-          category() === opt.value
+          category() === ''
             ? 'border-2 border-primary font-bold text-primary bg-background1'
             : 'border border-primary3 text-text2 bg-background2'
         "
-        (click)="toggleCategory(opt.value.toString())"
+        (click)="toggleCategory('')"
         [@chipAnimation]
       >
-        {{ opt.name }}
+        Todos
       </div>
+      @for (opt of options; track opt.value) {
+        <div
+          class="py-1 px-2 rounded-full border cursor-pointer transition-all duration-200 text-xs"
+          [ngClass]="
+            category() === opt.value
+              ? 'border-2 border-primary font-bold text-primary bg-background1'
+              : 'border border-primary3 text-text2 bg-background2'
+          "
+          (click)="toggleCategory(opt.value.toString())"
+          [@chipAnimation]
+        >
+          {{ opt.name }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="bg-background3 p-2 rounded-t-lg">
+    <p class="text-sm font-semibold">Ejercicios disponibles:</p>
+  </div>
+
+  <div class="max-h-64 overflow-y-auto flex flex-col">
+    @for (exercise of this.filteredExercises(); track exercise.exerciseId) {
+      <div
+        class="p-3 hover:bg-background2 flex items-center justify-start gap-3 cursor-pointer group w-full border-b border-background4 last:border-0 transition-colors"
+        (click)="toggleExercise(exercise)"
+      >
+        <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
+
+        <span
+          class="relative flex-shrink-0 w-5 h-5 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-xs peer-checked:before:font-bold"
+        ></span>
+
+        <div class="flex flex-col flex-1">
+          <span class="text-sm font-medium">{{ exercise.name }}</span>
+          <span class="text-xs text-text2">{{ exercise.category }}</span>
+        </div>
+      </div>
+    } @empty {
+      <div class="p-4 text-center text-text2 text-sm italic">No se encontraron ejercicios</div>
     }
   </div>
-</div>
-
-<div class="bg-background3 p-2 rounded-t-lg">
-  <p class="text-sm font-semibold">Ejercicios disponibles:</p>
-</div>
-
-<div class="max-h-64 overflow-y-auto flex flex-col">
-  @for (exercise of this.filteredExercises(); track exercise.exerciseId) {
-    <div
-      class="p-3 hover:bg-background2 flex items-center justify-start gap-3 cursor-pointer group w-full border-b border-background4 last:border-0 transition-colors"
-      (click)="toggleExercise(exercise)"
-    >
-      <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
-
-      <span
-        class="relative flex-shrink-0 w-5 h-5 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-xs peer-checked:before:font-bold"
-      ></span>
-
-      <div class="flex flex-col flex-1">
-        <span class="text-sm font-medium">{{ exercise.name }}</span>
-        <span class="text-xs text-text2">{{ exercise.category }}</span>
-      </div>
-    </div>
-  } @empty {
-    <div class="p-4 text-center text-text2 text-sm italic">No se encontraron ejercicios</div>
-  }
 </div>

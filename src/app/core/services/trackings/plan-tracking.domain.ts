@@ -169,6 +169,13 @@ export class PlanTrackingDomainService {
         }));
     }
 
+    setRemoveAllExercises(date: Date, workout: WorkoutSessionVM) {
+        this._updateWorkout(date, (workout) => ({
+            ...workout,
+            exercises: [],
+        }));
+    }
+
     setWorkouts(day: Date, workout: WorkoutSessionVM) {
         this._updateWorkout(day, () => workout);
     }

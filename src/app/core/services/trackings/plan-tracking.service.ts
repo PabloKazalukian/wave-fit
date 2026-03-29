@@ -101,4 +101,8 @@ export class PlanTrackingService {
             map((workout) => workout?.exercises.find((e) => e.exerciseId === exerciseId)),
         );
     }
+
+    setRemoveAllExercises(date: Date, workout: WorkoutSessionVM): void {
+        this.domain.setRemoveAllExercises(date, workout);
+    }
 }

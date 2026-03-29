@@ -1,14 +1,40 @@
 <div class="w-full bg-background2 rounded-2xl p-4 flex flex-col gap-4">
-  <div>
+  <div class="mb-4 border border-background3 rounded-2xl">
     <app-info-card
       [title]="feature.title"
       [description]="feature.description"
       [icon]="feature.icon"
     ></app-info-card>
   </div>
-  <div class="">
+
+  <h1 class="text-primary text-5xl font-bold text-center">Mi Semana</h1>
+  <div class="flex flex-col gap-2">
+    <h4 class="text-text2 text-lg font-bold">Fechas de la semana</h4>
+    <div
+      class="bg-background rounded-2xl p-4 flex items-center justify-evenly gap-4 mb-2 border border-background3"
+    >
+      <div class="flex flex-col">
+        <span class="text-xs text-text2">Inicio</span>
+        <span class="text-sm font-medium">
+          {{ tracking()?.startDate | date: 'dd/MM/yyyy' }}
+        </span>
+      </div>
+      <div class="text-text2 text-2xl">→</div>
+      <div class="flex flex-col">
+        <span class="text-xs text-text2">Final</span>
+        <span class="text-sm font-medium text-confirm2">
+          {{ tracking()?.endDate | date: 'dd/MM/yyyy' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full">
     <app-btn
       [text]="'Finalizar semana'"
+      [descriptionText]="'Completa la semana de entrenamiento'"
+      [size]="'md'"
+      [showIcon]="true"
       [variant]="'raised'"
       [color]="'confirm3'"
       (click)="facade.completeWeek()"
@@ -85,35 +111,29 @@
     </div>
   </app-dialog>
 
-  <div class="bg-background rounded-2xl p-4 flex items-center justify-evenly gap-4 mb-2 mx-8">
-    <div class="flex flex-col">
-      <span class="text-xs text-text2">Inicio</span>
-      <span class="text-sm font-medium">
-        {{ tracking()?.startDate | date: 'dd/MM/yyyy' }}
-      </span>
-    </div>
-    <div class="text-text2 text-2xl">→</div>
-    <div class="flex flex-col">
-      <span class="text-xs text-text2">Final</span>
-      <span class="text-sm font-medium text-confirm2">
-        {{ tracking()?.endDate | date: 'dd/MM/yyyy' }}
-      </span>
-    </div>
-  </div>
-
-  <app-navigator-week></app-navigator-week>
-
   @if (this.tracking()?.planId) {
-    <div class="mb-6">
-      <h2 class="text-xl font-bold text-primary mb-2">Ejercicios</h2>
+    <div class="mb-4">
+      <h2 class="text-xl font-bold text-text2 mb-2">Semana empezada con plan</h2>
       <div class="bg-background3 rounded-lg p-3">
         <div class="flex justify-between items-center text-sm">
           <span class="text-text2">Plan:</span>
-          <span class="font-semibold"> {{ facade.planName() || this.tracking()?.planId }} </span>
+          <span class="font-semibold text-primary">
+            {{ facade.planName() || this.tracking()?.planId }}
+          </span>
+          <app-btn
+            [text]="'Ver plan'"
+            [color]="'primary'"
+            [size]="'sm'"
+            [variant]="'basicLight'"
+            [routerLink]="'/routines/show/' + this.tracking()?.planId"
+          >
+          </app-btn>
         </div>
       </div>
     </div>
   }
+  <app-navigator-week></app-navigator-week>
+
   <div class="mb-6">
     <div>
       <app-tracking-workout> </app-tracking-workout>

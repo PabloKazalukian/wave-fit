@@ -38,7 +38,7 @@ export class TrackingWeekComponent {
     feature = {
         icon: Dumbbell,
         title: 'Progresión Semanal',
-        description: ` • Lleva tu progresion de esta semana activa.
+        description: ` • Lleva tu progresion de esta semana.
             • Agrega los ejercicios que vas a realizar y anota tus series.
             • Podes dar finalizada la semana cuando quieras.
         `,

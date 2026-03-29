@@ -67,21 +67,15 @@
             }
             @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
               <div class="flex flex-col gap-6">
-                <app-btn
-                  [text]="'Asignar dia como descanso.'"
-                  [color]="'secondary'"
-                  [variant]="'basicLight'"
-                  (click)="this.facade.setRestDay()"
-                ></app-btn>
                 <div [@switchAnimation]="this.facade.workoutVM()">
                   <app-workout-in-progess></app-workout-in-progess>
                 </div>
 
                 <div>
-                  <div class="mb-6">
+                  <div class="mb-6 flex flex-col gap-4">
                     <app-btn
                       [variant]="'raised'"
-                      [text]="'Completar Rutina'"
+                      [text]="'Completar el dia'"
                       [color]="'primary3'"
                       [isDisabled]="!this.facade.validateWorkout()"
                       (click)="startRoutineTracking()"
@@ -94,6 +88,14 @@
                         </div>
                       </app-icon>
                     </app-btn>
+                    @if (this.facade.workoutVM()?.exercises?.length === 0) {
+                      <app-btn
+                        [text]="'Asignar dia como descanso.'"
+                        [color]="'secondary'"
+                        [variant]="'basicLight'"
+                        (click)="this.facade.setRestDay()"
+                      ></app-btn>
+                    }
                   </div>
                   <app-exercise-selector></app-exercise-selector>
                 </div>

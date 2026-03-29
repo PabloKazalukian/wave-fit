@@ -48,4 +48,9 @@ export class TrackingWorkoutFacade {
         if (!this.workoutDate()) return;
         this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!);
     }
+
+    setRemoveAllExercises() {
+        if (!this.workoutDate()) return;
+        this.trackingSvc.setRemoveAllExercises(this.workoutDate()!, this.workoutVM()!);
+    }
 }
