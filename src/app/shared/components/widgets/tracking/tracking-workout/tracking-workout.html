@@ -97,7 +97,29 @@
                       ></app-btn>
                     }
                   </div>
-                  <app-exercise-selector></app-exercise-selector>
+                  <app-btn
+                    [text]="'Agregar ejercicio'"
+                    [variant]="'flat'"
+                    [color]="'primary'"
+                    (click)="openDialog()"
+                  ></app-btn>
+
+                  <app-dialog
+                    [isOpen]="isDialogOpen()"
+                    (closed)="closeDialog()"
+                    [title]="'Selector de ejercicios'"
+                    [closeOnBackdrop]="true"
+                  >
+                    <app-exercise-selector></app-exercise-selector>
+                    <div class="mt-4 flex justify-end">
+                      <app-btn
+                        [text]="'Finalizar'"
+                        [variant]="'flat'"
+                        [color]="'primary'"
+                        (click)="closeDialog()"
+                      ></app-btn>
+                    </div>
+                  </app-dialog>
                 </div>
               </div>
             }

@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ExerciseSelector } from '../../exercises/exercise-selector/exercise-selector';
 import { options } from '../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../ui/btn/btn';
@@ -13,6 +13,7 @@ import { SpinnerComponent } from '../../../ui/icon/spinner';
 import { CommonModule } from '@angular/common';
 import { Loading } from '../../../ui/loading/loading';
 import { switchAnimation } from '../../../../animations/animation';
+import { DialogComponent } from '../../../ui/dialog/dialog';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -24,6 +25,7 @@ import { switchAnimation } from '../../../../animations/animation';
         IconComponent,
         SpinnerComponent,
         Loading,
+        DialogComponent,
     ],
     providers: [TrackingWorkoutFacade],
     standalone: true,
@@ -54,6 +56,16 @@ export class TrackingWorkoutComponent {
                 ),
         );
     });
+
+    isDialogOpen = signal(false);
+
+    openDialog() {
+        this.isDialogOpen.set(true);
+    }
+
+    closeDialog() {
+        this.isDialogOpen.set(false);
+    }
 
     startRoutineTracking() {
         this.facade.startRoutineTracking();
