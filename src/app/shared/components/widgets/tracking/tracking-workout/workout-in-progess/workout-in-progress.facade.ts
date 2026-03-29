@@ -107,19 +107,29 @@ export class WorkoutInProgressFacade {
         const currentMap = new Map(this.exerciseSetsData());
         const sets = currentMap.get(exerciseId) || [];
 
-        sets.push({ reps: 10, weights: 0 });
+        let newSet = { reps: 10, weights: 0 };
+        if (sets.length > 0) {
+            const lastSet = sets[sets.length - 1];
+            newSet = { reps: lastSet.reps, weights: lastSet.weights };
+        }
+
+        sets.push(newSet);
         currentMap.set(exerciseId, [...sets]);
         this.exerciseSetsData.set(currentMap);
 
         this.persistExerciseChanges(exerciseId, sets);
     }
 
-    removeSet(exerciseId: string): void {
+    removeSet(exerciseId: string, setIndex?: number): void {
         const currentMap = new Map(this.exerciseSetsData());
         const sets = currentMap.get(exerciseId) || [];
 
         if (sets.length > 0) {
-            sets.pop();
+            if (setIndex !== undefined && setIndex >= 0 && setIndex < sets.length) {
+                sets.splice(setIndex, 1);
+            } else {
+                sets.pop();
+            }
             currentMap.set(exerciseId, [...sets]);
             this.exerciseSetsData.set(currentMap);
         }

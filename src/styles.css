@@ -4,6 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* Global Accessibility Focus Ring */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary border-transparent;
+  }
+}
+
 
 @font-face {
   font-family: 'Lato';

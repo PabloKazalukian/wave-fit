@@ -76,8 +76,8 @@ export class WorkoutInProgess {
         this.facade.addSet(exerciseId);
     }
 
-    removeSet(exerciseId: string): void {
-        this.facade.removeSet(exerciseId);
+    removeSet(exerciseId: string, setIndex?: number): void {
+        this.facade.removeSet(exerciseId, setIndex);
     }
 
     // Exercise

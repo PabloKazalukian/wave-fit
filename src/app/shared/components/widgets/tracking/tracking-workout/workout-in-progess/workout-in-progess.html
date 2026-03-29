@@ -23,6 +23,7 @@
           <div class="w-full">
             <app-accordion-item
               [title]="exercise.name"
+              [subtitle]="exercise.category"
               [draggable]="true"
               [open]="this.facade.isOpen(exercise.exerciseId)"
               [isSelected]="false"
@@ -48,7 +49,7 @@
                   </div>
                   @for (set of facade.getSets(exercise.exerciseId); track $index; let i = $index) {
                     <div
-                      class="flex items-center justify-between gap-2 py-4 bg-background2 border-b border-primary"
+                      class="flex items-center justify-between gap-1 sm:gap-2 py-3 bg-background2 border-b border-surface"
                       [class.border-b-0]="i === facade.getSets(exercise.exerciseId).length - 1"
                     >
                       <div
@@ -57,59 +58,67 @@
                         <span class="text-primary font-semibold">{{ i + 1 }}</span>
                       </div>
 
-                      <div class="flex items-center gap-1">
-                        <label class="text-sm text-text2">REPS</label>
+                      <div class="flex items-center gap-1 sm:gap-2">
+                        <label class="hidden sm:block text-[10px] text-text2 uppercase mr-1">Reps</label>
                         <div class="flex items-center gap-1">
                           <button
                             (click)="decrementReps(exercise.exerciseId, i)"
-                            class="w-6 h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2"
+                            class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                           >
-                            <span class="text-lg">−</span>
+                            <span class="text-lg leading-none">−</span>
                           </button>
                           <input
                             type="number"
                             [value]="set.reps"
                             (input)="updateReps(exercise.exerciseId, i, $event)"
-                            class="w-12 h-6 px-2 bg-background3 border border-background3 text-primary text-center rounded-lg focus:ring-primary focus:border-primary [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            class="w-8 sm:w-10 h-6 px-1 sm:px-2 bg-background3 border-transparent text-primary text-center rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           />
                           <button
                             (click)="incrementReps(exercise.exerciseId, i)"
-                            class="w-6 h-6 rounded-full bg-background flex items-center justify-center text-white"
+                            class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-background flex items-center justify-center text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                           >
-                            <span class="text-lg">+</span>
+                            <span class="text-lg leading-none">+</span>
                           </button>
                         </div>
                       </div>
 
                       @if (exercise.usesWeight) {
-                        <div class="flex items-center gap-2">
-                          <label class="text-sm text-text2">PESO</label>
+                        <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+                          <label class="hidden sm:block text-[10px] text-text2 uppercase mr-1">Peso</label>
                           <div class="flex items-center gap-1">
                             <button
                               (click)="decrementWeight(exercise.exerciseId, i)"
-                              class="w-6 h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2"
+                              class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-background3 hover:bg-background3/80 flex items-center justify-center text-text2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                             >
-                              <span class="text-lg">−</span>
+                              <span class="text-lg leading-none">−</span>
                             </button>
-                            <div class="flex items-center gap-1">
+                            <div class="flex items-center gap-0.5 sm:gap-1">
                               <input
                                 type="number"
                                 step="2.5"
                                 [value]="set.weights"
                                 (input)="updateWeight(exercise.exerciseId, i, $event)"
-                                class="w-12 h-6 px-2 bg-background3 border border-background3 text-primary text-center rounded-lg focus:ring-primary focus:border-primary [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                class="w-10 sm:w-12 h-6 px-1 sm:px-2 bg-background3 border-transparent text-primary text-center rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                               />
-                              <span class="text-sm text-text2">kg</span>
+                              <span class="text-[10px] sm:text-xs text-text2">kg</span>
                             </div>
                             <button
                               (click)="incrementWeight(exercise.exerciseId, i)"
-                              class="w-6 h-6 rounded-full bg-background flex items-center justify-center text-white"
+                              class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-background flex items-center justify-center text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                             >
-                              <span class="text-lg">+</span>
+                              <span class="text-lg leading-none">+</span>
                             </button>
                           </div>
                         </div>
                       }
+                      
+                      <button
+                        (click)="removeSet(exercise.exerciseId, i)"
+                        class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-error2/10 hover:bg-error2/20 shrink-0 flex items-center justify-center text-error2 ml-1 sm:ml-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        title="Eliminar serie"
+                      >
+                        <span class="text-lg sm:text-xl leading-none">−</span>
+                      </button>
                     </div>
                   }
                 } @else {
@@ -129,19 +138,13 @@
                   </div>
                 }
 
-                <!-- Add/Remove set buttons -->
-                <div class="flex gap-2 mt-3">
-                  <button
-                    (click)="removeSet(exercise.exerciseId)"
-                    class="flex-1 py-2 px-4 bg-background3 hover:bg-background2/80 text-text2 rounded-lg text-sm"
-                  >
-                    − Serie
-                  </button>
+                <!-- Add set buttons -->
+                <div class="flex mt-3">
                   <button
                     (click)="addSet(exercise.exerciseId)"
-                    class="flex-1 py-2 px-4 bg-background text-primary rounded-lg text-sm"
+                    class="w-full py-2 px-4 bg-background text-primary rounded-lg text-sm transition-colors hover:bg-background/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background3"
                   >
-                    + Serie
+                    + Agregar Serie
                   </button>
                 </div>
               </div>

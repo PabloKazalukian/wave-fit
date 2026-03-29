@@ -1,7 +1,7 @@
 <div
   class="border rounded-md bg-background2 transition-colors duration-300"
   [class.border-accent]="isSelected && !isError"
-  [class.border-primary2]="!isSelected && !isError"
+  [class.border-primaryDark]="!isSelected && !isError"
   [class.border-error]="isError"
   [class.border-2]="isError"
   [class.border-surface]="isIncomplete"
@@ -19,17 +19,22 @@
   }
   <button
     (click)="onToggle()"
-    class="grid grid-cols-[1fr_24px] w-full flex justify-between items-center px-4 py-3 rounded-md transition-colors duration-300"
+    class="grid grid-cols-[1fr_24px] w-full flex justify-between items-center px-4 py-3 rounded-md transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     [class.bg-background3]="!isIncomplete"
     [class.text-accent]="isSelected && !isError"
-    [class.text-primary2]="!isSelected && !isError"
+    [class.text-text2]="!isSelected && !isError"
     [class.text-error2]="isError"
     [class.bg-background]="isIncomplete"
     [class.text-text2]="isIncomplete"
   >
-    <h4 class="font-semibold break-words capitalize">
-      {{ title }}
-    </h4>
+    <div class="flex flex-col text-left">
+      <h4 class="font-semibold break-words capitalize">
+        {{ title }}
+      </h4>
+      @if (subtitle) {
+        <span class="text-[0.65rem] tracking-wider text-text2 uppercase">{{ subtitle }}</span>
+      }
+    </div>
 
     <span class="transition-transform duration-300 text-xl w-" [class.rotate-180]="open">
       <svg
@@ -46,10 +51,14 @@
   </button>
 
   <div
-    class="overflow-auto scrollbar-hide transition-all duration-300 px-4 scrollbar-thin"
+    class="overflow-auto scrollbar-hide transition-all duration-300 px-4 scrollbar-thin delay-75"
     [class.max-h-0]="!open"
-    [class.max-h-96]="open"
+    [class.max-h-[1500px]]="open"
     [class.py-3]="open"
+    [class.invisible]="!open"
+    [class.opacity-0]="!open"
+    [class.opacity-100]="open"
+    [attr.inert]="!open ? true : null"
   >
     <ng-content cdkDragPreview></ng-content>
   </div>

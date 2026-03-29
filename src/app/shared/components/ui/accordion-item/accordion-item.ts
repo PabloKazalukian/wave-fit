@@ -9,6 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class AccordionItemComponent {
     @Input() title!: string;
+    @Input() subtitle?: string;
     @Input() open = false;
     @Input() isSelected = false;
     @Input() isError = false;
