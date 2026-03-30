@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { WeekDayCellComponent } from '../week-day-cell/week-day-cell';
 import { DayOfRoutine } from '../day-of-routine/day-of-routine';
-import { DaysRoutineProgress } from './routine-days-progress/days-routine-progress.';
+import { DaysRoutineProgress } from './routine-days-progress/days-routine-progress';
 import { DayPlanStateService } from '../../../../../core/services/plans/day-plan-state.service';
 
 @Component({

@@ -9,8 +9,6 @@
     </div>
   </div>
 
-  <!-- Aca debe ir un componente que muestre la cantidad de ejercicios por categoria -->
-
   @if (facade.exercises().length > 0) {
     <div
       cdkDropList
@@ -59,7 +57,9 @@
                       </div>
 
                       <div class="flex items-center gap-1 sm:gap-2">
-                        <label class="hidden sm:block text-[10px] text-text2 uppercase mr-1">Reps</label>
+                        <label class="hidden sm:block text-[10px] text-text2 uppercase mr-1"
+                          >Reps</label
+                        >
                         <div class="flex items-center gap-1">
                           <button
                             (click)="decrementReps(exercise.exerciseId, i)"
@@ -84,7 +84,9 @@
 
                       @if (exercise.usesWeight) {
                         <div class="flex items-center gap-1 sm:gap-2 shrink-0">
-                          <label class="hidden sm:block text-[10px] text-text2 uppercase mr-1">Peso</label>
+                          <label class="hidden sm:block text-[10px] text-text2 uppercase mr-1"
+                            >Peso</label
+                          >
                           <div class="flex items-center gap-1">
                             <button
                               (click)="decrementWeight(exercise.exerciseId, i)"
@@ -111,7 +113,7 @@
                           </div>
                         </div>
                       }
-                      
+
                       <button
                         (click)="removeSet(exercise.exerciseId, i)"
                         class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-error2/10 hover:bg-error2/20 shrink-0 flex items-center justify-center text-error2 ml-1 sm:ml-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"

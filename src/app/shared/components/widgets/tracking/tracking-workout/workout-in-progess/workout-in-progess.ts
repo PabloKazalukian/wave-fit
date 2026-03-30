@@ -1,8 +1,7 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { WorkoutInProgressFacade } from './workout-in-progress.facade';
 import { AccordionItemComponent } from '../../../../ui/accordion-item/accordion-item';
-import { CdkDragDrop, DragDropModule, CdkDropList, CdkDrag } from '@angular/cdk/drag-drop';
-import { Loading } from '../../../../ui/loading/loading';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'app-workout-in-progess',
