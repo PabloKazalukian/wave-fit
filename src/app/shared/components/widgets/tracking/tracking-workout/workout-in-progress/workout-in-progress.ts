@@ -4,11 +4,11 @@ import { AccordionItemComponent } from '../../../../ui/accordion-item/accordion-
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 
 @Component({
-    selector: 'app-workout-in-progess',
+    selector: 'app-workout-in-progress',
     imports: [AccordionItemComponent, DragDropModule],
     standalone: true,
     providers: [WorkoutInProgressFacade],
-    templateUrl: './workout-in-progess.html',
+    templateUrl: './workout-in-progress.html',
     styles: `
         .cdk-drag-preview {
             box-sizing: border-box;
@@ -32,7 +32,7 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
         }
     `,
 })
-export class WorkoutInProgess {
+export class WorkoutInProgress {
     facade = inject(WorkoutInProgressFacade);
 
     // ===== UI Event Handlers =====

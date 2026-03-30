@@ -7,13 +7,13 @@ import {
     ExercisePerformanceVM,
     StatusWorkoutSessionEnum,
 } from '../../../../interfaces/tracking.interface';
-import { WorkoutInProgess } from './workout-in-progess/workout-in-progess';
 import { IconComponent } from '../../../ui/icon/icon';
 import { SpinnerComponent } from '../../../ui/icon/spinner';
 import { CommonModule } from '@angular/common';
 import { Loading } from '../../../ui/loading/loading';
 import { switchAnimation } from '../../../../animations/animation';
 import { DialogComponent } from '../../../ui/dialog/dialog';
+import { WorkoutInProgress } from './workout-in-progress/workout-in-progress';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -21,7 +21,7 @@ import { DialogComponent } from '../../../ui/dialog/dialog';
         CommonModule,
         ExerciseSelector,
         BtnComponent,
-        WorkoutInProgess,
+        WorkoutInProgress,
         IconComponent,
         SpinnerComponent,
         Loading,
