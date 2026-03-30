@@ -4,6 +4,7 @@ import { PlanTrackingStateService } from './plan-tracking.state';
 import { filter, map, Observable } from 'rxjs';
 import {
     ExercisePerformanceVM,
+    StatusWorkoutSession,
     TrackingVM,
     TrackingVMS,
     WorkoutSessionVM,
@@ -59,6 +60,14 @@ export class PlanTrackingService {
 
     setRestDay(day: Date, workout: WorkoutSessionVM): void {
         this.domain.setRestDay(day, workout);
+    }
+
+    updateWorkoutStatus(date: Date, status: StatusWorkoutSession): void {
+        this.domain.updateWorkoutStatus(date, status);
+    }
+
+    updateWorkoutSession(date: Date, workout: WorkoutSessionVM): void {
+        this.domain.updateWorkoutSession(date, workout);
     }
 
     completeTracking(complete: boolean): Observable<TrackingVMS | null> {

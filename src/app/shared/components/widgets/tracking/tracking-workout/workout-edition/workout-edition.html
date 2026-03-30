@@ -1,0 +1,53 @@
+<div class="bg-background1 rounded-lg p-3 mb-4 border border-primary" [formGroup]="workoutForm">
+  <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-primary">
+    <h3 class="">Edición de entrenamiento:</h3>
+  </div>
+
+  <div formArrayName="exercises">
+    @for (exerciseGroup of exerciseFormArray.controls; track exerciseGroup; let i = $index) {
+      <div [formGroupName]="i" class="mb-4">
+        <h4 class="border-b-2 border-background4 text-center mb-4">
+          {{ exerciseGroup.get('name')?.value }}
+        </h4>
+
+        <div formArrayName="sets" class="flex flex-col gap-2">
+          @for (setGroup of getSetsFormArray(i).controls; track setGroup; let j = $index) {
+            <div [formGroupName]="j" class="flex items-center gap-2 bg-background3 p-2 rounded-lg">
+              <span class="border-r-2 pr-2 border-background4 text-center w-8">
+                {{ j + 1 }}
+              </span>
+              
+              <div class="flex items-center gap-1">
+                <input
+                  type="number"
+                  formControlName="reps"
+                  class="w-16 bg-background1 border-2 border-accent rounded-lg px-1 text-center outline-none"
+                />
+                <span class="text-xs text-text2">reps</span>
+              </div>
+
+              <div class="flex items-center gap-1">
+                <input
+                  type="number"
+                  formControlName="weights"
+                  class="w-16 bg-background1 border-2 border-accent rounded-lg px-1 text-center outline-none"
+                />
+                <span class="text-xs text-text2">kg</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="mt-6 flex flex-col gap-4">
+    <app-btn
+      [text]="'Guardar'"
+      [color]="'accent'"
+      [variant]="'stroked'"
+      (click)="onSave()"
+    >
+    </app-btn>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
-import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
+import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 
@@ -19,6 +19,25 @@ export class TrackingWorkoutFacade {
 
     exercises = signal<ExercisePerformanceVM[]>([]);
     exercisesSelected = this.state.exercises;
+
+    exercisesSelectedOrdered = computed(() => {
+        return Object.entries(
+            this.exercisesSelected()
+                .sort((a, b) => a?.name.localeCompare(b?.name))
+                .reduce(
+                    (acc, item) => {
+                        if (!acc[item?.category]) {
+                            acc[item.category] = [];
+                        }
+
+                        acc[item.category].push(item);
+                        return acc;
+                    },
+                    {} as { [key: string]: ExercisePerformanceVM[] },
+                ),
+        );
+    });
+
     exercisesTracking = signal<ExercisePerformanceVM[]>([]);
     loading = this.trackingSvc.loadingWorkoutCreation;
 
@@ -52,5 +71,31 @@ export class TrackingWorkoutFacade {
     setRemoveAllExercises() {
         if (!this.workoutDate()) return;
         this.trackingSvc.setRemoveAllExercises(this.workoutDate()!, this.workoutVM()!);
+    }
+
+    setEditedStatus() {
+        const date = this.workoutDate();
+        if (!date) return;
+        this.trackingSvc.updateWorkoutStatus(date, 'edited');
+    }
+
+    setCompleteStatus() {
+        const date = this.workoutDate();
+        if (!date) return;
+        this.trackingSvc.updateWorkoutStatus(date, 'complete');
+    }
+
+    updateWorkoutSession(workout: WorkoutSessionVM) {
+        const date = this.workoutDate();
+        if (!date) return;
+        this.trackingSvc.updateWorkoutSession(date, workout);
+    }
+
+    updateExerciseSet(exerciseId: string, setIndex: number, reps: number, weights: number) {
+        // This could be used but updateWorkoutSession is preferred for full updates
+        const date = this.workoutDate();
+        if (!date) return;
+        // If we want to keep this, we'd need a domain method for it, 
+        // but for now we'll use updateWorkoutSession from the component
     }
 }

@@ -4,6 +4,7 @@ import { PlanTrackingStateService } from './plan-tracking.state';
 import { delay, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
+    StatusWorkoutSession,
     StatusWorkoutSessionEnum,
     TrackingVM,
     TrackingVMS,
@@ -182,6 +183,25 @@ export class PlanTrackingDomainService {
 
     setExercises(date: Date, exercises: ExercisePerformanceVM[]) {
         this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
+    }
+
+    updateWorkoutStatus(date: Date, status: StatusWorkoutSession) {
+        const tracking = this.state.getTrackingValue();
+        if (!tracking) return;
+
+        // Update local cache
+        this._updateWorkout(date, (workout) => ({ ...workout, status }));
+    }
+
+    updateWorkoutSession(date: Date, workout: WorkoutSessionVM) {
+        const tracking = this.state.getTrackingValue();
+        if (!tracking) return;
+
+        // Call API placeholder
+        this.api.updateWorkoutSession(workout, tracking.id!).subscribe();
+
+        // Update local cache
+        this._updateWorkout(date, () => workout);
     }
 
     setRestDay(day: Date, workout: WorkoutSessionVM) {

@@ -14,6 +14,8 @@ import { Loading } from '../../../ui/loading/loading';
 import { switchAnimation } from '../../../../animations/animation';
 import { DialogComponent } from '../../../ui/dialog/dialog';
 import { WorkoutInProgress } from './workout-in-progress/workout-in-progress';
+import { WorkoutCompleteList } from './workout-complete-list/workout-complete-list';
+import { WorkoutEdition } from './workout-edition/workout-edition';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -26,6 +28,8 @@ import { WorkoutInProgress } from './workout-in-progress/workout-in-progress';
         SpinnerComponent,
         Loading,
         DialogComponent,
+        WorkoutCompleteList,
+        WorkoutEdition,
     ],
     providers: [TrackingWorkoutFacade],
     standalone: true,
@@ -37,25 +41,6 @@ export class TrackingWorkoutComponent {
 
     StatusWorkoutSessionEnum = StatusWorkoutSessionEnum;
     options = options;
-
-    exercisesSelectedOrdered = computed(() => {
-        return Object.entries(
-            this.facade
-                .exercisesSelected()
-                .sort((a, b) => a?.category.localeCompare(b?.category))
-                .reduce(
-                    (acc, item) => {
-                        if (!acc[item?.category]) {
-                            acc[item.category] = [];
-                        }
-
-                        acc[item.category].push(item);
-                        return acc;
-                    },
-                    {} as { [key: string]: ExercisePerformanceVM[] },
-                ),
-        );
-    });
 
     isDialogOpen = signal(false);
 

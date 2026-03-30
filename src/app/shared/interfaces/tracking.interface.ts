@@ -12,11 +12,12 @@ export interface WeekLogDayVM {
     status: DayStatusVM;
 }
 
-export type StatusWorkoutSession = 'not_started' | 'complete' | 'rest';
+export type StatusWorkoutSession = 'not_started' | 'complete' | 'rest' | 'edited';
 export enum StatusWorkoutSessionEnum {
     NOT_STARTED = 'not_started',
     REST = 'rest',
     COMPLETE = 'complete',
+    EDITED = 'edited',
 }
 
 export interface TrackingVM {
