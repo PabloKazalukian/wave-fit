@@ -42,6 +42,15 @@ export class TrackingWorkoutComponent {
     StatusWorkoutSessionEnum = StatusWorkoutSessionEnum;
     options = options;
 
+    restMessages = [
+        'Hoy no aceptamos estrés, solo sonrisas y buen rollo. ¡A disfrutar del día libre!',
+        'Pausa el mundo un momento. Hoy te toca recargar energías',
+        '¡Merecido descanso! Te lo has ganado',
+        'Modo Relax: ¡Hoy no se ejercita!',
+    ];
+
+    randomRestMessage = this.restMessages[Math.floor(Math.random() * this.restMessages.length)];
+
     isDialogOpen = signal(false);
 
     openDialog() {

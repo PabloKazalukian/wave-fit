@@ -106,14 +106,38 @@
             }
             @case (this.StatusWorkoutSessionEnum.REST) {
               <div
-                class="border border-secondary bg-background1 rounded-lg p-3 mb-4 flex flex-col gap-6"
+                class="bg-secondary/10 border-secondary/30 bg-background2 rounded-2xl p-6 mb-6 flex flex-col items-center justify-center text-center gap-4 shadow-sm"
               >
-                <h4 class="text-text2">No se realizo una rutina.</h4>
+                <div
+                  class="h-16 w-16 text-secondary bg-secondary/10 rounded-full flex items-center justify-center mb-1"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-8 h-8"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm3.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Z"
+                    />
+                  </svg>
+                </div>
+                <h4 class="text-text1 font-medium text-lg leading-snug">
+                  {{ this.randomRestMessage }}
+                </h4>
+                <p class="text-text2 text-sm max-w-[250px]">
+                  Tómate este tiempo para recuperarte. ¡Mañana volvemos con más energía!
+                </p>
               </div>
               <app-btn
-                [variant]="'basicLight'"
+                class="w-full flex justify-center"
+                [variant]="'stroked'"
                 [color]="'primary'"
-                [text]="'Asignar dia como rutina'"
+                [text]="'Cambiar a día de entrenamiento'"
                 (click)="this.facade.setRestDay()"
               >
               </app-btn>
