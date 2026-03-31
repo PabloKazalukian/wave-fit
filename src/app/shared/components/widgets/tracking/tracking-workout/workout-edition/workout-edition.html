@@ -1,53 +1,149 @@
-<div class="bg-background1 rounded-lg p-3 mb-4 border border-primary" [formGroup]="workoutForm">
-  <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-primary">
+<div
+  class="bg-background1 rounded-lg p-3 mb-4 border border-accent text-accent"
+  [formGroup]="workoutForm"
+>
+  <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-accent">
     <h3 class="">Edición de entrenamiento:</h3>
   </div>
 
-  <div formArrayName="exercises">
+  <div formArrayName="exercises" [class.hidden]="exerciseFormArray.length === 0">
     @for (exerciseGroup of exerciseFormArray.controls; track exerciseGroup; let i = $index) {
-      <div [formGroupName]="i" class="mb-4">
-        <h4 class="border-b-2 border-background4 text-center mb-4">
-          {{ exerciseGroup.get('name')?.value }}
-        </h4>
+      <div [formGroupName]="i" class="mb-4 flex flex-col gap-2">
+        <div
+          class="flex items-center justify-center relative border-b-2 border-background4 mb-4 pb-2"
+        >
+          <h4 class="text-center font-semibold">
+            {{ exerciseGroup.get('name')?.value }}
+          </h4>
+          <button
+            type="button"
+            class="absolute right-0 text-error2 hover:text-error2/80 transition-colors"
+            (click)="removeExercise(i)"
+            title="Quitar Ejercicio"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+              />
+            </svg>
+          </button>
+        </div>
 
-        <div formArrayName="sets" class="flex flex-col gap-2">
+        <div formArrayName="sets" class="flex flex-col gap-2" [class.hidden]="getSetsFormArray(i).length === 0">
           @for (setGroup of getSetsFormArray(i).controls; track setGroup; let j = $index) {
             <div [formGroupName]="j" class="flex items-center gap-2 bg-background3 p-2 rounded-lg">
               <span class="border-r-2 pr-2 border-background4 text-center w-8">
                 {{ j + 1 }}
               </span>
-              
-              <div class="flex items-center gap-1">
-                <input
-                  type="number"
-                  formControlName="reps"
-                  class="w-16 bg-background1 border-2 border-accent rounded-lg px-1 text-center outline-none"
-                />
-                <span class="text-xs text-text2">reps</span>
-              </div>
 
               <div class="flex items-center gap-1">
                 <input
                   type="number"
-                  formControlName="weights"
-                  class="w-16 bg-background1 border-2 border-accent rounded-lg px-1 text-center outline-none"
+                  formControlName="reps"
+                  class="w-12 h-8 bg-background1 border-2 border-accent rounded-lg px-1 text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
-                <span class="text-xs text-text2">kg</span>
+                <span class="text-xs text-text2">reps</span>
               </div>
+
+              @if (exerciseGroup.get('usesWeight')?.value) {
+                <div class="flex items-center gap-1">
+                  <input
+                    type="number"
+                    formControlName="weights"
+                    class="w-12 h-8 bg-background1 border-2 border-accent rounded-lg px-1 text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  />
+                  <span class="text-xs text-text2">kg</span>
+                </div>
+              }
+
+              <button
+                type="button"
+                class="ml-auto text-error2 hover:text-error2/80 transition-colors bg-error2/10 hover:bg-error2/20 p-1 rounded-full"
+                (click)="removeSet(i, j)"
+                title="Eliminar serie"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  class="w-4 h-4"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           }
+        </div>
+
+        <div class="flex justify-center">
+          <app-btn
+            [text]="'+'"
+            [variant]="'stroked'"
+            [color]="'accent'"
+            [size]="'sm'"
+            (click)="addSet(i)"
+          ></app-btn>
         </div>
       </div>
     }
   </div>
 
-  <div class="mt-6 flex flex-col gap-4">
+  <div class="mt-4 flex justify-center">
     <app-btn
-      [text]="'Guardar'"
-      [color]="'accent'"
+      [text]="'Agregar ejercicio'"
       [variant]="'stroked'"
-      (click)="onSave()"
+      [color]="'accent'"
+      [size]="'sm'"
+      [showIcon]="true"
+      (click)="openDialog()"
     >
+      <app-icon>
+        <div class="h-5 w-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-5 h-5"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </div>
+      </app-icon>
+    </app-btn>
+  </div>
+
+  <app-dialog
+    [isOpen]="isDialogOpen()"
+    (closed)="closeDialog()"
+    [title]="'Selector de ejercicios'"
+    [closeOnBackdrop]="true"
+  >
+    <app-exercise-selector></app-exercise-selector>
+    <div class="mt-4 flex justify-end">
+      <app-btn
+        [text]="'Finalizar'"
+        [variant]="'flat'"
+        [color]="'accent'"
+        (click)="closeDialog()"
+      ></app-btn>
+    </div>
+  </app-dialog>
+
+  <div class="mt-6 flex flex-col gap-4 text-primary">
+    <app-btn [text]="'Guardar'" [color]="'primaryDark'" [variant]="'raised'" (click)="onSave()">
     </app-btn>
   </div>
 </div>

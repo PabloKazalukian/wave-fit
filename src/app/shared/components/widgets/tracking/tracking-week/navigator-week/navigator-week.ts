@@ -49,6 +49,7 @@ export class NavigatorWeek {
     allDays = computed(() => {
         const t = this.tracking();
         if (!t || !t.workouts) return [];
+        console.log(t.workouts);
         return t.workouts.map((w) => {
             return {
                 date: w.date,
