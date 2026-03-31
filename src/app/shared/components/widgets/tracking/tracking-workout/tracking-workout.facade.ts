@@ -98,4 +98,11 @@ export class TrackingWorkoutFacade {
         // If we want to keep this, we'd need a domain method for it, 
         // but for now we'll use updateWorkoutSession from the component
     }
+
+    removeWorkoutSession() {
+        const date = this.workoutDate();
+        const workoutId = this.workoutVM()?.id;
+        if (!date || !workoutId) return;
+        this.trackingSvc.removeWorkoutSession(date, workoutId);
+    }
 }

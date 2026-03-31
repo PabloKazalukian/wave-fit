@@ -89,7 +89,7 @@ export class BtnComponent implements AfterContentInit {
             case 'flat':
                 return `bg-${color3} text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
             case 'outline':
-                return `text-${this.color} border-2 border-${this.color} font-semibold tracking-wide shadow-md hover:text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
+                return `text-${this.color} border border-${this.color} font-semibold tracking-wide shadow-md hover:text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
             case 'outlineLigth':
                 return `border border-${cleanColor}Light text-${cleanColor}Light hover:text-${this.color}Dark`;
             case 'outlineDark':

@@ -27,6 +27,7 @@ import {
     SYNC_WEEK_LOG_DAYS,
     UPDATE_WEEK_LOG,
     UPDATE_WEEK_LOG_DAY,
+    REMOVE_WORKOUT_SESSION,
 } from '../../../../apollo/tracking.queries';
 
 @Injectable({
@@ -91,6 +92,18 @@ export class PlanTrackingApi {
     ): Observable<WorkoutSessionVM | null> {
         // placeholder for future implementation
         return of(null);
+    }
+
+    removeWorkoutSession(id: string): Observable<boolean> {
+        return this.apollo
+            .mutate<{ removeWorkoutSession: { id: string } }>({
+                mutation: REMOVE_WORKOUT_SESSION,
+                variables: { id },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) => !!data?.removeWorkoutSession)
+            );
     }
 
     createTracking(payload: TrackingCreate): Observable<TrackingVM | undefined | null> {

@@ -204,6 +204,19 @@ export class PlanTrackingDomainService {
         this._updateWorkout(date, () => workout);
     }
 
+    removeWorkoutSession(date: Date, id: string) {
+        this.api.removeWorkoutSession(id).subscribe((success) => {
+            if (success) {
+                this._updateWorkout(date, (workout) => ({
+                    ...workout,
+                    id: undefined,
+                    status: StatusWorkoutSessionEnum.NOT_STARTED,
+                    exercises: []
+                }));
+            }
+        });
+    }
+
     setRestDay(day: Date, workout: WorkoutSessionVM) {
         const newWorkout =
             workout.status === StatusWorkoutSessionEnum.REST

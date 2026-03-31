@@ -82,6 +82,17 @@ export const CREATE_WORKOUT_SESSION = gql`
     }
 `;
 
+export const REMOVE_WORKOUT_SESSION = gql`
+    mutation RemoveWorkoutSession($id: String!) {
+        removeWorkoutSession(id: $id) {
+            id
+            date
+            status
+            deleted
+        }
+    }
+`;
+
 export const CREATE_WEEK_LOG = gql`
     mutation CreateWeekLog($input: CreateWeekLogInput!) {
         createWeekLog(createWeekLogInput: $input) {

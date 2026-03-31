@@ -1,16 +1,11 @@
-<div
-  class="bg-background1 rounded-lg p-3 mb-4 border border-primary"
->
+<div class="bg-background1 rounded-lg p-3 mb-4 border border-primary">
   <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-primary">
     <h3 class="">Lista de ejercicios:</h3>
     <p class="text-text2 rounded-2xl bg-background2 px-3">
       Cantidad:{{ facade.exercisesSelected().length }}
     </p>
   </div>
-  @for (
-    exerciseCategorized of facade.exercisesSelectedOrdered();
-    track exerciseCategorized[0]
-  ) {
+  @for (exerciseCategorized of facade.exercisesSelectedOrdered(); track exerciseCategorized[0]) {
     <div class="mb-4">
       <h4 class="border-b-2 border-background4 text-center mb-4">
         {{ exerciseCategorized[0] }}
@@ -44,7 +39,7 @@
       </ul>
     </div>
   }
-  
+
   <div class="mt-6 flex flex-col gap-4">
     <app-btn
       [text]="'Modificar día'"
@@ -53,5 +48,39 @@
       (click)="facade.setEditedStatus()"
     >
     </app-btn>
+    <app-btn
+      [text]="'Eliminar día'"
+      [color]="'error'"
+      [variant]="'outline'"
+      (click)="openDeleteDialog()"
+    >
+    </app-btn>
   </div>
+
+  <app-dialog
+    [isOpen]="isDeleteDialogOpen()"
+    [title]="'Confirmar eliminación'"
+    (closed)="closeDeleteDialog()"
+  >
+    <div class="flex flex-col gap-4 mt-2">
+      <p class="text-text2">
+        ¿Estás seguro de que deseas eliminar este día? Esta acción quitará los datos permanentemente
+        del historial de entrenamiento y no puede deshacerse.
+      </p>
+      <div class="flex gap-4 justify-end mt-4">
+        <app-btn
+          [text]="'Volver'"
+          [variant]="'stroked'"
+          [color]="'secondary'"
+          (click)="closeDeleteDialog()"
+        ></app-btn>
+        <app-btn
+          [text]="'Borrar'"
+          [variant]="'flat'"
+          [color]="'error'"
+          (click)="confirmDelete()"
+        ></app-btn>
+      </div>
+    </div>
+  </app-dialog>
 </div>

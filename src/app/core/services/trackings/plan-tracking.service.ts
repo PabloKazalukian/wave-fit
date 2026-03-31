@@ -114,4 +114,8 @@ export class PlanTrackingService {
     setRemoveAllExercises(date: Date, workout: WorkoutSessionVM): void {
         this.domain.setRemoveAllExercises(date, workout);
     }
+
+    removeWorkoutSession(date: Date, id: string): void {
+        this.domain.removeWorkoutSession(date, id);
+    }
 }
