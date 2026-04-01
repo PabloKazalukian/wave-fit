@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { trigger, transition, style, animate, state } from '@angular/animations';
 import { BtnComponent } from '../../ui/btn/btn';
 import { WaveLogoComponent } from '../../ui/logos/wave-logo/wave-logo';
 import { AuthService } from '../../../../core/services/auth/auth.service';
@@ -13,6 +14,23 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     standalone: true,
     templateUrl: './header.html',
     styleUrl: './header.css',
+    animations: [
+        trigger('dropdownAnimation', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'translateY(-10px) scale(0.95)' }),
+                animate(
+                    '0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                    style({ opacity: 1, transform: 'translateY(0) scale(1)' }),
+                ),
+            ]),
+            transition(':leave', [
+                animate(
+                    '0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    style({ opacity: 0, transform: 'translateY(-10px) scale(0.95)' }),
+                ),
+            ]),
+        ]),
+    ],
 })
 export class Header implements OnInit {
     show = true;

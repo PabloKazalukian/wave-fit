@@ -50,7 +50,8 @@
 
           @if (isRoutinesDropdownOpen()) {
             <div
-              class="absolute top-full left-0 mt-2 w-48 bg-background3 border border-white/10 rounded-xl shadow-xl overflow-hidden py-2 dropdown-menu"
+              class="absolute top-full left-0 mt-2 w-48 bg-background3 border border-white/10 rounded-xl shadow-xl overflow-hidden py-2"
+              [@dropdownAnimation]
               (click)="$event.stopPropagation()"
             >
               <a
@@ -89,7 +90,8 @@
 
         @if (isUserDropdownOpen()) {
           <div
-            class="absolute top-full right-0 mt-2 w-48 bg-background3 border border-white/10 rounded-xl shadow-xl overflow-hidden py-2 dropdown-menu"
+            class="absolute top-full right-0 mt-2 w-48 bg-background3 border border-white/10 rounded-xl shadow-xl overflow-hidden py-2"
+            [@dropdownAnimation]
             (click)="$event.stopPropagation()"
           >
             <a
