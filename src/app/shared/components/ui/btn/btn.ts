@@ -39,6 +39,7 @@ export class BtnComponent implements AfterContentInit {
     @Input() buttonType: 'button' | 'submit' | 'reset' = 'button';
     @Input() size: 'sm' | 'md' = 'sm';
     @Input() fragment?: string;
+    @Input() dataTest = '';
     showIcon = input<boolean>(false);
 
     // @ContentChild('iconTemplate') iconTemplate?: TemplateRef<any>;

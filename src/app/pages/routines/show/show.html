@@ -118,6 +118,7 @@
         [color]="'primary'"
         [size]="'md'"
         (click)="initTrackingWithRoutinePlan()"
+        dataTest="iniciar-rutina-semanal"
       ></app-btn>
       <app-dialog
         [isOpen]="showDialog()"
@@ -134,6 +135,7 @@
             [color]="'error'"
             [size]="'md'"
             (click)="navigateToMyWeek()"
+            dataTest="ir-a-mi-semana"
           ></app-btn>
           <app-btn
             [text]="'volver'"

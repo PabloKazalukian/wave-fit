@@ -30,6 +30,7 @@
               [showIcon]="true"
               [color]="'primary3'"
               [routerLink]="'/plans/create'"
+              dataTest="crear-plan"
             ></app-btn>
             <app-btn
               [text]="'Seleccionar Plan'"
@@ -40,6 +41,7 @@
               [color]="'secondary'"
               [routerLink]="'/plans'"
               [fragment]="'plans'"
+              dataTest="seleccionar-plan"
             ></app-btn>
           </div>
           <span class="text-text2 my-4"
@@ -54,6 +56,7 @@
               [showIcon]="true"
               [color]="'accent'"
               (click)="createTracking()"
+              dataTest="iniciar-seguimiento"
             ></app-btn>
           </div>
         </div>

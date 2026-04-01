@@ -1,16 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PlanTrackingStorage } from './plan-tracking-storage';
+import { PlanTrackingStorage } from './plan-tracking.storage';
 
 describe('PlanTrackingStorage', () => {
-  let service: PlanTrackingStorage;
+    let service: PlanTrackingStorage;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(PlanTrackingStorage);
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(PlanTrackingStorage);
+    });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });
