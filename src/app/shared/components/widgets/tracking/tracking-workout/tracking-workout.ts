@@ -15,6 +15,8 @@ import { WorkoutCompleteList } from './workout-complete-list/workout-complete-li
 import { WorkoutEdition } from './workout-edition/workout-edition';
 import { WorkoutRoutineSelector } from './workout-routine-selector/workout-routine-selector';
 import { RoutineDay } from '../../../../interfaces/routines.interface';
+import { trigger, transition, style, animate } from '@angular/animations';
+import { WorkoutActionsMenu } from './workout-actions-menu/workout-actions-menu';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -34,7 +36,24 @@ import { RoutineDay } from '../../../../interfaces/routines.interface';
     providers: [TrackingWorkoutFacade],
     standalone: true,
     templateUrl: './tracking-workout.html',
-    animations: [switchAnimation],
+    animations: [
+        switchAnimation,
+        trigger('dropdownAnimation', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'translateY(-10px) scale(0.95)' }),
+                animate(
+                    '0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                    style({ opacity: 1, transform: 'translateY(0) scale(1)' }),
+                ),
+            ]),
+            transition(':leave', [
+                animate(
+                    '0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    style({ opacity: 0, transform: 'translateY(-10px) scale(0.95)' }),
+                ),
+            ]),
+        ]),
+    ],
 })
 export class TrackingWorkoutComponent {
     facade = inject(TrackingWorkoutFacade);
