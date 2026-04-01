@@ -141,12 +141,15 @@ export class WorkoutEdition implements OnInit {
                 .exercisesSelected()
                 .find((ex) => ex.exerciseId === fe.exerciseId);
 
-            return {
-                ...(existingEx || sourceEx), // Keep original properties like category, muscle, etc.
-                sets: fe.sets.map((s: any) => ({
+            const mappedSets = fe.sets.map((s: any) => ({
                     reps: Number(s.reps),
                     weights: Number(s.weights),
-                })),
+                }));
+
+            return {
+                ...(existingEx || sourceEx), // Keep original properties like category, muscle, etc.
+                sets: mappedSets,
+                series: mappedSets.length, // Always sync series with actual sets count
             };
         });
 

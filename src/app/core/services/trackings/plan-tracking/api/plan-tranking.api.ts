@@ -20,14 +20,12 @@ import * as trackingWrappers from '../../../../../shared/wrappers/tracking.wrapp
 import { ExercisesService } from '../../../exercises/exercises.service';
 import {
     CREATE_WEEK_LOG,
-    CREATE_WORKOUT_SESSION,
     FIND_ACTIVE_WEEK_LOG,
     FIND_ALL_TRACKING_BY_USER,
     FIND_BY_ID,
     SYNC_WEEK_LOG_DAYS,
     UPDATE_WEEK_LOG,
     UPDATE_WEEK_LOG_DAY,
-    REMOVE_WORKOUT_SESSION,
 } from '../../../../apollo/tracking.queries';
 
 @Injectable({
@@ -62,49 +60,6 @@ export class PlanTrackingApi {
         );
     }
 
-    createWorkoutSession(
-        payload: WorkoutSessionVM,
-        weekLogId: string,
-    ): Observable<WorkoutSessionVM | undefined | null> {
-        const workout = this.wrapperWorkoutSessionVMToApi(payload, weekLogId);
-        workout.status = StatusWorkoutSessionEnum.COMPLETE;
-        return this.apollo
-            .mutate<{ createWorkoutSession: WorkoutSessionAPI }>({
-                mutation: CREATE_WORKOUT_SESSION,
-                variables: { input: workout },
-            })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map(({ data }) =>
-                    data?.createWorkoutSession
-                        ? trackingWrappers.wrapperWorkoutSessionApiToVM(
-                              data.createWorkoutSession,
-                              this.exerciseSvc.exercises(),
-                          )
-                        : null,
-                ),
-            );
-    }
-
-    updateWorkoutSession(
-        payload: WorkoutSessionVM,
-        weekLogId: string,
-    ): Observable<WorkoutSessionVM | null> {
-        // placeholder for future implementation
-        return of(null);
-    }
-
-    removeWorkoutSession(id: string): Observable<boolean> {
-        return this.apollo
-            .mutate<{ removeWorkoutSession: { id: string } }>({
-                mutation: REMOVE_WORKOUT_SESSION,
-                variables: { id },
-            })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map(({ data }) => !!data?.removeWorkoutSession),
-            );
-    }
 
     createTracking(payload: TrackingCreate): Observable<TrackingVM | undefined | null> {
         return this.apollo
@@ -217,12 +172,5 @@ export class PlanTrackingApi {
                         : null,
                 ),
             );
-    }
-
-    private wrapperWorkoutSessionVMToApi(
-        payload: WorkoutSessionVM,
-        trackingId: string,
-    ): WorkoutSessionAPI {
-        return trackingWrappers.wrapperWorkoutSessionVMToApi(payload, trackingId);
     }
 }

@@ -86,6 +86,7 @@ export function wrapperWorkoutSessionVMToApi(
     trackingId: string,
 ): WorkoutSessionAPI {
     return {
+        id: payload.id,
         weekLogId: trackingId,
         date: payload.date,
         exercises: wrapperExercisePerformanceVMToApi(payload.exercises),

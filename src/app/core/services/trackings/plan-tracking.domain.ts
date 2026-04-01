@@ -23,6 +23,7 @@ import {
     wrapperWorkoutSessionVMtoUpdateWeekLogDayInput,
 } from '../../../shared/wrappers/tracking.wrapper';
 import { PlanTrackingApi } from './plan-tracking/api/plan-tranking.api';
+import { WorkoutApi } from '../workouts/api/workout.api';
 
 @Injectable({
     providedIn: 'root',
@@ -31,6 +32,7 @@ export class PlanTrackingDomainService {
     destroyRef = inject(DestroyRef);
 
     private api = inject(PlanTrackingApi);
+    private workoutApi = inject(WorkoutApi);
     private state = inject(PlanTrackingStateService);
     private storage = inject(PlanTrackingStorage);
     private dateService = inject(DateService);
@@ -128,7 +130,7 @@ export class PlanTrackingDomainService {
             planId: tracking.id,
         };
 
-        return this.api.createWorkoutSession(workoutPayload, tracking.id!).pipe(
+        return this.workoutApi.createWorkoutSession(workoutPayload, tracking.id!).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
                 if (res) {
@@ -197,15 +199,15 @@ export class PlanTrackingDomainService {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return;
 
-        // Call API placeholder
-        this.api.updateWorkoutSession(workout, tracking.id!).subscribe();
+        // Call API
+        this.workoutApi.updateWorkoutSession(workout, tracking.id!).subscribe();
 
         // Update local cache
         this._updateWorkout(date, () => workout);
     }
 
     removeWorkoutSession(date: Date, id: string) {
-        this.api.removeWorkoutSession(id).subscribe((success) => {
+        this.workoutApi.removeWorkoutSession(id).subscribe((success) => {
             if (success) {
                 this._updateWorkout(date, (workout) => ({
                     ...workout,
