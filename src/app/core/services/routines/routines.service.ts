@@ -22,14 +22,17 @@ export class RoutinesServices {
     private routinesCache$ = new BehaviorSubject<RoutineDay[] | null>(null);
     routines$ = this.routinesCache$.pipe(filter((v): v is RoutineDay[] => v !== null));
     private loading = false;
+    private loadingRoutines$ = new BehaviorSubject<boolean>(false);
 
     private readonly apollo = inject(Apollo);
     private readonly authSvc = inject(AuthService);
     private readonly api = inject(RoutinesApiService);
 
     getAllRoutines(): Observable<RoutineDay[] | null> {
+        this.loadingRoutines$.next(true);
         if (this.routinesCache$.value && !this.loading) {
-            return this.routinesCache$.asObservable() as Observable<any[]>;
+            this.loadingRoutines$.next(false);
+            return this.routinesCache$.asObservable();
         }
 
         return this.updateAllRoutines();
@@ -42,10 +45,15 @@ export class RoutinesServices {
             delay(2000),
             tap((res) => {
                 this.loading = false;
+                this.loadingRoutines$.next(false);
                 this.routinesCache$.next(res || []);
             }),
             switchMap(() => this.routinesCache$.asObservable()),
         );
+    }
+
+    get loadingRoutines(): Observable<boolean> {
+        return this.loadingRoutines$.asObservable();
     }
 
     //aqui

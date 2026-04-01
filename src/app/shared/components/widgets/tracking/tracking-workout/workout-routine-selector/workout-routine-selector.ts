@@ -33,7 +33,6 @@ export class WorkoutRoutineSelector {
 
     workout = signal<WorkoutSessionVM | null>(this.state.workoutSession());
 
-    //get routine from state
     private initialized = false;
 
     constructor() {
@@ -48,6 +47,7 @@ export class WorkoutRoutineSelector {
             this.resetState();
         });
     }
+
     private resetState() {
         this.selectedRoutineId.set(null);
         this.showRoutine.set(null);
@@ -61,9 +61,12 @@ export class WorkoutRoutineSelector {
         initialValue: [] as string[],
     });
 
-    // Get all routines
     routines = toSignal(this.routinesSvc.getAllRoutines().pipe(map((r) => r || [])), {
         initialValue: [] as RoutineDay[],
+    });
+
+    isLoadingRoutines = toSignal(this.routinesSvc.loadingRoutines, {
+        initialValue: true,
     });
 
     filteredRoutines = computed(() => {
@@ -77,7 +80,6 @@ export class WorkoutRoutineSelector {
 
         if (selected.length === 0) return all;
 
-        //filtrar de los routines, todas las que poseen todas las categorias que hay en selected
         return all.filter((routine) => {
             const routineTypes = routine.type || [];
             return selected.every((selectedCat) =>
@@ -94,7 +96,6 @@ export class WorkoutRoutineSelector {
     close = output<void>();
 
     selectRoutine(routine: RoutineDay) {
-        //tambien quitar las demas routines y tener open
         if (this.selectedRoutineId() === routine.id) {
             this.selectedRoutineId.set(null);
             this.showRoutine.set(null);
@@ -114,8 +115,6 @@ export class WorkoutRoutineSelector {
             const routine = (this.routines() as RoutineDay[]).find((r) => r.id === routineId);
             if (routine) {
                 this.isLoading.set(true);
-                // Simulate loading as requested "genera un loading en el tracking"
-                // But it says "no haces la accion aun, solo traes el routine listo para el proximo paso"
                 setTimeout(() => {
                     this.routineSelected.emit(routine);
                     this.isLoading.set(false);
