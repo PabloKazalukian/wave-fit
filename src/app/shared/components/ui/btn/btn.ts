@@ -122,7 +122,5 @@ export class BtnComponent implements AfterContentInit {
     }
 
     // Icono por defecto (flecha)
-    get defaultIconPath(): string {
-        return 'M13 7l5 5m0 0l-5 5m5-5H6';
-    }
+    readonly defaultIconPath: string = 'M13 7l5 5m0 0l-5 5m5-5H6';
 }

@@ -74,10 +74,6 @@ export class User {
         { name: 'Plancha', category: ExerciseCategory.CORE, usesWeight: false },
     ];
 
-    trackByFn(_index: number, item: any) {
-        return item.id ?? item.name;
-    }
-
     categoryLabel(category: ExerciseCategory): string {
         const map: Record<ExerciseCategory, string> = {
             [ExerciseCategory.CHEST]: 'Pecho',

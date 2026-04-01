@@ -3,7 +3,6 @@ import { FormSelectComponent } from '../../shared/components/ui/select/select';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FormControlsOf } from '../../shared/utils/form-types.util';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
-import { UserService } from '../../core/services/user/user.service';
 import { RoutinesServices } from '../../core/services/routines/routines.service';
 import { SelectType, SelectTypeInput } from '../../shared/interfaces/input.interface';
 import { Exercise } from '../../shared/interfaces/exercise.interface';
@@ -89,22 +88,6 @@ export class Plans implements OnInit {
         });
         return Array.from(categories);
     });
-
-    // sortedCategories = computed(() => {
-    //     const selected = this.selectedCategories() || [];
-    //     const all = this.allCategories();
-
-    //     console.log(selected);
-    //     return [...all].sort((a, b) => {
-    //         const aSelected = selected.includes(a);
-    //         const bSelected = selected.includes(b);
-
-    //         if (aSelected && !bSelected) return -1;
-    //         if (!aSelected && bSelected) return 1;
-
-    //         return a.localeCompare(b);
-    //     });
-    // });
 
     filteredRoutinesPlans = computed(() => {
         const search = this.search().toLowerCase();

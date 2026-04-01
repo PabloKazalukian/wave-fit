@@ -66,7 +66,7 @@ export class PlanTrackingApi {
         payload: WorkoutSessionVM,
         weekLogId: string,
     ): Observable<WorkoutSessionVM | undefined | null> {
-        let workout = this.wrapperWorkoutSessionVMToApi(payload, weekLogId);
+        const workout = this.wrapperWorkoutSessionVMToApi(payload, weekLogId);
         workout.status = StatusWorkoutSessionEnum.COMPLETE;
         return this.apollo
             .mutate<{ createWorkoutSession: WorkoutSessionAPI }>({
@@ -102,7 +102,7 @@ export class PlanTrackingApi {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                map(({ data }) => !!data?.removeWorkoutSession)
+                map(({ data }) => !!data?.removeWorkoutSession),
             );
     }
 

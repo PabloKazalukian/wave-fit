@@ -30,6 +30,7 @@ export interface RoutinePlanVM {
 }
 
 export interface RoutinePlanCreate {
+    id?: string;
     name: string;
     description: string;
     weekly_distribution?: string;

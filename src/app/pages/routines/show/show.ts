@@ -67,7 +67,7 @@ export class Show implements OnInit {
     }
 
     initTrackingWithRoutinePlan(): void {
-        const plan = this.routinePlan() as any; // Cast to access id if needed, anyway RoutinePlan has id
+        const plan = this.routinePlan(); // Cast to access id if needed, anyway RoutinePlan has id
         if (!plan) return;
 
         // Verificar si ya tiene una semana activa

@@ -40,8 +40,4 @@ export class Callback implements OnInit {
                 setTimeout(() => this.router.navigate(['/home']), 2500);
             });
     }
-
-    manualRedirect(): void {
-        this.router.navigate(['/home']);
-    }
 }

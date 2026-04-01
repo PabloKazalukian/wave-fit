@@ -88,14 +88,6 @@ export class TrackingWorkoutFacade {
         this.trackingSvc.updateWorkoutSession(date, workout);
     }
 
-    updateExerciseSet(exerciseId: string, setIndex: number, reps: number, weights: number) {
-        // This could be used but updateWorkoutSession is preferred for full updates
-        const date = this.workoutDate();
-        if (!date) return;
-        // If we want to keep this, we'd need a domain method for it,
-        // but for now we'll use updateWorkoutSession from the component
-    }
-
     removeWorkoutSession() {
         const date = this.workoutDate();
         const workoutId = this.workoutVM()?.id;
