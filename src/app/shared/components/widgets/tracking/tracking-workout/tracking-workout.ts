@@ -13,10 +13,7 @@ import { DialogComponent } from '../../../ui/dialog/dialog';
 import { WorkoutInProgress } from './workout-in-progress/workout-in-progress';
 import { WorkoutCompleteList } from './workout-complete-list/workout-complete-list';
 import { WorkoutEdition } from './workout-edition/workout-edition';
-import { WorkoutRoutineSelector } from './workout-routine-selector/workout-routine-selector';
-import { RoutineDay } from '../../../../interfaces/routines.interface';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { WorkoutActionsMenu } from './workout-actions-menu/workout-actions-menu';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -31,7 +28,6 @@ import { WorkoutActionsMenu } from './workout-actions-menu/workout-actions-menu'
         DialogComponent,
         WorkoutCompleteList,
         WorkoutEdition,
-        WorkoutRoutineSelector,
     ],
     providers: [TrackingWorkoutFacade],
     standalone: true,
@@ -93,21 +89,6 @@ export class TrackingWorkoutComponent {
 
     closeDialog() {
         this.isDialogOpen.set(false);
-    }
-
-    openRoutineDialog() {
-        this.isRoutineDialogOpen.set(true);
-        this.isActionsOpen.set(false);
-    }
-
-    closeRoutineDialog() {
-        this.isRoutineDialogOpen.set(false);
-    }
-
-    onRoutineSelected(routine: RoutineDay) {
-        console.log('Rutina seleccionada:', routine);
-        // Implement application of routine to workout session here in the future
-        this.closeRoutineDialog();
     }
 
     startRoutineTracking() {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, output, signal } from '@angular/core';
 import { RoutinesServices } from '../../../../../../core/services/routines/routines.service';
 import { RoutineDay } from '../../../../../interfaces/routines.interface';
 import { ExerciseCategory } from '../../../../../interfaces/exercise.interface';
@@ -11,7 +11,8 @@ import { BtnComponent } from '../../../../ui/btn/btn';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../../ui/loading/loading';
 import { map } from 'rxjs';
-import { DialogComponent } from '../../../../ui/dialog/dialog';
+import { WorkoutStateService } from '../../../../../../core/services/workouts/workout.state';
+import { WorkoutSessionVM } from '../../../../../interfaces/tracking.interface';
 
 @Component({
     selector: 'app-workout-routine-selector',
@@ -28,6 +29,30 @@ import { DialogComponent } from '../../../../ui/dialog/dialog';
 })
 export class WorkoutRoutineSelector {
     private routinesSvc = inject(RoutinesServices);
+    private state = inject(WorkoutStateService);
+
+    workout = signal<WorkoutSessionVM | null>(this.state.workoutSession());
+
+    //get routine from state
+    private initialized = false;
+
+    constructor() {
+        effect(() => {
+            const currentWorkout = this.state.workoutSession();
+
+            if (!this.initialized) {
+                this.initialized = true;
+                return;
+            }
+
+            this.resetState();
+        });
+    }
+    private resetState() {
+        this.selectedRoutineId.set(null);
+        this.showRoutine.set(null);
+        this.categoryControl.setValue([]);
+    }
 
     categoryControl = new FormControl<string[]>([], { nonNullable: true });
     options = options;
@@ -42,27 +67,45 @@ export class WorkoutRoutineSelector {
     });
 
     filteredRoutines = computed(() => {
+        const selectedRoutineId = this.selectedRoutineId();
+        if (selectedRoutineId) {
+            return this.routines().filter((r) => r.id === selectedRoutineId);
+        }
+
         const selected = this.selectedCategories();
         const all = this.routines() as RoutineDay[];
 
         if (selected.length === 0) return all;
 
-        // ExerciseCategory enum has lowercase values, options.value has uppercase
-        return all.filter((r) => r.type?.some((cat) => selected.includes(cat.toUpperCase())));
+        //filtrar de los routines, todas las que poseen todas las categorias que hay en selected
+        return all.filter((routine) => {
+            const routineTypes = routine.type || [];
+            return selected.every((selectedCat) =>
+                routineTypes.some((routineCat) => routineCat === selectedCat),
+            );
+        });
     });
 
     selectedRoutineId = signal<string | null>(null);
+    showRoutine = signal<RoutineDay | null>(null);
     isLoading = signal(false);
 
     routineSelected = output<RoutineDay>();
     close = output<void>();
 
     selectRoutine(routine: RoutineDay) {
+        //tambien quitar las demas routines y tener open
         if (this.selectedRoutineId() === routine.id) {
             this.selectedRoutineId.set(null);
+            this.showRoutine.set(null);
         } else {
             this.selectedRoutineId.set(routine.id);
+            this.showRoutine.set(routine);
         }
+    }
+
+    selectToShowRoutine(routine: RoutineDay) {
+        this.showRoutine.set(this.showRoutine()?.id === routine.id ? null : routine);
     }
 
     onAssign() {

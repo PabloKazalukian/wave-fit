@@ -33,7 +33,8 @@ export class BtnComponent implements AfterContentInit {
         | 'outline'
         | 'outlineLigth'
         | 'outlineDark'
-        | 'ghost' = 'basic';
+        | 'ghost'
+        | 'ghostColor' = 'basic';
     @Input() color = 'primary';
     @Input() routerLink?: string;
     @Input() buttonType: 'button' | 'submit' | 'reset' = 'button';
@@ -97,6 +98,8 @@ export class BtnComponent implements AfterContentInit {
                 return `border border-${cleanColor}Dark hover:bg-${cleanColor}-hover-faint text-${cleanColor}Dark hover:text-${cleanColor}`;
             case 'ghost':
                 return `hover:bg-black-faint hover:text-white`;
+            case 'ghostColor':
+                return `text-${this.color} hover:bg-black-faint hover:text-${this.color}Light`;
             default:
                 return '';
         }

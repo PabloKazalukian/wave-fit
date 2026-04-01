@@ -1,4 +1,13 @@
-import { Component, input, output, signal, HostListener, ElementRef, inject } from '@angular/core';
+import {
+    Component,
+    input,
+    output,
+    signal,
+    HostListener,
+    ElementRef,
+    inject,
+    computed,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { SelectType } from '../../../interfaces/input.interface';
@@ -15,7 +24,7 @@ export class MultiSelectComponent {
     private elementRef = inject(ElementRef);
 
     text = input<string>(''); // Placeholder
-    label = input<string>();
+    label = input<string>('');
     color = input<COLOR_VALUES>('primary');
     options = input<SelectType[]>([]);
     control = input<FormControl<any[] | null>>(new FormControl<any[] | null>([]));
@@ -23,6 +32,11 @@ export class MultiSelectComponent {
     onSend = output<void>();
 
     isOpen = signal(false);
+
+    labelControl = computed(() => {
+        if (this.label() !== undefined && this.label() !== '') return this.label();
+        return 'Selecciona por grupo muscular';
+    });
 
     @HostListener('document:click', ['$event'])
     onClickOutside(event: MouseEvent) {

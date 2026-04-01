@@ -26,8 +26,15 @@
         [title]="routine.title"
         [subtitle]="routine.type?.join(', ') || ''"
         [isSelected]="selectedRoutineId() === routine.id"
-        (toggle)="selectRoutine(routine)"
+        [open]="showRoutine()?.id === routine.id"
+        (toggle)="selectToShowRoutine(routine)"
       >
+        <app-btn
+          [text]="selectedRoutineId() === routine.id ? 'Quitar' : 'Seleccionar'"
+          [variant]="'outline'"
+          [color]="selectedRoutineId() === routine.id ? 'error' : 'primary'"
+          (click)="selectRoutine(routine)"
+        />
         <div class="flex flex-col gap-2 py-2">
           @for (exercise of routine.exercises; track $index) {
             <div
