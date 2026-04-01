@@ -1,10 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
 import { Apollo, gql } from 'apollo-angular';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import {
-    KindEnum,
     RoutineDay,
     RoutineDayCreate,
     RoutineDayCreateSend,

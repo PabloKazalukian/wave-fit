@@ -34,7 +34,7 @@ export class BtnComponent implements AfterContentInit {
         | 'outlineLigth'
         | 'outlineDark'
         | 'ghost' = 'basic';
-    @Input() color: string = 'primary';
+    @Input() color = 'primary';
     @Input() routerLink?: string;
     @Input() buttonType: 'button' | 'submit' | 'reset' = 'button';
     @Input() size: 'sm' | 'md' = 'sm';

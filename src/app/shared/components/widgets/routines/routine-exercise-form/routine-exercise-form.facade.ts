@@ -1,13 +1,4 @@
-import {
-    computed,
-    DestroyRef,
-    effect,
-    inject,
-    Injectable,
-    Injector,
-    input,
-    signal,
-} from '@angular/core';
+import { DestroyRef, inject, Injectable, Injector, signal } from '@angular/core';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { Exercise } from '../../../../interfaces/exercise.interface';
 import { RoutineDayCreate } from '../../../../interfaces/routines.interface';
@@ -148,7 +139,7 @@ export class RoutineExerciseFormFacade {
                             onSuccess();
                         }, 2000);
                     },
-                    error: () => this.loadingCreate.set(false)
+                    error: () => this.loadingCreate.set(false),
                 });
             },
             error: () => this.loadingCreate.set(false),

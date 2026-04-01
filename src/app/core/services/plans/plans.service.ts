@@ -1,6 +1,6 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { BehaviorSubject, filter, map, Observable, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, Observable, take, tap } from 'rxjs';
 import {
     DayIndex,
     RoutineDayVM,

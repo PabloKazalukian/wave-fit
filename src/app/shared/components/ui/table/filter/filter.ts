@@ -42,7 +42,7 @@ export class TableFilterComponent {
         this.filteredData.emit(result);
     }
 
-    private getValue(row: any, key: string): any {
+    private getValue(row: any, key: string): unknown {
         return key.split('.').reduce((acc, part) => acc?.[part], row);
     }
 }

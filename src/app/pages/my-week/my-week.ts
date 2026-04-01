@@ -1,9 +1,8 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { PlanTrackingService } from '../../core/services/trackings/plan-tracking.service';
 import { TrackingVM } from '../../shared/interfaces/tracking.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { map, switchMap, tap } from 'rxjs';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { TrackingWeekComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-week';
 import { TrackingWeekSkeletonComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-week-skeleton';

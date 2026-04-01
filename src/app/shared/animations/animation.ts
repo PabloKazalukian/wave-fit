@@ -1,4 +1,4 @@
-import { trigger, transition, style, animate, query, group, sequence } from '@angular/animations';
+import { trigger, transition, style, animate, query, sequence } from '@angular/animations';
 
 export const switchAnimation = trigger('switchAnimation', [
     transition('* <=> *', [

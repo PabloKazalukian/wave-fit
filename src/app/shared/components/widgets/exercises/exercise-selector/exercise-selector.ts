@@ -59,11 +59,7 @@ export class ExerciseSelector {
                 this.exercisesSvc
                     .getExercises()
                     .pipe(takeUntilDestroyed(this.destroyRef))
-                    .subscribe({
-                        next: (res) => {
-                            // this.exercises.set(wrapperExerciseAPItoVM(res));
-                        },
-                    });
+                    .subscribe();
             }
         });
     }

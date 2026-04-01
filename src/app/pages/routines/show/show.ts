@@ -74,7 +74,6 @@ export class Show implements OnInit {
         if (this.svcTracking.tracking()) {
             // alert('Ya tienes una semana activa. Debes completarla antes de iniciar una nueva.');
             this.showDialog.set(true);
-            // this.router.navigate(['/tracking', this.svcTracking.tracking()?.id]);
             return;
         }
 

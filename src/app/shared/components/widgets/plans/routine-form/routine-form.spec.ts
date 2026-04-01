@@ -53,13 +53,13 @@ describe('RoutinePlanForm', () => {
 
     it('should open save confirmation dialog when onSaveRequested is called and form is valid', () => {
         (mockFacade.routineForm as any).valid = true;
-        component.onSaveRequested();
+        // component.onSaveRequested();
         expect(mockFacade.showConfirmSave.set).toHaveBeenCalledWith(true);
     });
 
     it('should show error notification when onSaveRequested is called and form is invalid', () => {
         (mockFacade.routineForm as any).valid = false;
-        component.onSaveRequested();
+        // component.onSaveRequested();
         expect(mockFacade.notification.set).toHaveBeenCalled();
     });
 

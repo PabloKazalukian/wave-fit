@@ -21,7 +21,6 @@ import {
     of,
     switchMap,
     tap,
-    timer,
 } from 'rxjs';
 import {
     notificationEnum,
@@ -30,7 +29,11 @@ import {
 import { routineDaysValidator } from '../../../../validators/routine-days.validator';
 
 type RoutinePlanType = FormControlsOf<RoutinePlanVM>;
-export type typeNotification = { show: boolean; type: notificationType; message: string };
+export interface typeNotification {
+    show: boolean;
+    type: notificationType;
+    message: string;
+}
 export const initValueNotification = {
     show: false,
     type: notificationEnum.success,

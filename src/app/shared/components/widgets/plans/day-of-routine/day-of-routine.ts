@@ -1,9 +1,8 @@
-import { Component, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
+import { Component, OnInit, computed, inject, DestroyRef } from '@angular/core';
 import { RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
 import { CommonModule } from '@angular/common';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DayPlanStateService } from '../../../../../core/services/plans/day-plan-state.service';
 
 type DayState = 'error' | 'accent' | 'rest' | 'complete';
@@ -15,7 +14,6 @@ type DayState = 'error' | 'accent' | 'rest' | 'complete';
     templateUrl: './day-of-routine.html',
 })
 export class DayOfRoutine implements OnInit {
-    private destroyRef = inject(DestroyRef);
     private readonly planSvc = inject(PlansService);
     public readonly stateSvc = inject(DayPlanStateService);
 

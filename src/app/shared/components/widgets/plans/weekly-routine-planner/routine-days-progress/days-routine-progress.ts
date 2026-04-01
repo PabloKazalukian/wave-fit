@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { PlansService } from '../../../../../../core/services/plans/plans.service';
 import { toSignal } from '@angular/core/rxjs-interop';

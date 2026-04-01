@@ -10,8 +10,7 @@ export class Notification {
     type = input<'success' | 'error' | 'warning' | 'info'>('info');
     isVisible = input<boolean>(true);
 
-    // Output para emitir al padre cuando se cierre
-    onClose = output<void>();
+    closeOuput = output<void>();
 
     animationClass = signal('animate-slide-in');
 
@@ -38,7 +37,7 @@ export class Notification {
     close() {
         this.animationClass.set('animate-slide-out');
         setTimeout(() => {
-            this.onClose.emit();
+            this.closeOuput.emit();
         }, 300);
     }
 }

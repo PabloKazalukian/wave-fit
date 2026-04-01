@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { addDays, eachDayOfInterval, format, getWeek, isEqual, startOfDay } from 'date-fns';
+import { addDays, eachDayOfInterval, format, isEqual, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export interface DayWithString {

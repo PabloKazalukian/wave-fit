@@ -15,6 +15,6 @@ export class TrackingActiveComponent {
     private tracking = toSignal(this.trackingSvc.trackingPlanVM$);
 
     get weekActive(): boolean {
-        return !!(this.tracking() as any);
+        return !!this.tracking();
     }
 }

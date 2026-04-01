@@ -8,11 +8,10 @@ import {
     RoutineDayCreate,
     RoutineDayCreateSend,
 } from '../../../shared/interfaces/routines.interface';
-import { ExerciseCategory, ExerciseSend } from '../../../shared/interfaces/exercise.interface';
+import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
 import { RoutinesApiService } from './api/routines.api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinePlanAPI } from '../../../shared/interfaces/api/routines-api.interface';
-import { da } from 'date-fns/locale';
 
 @Injectable({
     providedIn: 'root',
@@ -76,9 +75,6 @@ export class RoutinesServices {
                 `,
             })
             .pipe(
-                // tap(({ data }) => {
-                // if (data) this.routinePlans.set(data.routinePlans);
-                // }),
                 handleGraphqlError(this.authSvc),
                 map((res) => res.data?.routinePlans),
             );

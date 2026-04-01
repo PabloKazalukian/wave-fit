@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { RoutineExerciseForm } from '../../shared/components/widgets/routines/routine-exercise-form/routine-exercise-form';
 import { options, SelectTypeInput } from '../../shared/interfaces/input.interface';
 import { FormControlsOf } from '../../shared/utils/form-types.util';
 import { FormControl, FormGroup } from '@angular/forms';

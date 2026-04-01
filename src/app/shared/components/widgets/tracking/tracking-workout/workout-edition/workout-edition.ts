@@ -10,7 +10,14 @@ import { ExercisePerformanceVM } from '../../../../../interfaces/tracking.interf
 
 @Component({
     selector: 'app-workout-edition',
-    imports: [CommonModule, BtnComponent, ReactiveFormsModule, IconComponent, DialogComponent, ExerciseSelector],
+    imports: [
+        CommonModule,
+        BtnComponent,
+        ReactiveFormsModule,
+        IconComponent,
+        DialogComponent,
+        ExerciseSelector,
+    ],
     standalone: true,
     templateUrl: './workout-edition.html',
     styles: ``,
@@ -24,9 +31,9 @@ export class WorkoutEdition implements OnInit {
         effect(() => {
             const exercises = this.facade.exercisesSelected();
             if (this.workoutForm) {
-                const currentExerciseIds = exercises.map(e => e.exerciseId);
+                const currentExerciseIds = exercises.map((e) => e.exerciseId);
                 const formArray = this.exerciseFormArray;
-                
+
                 // Remove exercises that were unselected
                 for (let i = formArray.length - 1; i >= 0; i--) {
                     const id = formArray.at(i).get('exerciseId')?.value;
@@ -34,10 +41,10 @@ export class WorkoutEdition implements OnInit {
                         formArray.removeAt(i);
                     }
                 }
-                
+
                 // Add new selected exercises
                 const formExIds = formArray.value.map((fe: any) => fe.exerciseId);
-                exercises.forEach(ex => {
+                exercises.forEach((ex) => {
                     if (!formExIds.includes(ex.exerciseId)) {
                         this.addExerciseToForm(ex);
                     }
@@ -75,7 +82,7 @@ export class WorkoutEdition implements OnInit {
         });
     }
 
-    addExerciseToForm(ex: ExercisePerformanceVM) {
+    addExerciseToForm(ex: ExercisePerformanceVM): void {
         this.exerciseFormArray.push(this.createExerciseFormGroup(ex));
     }
     get exerciseFormArray(): FormArray {
@@ -86,40 +93,40 @@ export class WorkoutEdition implements OnInit {
         return this.exerciseFormArray.at(index).get('sets') as FormArray;
     }
 
-    addSet(exerciseIndex: number) {
+    addSet(exerciseIndex: number): void {
         const setsArray = this.getSetsFormArray(exerciseIndex);
         const lastSet = setsArray.at(setsArray.length - 1)?.value;
         setsArray.push(
             new FormGroup({
                 reps: new FormControl(lastSet?.reps || 0),
                 weights: new FormControl(lastSet?.weights || 0),
-            })
+            }),
         );
     }
 
-    removeSet(exerciseIndex: number, setIndex: number) {
+    removeSet(exerciseIndex: number, setIndex: number): void {
         const setsArray = this.getSetsFormArray(exerciseIndex);
         if (setsArray.length > 0) {
             setsArray.removeAt(setIndex);
         }
     }
 
-    removeExercise(index: number) {
+    removeExercise(index: number): void {
         const id = this.exerciseFormArray.at(index).get('exerciseId')?.value;
         const currentExercises = this.facade.exercisesSelected();
-        const updated = currentExercises.filter(e => e.exerciseId !== id);
+        const updated = currentExercises.filter((e) => e.exerciseId !== id);
         this.facade.state.updateExercises(updated);
     }
 
-    openDialog() {
+    openDialog(): void {
         this.isDialogOpen.set(true);
     }
 
-    closeDialog() {
+    closeDialog(): void {
         this.isDialogOpen.set(false);
     }
 
-    onSave() {
+    onSave(): void {
         const formValue = this.workoutForm.value;
         const currentWorkout = this.facade.workoutVM();
         if (!currentWorkout) return;
@@ -127,8 +134,12 @@ export class WorkoutEdition implements OnInit {
         // Use the forms value directly but merge from the source facade items
         // Since we allow adding new exercises from the selector, we MUST use formValue.exercises as the base.
         const updatedExercises = formValue.exercises.map((fe: any) => {
-            const existingEx = currentWorkout.exercises.find((ex: any) => ex.exerciseId === fe.exerciseId);
-            const sourceEx = this.facade.exercisesSelected().find((ex) => ex.exerciseId === fe.exerciseId);
+            const existingEx = currentWorkout.exercises.find(
+                (ex: any) => ex.exerciseId === fe.exerciseId,
+            );
+            const sourceEx = this.facade
+                .exercisesSelected()
+                .find((ex) => ex.exerciseId === fe.exerciseId);
 
             return {
                 ...(existingEx || sourceEx), // Keep original properties like category, muscle, etc.

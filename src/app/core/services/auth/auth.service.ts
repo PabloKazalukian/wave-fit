@@ -1,10 +1,19 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { tap, Observable, BehaviorSubject, catchError, map, of, throwError, timeout, switchMap } from 'rxjs';
+import {
+    tap,
+    Observable,
+    BehaviorSubject,
+    catchError,
+    map,
+    of,
+    throwError,
+    timeout,
+    switchMap,
+} from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { LoginWithGoogle } from '../../../shared/interfaces/auth.interface';
 import { TokenStorage } from '../../auth/token.storage';
-import { User } from '../../../shared/interfaces/token.interface';
 
 export interface LoginResponse {
     data: any;
@@ -25,7 +34,6 @@ export class AuthService {
     private apollo = inject(Apollo);
     private tokenStorage = inject(TokenStorage);
 
-    // Signals de estado
     user = signal<any | null>(this.tokenStorage.getUser());
 
     private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.user() !== null);
@@ -76,7 +84,7 @@ export class AuthService {
                 fetchPolicy: 'no-cache',
             })
             .pipe(
-                timeout(5000), // 5 segundos máximo
+                timeout(5000),
                 tap(({ data }) => {
                     this.user.set(data?.me ?? null);
                     this.userIdSubject.next(data?.me?.id ?? null);
@@ -106,7 +114,7 @@ export class AuthService {
             });
     }
 
-    register(name: string, email: string, password: string) {
+    register(name: string, email: string, password: string): Observable<boolean> {
         return this.apollo
             .mutate<{ createUser: any }>({
                 mutation: gql`
@@ -122,7 +130,7 @@ export class AuthService {
             })
             .pipe(
                 handleGraphqlError(this),
-                tap((res) => {
+                tap(() => {
                     // After registration, we might need a login or the backend might set the cookie automatically
                     // Assuming for now the user needs to login or we call me()
                 }),
@@ -133,7 +141,7 @@ export class AuthService {
             );
     }
 
-    isEmailAvailable(email: string) {
+    isEmailAvailable(email: string): Observable<boolean | undefined> {
         return this.apollo
             .query<{ isEmailAvailable: boolean }>({
                 query: gql`

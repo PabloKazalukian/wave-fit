@@ -10,14 +10,13 @@ import { Exercise } from '../../shared/interfaces/exercise.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoutinePlanAPI } from '../../shared/interfaces/api/routines-api.interface';
 import { RouterModule } from '@angular/router';
-import { ExercisesTableComponent } from '../../shared/components/widgets/exercises/table/exercises-table';
 import { TrackingWeekSkeletonComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-week-skeleton';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ExerciseCategory } from '../../shared/interfaces/exercise.interface';
-import { LucideAngularModule, Dumbbell, Info, BookOpen } from 'lucide-angular';
+import { LucideAngularModule, BookOpen } from 'lucide-angular';
 import { InfoCard } from '../../shared/components/ui/info-card/info-card';
 
 type selectFormType = FormControlsOf<SelectTypeInput>;
@@ -117,13 +116,12 @@ export class Plans implements OnInit {
             const matchesSearch = plan.name.toLowerCase().includes(search);
             const matchesDays = !days || plan.weekly_distribution === days;
 
-            let matchesCategories = true;
+            const matchesCategories = true;
 
             return matchesSearch && matchesDays && matchesCategories;
         });
     });
 
-    private readonly svcUser = inject(UserService);
     private readonly svcRoutines = inject(RoutinesServices);
 
     ngOnInit(): void {

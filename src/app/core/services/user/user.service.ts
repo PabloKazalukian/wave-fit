@@ -6,9 +6,6 @@ import { Observable } from 'rxjs';
     providedIn: 'root',
 })
 export class UserService {
-    private storageKey = 'auth_user';
-    private tokenKey = 'token';
-
     private readonly apollo = inject(Apollo);
 
     getAllUsers(): Observable<any> {

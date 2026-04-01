@@ -4,12 +4,11 @@ import { Apollo } from 'apollo-angular';
 import {
     RoutineDayCreate,
     RoutinePlan,
-    RoutinePlanCreate,
     RoutinePlanSend,
     RoutinePlanVM,
 } from '../../../../shared/interfaces/routines.interface';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
-import { map, Observable, take, tap } from 'rxjs';
+import { map, Observable, take } from 'rxjs';
 import {
     CREATE_ROUTINE_PLAN,
     GET_PLANS,
@@ -17,7 +16,6 @@ import {
     IS_ROUTINE_TITLE_AVAILABLE,
 } from '../../../apollo/plans.queries';
 import {
-    wrapperRoutineDayAPItoRoutineDay,
     wrapperRoutineDayAPItoRoutineDayVM,
     wrapperRoutineDayToExerciseIds,
 } from '../../../../shared/wrappers/routines.wrapper';

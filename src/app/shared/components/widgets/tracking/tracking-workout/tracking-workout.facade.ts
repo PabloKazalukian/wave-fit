@@ -3,6 +3,7 @@ import { ExercisesService } from '../../../../../core/services/exercises/exercis
 import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable()
 export class TrackingWorkoutFacade {
@@ -33,7 +34,7 @@ export class TrackingWorkoutFacade {
                         acc[item.category].push(item);
                         return acc;
                     },
-                    {} as { [key: string]: ExercisePerformanceVM[] },
+                    {} as Record<string, ExercisePerformanceVM[]>,
                 ),
         );
     });
@@ -52,15 +53,11 @@ export class TrackingWorkoutFacade {
         return true;
     }
 
-    constructor() {}
-
     startRoutineTracking() {
-        this.trackingSvc.createWorkout(this.workoutDate()!).subscribe({
-            next: (res) => {
-                // this.
-            },
-            error: () => {},
-        });
+        this.trackingSvc
+            .createWorkout(this.workoutDate()!)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
     }
 
     setRestDay() {
@@ -95,7 +92,7 @@ export class TrackingWorkoutFacade {
         // This could be used but updateWorkoutSession is preferred for full updates
         const date = this.workoutDate();
         if (!date) return;
-        // If we want to keep this, we'd need a domain method for it, 
+        // If we want to keep this, we'd need a domain method for it,
         // but for now we'll use updateWorkoutSession from the component
     }
 

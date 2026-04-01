@@ -2,7 +2,7 @@ import { DestroyRef, inject, Injectable, signal, effect, computed } from '@angul
 import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { FormControlsOf } from '../../../../utils/form-types.util';
 import { FormControl, FormGroup } from '@angular/forms';
-import { RoutineDay, RoutineDayVM, DayIndex } from '../../../../interfaces/routines.interface';
+import { RoutineDay } from '../../../../interfaces/routines.interface';
 import { PlansService } from '../../../../../core/services/plans/plans.service';
 import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
