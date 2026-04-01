@@ -3,6 +3,37 @@
     <span class="text-text2 text-sm">Fecha de Rutina:</span>
     {{ this.facade.workoutVM()?.date | date: 'dd/MM/yyyy' }}
   </p>
+  <app-btn
+    [text]="'Cambiar rutina'"
+    [variant]="'stroked'"
+    [color]="'primary'"
+    [size]="'sm'"
+    (click)="openRoutineDialog()"
+    [showIcon]="true"
+  >
+    <app-icon>
+      <div class="h-2 w-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-5 h-5"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+      </div>
+    </app-icon>
+  </app-btn>
+  <app-dialog
+    [isOpen]="isRoutineDialogOpen()"
+    (closed)="closeRoutineDialog()"
+    [title]="'Selector de rutinas'"
+    [closeOnBackdrop]="true"
+  >
+    <app-workout-routine-selector></app-workout-routine-selector>
+  </app-dialog>
   <div>
     @if (this.facade.loadings()) {
       <div class="bg-background3 rounded-lg p-3 mb-4 border border-primary">

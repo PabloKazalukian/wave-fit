@@ -1,0 +1,66 @@
+<div class="flex flex-col gap-4">
+  <!-- Multi-select for filtering -->
+  <div class="z-[60]">
+    <app-multi-select
+      [label]="'Filtrar por categoría'"
+      [options]="options"
+      [control]="categoryControl"
+      [btnText]="'Filtrar'"
+    />
+  </div>
+
+  <!-- Routines list -->
+  <div
+    class="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-surface scrollbar-track-transparent"
+  >
+    @if (filteredRoutines().length === 0) {
+      <div
+        class="p-8 text-center text-text2 bg-background3 rounded-xl border border-dashed border-surface"
+      >
+        <p>No se encontraron rutinas para las categorías seleccionadas.</p>
+      </div>
+    }
+
+    @for (routine of filteredRoutines(); track routine.id) {
+      <app-accordion-item
+        [title]="routine.title"
+        [subtitle]="routine.type?.join(', ') || ''"
+        [isSelected]="selectedRoutineId() === routine.id"
+        (toggle)="selectRoutine(routine)"
+      >
+        <div class="flex flex-col gap-2 py-2">
+          @for (exercise of routine.exercises; track $index) {
+            <div
+              class="flex items-center justify-between p-2 rounded-lg bg-background4/50 border border-surface/30"
+            >
+              <span class="text-sm font-medium text-white">{{ exercise.name }}</span>
+              <span
+                class="text-[0.6rem] px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-tighter"
+              >
+                {{ exercise.category }}
+              </span>
+            </div>
+          }
+        </div>
+      </app-accordion-item>
+    }
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="flex flex-col gap-2 mt-4 pt-4 border-t border-surface">
+    <app-btn
+      [text]="isLoading() ? '' : 'Asignar'"
+      [variant]="'raised'"
+      [color]="'primary'"
+      [isDisabled]="!selectedRoutineId() || isLoading()"
+      (click)="onAssign()"
+      [showIcon]="isLoading()"
+    >
+      @if (isLoading()) {
+        <app-loading size="sm" color="text" />
+      }
+    </app-btn>
+
+    <app-btn [text]="'Cancelar'" [variant]="'ghost'" [color]="'text'" (click)="onClose()" />
+  </div>
+</div>

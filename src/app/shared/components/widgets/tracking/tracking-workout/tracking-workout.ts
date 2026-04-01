@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, ElementRef, inject, signal } from '@angular/core';
 import { ExerciseSelector } from '../../exercises/exercise-selector/exercise-selector';
 import { options } from '../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../ui/btn/btn';
@@ -13,6 +13,8 @@ import { DialogComponent } from '../../../ui/dialog/dialog';
 import { WorkoutInProgress } from './workout-in-progress/workout-in-progress';
 import { WorkoutCompleteList } from './workout-complete-list/workout-complete-list';
 import { WorkoutEdition } from './workout-edition/workout-edition';
+import { WorkoutRoutineSelector } from './workout-routine-selector/workout-routine-selector';
+import { RoutineDay } from '../../../../interfaces/routines.interface';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -27,6 +29,7 @@ import { WorkoutEdition } from './workout-edition/workout-edition';
         DialogComponent,
         WorkoutCompleteList,
         WorkoutEdition,
+        WorkoutRoutineSelector,
     ],
     providers: [TrackingWorkoutFacade],
     standalone: true,
@@ -48,14 +51,44 @@ export class TrackingWorkoutComponent {
 
     randomRestMessage = this.restMessages[Math.floor(Math.random() * this.restMessages.length)];
 
+    private elementRef = inject(ElementRef);
     isDialogOpen = signal(false);
+    isRoutineDialogOpen = signal(false);
+    isActionsOpen = signal(false);
+
+    @HostListener('document:click', ['$event'])
+    onClickOutside(event: MouseEvent) {
+        if (!this.elementRef.nativeElement.contains(event.target)) {
+            this.isActionsOpen.set(false);
+        }
+    }
+
+    toggleActions() {
+        this.isActionsOpen.update((v) => !v);
+    }
 
     openDialog() {
         this.isDialogOpen.set(true);
+        this.isActionsOpen.set(false);
     }
 
     closeDialog() {
         this.isDialogOpen.set(false);
+    }
+
+    openRoutineDialog() {
+        this.isRoutineDialogOpen.set(true);
+        this.isActionsOpen.set(false);
+    }
+
+    closeRoutineDialog() {
+        this.isRoutineDialogOpen.set(false);
+    }
+
+    onRoutineSelected(routine: RoutineDay) {
+        console.log('Rutina seleccionada:', routine);
+        // Implement application of routine to workout session here in the future
+        this.closeRoutineDialog();
     }
 
     startRoutineTracking() {
