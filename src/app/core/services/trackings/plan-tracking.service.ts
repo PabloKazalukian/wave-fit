@@ -33,6 +33,12 @@ export class PlanTrackingService {
     createWorkout(dateWorkout: Date): Observable<WorkoutSessionVM | null | undefined> {
         return this.domain.createWorkout(dateWorkout);
     }
+    createWorkoutWithRoutine(
+        routineDayId: string,
+        date: string,
+    ): Observable<WorkoutSessionVM | null | undefined> {
+        return this.domain.createWorkoutWithRoutine(routineDayId, date);
+    }
 
     findAll(): Observable<TrackingVM[] | null> {
         return this.domain.findAllTrackingByUser();

@@ -14,6 +14,7 @@ import {
     CREATE_WORKOUT_SESSION,
     UPDATE_WORKOUT_SESSION,
     REMOVE_WORKOUT_SESSION,
+    ASSIGN_ROUTINE_TO_DAY,
 } from '../../../apollo/workout.queries';
 
 @Injectable({
@@ -80,6 +81,29 @@ export class WorkoutApi {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) => !!data?.removeWorkoutSession),
+            );
+    }
+
+    assignRoutineToDay(
+        routineDayId: string,
+        date: string,
+    ): Observable<WorkoutSessionVM | undefined | null> {
+        return this.apollo
+            .mutate<{ assignRoutineToDay: WorkoutSessionAPI }>({
+                mutation: ASSIGN_ROUTINE_TO_DAY,
+                variables: { routineDayId, date },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                tap((res) => console.log('assignRoutineToDay', res)),
+                map(({ data }) =>
+                    data?.assignRoutineToDay
+                        ? trackingWrappers.wrapperWorkoutSessionApiToVM(
+                              data.assignRoutineToDay,
+                              this.exerciseSvc.exercises(),
+                          )
+                        : null,
+                ),
             );
     }
 

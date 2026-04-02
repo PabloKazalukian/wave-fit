@@ -97,5 +97,13 @@
   [title]="'Selector de rutinas'"
   [closeOnBackdrop]="true"
 >
-  <app-workout-routine-selector></app-workout-routine-selector>
+  @if (isLoading()) {
+    <div class="flex items-center justify-center p-8">
+      <app-loading></app-loading>
+    </div>
+  } @else {
+    <app-workout-routine-selector
+      (routineSelected)="onRoutineSelected($event)"
+    ></app-workout-routine-selector>
+  }
 </app-dialog>

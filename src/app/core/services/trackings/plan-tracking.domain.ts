@@ -151,6 +151,39 @@ export class PlanTrackingDomainService {
         );
     }
 
+    createWorkoutWithRoutine(
+        routineDayId: string,
+        date: string,
+    ): Observable<WorkoutSessionVM | null | undefined> {
+        const tracking = this.state.getTrackingValue();
+        if (!tracking) return of(null);
+
+        this.state.loadingWorkoutCreation.update((current) => ({
+            ...current,
+            state: true,
+        }));
+
+        return this.workoutApi.assignRoutineToDay(routineDayId, date).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            tap((res) => {
+                if (res) {
+                    const newWorkout = { ...res, status: StatusWorkoutSessionEnum.COMPLETE };
+                    this._updateWorkout(new Date(date), () => newWorkout);
+                }
+            }),
+            finalize(() => {
+                this.state.loadingWorkoutCreation.update((current) => ({
+                    ...current,
+                    state: false,
+                }));
+            }),
+            switchMap((workoutRes) => {
+                if (!workoutRes) return of(null);
+                return this.api.syncTrackingDays(tracking.id!).pipe(map(() => workoutRes));
+            }),
+        );
+    }
+
     toggleExercise(date: Date, exercise: ExercisePerformanceVM) {
         this._updateWorkout(date, (workout) => {
             const exercises = workout.exercises || [];
@@ -213,7 +246,7 @@ export class PlanTrackingDomainService {
                     ...workout,
                     id: undefined,
                     status: StatusWorkoutSessionEnum.NOT_STARTED,
-                    exercises: []
+                    exercises: [],
                 }));
             }
         });
