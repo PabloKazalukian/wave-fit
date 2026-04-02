@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { PlanTrackingDomainService } from './plan-tracking.domain';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { filter, map, Observable } from 'rxjs';
+import { filter, map, Observable, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     StatusWorkoutSession,
@@ -37,7 +37,11 @@ export class PlanTrackingService {
         routineDayId: string,
         date: string,
     ): Observable<WorkoutSessionVM | null | undefined> {
-        return this.domain.createWorkoutWithRoutine(routineDayId, date);
+        return this.domain.createWorkoutWithRoutine(routineDayId, date).pipe(
+            switchMap(() => {
+                return this.getWorkout(new Date(date));
+            }),
+        );
     }
 
     findAll(): Observable<TrackingVM[] | null> {

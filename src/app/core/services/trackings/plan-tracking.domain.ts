@@ -154,34 +154,25 @@ export class PlanTrackingDomainService {
     createWorkoutWithRoutine(
         routineDayId: string,
         date: string,
-    ): Observable<WorkoutSessionVM | null | undefined> {
+    ): Observable<TrackingVM | null | undefined> {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
-
-        this.state.loadingWorkoutCreation.update((current) => ({
-            ...current,
-            state: true,
-        }));
 
         return this.api.assignRoutineToDay(routineDayId, date).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
                 console.log(res);
-                if (res) {
-                    const newWorkout = { ...res, status: StatusWorkoutSessionEnum.COMPLETE };
-                    this._updateWorkout(new Date(date), () => newWorkout);
+                if (res !== undefined && res !== null) {
+                    this._persist(res);
                 }
             }),
-            finalize(() => {
-                this.state.loadingWorkoutCreation.update((current) => ({
-                    ...current,
-                    state: false,
-                }));
-            }),
-            switchMap((workoutRes) => {
-                if (!workoutRes) return of(null);
-                return this.api.syncTrackingDays(tracking.id!).pipe(map(() => workoutRes));
-            }),
+            map(() => this.state.getTrackingValue()),
+            tap((res) => console.log(res)),
+
+            // switchMap((workoutRes) => {
+            //     if (!workoutRes) return of(null);
+            //     return this.api.syncTrackingDays(tracking.id!).pipe(map(() => workoutRes));
+            // }),
         );
     }
 
@@ -218,6 +209,7 @@ export class PlanTrackingDomainService {
     }
 
     setExercises(date: Date, exercises: ExercisePerformanceVM[]) {
+        console.log(exercises);
         this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
     }
 

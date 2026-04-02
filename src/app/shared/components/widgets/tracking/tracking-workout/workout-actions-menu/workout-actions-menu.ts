@@ -66,13 +66,15 @@ export class WorkoutActionsMenu {
         this.isLoading.set(true);
 
         const dateString = this.dateSvc.formatDate(date);
-        console.log('work');
 
         this.trackingSvc
             .createWorkoutWithRoutine(routine.id, dateString)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: () => {
+                next: (res) => {
+                    console.log(res);
+                    this.isLoading.set(false);
+
                     this.closeRoutineDialog();
                 },
                 error: () => {

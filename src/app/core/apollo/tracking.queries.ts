@@ -150,6 +150,13 @@ export const SYNC_WEEK_LOG_DAYS = gql`
     }
 `;
 
+export const ASSIGN_ROUTINE_TO_DAYS = gql`
+    mutation AssignRoutineToDay($routineDayId: String!, $date: String!) {
+        assignRoutineToDay(routineDayId: $routineDayId, date: $date) {
+            ${WEEK_LOG_FIELDS}
+        }
+    }
+`;
 export const ASSIGN_ROUTINE_TO_DAY = gql`
     mutation AssignRoutineToDay($routineDayId: String!, $date: String!) {
         assignRoutineToDay(routineDayId: $routineDayId, date: $date) {

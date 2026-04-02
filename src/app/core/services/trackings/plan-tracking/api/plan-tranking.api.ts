@@ -138,11 +138,13 @@ export class PlanTrackingApi {
                           )
                         : null,
                 ),
+                tap((data) => console.log('aca', data)),
             );
     }
 
-    assignRoutineToDay(routineDayId: string, date: string): Observable<WorkoutSessionVM | null> {
+    assignRoutineToDay(routineDayId: string, date: string): Observable<TrackingVM | null> {
         const searchDate = new Date(date);
+        console.log('aca', searchDate);
         return this.apollo
             .mutate<{ assignRoutineToDay: TrackingAPI }>({
                 mutation: ASSIGN_ROUTINE_TO_DAY,
@@ -150,32 +152,15 @@ export class PlanTrackingApi {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                map(({ data }) => {
-                    if (!data?.assignRoutineToDay) return null;
-                    const weekLog = data.assignRoutineToDay;
-                    const day = weekLog.days?.find((d: any) => {
-                        const dayDate = new Date(d.date);
-                        return (
-                            dayDate.getFullYear() === searchDate.getFullYear() &&
-                            dayDate.getMonth() === searchDate.getMonth() &&
-                            dayDate.getDate() === searchDate.getDate()
-                        );
-                    });
-                    if (!day?.workoutSessionId) return null;
-                    const sessionData: WorkoutSessionAPI = {
-                        id: day.workoutSessionId,
-                        date: new Date(day.date),
-                        weekLogId: weekLog.id,
-                        routineDayId: routineDayId,
-                        exercises: day.exercises || [],
-                        status: day.status as any,
-                        notes: '',
-                    };
-                    return trackingWrappers.wrapperWorkoutSessionApiToVM(
-                        sessionData,
-                        this.exerciseSvc.exercises(),
-                    );
-                }),
+                tap((data) => console.log(data)),
+                map(({ data }) =>
+                    data?.assignRoutineToDay
+                        ? trackingWrappers.wrapperTrackingApiToVM(
+                              data.assignRoutineToDay,
+                              this.exerciseSvc.exercises(),
+                          )
+                        : null,
+                ),
             );
     }
 
