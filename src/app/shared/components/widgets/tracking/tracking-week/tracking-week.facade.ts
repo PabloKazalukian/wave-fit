@@ -1,10 +1,11 @@
 import { computed, DestroyRef, inject, Injectable, signal, effect } from '@angular/core';
 import { Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { StatusWorkoutSessionEnum, TrackingVM } from '../../../../interfaces/tracking.interface';
 import { PlansApiService } from '../../../../../core/services/plans/api/plans.api';
+import { catchError, map, of, switchMap } from 'rxjs';
 
 @Injectable()
 export class TrackingWeekFacade {
@@ -16,28 +17,19 @@ export class TrackingWeekFacade {
 
     readonly loading = this.trackingSvc.loading;
     readonly tracking = signal<TrackingVM | null>(null);
-    readonly planName = signal<string>('');
+    readonly planName = toSignal(
+        this.trackingSvc.trackingPlanVM$.pipe(
+            switchMap((t) => {
+                if (!t?.planId) return of('');
 
-    constructor() {
-        effect(
-            () => {
-                const t = this.tracking();
-                if (t?.planId) {
-                    this.planApi.getRoutinePlanById(t.planId).subscribe({
-                        next: (plan) => {
-                            if (plan) {
-                                this.planName.set(plan.name);
-                            }
-                        },
-                        error: (err) => console.error(err),
-                    });
-                } else {
-                    this.planName.set('');
-                }
-            },
-            { allowSignalWrites: true },
-        );
-    }
+                return this.planApi.getRoutinePlanById(t.planId).pipe(
+                    map((plan) => plan?.name ?? ''),
+                    catchError(() => of('')),
+                );
+            }),
+        ),
+        { initialValue: '' },
+    );
 
     readonly outOfDateRange = this.state.outOfDateRange;
     showOutOfRangeDialog = signal(true);

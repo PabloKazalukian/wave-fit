@@ -5,13 +5,11 @@ import { WorkoutRoutineSelector } from '../workout-routine-selector/workout-rout
 import { DialogComponent } from '../../../../ui/dialog/dialog';
 import { RoutineDay } from '../../../../../interfaces/routines.interface';
 import { Loading } from '../../../../ui/loading/loading';
-import { take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WorkoutStateService } from '../../../../../../core/services/workouts/workout.state';
 import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
 import { DateService } from '../../../../../../core/services/date.service';
-import { WorkoutApi } from '../../../../../../core/services/workouts/api/workout.api';
-import { WorkoutSessionVM } from '../../../../../interfaces/tracking.interface';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
     selector: 'app-workout-actions-menu',
@@ -19,6 +17,23 @@ import { WorkoutSessionVM } from '../../../../../interfaces/tracking.interface';
     standalone: true,
     templateUrl: './workout-actions-menu.html',
     styles: ``,
+    animations: [
+        trigger('dropdownAnimation', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'translateY(-10px) scale(0.95)' }),
+                animate(
+                    '0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                    style({ opacity: 1, transform: 'translateY(0) scale(1)' }),
+                ),
+            ]),
+            transition(':leave', [
+                animate(
+                    '0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    style({ opacity: 0, transform: 'translateY(-10px) scale(0.95)' }),
+                ),
+            ]),
+        ]),
+    ],
 })
 export class WorkoutActionsMenu {
     facade = inject(TrackingWorkoutFacade);
@@ -58,8 +73,6 @@ export class WorkoutActionsMenu {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
-                    // this.workoutState.setDate(date);
-                    // this.isLoading.set(false);
                     this.closeRoutineDialog();
                 },
                 error: () => {
@@ -67,39 +80,5 @@ export class WorkoutActionsMenu {
                     this.closeRoutineDialog();
                 },
             });
-
-        // this.workoutApi
-        //     .assignRoutineToDay(routine.id, dateString)
-        //     .pipe(take(1), takeUntilDestroyed(this.destroyRef))
-        //     .subscribe({
-        //         next: (workout: WorkoutSessionVM| null | undefined) => {
-        //             if (workout) {
-        //                 const tracking = this.trackingSvc.trackingPlanVM$;
-        //                 if (tracking?.id) {
-        //                     this.trackingSvc
-        //                         .syncTrackingDays(tracking.id)
-        //                         .pipe(take(1), takeUntilDestroyed(this.destroyRef))
-        //                         .subscribe({
-        //                             next: () => {
-        //                                 this.workoutState.setDate(date);
-        //                                 this.isLoading.set(false);
-        //                                 this.closeRoutineDialog();
-        //                             },
-        //                             error: () => {
-        //                                 this.isLoading.set(false);
-        //                                 this.closeRoutineDialog();
-        //                             },
-        //                         });
-        //                 } else {
-        //                     this.isLoading.set(false);
-        //                     this.closeRoutineDialog();
-        //                 }
-        //             }
-        //         },
-        //         error: () => {
-        //             this.isLoading.set(false);
-        //             this.closeRoutineDialog();
-        //         },
-        //     });
     }
 }

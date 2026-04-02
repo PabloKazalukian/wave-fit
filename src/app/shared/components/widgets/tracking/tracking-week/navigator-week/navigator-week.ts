@@ -41,6 +41,7 @@ export class NavigatorWeek {
         };
         return day;
     });
+
     sameDay(day: DayWithState): boolean {
         if (this.selectedDay() === null || this.selectedDay()?.date === null) return false;
         return this.dateSvc.isEqualDate(this.selectedDay()?.date!, day.date);
@@ -73,29 +74,22 @@ export class NavigatorWeek {
             const t = this.tracking();
             const days = this.allDays();
 
-            if (t && days.length > 0) {
-                // Only auto-center if it's a different week than the last one we centered
-                if (t.id !== this.lastCenteredWeekId) {
-                    this.lastCenteredWeekId = t.id;
-
-                    const today = this.dateSvc.today();
-                    const todayIndex = days.findIndex((d) => this.dateSvc.isEqualDate(d.date, today));
-
-                    if (todayIndex !== -1) {
-                        // Center today (offset 2 for 4 visible days -> roughly middle-right)
-                        const centerOffset = Math.floor(this.visibleDayCount / 2);
-                        const start = Math.max(
-                            0,
-                            Math.min(todayIndex - centerOffset, days.length - this.visibleDayCount),
-                        );
-                        this.currentDayIndex.set(start);
-                    } else {
-                        // If today is not in the week (e.g. historical/future week), start at index 0
-                        this.currentDayIndex.set(0);
-                    }
-                }
+            if (t && days.length > 0 && t.id !== this.lastCenteredWeekId) {
+                this.lastCenteredWeekId = t.id;
+                this.currentDayIndex.set(this.calculateStartIndex(days));
             }
-        }, { allowSignalWrites: true });
+        });
+    }
+
+    private calculateStartIndex(days: DayWithState[]) {
+        const today = this.dateSvc.today();
+        const todayIndex = days.findIndex((d) => this.dateSvc.isEqualDate(d.date, today));
+
+        if (todayIndex === -1) return 0;
+
+        const centerOffset = Math.floor(this.visibleDayCount / 2);
+
+        return Math.max(0, Math.min(todayIndex - centerOffset, days.length - this.visibleDayCount));
     }
 
     previousDays(): void {
