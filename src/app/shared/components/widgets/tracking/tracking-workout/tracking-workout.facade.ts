@@ -4,6 +4,7 @@ import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../interfaces/
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Observable, of } from 'rxjs';
 
 @Injectable()
 export class TrackingWorkoutFacade {
@@ -88,10 +89,10 @@ export class TrackingWorkoutFacade {
         this.trackingSvc.updateWorkoutSession(date, workout);
     }
 
-    removeWorkoutSession() {
+    removeWorkoutSession(): Observable<boolean> {
         const date = this.workoutDate();
         const workoutId = this.workoutVM()?.id;
-        if (!date || !workoutId) return;
-        this.trackingSvc.removeWorkoutSession(date, workoutId);
+        if (!date || !workoutId) return of(false);
+        return this.trackingSvc.removeWorkoutSession(date, workoutId);
     }
 }

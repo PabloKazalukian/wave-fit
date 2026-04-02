@@ -25,7 +25,8 @@ export class WorkoutCompleteList {
     }
 
     confirmDelete() {
-        this.facade.removeWorkoutSession();
-        this.closeDeleteDialog();
+        this.facade.removeWorkoutSession().subscribe(() => {
+            this.closeDeleteDialog();
+        });
     }
 }

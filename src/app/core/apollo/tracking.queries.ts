@@ -82,13 +82,15 @@ export const CREATE_WORKOUT_SESSION = gql`
     }
 `;
 
-export const REMOVE_WORKOUT_SESSION = gql`
-    mutation RemoveWorkoutSession($id: String!) {
-        removeWorkoutSession(id: $id) {
+export const REMOVE_WORKOUT_SESSION_FROM_DAY = gql`
+    mutation RemoveWorkoutSessionFromDay($input: RemoveWorkoutSessionFromDayInput!) {
+        removeWorkoutSessionFromDay(input: $input) {
             id
-            date
-            status
-            deleted
+            days {
+                order
+                workoutSessionId
+                status
+            }
         }
     }
 `;
@@ -143,6 +145,14 @@ export const UPDATE_WEEK_LOG_DAY = gql`
 export const SYNC_WEEK_LOG_DAYS = gql`
     mutation SyncWeekLogDays($weekLogId: String!) {
         syncWeekLogDays(weekLogId: $weekLogId) {
+            ${WEEK_LOG_FIELDS}
+        }
+    }
+`;
+
+export const ASSIGN_ROUTINE_TO_DAY = gql`
+    mutation AssignRoutineToDay($routineDayId: String!, $date: String!) {
+        assignRoutineToDay(routineDayId: $routineDayId, date: $date) {
             ${WEEK_LOG_FIELDS}
         }
     }

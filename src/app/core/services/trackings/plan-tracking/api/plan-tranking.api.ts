@@ -26,6 +26,7 @@ import {
     SYNC_WEEK_LOG_DAYS,
     UPDATE_WEEK_LOG,
     UPDATE_WEEK_LOG_DAY,
+    ASSIGN_ROUTINE_TO_DAY,
 } from '../../../../apollo/tracking.queries';
 
 @Injectable({
@@ -59,7 +60,6 @@ export class PlanTrackingApi {
             ),
         );
     }
-
 
     createTracking(payload: TrackingCreate): Observable<TrackingVM | undefined | null> {
         return this.apollo
@@ -126,6 +126,7 @@ export class PlanTrackingApi {
             .mutate<{ syncWeekLogDays: TrackingAPI }>({
                 mutation: SYNC_WEEK_LOG_DAYS,
                 variables: { weekLogId },
+                fetchPolicy: 'no-cache',
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
@@ -137,6 +138,44 @@ export class PlanTrackingApi {
                           )
                         : null,
                 ),
+            );
+    }
+
+    assignRoutineToDay(routineDayId: string, date: string): Observable<WorkoutSessionVM | null> {
+        const searchDate = new Date(date);
+        return this.apollo
+            .mutate<{ assignRoutineToDay: TrackingAPI }>({
+                mutation: ASSIGN_ROUTINE_TO_DAY,
+                variables: { routineDayId, date },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) => {
+                    if (!data?.assignRoutineToDay) return null;
+                    const weekLog = data.assignRoutineToDay;
+                    const day = weekLog.days?.find((d: any) => {
+                        const dayDate = new Date(d.date);
+                        return (
+                            dayDate.getFullYear() === searchDate.getFullYear() &&
+                            dayDate.getMonth() === searchDate.getMonth() &&
+                            dayDate.getDate() === searchDate.getDate()
+                        );
+                    });
+                    if (!day?.workoutSessionId) return null;
+                    const sessionData: WorkoutSessionAPI = {
+                        id: day.workoutSessionId,
+                        date: new Date(day.date),
+                        weekLogId: weekLog.id,
+                        routineDayId: routineDayId,
+                        exercises: day.exercises || [],
+                        status: day.status as any,
+                        notes: '',
+                    };
+                    return trackingWrappers.wrapperWorkoutSessionApiToVM(
+                        sessionData,
+                        this.exerciseSvc.exercises(),
+                    );
+                }),
             );
     }
 

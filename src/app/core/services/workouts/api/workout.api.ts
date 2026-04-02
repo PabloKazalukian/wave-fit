@@ -10,12 +10,8 @@ import {
 } from '../../../../shared/interfaces/tracking.interface';
 import { WorkoutSessionAPI } from '../../../../shared/interfaces/api/tracking-api.interface';
 import * as trackingWrappers from '../../../../shared/wrappers/tracking.wrapper';
-import {
-    CREATE_WORKOUT_SESSION,
-    UPDATE_WORKOUT_SESSION,
-    REMOVE_WORKOUT_SESSION,
-    ASSIGN_ROUTINE_TO_DAY,
-} from '../../../apollo/workout.queries';
+import { CREATE_WORKOUT_SESSION, UPDATE_WORKOUT_SESSION } from '../../../apollo/workout.queries';
+import { REMOVE_WORKOUT_SESSION_FROM_DAY } from '../../../apollo/tracking.queries';
 
 @Injectable({
     providedIn: 'root',
@@ -74,36 +70,18 @@ export class WorkoutApi {
 
     removeWorkoutSession(id: string): Observable<boolean> {
         return this.apollo
-            .mutate<{ removeWorkoutSession: { id: string } }>({
-                mutation: REMOVE_WORKOUT_SESSION,
-                variables: { id },
+            .mutate<{ removeWorkoutSessionFromDay: { id: string } }>({
+                mutation: REMOVE_WORKOUT_SESSION_FROM_DAY,
+                fetchPolicy: 'no-cache',
+                variables: {
+                    input: {
+                        workoutSessionId: id,
+                    },
+                },
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                map(({ data }) => !!data?.removeWorkoutSession),
-            );
-    }
-
-    assignRoutineToDay(
-        routineDayId: string,
-        date: string,
-    ): Observable<WorkoutSessionVM | undefined | null> {
-        return this.apollo
-            .mutate<{ assignRoutineToDay: WorkoutSessionAPI }>({
-                mutation: ASSIGN_ROUTINE_TO_DAY,
-                variables: { routineDayId, date },
-            })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                tap((res) => console.log('assignRoutineToDay', res)),
-                map(({ data }) =>
-                    data?.assignRoutineToDay
-                        ? trackingWrappers.wrapperWorkoutSessionApiToVM(
-                              data.assignRoutineToDay,
-                              this.exerciseSvc.exercises(),
-                          )
-                        : null,
-                ),
+                map(({ data }) => !!data?.removeWorkoutSessionFromDay),
             );
     }
 

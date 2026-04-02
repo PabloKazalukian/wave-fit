@@ -163,9 +163,10 @@ export class PlanTrackingDomainService {
             state: true,
         }));
 
-        return this.workoutApi.assignRoutineToDay(routineDayId, date).pipe(
+        return this.api.assignRoutineToDay(routineDayId, date).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
+                console.log(res);
                 if (res) {
                     const newWorkout = { ...res, status: StatusWorkoutSessionEnum.COMPLETE };
                     this._updateWorkout(new Date(date), () => newWorkout);
@@ -239,17 +240,19 @@ export class PlanTrackingDomainService {
         this._updateWorkout(date, () => workout);
     }
 
-    removeWorkoutSession(date: Date, id: string) {
-        this.workoutApi.removeWorkoutSession(id).subscribe((success) => {
-            if (success) {
-                this._updateWorkout(date, (workout) => ({
-                    ...workout,
-                    id: undefined,
-                    status: StatusWorkoutSessionEnum.NOT_STARTED,
-                    exercises: [],
-                }));
-            }
-        });
+    removeWorkoutSession(date: Date, id: string): Observable<boolean> {
+        return this.workoutApi.removeWorkoutSession(id).pipe(
+            tap((success) => {
+                if (success) {
+                    this._updateWorkout(date, (workout) => ({
+                        ...workout,
+                        id: undefined,
+                        status: StatusWorkoutSessionEnum.NOT_STARTED,
+                        exercises: [],
+                    }));
+                }
+            }),
+        );
     }
 
     setRestDay(day: Date, workout: WorkoutSessionVM) {

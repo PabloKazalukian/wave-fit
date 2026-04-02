@@ -44,35 +44,13 @@ export const UPDATE_WORKOUT_SESSION = gql`
     }
 `;
 
-export const REMOVE_WORKOUT_SESSION = gql`
-    mutation RemoveWorkoutSession($id: String!) {
-        removeWorkoutSession(id: $id) {
-            id
-            date
-            status
-            deleted
-        }
-    }
-`;
-
-export const ASSIGN_ROUTINE_TO_DAY = gql`
-    mutation AssignRoutineToDay($routineDayId: String!, $date: String!) {
-        assignRoutineToDay(routineDayId: $routineDayId, date: $date) {
-            id
-            weekLogId
-            date
-            routineDayId
-            exercises {
-                exerciseId
-                series
-                sets {
-                    weights
-                    reps
-                }
-                notes
-            }
-            status
-            notes
-        }
-    }
-`;
+// export const REMOVE_WORKOUT_SESSION = gql`
+//     mutation RemoveWorkoutSession($id: String!) {
+//         removeWorkoutSession(id: $id) {
+//             id
+//             date
+//             status
+//             deleted
+//         }
+//     }
+// `;
