@@ -75,7 +75,20 @@ export interface UpdateWeekLogInput {
 
 export interface UpdateWeekLogDayInput {
     order: number;
+    isRest?: boolean;
     workoutSessionId?: string;
+    workoutSession?: UpdateWorkoutSessionInput;
     extraSessionIds?: string[];
     status?: 'pending' | 'complete' | 'skipped';
+}
+
+export interface UpdateWorkoutSessionInput {
+    id?: string;
+    weekLogId?: string;
+    date?: string;
+    routineDayId?: string;
+    exercises?: ExercisePerformanceAPI[];
+    status?: StatusWorkoutSession;
+    notes?: string;
+    edited?: boolean;
 }

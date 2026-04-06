@@ -31,6 +31,7 @@ export function wrapperTrackingApiToVMS(
         notes: payload.notes,
         completed: payload.completed,
         days: payload.days?.map((d) => wrapperWeekLogDayApiToVM(d, allExercises)) ?? [],
+        workouts: payload.days?.map((d) => wrapperWeekLogDayVMToWorkoutVM(d, allExercises)) ?? [],
     };
 }
 

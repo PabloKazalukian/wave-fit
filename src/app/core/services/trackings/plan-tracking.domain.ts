@@ -16,10 +16,12 @@ import {
     TrackingCreate,
     UpdateWeekLogDayInput,
     UpdateWeekLogInput,
+    UpdateWorkoutSessionInput,
 } from '../../../shared/interfaces/api/tracking-api.interface';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
     emptyDay,
+    wrapperExercisePerformanceVMToApi,
     wrapperWorkoutSessionVMtoUpdateWeekLogDayInput,
 } from '../../../shared/wrappers/tracking.wrapper';
 import { PlanTrackingApi } from './plan-tracking/api/plan-tranking.api';
@@ -113,11 +115,13 @@ export class PlanTrackingDomainService {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
-        const workoutDraft = tracking.workouts?.find((w) =>
+        const index = tracking.workouts?.findIndex((w) =>
             this.dateService.isEqualDate(w.date, dateWorkout),
         );
 
-        if (!workoutDraft) return of(null);
+        if (index === undefined || index === -1) return of(null);
+        const workoutDraft = tracking.workouts![index];
+        const order = index + 1;
 
         this.state.loadingWorkoutCreation.update((current) => ({
             ...current,
@@ -125,17 +129,41 @@ export class PlanTrackingDomainService {
             state: true,
         }));
 
-        const workoutPayload = {
-            ...workoutDraft,
-            planId: tracking.id,
+        const workoutSessionInput: UpdateWorkoutSessionInput = {
+            id: workoutDraft.id,
+            date: this.dateService.formatDate(workoutDraft.date),
+            status: StatusWorkoutSessionEnum.COMPLETE,
+            exercises: wrapperExercisePerformanceVMToApi(workoutDraft.exercises),
+            notes: workoutDraft.notes,
         };
 
-        return this.workoutApi.createWorkoutSession(workoutPayload, tracking.id!).pipe(
+        const dayInput: UpdateWeekLogDayInput = {
+            order,
+            isRest: false,
+            status: 'complete',
+            workoutSession: workoutSessionInput,
+        };
+
+        const updateInput: UpdateWeekLogInput = {
+            id: tracking.id,
+            userId: tracking.userId,
+            days: [dayInput],
+        };
+
+        return this.api.updateTracking(updateInput).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
                 if (res) {
-                    const newWorkout = { ...res, status: StatusWorkoutSessionEnum.COMPLETE };
-                    this._updateWorkout(res.date, () => newWorkout);
+                    const updatedTracking = this.state.getTrackingValue();
+                    if (updatedTracking && updatedTracking.workouts) {
+                        const newWorkout = updatedTracking.workouts[index];
+                        if (newWorkout) {
+                            this._updateWorkout(newWorkout.date, () => ({
+                                ...newWorkout,
+                                status: StatusWorkoutSessionEnum.COMPLETE,
+                            }));
+                        }
+                    }
                 }
             }),
             finalize(() => {
@@ -144,9 +172,9 @@ export class PlanTrackingDomainService {
                     state: false,
                 }));
             }),
-            switchMap((workoutRes) => {
-                if (!workoutRes) return of(null);
-                return this.api.syncTrackingDays(tracking.id!).pipe(map(() => workoutRes));
+            map((res) => {
+                if (!res || !res.workouts) return null;
+                return res.workouts[index];
             }),
         );
     }
