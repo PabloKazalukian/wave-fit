@@ -12,6 +12,7 @@ import { FormControlsOf } from '../../../../utils/form-types.util';
 import { SelectTypeInput } from '../../../../interfaces/input.interface';
 import { Dumbbell } from 'lucide-angular';
 import { InfoCard } from '../../../ui/info-card/info-card';
+import { ExtraSessionForm } from '../../extra-session/extra-session-form/extra-session-form';
 
 export type SelectType = FormControlsOf<SelectTypeInput>;
 
@@ -27,6 +28,7 @@ export type SelectType = FormControlsOf<SelectTypeInput>;
         DialogComponent,
         Loading,
         InfoCard,
+        ExtraSessionForm,
     ],
     providers: [TrackingWeekFacade],
     templateUrl: './tracking-week.html',

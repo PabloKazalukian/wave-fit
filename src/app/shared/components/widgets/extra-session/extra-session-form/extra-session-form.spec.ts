@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CardAddExtra } from './card-add-extra';
+import { ExtraSessionForm } from './extra-session-form';
 
-describe('CardAddExtra', () => {
-  let component: CardAddExtra;
-  let fixture: ComponentFixture<CardAddExtra>;
+describe('ExtraSessionForm', () => {
+  let component: ExtraSessionForm;
+  let fixture: ComponentFixture<ExtraSessionForm>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CardAddExtra]
+      imports: [ExtraSessionForm]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CardAddExtra);
+    fixture = TestBed.createComponent(ExtraSessionForm);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

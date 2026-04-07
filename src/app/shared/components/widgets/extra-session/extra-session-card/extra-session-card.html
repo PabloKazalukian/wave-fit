@@ -1,0 +1,44 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 mt-2 p-4 border border-border2 rounded-xl bg-background shadow-md">
+  <div class="flex items-center gap-2 mb-2">
+    <h4 class="text-lg text-primary font-bold">Detalles para: {{ config().label }}</h4>
+  </div>
+
+  <app-input
+    [label]="'Duración (minutos)'"
+    [type]="'text'"
+    [placeholder]="'Ej: 30'"
+    [control]="$any(form.get('duration'))"
+  ></app-input>
+
+  <app-input
+    [label]="'Intensidad (1 a 5)'"
+    [type]="'text'"
+    [placeholder]="'Ej: 3'"
+    [control]="$any(form.get('intensityLevel'))"
+  ></app-input>
+
+  <app-input
+    [label]="'Calorías consumidas (Calculado o Manual)'"
+    [type]="'text'"
+    [placeholder]="'Ej: 300'"
+    [control]="$any(form.get('calories'))"
+  ></app-input>
+
+  <div class="flex justify-end gap-2 mt-4">
+    <app-btn
+      [text]="'Cancelar'"
+      [variant]="'outline'"
+      [color]="'error'"
+      (click)="cancel()"
+      type="button"
+    ></app-btn>
+
+    <app-btn
+      [text]="'Guardar'"
+      [variant]="'raised'"
+      [color]="'primary'"
+      [isDisabled]="form.invalid"
+      type="submit"
+    ></app-btn>
+  </div>
+</form>
