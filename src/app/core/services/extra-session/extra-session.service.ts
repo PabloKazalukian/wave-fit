@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, computed } from '@angular/core';
 import { ExtraSessionApi } from './api/extra-session.api';
 import {
     CreateExtraSessionInput,
@@ -33,6 +33,10 @@ export class ExtraSessionService {
     private activeWorkoutSessionsSubject = new BehaviorSubject<ExtraSession[]>([]);
     public activeWorkoutSessions$ = this.activeWorkoutSessionsSubject.asObservable();
 
+    extraSessions = signal<ExtraSession[]>([]);
+
+    currentWorkoutSessionId = signal<string | null>(null);
+
     extraSessionForm = new FormGroup<ExtraSessionFormType>({
         category: new FormControl('', {
             nonNullable: true,
@@ -61,8 +65,12 @@ export class ExtraSessionService {
     }
 
     loadByWorkoutSession(workoutSessionId: string) {
+        this.currentWorkoutSessionId.set(workoutSessionId);
         this.api.getByWorkoutSession(workoutSessionId).subscribe({
-            next: (sessions) => this.activeWorkoutSessionsSubject.next(sessions),
+            next: (sessions) => {
+                this.activeWorkoutSessionsSubject.next(sessions);
+                this.extraSessions.set(sessions);
+            },
             error: (err) => console.error('ExtraSessionService error:', err),
         });
     }
@@ -72,7 +80,9 @@ export class ExtraSessionService {
             tap((newSession) => {
                 const current = this.activeWorkoutSessionsSubject.value;
                 this.activeWorkoutSessionsSubject.next([...current, newSession]);
+                this.extraSessions.set([...current, newSession]);
             }),
+            tap(() => this.loadByWorkoutSession(this.currentWorkoutSessionId()!)),
         );
     }
 
@@ -80,9 +90,11 @@ export class ExtraSessionService {
         return this.api.update(input).pipe(
             tap((updatedSession) => {
                 const current = this.activeWorkoutSessionsSubject.value;
-                this.activeWorkoutSessionsSubject.next(
-                    current.map((s) => (s.id === updatedSession.id ? updatedSession : s)),
+                const updated = current.map((s) =>
+                    s.id === updatedSession.id ? updatedSession : s,
                 );
+                this.activeWorkoutSessionsSubject.next(updated);
+                this.extraSessions.set(updated);
             }),
         );
     }
@@ -92,7 +104,9 @@ export class ExtraSessionService {
             tap((success) => {
                 if (success) {
                     const current = this.activeWorkoutSessionsSubject.value;
-                    this.activeWorkoutSessionsSubject.next(current.filter((s) => s.id !== id));
+                    const filtered = current.filter((s) => s.id !== id);
+                    this.activeWorkoutSessionsSubject.next(filtered);
+                    this.extraSessions.set(filtered);
                 }
             }),
         );

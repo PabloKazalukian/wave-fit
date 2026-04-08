@@ -1,0 +1,45 @@
+<div class="flex flex-col gap-4 mt-2 p-4 rounded-xl bg-background2">
+  <div class="flex items-center gap-2 mb-2 pb-2 border-b-2 border-primary">
+    <h4 class="text-lg text-primary font-bold">Detalles para: {{ config().label }}</h4>
+  </div>
+
+  <div class="flex flex-wrap justify-between">
+    <app-input-number
+      [label]="'Duración (minutos)'"
+      [variant]="'buttons'"
+      [control]="$any(form.get('duration'))"
+    ></app-input-number>
+
+    <app-rating-bar
+      [label]="'Intensidad (1 a 5)'"
+      [steps]="5"
+      [control]="intensityLevelControl"
+    ></app-rating-bar>
+
+    <app-input-number
+      [label]="'Calorías '"
+      [variant]="'buttons'"
+      [step]="10"
+      [control]="$any(form.get('calories'))"
+    ></app-input-number>
+  </div>
+
+  <div class="flex justify-end gap-2 mt-4">
+    <app-btn
+      [text]="'Cancelar'"
+      [variant]="'outline'"
+      [color]="'error'"
+      (click)="cancel()"
+      type="button"
+    ></app-btn>
+
+    <app-btn
+      [text]="'Guardar'"
+      [variant]="'raised'"
+      [color]="'primary'"
+      [isDisabled]="form.invalid"
+      (click)="onSaveClick()"
+      type="button"
+    ></app-btn>
+  </div>
+</div>

@@ -1,12 +1,10 @@
-import { Component, inject, input, output, effect, OnInit, OnDestroy } from '@angular/core';
+import { Component, input, output, signal, effect, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
-    ExtraSessionFormType,
-    ExtraSessionService,
-} from '../../../../../core/services/extra-session/extra-session.service';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
-import { ExtraSessionDisciplineConfig } from '../../../../../shared/interfaces/extra-session.interface';
+    ExtraSession,
+    ExtraSessionDisciplineConfig,
+} from '../../../../../shared/interfaces/extra-session.interface';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { RatingBar } from '../../../ui/rating-bar/rating-bar';
 import { InputNumber } from '../../../ui/input-number/input-number';
@@ -19,104 +17,91 @@ import { merge, Subscription } from 'rxjs';
     templateUrl: './extra-session-card.html',
 })
 export class ExtraSessionCard implements OnInit, OnDestroy {
-    config = input.required<ExtraSessionDisciplineConfig>();
-    onCancel = output<void>();
+    session = input.required<ExtraSession>();
+    disciplines = input<ExtraSessionDisciplineConfig[]>([]);
 
-    private service = inject(ExtraSessionService);
-    private workoutState = inject(WorkoutStateService);
+    onDelete = output<string>();
+    onSave = output<{ id: string; duration: number; intensityLevel: number; calories?: number }>();
+    onCancelEdit = output<void>();
+
+    isEditing = signal(false);
     private subscription?: Subscription;
 
-    form: FormGroup<ExtraSessionFormType> = this.service.extraSessionForm;
+    form = new FormGroup({
+        duration: new FormControl<number>(0, { nonNullable: true }),
+        intensityLevel: new FormControl<number>(0, { nonNullable: true }),
+        calories: new FormControl<number>(0, { nonNullable: true }),
+    });
 
     ngOnInit() {
         this.subscription = merge(
             this.durationControl.valueChanges,
-            this.intensityLevelControl.valueChanges,
+            this.intensityControl.valueChanges,
         ).subscribe(() => {
             this.updateCalories();
         });
-
-        this.updateCalories();
     }
 
     ngOnDestroy() {
         this.subscription?.unsubscribe();
     }
 
+    startEdit() {
+        this.isEditing.set(true);
+        this.form.patchValue({
+            duration: this.session().duration,
+            intensityLevel: this.session().intensityLevel,
+            calories: this.session().calories || 0,
+        });
+    }
+
+    cancelEdit() {
+        this.isEditing.set(false);
+        this.onCancelEdit.emit();
+    }
+
+    saveChanges() {
+        if (this.form.invalid) return;
+
+        this.onSave.emit({
+            id: this.session().id,
+            duration: this.durationControl.value,
+            intensityLevel: this.intensityControl.value,
+            calories: this.caloriesControl.value || undefined,
+        });
+        this.isEditing.set(false);
+    }
+
+    deleteSession() {
+        this.onDelete.emit(this.session().id);
+    }
+
     private updateCalories() {
-        const config = this.config();
+        const config = this.disciplines().find((d) => d.key === this.session().discipline);
         if (!config || config.met === undefined) return;
 
-        const calories = this.calculateCalories(
-            config.met,
-            70,
-            this.durationControl.value,
-            this.intensityLevelControl.value,
-        );
+        const hours = this.durationControl.value / 60;
+        const intensityFactor = 1 + (this.intensityControl.value - 3) * 0.15;
+        const adjustedMet = config.met * intensityFactor;
+        const calories = Math.round(adjustedMet * 70 * hours);
 
         this.caloriesControl.setValue(calories, { emitEvent: false });
     }
 
-    submit() {
-        this.form.markAllAsTouched();
-        if (this.form.valid) {
-            const workoutSession = this.workoutState.workoutSession();
-            if (!workoutSession || !workoutSession.id) {
-                console.error('No active workout session found to attach extra session to.');
-                return;
-            }
-
-            this.service
-                .create({
-                    workoutSessionId: workoutSession.id,
-                    date: new Date().toISOString(),
-                    discipline: this.config().key,
-                    duration: this.form.value.duration!,
-                    intensityLevel: this.form.value.intensityLevel!,
-                    calories: this.form.value.calories || undefined,
-                    notes: '',
-                })
-                .subscribe({
-                    next: () => {
-                        this.form.reset({ duration: 30, intensityLevel: 3, calories: 0 });
-                        this.onCancel.emit();
-                    },
-                    error: (err) => console.error(err),
-                });
-        }
-    }
-
-    calculateCalories(
-        met: number,
-        weightKg: number,
-        durationMinutes: number,
-        intensityLevel: number,
-    ): number {
-        const hours = durationMinutes / 60;
-        const intensityFactor = this.getIntensityFactor(intensityLevel);
-        const adjustedMet = met * intensityFactor;
-        return Math.round(adjustedMet * weightKg * hours);
-    }
-
-    getIntensityFactor(level: number): number {
-        const base = 3;
-        const step = 0.15;
-        return 1 + (level - base) * step;
+    getDisciplineLabel(): string {
+        const config = this.disciplines().find((d) => d.key === this.session().discipline);
+        return config?.label || this.session().discipline;
     }
 
     get durationControl(): FormControl<number> {
         return this.form.get('duration') as FormControl<number>;
     }
 
-    get intensityLevelControl(): FormControl<number> {
+    get intensityControl(): FormControl<number> {
         return this.form.get('intensityLevel') as FormControl<number>;
     }
 
     get caloriesControl(): FormControl<number> {
         return this.form.get('calories') as FormControl<number>;
-    }
-
-    cancel() {
-        this.onCancel.emit();
     }
 }

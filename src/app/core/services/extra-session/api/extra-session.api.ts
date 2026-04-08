@@ -43,6 +43,7 @@ export class ExtraSessionApi {
                 fetchPolicy: 'network-only',
             })
             .pipe(
+                tap((res) => console.log(workoutSessionId, res)),
                 handleGraphqlError(this.authSvc),
                 map((res) => res.data?.extraSessionsByWorkoutSession || []),
             );

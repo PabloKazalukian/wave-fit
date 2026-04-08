@@ -15,17 +15,25 @@ import {
 } from '../../../../../shared/interfaces/extra-session.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../ui/loading/loading';
+import { ExtraSessionCreate } from '../extra-session-create/extra-session-create';
 
 @Component({
     selector: 'app-extra-session-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormSelectComponent, ExtraSessionCard, Loading],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        FormSelectComponent,
+        ExtraSessionCard,
+        Loading,
+        ExtraSessionCreate,
+    ],
     templateUrl: './extra-session-form.html',
 })
 export class ExtraSessionForm implements OnInit {
     onClose = output<void>();
 
-    private service = inject(ExtraSessionService);
+    service = inject(ExtraSessionService);
     private workoutState = inject(WorkoutStateService);
 
     catalog = toSignal(this.service.catalog$, { initialValue: [] });
@@ -47,7 +55,10 @@ export class ExtraSessionForm implements OnInit {
 
     constructor() {
         effect(() => {
-            this.workoutState.workoutSession();
+            const workoutSession = this.workoutState.workoutSession();
+            if (workoutSession?.id) {
+                this.service.loadByWorkoutSession(workoutSession.id);
+            }
             this.resetForm();
         });
     }
@@ -73,6 +84,46 @@ export class ExtraSessionForm implements OnInit {
         return this.extraSessionForm.get('discipline') as FormControl<string>;
     }
 
+    get durationControl(): FormControl<number> {
+        return this.extraSessionForm.get('duration') as FormControl<number>;
+    }
+
+    get intensityLevelControl(): FormControl<number> {
+        return this.extraSessionForm.get('intensityLevel') as FormControl<number>;
+    }
+
+    get caloriesControl(): FormControl<number> {
+        return this.extraSessionForm.get('calories') as FormControl<number>;
+    }
+
+    save() {
+        this.extraSessionForm.markAllAsTouched();
+        if (this.extraSessionForm.invalid) return;
+
+        const workoutSession = this.workoutState.workoutSession();
+        if (!workoutSession || !workoutSession.id) {
+            console.error('No active workout session found to attach extra session to.');
+            return;
+        }
+
+        this.service
+            .create({
+                workoutSessionId: workoutSession.id,
+                date: new Date().toISOString(),
+                discipline: this.disciplineControl.value,
+                duration: this.durationControl.value,
+                intensityLevel: this.intensityLevelControl.value,
+                calories: this.caloriesControl.value || undefined,
+                notes: '',
+            })
+            .subscribe({
+                next: () => {
+                    this.onClose.emit();
+                },
+                error: (err) => console.error(err),
+            });
+    }
+
     onCategoryClear() {
         this.categoryControl.setValue('');
         this.disciplineControl.setValue('');
@@ -88,5 +139,29 @@ export class ExtraSessionForm implements OnInit {
         this.categoryControl.setValue('');
         this.disciplineControl.setValue('');
         this.disciplineOptions.set([]);
+    }
+
+    deleteExtraSession(id: string) {
+        this.service.remove(id).subscribe({
+            error: (err) => console.error(err),
+        });
+    }
+
+    updateExtraSession(data: {
+        id: string;
+        duration: number;
+        intensityLevel: number;
+        calories?: number;
+    }) {
+        this.service
+            .update({
+                id: data.id,
+                duration: data.duration,
+                intensityLevel: data.intensityLevel,
+                calories: data.calories,
+            })
+            .subscribe({
+                error: (err) => console.error(err),
+            });
     }
 }
