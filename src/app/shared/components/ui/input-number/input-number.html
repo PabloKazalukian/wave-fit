@@ -1,0 +1,68 @@
+<div class="flex flex-col gap-2 w-full">
+  @if (label()) {
+    <label class="font-semibold text-white text-sm">
+      {{ label() }}
+    </label>
+  }
+
+  <div class="flex items-center gap-1">
+    <!-- BOTÓN - -->
+    @if (variant() === 'buttons') {
+      <button
+        type="button"
+        (click)="decrement()"
+        class="w-6 h-6 rounded-full bg-background3 flex items-center justify-center"
+      >
+        −
+      </button>
+    }
+
+    <!-- INPUT -->
+    <div class="relative flex items-center">
+      <input
+        type="number"
+        [formControl]="control()"
+        (input)="onInput($event)"
+        [ngClass]="{
+          'border-error': showError(),
+          'border-primary': !showError(),
+        }"
+        class="w-12 h-8 text-center bg-background2 text-primary rounded-md border focus:outline-none"
+      />
+
+      <!-- FLECHAS -->
+      @if (variant() === 'arrows') {
+        <div class="absolute right-0 flex flex-col">
+          <button type="button" (click)="increment()" class="text-xs">▲</button>
+          <button type="button" (click)="decrement()" class="text-xs">▼</button>
+        </div>
+      }
+    </div>
+
+    <!-- BOTÓN + -->
+    @if (variant() === 'buttons') {
+      <button
+        type="button"
+        (click)="increment()"
+        class="w-6 h-6 rounded-full bg-background flex items-center justify-center"
+      >
+        +
+      </button>
+    }
+  </div>
+
+  <!-- ERROR -->
+  @if (showError()) {
+    <div class="text-error text-sm">
+      @if (control().errors?.['required']) {
+        <span>Campo obligatorio</span>
+      }
+      @if (control().errors?.['min']) {
+        <span>Valor mínimo {{ control().errors?.['min'].min }}</span>
+      }
+      @if (control().errors?.['max']) {
+        <span>Valor máximo {{ control().errors?.['max'].max }}</span>
+      }
+    </div>
+  }
+</div>

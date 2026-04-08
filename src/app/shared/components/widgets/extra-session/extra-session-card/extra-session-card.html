@@ -1,4 +1,8 @@
-<form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 mt-2 p-4 border border-border2 rounded-xl bg-background shadow-md">
+<form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="flex flex-col gap-4 mt-2 p-4 border border-border2 rounded-xl bg-background shadow-md"
+>
   <div class="flex items-center gap-2 mb-2">
     <h4 class="text-lg text-primary font-bold">Detalles para: {{ config().label }}</h4>
   </div>
@@ -10,12 +14,11 @@
     [control]="$any(form.get('duration'))"
   ></app-input>
 
-  <app-input
+  <app-rating-bar
     [label]="'Intensidad (1 a 5)'"
-    [type]="'text'"
-    [placeholder]="'Ej: 3'"
-    [control]="$any(form.get('intensityLevel'))"
-  ></app-input>
+    [steps]="5"
+    [control]="intensityLevelControl"
+  ></app-rating-bar>
 
   <app-input
     [label]="'Calorías consumidas (Calculado o Manual)'"
