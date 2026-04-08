@@ -27,7 +27,8 @@
           'border-error': showError(),
           'border-primary': !showError(),
         }"
-        class="w-12 h-8 text-center bg-background2 text-primary rounded-md border focus:outline-none"
+        class="h-8 text-center bg-background2 text-primary rounded-md border focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        [class]="widthClass()"
       />
 
       <!-- FLECHAS -->

@@ -18,6 +18,11 @@ export class InputNumber {
     max = input<number | null>(null);
     variant = input<InputNumberVariant>('buttons');
 
+    widthClass = computed(() => {
+        const value = this.control().value ?? 0;
+        return value > 99 ? 'w-16' : 'w-12';
+    });
+
     showError = computed(() => {
         const c = this.control();
         return c?.touched && c?.invalid;

@@ -44,8 +44,8 @@ export class ExtraSessionService {
         }),
         workoutSessionId: new FormControl('', { nonNullable: true }),
         date: new FormControl(new Date(), { nonNullable: true }),
-        duration: new FormControl(0, { nonNullable: true }),
-        intensityLevel: new FormControl(0, { nonNullable: true }),
+        duration: new FormControl(30, { nonNullable: true }),
+        intensityLevel: new FormControl(3, { nonNullable: true }),
         calories: new FormControl(0, { nonNullable: true }),
         notes: new FormControl('', { nonNullable: true }),
     });

@@ -2,7 +2,7 @@ export interface ExtraSessionDisciplineConfig {
     key: string;
     label: string;
     category: ExtraSessionCategory;
-    avgCaloriesPerHour: number;
+    met: number;
 }
 
 export enum ExtraSessionCategory {

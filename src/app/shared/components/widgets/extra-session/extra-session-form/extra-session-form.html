@@ -13,6 +13,7 @@
         [text]="'Selecciona una categoría'"
         [options]="categories"
         [control]="categoryControl"
+        (clearValue)="onCategoryClear()"
       ></app-select>
 
       <div class="min-h-16">
@@ -21,13 +22,14 @@
             [text]="'Selecciona la disciplina'"
             [options]="disciplineOptions()"
             [control]="disciplineControl"
+            (clearValue)="onDisciplineClear()"
           ></app-select>
         }
 
         @if (disciplineControl.value) {
           <app-extra-session-card
             [config]="getDisciplineConfig()!"
-            (onCancel)="resetForm()"
+            (onCancel)="onCategoryClear()"
           ></app-extra-session-card>
         }
       </div>

@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, effect, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
 import {
     ExtraSessionFormType,
     ExtraSessionService,
 } from '../../../../../core/services/extra-session/extra-session.service';
+import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { ExtraSessionCard } from '../extra-session-card/extra-session-card';
 import { SelectType } from '../../../../../shared/interfaces/input.interface';
@@ -22,7 +23,10 @@ import { Loading } from '../../../ui/loading/loading';
     templateUrl: './extra-session-form.html',
 })
 export class ExtraSessionForm implements OnInit {
+    onClose = output<void>();
+
     private service = inject(ExtraSessionService);
+    private workoutState = inject(WorkoutStateService);
 
     catalog = toSignal(this.service.catalog$, { initialValue: [] });
 
@@ -41,11 +45,17 @@ export class ExtraSessionForm implements OnInit {
         return this.catalog().find((c) => c.key === this.disciplineControl.value) || null;
     }
 
+    constructor() {
+        effect(() => {
+            this.workoutState.workoutSession();
+            this.resetForm();
+        });
+    }
+
     ngOnInit() {
         this.service.loadCatalog();
 
         this.extraSessionForm.get('category')?.valueChanges.subscribe((category) => {
-            console.log(category, this.catalog());
             ExtraSessionCategory;
             this.disciplineOptions.set(
                 this.catalog()
@@ -53,11 +63,6 @@ export class ExtraSessionForm implements OnInit {
                     .map((c) => ({ name: c.label, value: c.key })),
             );
         });
-
-        // Manual subscribe to form changes to trigger computed signals if effect doesn't catch reactive form change.
-        // this.categoryControl.valueChanges.subscribe(() => {
-        //     this.disciplineControl.reset();
-        // });
     }
 
     get categoryControl(): FormControl<string> {
@@ -68,8 +73,20 @@ export class ExtraSessionForm implements OnInit {
         return this.extraSessionForm.get('discipline') as FormControl<string>;
     }
 
+    onCategoryClear() {
+        this.categoryControl.setValue('');
+        this.disciplineControl.setValue('');
+        this.disciplineOptions.set([]);
+        this.onClose.emit();
+    }
+
+    onDisciplineClear() {
+        this.disciplineControl.setValue('');
+    }
+
     resetForm() {
-        // this.categoryControl.reset();
-        // this.disciplineControl.reset();
+        this.categoryControl.setValue('');
+        this.disciplineControl.setValue('');
+        this.disciplineOptions.set([]);
     }
 }
