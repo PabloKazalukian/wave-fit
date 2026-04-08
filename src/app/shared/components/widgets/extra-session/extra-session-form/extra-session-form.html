@@ -1,29 +1,38 @@
-<div class="mt-4 p-4 bg-background2 rounded-2xl shadow-md border-t border-border mt-8">
-  <div class="mb-6">
-    <h3 class="text-xl text-primary font-bold">Actividades Extras</h3>
-    <p class="text-text2 text-sm">Registra entrenamientos adicionales que hiciste hoy (ej: saliste a correr, jugaste al fútbol).</p>
-  </div>
-  
-  <div class="flex flex-col gap-4">
-    <app-select
-      [text]="'Selecciona una categoría'"
-      [options]="categories"
-      [control]="categoryControl"
-    ></app-select>
+@if (catalog().length > 0) {
+  <form class="p-4 bg-background rounded-2xl shadow-md" [formGroup]="extraSessionForm">
+    <div class="mb-6">
+      <h3 class="text-xl text-accent font-bold">Actividades Extras</h3>
+      <p class="text-text2 text-sm">
+        Registra entrenamientos adicionales que hiciste hoy (ej: saliste a correr, jugaste al
+        fútbol).
+      </p>
+    </div>
 
-    @if (categoryControl.value) {
+    <div class="flex flex-col gap-4">
       <app-select
-        [text]="'Selecciona la disciplina'"
-        [options]="disciplineOptions()"
-        [control]="disciplineControl"
+        [text]="'Selecciona una categoría'"
+        [options]="categories"
+        [control]="categoryControl"
       ></app-select>
-    }
 
-    @if (selectedDisciplineConfig()) {
-      <app-extra-session-card 
-          [config]="selectedDisciplineConfig()!"
-          (onCancel)="resetForm()"
-      ></app-extra-session-card>
-    }
-  </div>
-</div>
+      <div class="min-h-16">
+        @if (categoryControl.value) {
+          <app-select
+            [text]="'Selecciona la disciplina'"
+            [options]="disciplineOptions()"
+            [control]="disciplineControl"
+          ></app-select>
+        }
+
+        @if (disciplineControl.value) {
+          <app-extra-session-card
+            [config]="getDisciplineConfig()!"
+            (onCancel)="resetForm()"
+          ></app-extra-session-card>
+        }
+      </div>
+    </div>
+  </form>
+} @else {
+  <app-loading></app-loading>
+}

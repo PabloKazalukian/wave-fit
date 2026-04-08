@@ -15,6 +15,8 @@ export class TrackingWeekFacade {
     private readonly trackingSvc = inject(PlanTrackingService);
     private readonly planApi = inject(PlansApiService);
 
+    showExtraSessionDialog = signal(false);
+
     readonly loading = this.trackingSvc.loading;
     readonly tracking = signal<TrackingVM | null>(null);
     readonly planName = toSignal(
