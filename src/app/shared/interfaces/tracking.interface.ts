@@ -54,6 +54,7 @@ export interface WorkoutSessionVM {
     notes?: string;
     planId?: string;
 }
+
 export interface ExercisePerformanceVM {
     exerciseId: string;
     name: string;

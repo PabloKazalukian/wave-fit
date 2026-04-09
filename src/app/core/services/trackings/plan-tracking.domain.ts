@@ -128,7 +128,10 @@ export class PlanTrackingDomainService {
 
         if (index === undefined || index === -1) return of(null);
         const workoutDraft = tracking.workouts![index];
-        const order = index + 1;
+
+        const orderDay = this.state.tracking()?.workouts?.findIndex((w) => w.date === dateWorkout);
+        // Usar el order real del día, no el índice
+        const order = Number(orderDay) + 1;
 
         this.state.loadingWorkoutCreation.update((current) => ({
             ...current,
@@ -136,33 +139,29 @@ export class PlanTrackingDomainService {
             state: true,
         }));
 
-        const workoutSessionInput: UpdateWorkoutSessionInput = {
-            id: workoutDraft.id,
-            date: this.dateService.formatDate(workoutDraft.date),
-            status: StatusWorkoutSessionEnum.COMPLETE,
-            exercises: wrapperExercisePerformanceVMToApi(workoutDraft.exercises),
-            notes: workoutDraft.notes,
+        const payload: UpdateWeekLogDayUnifiedInput = {
+            id: tracking.id!,
+            days: [
+                {
+                    order,
+                    status: 'complete',
+                    workoutSession: {
+                        id: workoutDraft.id,
+                        date: this.dateService.formatDate(workoutDraft.date),
+                        status: StatusWorkoutSessionEnum.COMPLETE,
+                        exercises: wrapperExercisePerformanceVMToApi(workoutDraft.exercises),
+                        notes: workoutDraft.notes,
+                    },
+                },
+            ],
         };
 
-        const dayInput: UpdateWeekLogDayInput = {
-            order,
-            isRest: false,
-            status: 'complete',
-            workoutSession: workoutSessionInput,
-        };
-
-        const updateInput: UpdateWeekLogInput = {
-            id: tracking.id,
-            userId: tracking.userId,
-            days: [dayInput],
-        };
-
-        return this.api.updateTrackingWorkoutSession(updateInput).pipe(
+        return this.api.updateTrackingDay(payload).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
                 if (res) {
                     const updatedTracking = this.state.getTrackingValue();
-                    if (updatedTracking && updatedTracking.workouts) {
+                    if (updatedTracking?.workouts) {
                         const newWorkout = updatedTracking.workouts[index];
                         if (newWorkout) {
                             this._updateWorkout(newWorkout.date, () => ({
@@ -180,7 +179,7 @@ export class PlanTrackingDomainService {
                 }));
             }),
             map((res) => {
-                if (!res || !res.workouts) return null;
+                if (!res?.workouts) return null;
                 return res.workouts[index];
             }),
         );
@@ -348,9 +347,13 @@ export class PlanTrackingDomainService {
         const totalDays = 7;
         const days = emptyDay(workoutDays, totalDays);
 
-        const input: UpdateWeekLogInput = this.transformUpdateWeekLogInput(days, current, complete);
+        const input: UpdateWeekLogDayUnifiedInput = this.transformUpdateWeekLogInputUnified(
+            days,
+            current,
+            complete,
+        );
 
-        return this.api.updateTrackingWorkoutSession(input).pipe(
+        return this.api.updateTracking(input).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
                 if (res) {
@@ -391,6 +394,21 @@ export class PlanTrackingDomainService {
             startDate: this.dateService.formatDate(current.startDate),
             endDate: this.dateService.formatDate(current.endDate),
             days,
+        };
+    }
+
+    private transformUpdateWeekLogInputUnified(
+        days: UpdateWeekLogDayInput[],
+        current: TrackingVM,
+        complete: boolean,
+    ): UpdateWeekLogDayUnifiedInput {
+        return {
+            id: current.id,
+            days: days.map((day) => ({
+                order: day.order,
+                status: day.status,
+                workoutSession: day.workoutSession,
+            })),
         };
     }
 }

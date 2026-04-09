@@ -134,22 +134,17 @@ export const UPDATE_WEEK_LOG_WORKOUT_SESSION = gql`
     }
 `;
 
-export const UPDATE_WEEK_LOG_EXTRA_SESSION = gql`
-    mutation updateWeekLogExtraSession($input: UpdateWeekLogExtraSessionInput!) {
-        updateWeekLogExtraSession(updateWeekLogInput: $input) {
-            id
-            days {
-                order
-                workoutSessionId
-                extraSessionIds
-            }
+export const UPDATE_WEEK_LOG_DAY = gql`
+    mutation UpdateDay($input: UpdateWeekLogDayUnifiedInput!) {
+        updateDay(input: $input) {
+            ${WEEK_LOG_FIELDS}
         }
     }
 `;
 
-export const UPDATE_WEEK_LOG_DAY = gql`
-    mutation UpdateDay($input: UpdateWeekLogDayUnifiedInput!) {
-        updateDay(input: $input) {
+export const UPDATE_WEEK_LOG = gql`
+    mutation UpdateWeekLog($updateWeekLogInput: UpdateWeekLogInput!) {
+        updateWeekLog(input: $updateWeekLogInput) {
             ${WEEK_LOG_FIELDS}
         }
     }

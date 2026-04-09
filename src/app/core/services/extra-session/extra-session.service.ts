@@ -83,14 +83,6 @@ export class ExtraSessionService {
     create(input: CreateExtraSessionForm): Observable<TrackingVM | null | undefined> {
         if (!this.state.selectedDate()) return of(null);
         return this.trackingService.updateExtraSession(this.state.selectedDate()!, input);
-        // return this.api.create(input).pipe(
-        //     tap((newSession) => {
-        //         const current = this.activeWorkoutSessionsSubject.value;
-        //         this.activeWorkoutSessionsSubject.next([...current, newSession]);
-        //         this.extraSessions.set([...current, newSession]);
-        //     }),
-        //     tap(() => this.loadByWorkoutSession(this.currentWorkoutSessionId()!)),
-        // );
     }
 
     update(input: UpdateExtraSessionInput): Observable<ExtraSession | null | undefined> {
