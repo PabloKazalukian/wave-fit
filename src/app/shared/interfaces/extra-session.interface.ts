@@ -25,8 +25,8 @@ export interface ExtraSession {
     notes?: string;
 }
 
-export interface CreateExtraSessionInput {
-    workoutSessionId: string;
+export interface CreateExtraSessionForm {
+    // workoutSessionId: string;
     date: string;
     discipline: string;
     duration: number;
@@ -43,4 +43,26 @@ export interface UpdateExtraSessionInput {
     intensityLevel?: number;
     calories?: number;
     notes?: string;
+}
+
+export interface CreateExtraSessionContext {
+    weekLogId: string;
+    dayOrder: number; // 1-7
+    extraSession: CreateExtraSessionForm;
+}
+
+export interface UpdateWeekLogExtraSessionInput {
+    id: string;
+    days: {
+        order: number;
+        extraSession: {
+            workoutSessionId: string;
+            date: string;
+            discipline: string;
+            duration: number;
+            intensityLevel: number;
+            calories?: number;
+            notes?: string;
+        };
+    }[];
 }

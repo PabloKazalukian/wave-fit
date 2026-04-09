@@ -126,17 +126,30 @@ export const CREATE_WEEK_LOG = gql`
     }
 `;
 
-export const UPDATE_WEEK_LOG = gql`
-    mutation UpdateWeekLog($updateWeekLogInput: UpdateWeekLogInput!) {
-        updateWeekLog(updateWeekLogInput: $updateWeekLogInput) {
+export const UPDATE_WEEK_LOG_WORKOUT_SESSION = gql`
+    mutation UpdateWeekLogWorkoutSession($updateWeekLogInput: UpdateWeekLogWorkoutSessionInput!) {
+        updateWeekLogWorkoutSession(updateWeekLogInput: $updateWeekLogInput) {
             ${WEEK_LOG_FIELDS}
         }
     }
 `;
 
+export const UPDATE_WEEK_LOG_EXTRA_SESSION = gql`
+    mutation updateWeekLogExtraSession($input: UpdateWeekLogExtraSessionInput!) {
+        updateWeekLogExtraSession(updateWeekLogInput: $input) {
+            id
+            days {
+                order
+                workoutSessionId
+                extraSessionIds
+            }
+        }
+    }
+`;
+
 export const UPDATE_WEEK_LOG_DAY = gql`
-    mutation UpdateWeekLogDay($input: UpdateWeekLogDayInput!) {
-        updateWeekLogDay(input: $input) {
+    mutation UpdateDay($input: UpdateWeekLogDayUnifiedInput!) {
+        updateDay(input: $input) {
             ${WEEK_LOG_FIELDS}
         }
     }

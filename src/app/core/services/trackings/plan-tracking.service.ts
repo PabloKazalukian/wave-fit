@@ -10,6 +10,7 @@ import {
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
 import { DateService } from '../date.service';
+import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -70,6 +71,13 @@ export class PlanTrackingService {
 
     setRestDay(day: Date, workout: WorkoutSessionVM): void {
         this.domain.setRestDay(day, workout);
+    }
+
+    updateExtraSession(
+        date: Date,
+        extraSession: CreateExtraSessionForm,
+    ): Observable<TrackingVM | null | undefined> {
+        return this.domain.updateExtraSession(date, extraSession);
     }
 
     updateWorkoutStatus(date: Date, status: StatusWorkoutSession): void {

@@ -13,6 +13,7 @@ import {
     TrackingAPI,
     TrackingCreate,
     UpdateWeekLogDayInput,
+    UpdateWeekLogDayUnifiedInput,
     UpdateWeekLogInput,
     WorkoutSessionAPI,
 } from '../../../../../shared/interfaces/api/tracking-api.interface';
@@ -24,10 +25,16 @@ import {
     FIND_ALL_TRACKING_BY_USER,
     FIND_BY_ID,
     SYNC_WEEK_LOG_DAYS,
-    UPDATE_WEEK_LOG,
+    UPDATE_WEEK_LOG_WORKOUT_SESSION,
+    UPDATE_WEEK_LOG_EXTRA_SESSION,
     UPDATE_WEEK_LOG_DAY,
     ASSIGN_ROUTINE_TO_DAY,
 } from '../../../../apollo/tracking.queries';
+import {
+    CreateExtraSessionContext,
+    UpdateWeekLogExtraSessionInput,
+} from '../../../../../shared/interfaces/extra-session.interface';
+import { UPDATE_EXTRA_SESSION } from '../../../../apollo/extra-session.queries';
 
 @Injectable({
     providedIn: 'root',
@@ -81,18 +88,40 @@ export class PlanTrackingApi {
             );
     }
 
-    updateTracking(payload: UpdateWeekLogInput): Observable<TrackingVMS | null> {
+    updateTrackingWorkoutSession(payload: any): Observable<TrackingVMS | null> {
         return this.apollo
-            .mutate<{ updateWeekLog: TrackingAPI }>({
-                mutation: UPDATE_WEEK_LOG,
+            .mutate<{ updateWeekLogWorkoutSession: TrackingAPI }>({
+                mutation: UPDATE_WEEK_LOG_WORKOUT_SESSION,
                 variables: { updateWeekLogInput: payload },
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.updateWeekLog
+                    data?.updateWeekLogWorkoutSession
                         ? trackingWrappers.wrapperTrackingApiToVMS(
-                              data.updateWeekLog,
+                              data.updateWeekLogWorkoutSession,
+                              this.exerciseSvc.exercises(),
+                          )
+                        : null,
+                ),
+            );
+    }
+
+    updateTrackingExtraSession(
+        payload: UpdateWeekLogExtraSessionInput,
+    ): Observable<TrackingVMS | null> {
+        return this.apollo
+            .mutate<{ updateWeekLogExtraSession: TrackingAPI }>({
+                mutation: UPDATE_WEEK_LOG_DAY,
+                variables: { updateWeekLogInput: payload },
+            })
+            .pipe(
+                tap((data) => console.log(data)),
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.updateWeekLogExtraSession
+                        ? trackingWrappers.wrapperTrackingApiToVMS(
+                              data.updateWeekLogExtraSession,
                               this.exerciseSvc.exercises(),
                           )
                         : null,
@@ -102,18 +131,20 @@ export class PlanTrackingApi {
 
     // ─── Update de un día individual ─────────────────────────────────────────────
 
-    updateTrackingDay(payload: UpdateWeekLogDayInput): Observable<TrackingVM | null> {
+    // plan-tracking.api.ts
+
+    updateTrackingDay(payload: UpdateWeekLogDayUnifiedInput): Observable<TrackingVM | null> {
         return this.apollo
-            .mutate<{ updateWeekLogDay: TrackingAPI }>({
+            .mutate<{ updateDay: TrackingAPI }>({
                 mutation: UPDATE_WEEK_LOG_DAY,
                 variables: { input: payload },
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.updateWeekLogDay
+                    data?.updateDay
                         ? trackingWrappers.wrapperTrackingApiToVM(
-                              data.updateWeekLogDay,
+                              data.updateDay,
                               this.exerciseSvc.exercises(),
                           )
                         : null,

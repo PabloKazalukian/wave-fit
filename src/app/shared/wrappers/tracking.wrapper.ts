@@ -17,6 +17,7 @@ import {
     WeekLogDayVM,
 } from '../interfaces/tracking.interface';
 import { Exercise, ExerciseCategory } from '../interfaces/exercise.interface';
+import { ExtraSessionForm } from '../components/widgets/extra-session/extra-session-form/extra-session-form';
 
 export function wrapperTrackingApiToVMS(
     payload: TrackingAPI,
@@ -107,6 +108,18 @@ export function wrapperWorkoutToUpdateWeekLogDayInput(
         order,
     };
 }
+
+// export function wrapperExtraSessionToUpdateWeekLogDayInput(
+//     payload: ExtraSessionForm,
+//     status: DayStatusAPI,
+//     order: number,
+// ): UpdateWeekLogDayInput {
+//     return {
+//         extraSessionId: payload.id,
+//         status,
+//         order,
+//     };
+// }
 
 export function wrapperExercisePerformanceVMToApi(
     payload: ExercisePerformanceVM[],

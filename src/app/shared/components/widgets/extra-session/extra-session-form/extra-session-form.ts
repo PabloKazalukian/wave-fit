@@ -100,15 +100,14 @@ export class ExtraSessionForm implements OnInit {
         this.extraSessionForm.markAllAsTouched();
         if (this.extraSessionForm.invalid) return;
 
-        const workoutSession = this.workoutState.workoutSession();
-        if (!workoutSession || !workoutSession.id) {
-            console.error('No active workout session found to attach extra session to.');
-            return;
-        }
+        // const workoutSession = this.workoutState.workoutSession();
+        // if (!workoutSession || !workoutSession.id) {
+        //     console.error('No active workout session found to attach extra session to.');
+        //     return;
+        // }
 
         this.service
             .create({
-                workoutSessionId: workoutSession.id,
                 date: new Date().toISOString(),
                 discipline: this.disciplineControl.value,
                 duration: this.durationControl.value,

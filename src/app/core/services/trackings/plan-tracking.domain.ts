@@ -15,6 +15,7 @@ import { AuthService } from '../auth/auth.service';
 import {
     TrackingCreate,
     UpdateWeekLogDayInput,
+    UpdateWeekLogDayUnifiedInput,
     UpdateWeekLogInput,
     UpdateWorkoutSessionInput,
 } from '../../../shared/interfaces/api/tracking-api.interface';
@@ -26,6 +27,12 @@ import {
 } from '../../../shared/wrappers/tracking.wrapper';
 import { PlanTrackingApi } from './plan-tracking/api/plan-tranking.api';
 import { WorkoutApi } from '../workouts/api/workout.api';
+import {
+    CreateExtraSessionContext,
+    CreateExtraSessionForm,
+    ExtraSession,
+} from '../../../shared/interfaces/extra-session.interface';
+import { mapToUpdateWeekLogExtraSessionInput } from '../../../shared/wrappers/extra-session.wrapper';
 
 @Injectable({
     providedIn: 'root',
@@ -150,7 +157,7 @@ export class PlanTrackingDomainService {
             days: [dayInput],
         };
 
-        return this.api.updateTracking(updateInput).pipe(
+        return this.api.updateTrackingWorkoutSession(updateInput).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
                 if (res) {
@@ -202,6 +209,52 @@ export class PlanTrackingDomainService {
             //     return this.api.syncTrackingDays(tracking.id!).pipe(map(() => workoutRes));
             // }),
         );
+    }
+
+    updateExtraSession(
+        date: Date,
+        extraSession: CreateExtraSessionForm,
+    ): Observable<TrackingVM | null | undefined> {
+        const tracking = this.state.getTrackingValue();
+        if (!tracking) return of(null);
+
+        // Buscar el día por fecha y tomar su order real
+        const day = tracking.workouts?.find((d) => this.dateService.isEqualDate(d.date, date));
+
+        if (!day) return of(null);
+
+        let dayOrder: string | null = null;
+
+        this.state.tracking()?.workouts?.forEach((d, index) => {
+            if (this.dateService.isEqualDate(d.date, date)) {
+                dayOrder = index.toString();
+            }
+        });
+
+        if (dayOrder === null) return of(null);
+
+        console.log(tracking);
+        const payload: UpdateWeekLogDayUnifiedInput = {
+            id: tracking.id!,
+            days: [
+                {
+                    order: Number(dayOrder), // usar el order real del día, no el index
+                    status: 'complete',
+                    extraSession: {
+                        date: extraSession.date,
+                        discipline: extraSession.discipline,
+                        duration: extraSession.duration,
+                        intensityLevel: extraSession.intensityLevel,
+                        calories: extraSession.calories,
+                        notes: extraSession.notes,
+                    },
+                },
+            ],
+        };
+
+        console.log('updateExtraSession payload:', payload);
+
+        return this.api.updateTrackingDay(payload);
     }
 
     toggleExercise(date: Date, exercise: ExercisePerformanceVM) {
@@ -297,7 +350,7 @@ export class PlanTrackingDomainService {
 
         const input: UpdateWeekLogInput = this.transformUpdateWeekLogInput(days, current, complete);
 
-        return this.api.updateTracking(input).pipe(
+        return this.api.updateTrackingWorkoutSession(input).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
                 if (res) {

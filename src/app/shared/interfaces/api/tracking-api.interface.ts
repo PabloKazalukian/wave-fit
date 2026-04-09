@@ -79,6 +79,7 @@ export interface UpdateWeekLogDayInput {
     workoutSessionId?: string;
     workoutSession?: UpdateWorkoutSessionInput;
     extraSessionIds?: string[];
+    extraSessions?: ExtraSessionAPI[];
     status?: 'pending' | 'complete' | 'skipped';
 }
 
@@ -91,4 +92,30 @@ export interface UpdateWorkoutSessionInput {
     status?: StatusWorkoutSession;
     notes?: string;
     edited?: boolean;
+}
+
+// plan-tracking.domain.interfaces.ts
+
+export interface CreateExtraSessionWithoutWsInput {
+    date: string;
+    discipline: string;
+    duration: number;
+    intensityLevel: number;
+    calories?: number;
+    notes?: string;
+}
+
+// Reemplaza el UpdateWeekLogDayInput legacy
+export interface UpdateDayInput {
+    order: number;
+    workoutSessionId?: string;
+    workoutSession?: UpdateWorkoutSessionInput;
+    extraSession?: CreateExtraSessionWithoutWsInput;
+    status?: string;
+}
+
+// Input principal que espera el back
+export interface UpdateWeekLogDayUnifiedInput {
+    id: string; // weekLogId
+    days: UpdateDayInput[];
 }

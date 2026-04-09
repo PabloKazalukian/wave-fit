@@ -28,22 +28,22 @@ export const GET_EXTRA_SESSIONS_BY_WORKOUT = gql`
     }
 `;
 
-export const CREATE_EXTRA_SESSION = gql`
-    mutation createExtraSession($createExtraSessionInput: CreateExtraSessionInput!) {
-        createExtraSession(createExtraSessionInput: $createExtraSessionInput) {
-            id
-            userId
-            workoutSessionId
-            category
-            discipline
-            date
-            duration
-            intensityLevel
-            calories
-            notes
-        }
-    }
-`;
+// export const CREATE_EXTRA_SESSION = gql`
+//     mutation createExtraSession($createExtraSessionInput: CreateExtraSessionInput!) {
+//         createExtraSession(createExtraSessionInput: $createExtraSessionInput) {
+//             id
+//             userId
+//             workoutSessionId
+//             category
+//             discipline
+//             date
+//             duration
+//             intensityLevel
+//             calories
+//             notes
+//         }
+//     }
+// `;
 
 export const UPDATE_EXTRA_SESSION = gql`
     mutation updateExtraSession($updateExtraSessionInput: UpdateExtraSessionInput!) {

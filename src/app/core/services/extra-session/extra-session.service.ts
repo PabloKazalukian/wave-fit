@@ -1,14 +1,17 @@
 import { inject, Injectable, signal, computed } from '@angular/core';
 import { ExtraSessionApi } from './api/extra-session.api';
 import {
-    CreateExtraSessionInput,
+    CreateExtraSessionForm,
     ExtraSession,
     ExtraSessionDisciplineConfig,
     UpdateExtraSessionInput,
 } from '../../../shared/interfaces/extra-session.interface';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FormControlsOf } from '../../../shared/utils/form-types.util';
+import { PlanTrackingService } from '../trackings/plan-tracking.service';
+import { WorkoutStateService } from '../workouts/workout.state';
+import { TrackingVM } from '../../../shared/interfaces/tracking.interface';
 
 export type ExtraSessionFormType = FormControlsOf<IExtraSessionForm>;
 export interface IExtraSessionForm {
@@ -25,6 +28,8 @@ export interface IExtraSessionForm {
 @Injectable({ providedIn: 'root' })
 export class ExtraSessionService {
     private api = inject(ExtraSessionApi);
+    private trackingService = inject(PlanTrackingService);
+    private state = inject(WorkoutStateService);
 
     // State
     private catalogSubject = new BehaviorSubject<ExtraSessionDisciplineConfig[]>([]);
@@ -75,18 +80,20 @@ export class ExtraSessionService {
         });
     }
 
-    create(input: CreateExtraSessionInput) {
-        return this.api.create(input).pipe(
-            tap((newSession) => {
-                const current = this.activeWorkoutSessionsSubject.value;
-                this.activeWorkoutSessionsSubject.next([...current, newSession]);
-                this.extraSessions.set([...current, newSession]);
-            }),
-            tap(() => this.loadByWorkoutSession(this.currentWorkoutSessionId()!)),
-        );
+    create(input: CreateExtraSessionForm): Observable<TrackingVM | null | undefined> {
+        if (!this.state.selectedDate()) return of(null);
+        return this.trackingService.updateExtraSession(this.state.selectedDate()!, input);
+        // return this.api.create(input).pipe(
+        //     tap((newSession) => {
+        //         const current = this.activeWorkoutSessionsSubject.value;
+        //         this.activeWorkoutSessionsSubject.next([...current, newSession]);
+        //         this.extraSessions.set([...current, newSession]);
+        //     }),
+        //     tap(() => this.loadByWorkoutSession(this.currentWorkoutSessionId()!)),
+        // );
     }
 
-    update(input: UpdateExtraSessionInput) {
+    update(input: UpdateExtraSessionInput): Observable<ExtraSession | null | undefined> {
         return this.api.update(input).pipe(
             tap((updatedSession) => {
                 const current = this.activeWorkoutSessionsSubject.value;

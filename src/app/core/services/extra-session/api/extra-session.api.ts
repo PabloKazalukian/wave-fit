@@ -4,15 +4,14 @@ import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import {
     GET_EXTRA_SESSION_CATALOG,
-    CREATE_EXTRA_SESSION,
     UPDATE_EXTRA_SESSION,
     REMOVE_EXTRA_SESSION,
     GET_EXTRA_SESSIONS_BY_WORKOUT,
 } from '../../../apollo/extra-session.queries';
 import {
+    CreateExtraSessionForm,
     ExtraSession,
     ExtraSessionDisciplineConfig,
-    CreateExtraSessionInput,
     UpdateExtraSessionInput,
 } from '../../../../shared/interfaces/extra-session.interface';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
@@ -49,17 +48,17 @@ export class ExtraSessionApi {
             );
     }
 
-    create(createExtraSessionInput: CreateExtraSessionInput): Observable<ExtraSession> {
-        return this.apollo
-            .mutate<{ createExtraSession: ExtraSession }>({
-                mutation: CREATE_EXTRA_SESSION,
-                variables: { createExtraSessionInput },
-            })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map((res) => res.data!.createExtraSession),
-            );
-    }
+    // create(createExtraSessionInput: CreateExtraSessionForm): Observable<ExtraSession> {
+    //     return this.apollo
+    //         .mutate<{ createExtraSession: ExtraSession }>({
+    //             mutation: CREATE_EXTRA_SESSION,
+    //             variables: { createExtraSessionInput },
+    //         })
+    //         .pipe(
+    //             handleGraphqlError(this.authSvc),
+    //             map((res) => res.data!.createExtraSession),
+    //         );
+    // }
 
     update(updateExtraSessionInput: UpdateExtraSessionInput): Observable<ExtraSession> {
         return this.apollo
