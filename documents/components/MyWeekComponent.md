@@ -13,13 +13,35 @@ MyWeek (Página / Container)
         │
         ├─→ NavigatorWeek (Navegación entre días del tracking)
         │
+        ├─→ TrackingActive (Tracking activo/seleccionado)
+        │
         └─→ TrackingWorkoutComponent (Contenedor de sesión de entrenamiento)
               │
-              ├─→ ExerciseSelector (Búsqueda y selección de ejercicios)
+              ├─→ WorkoutRoutineSelector (Selector de rutina)
               │
-              └─→ WorkoutInProgess (Gestión de ejercicios activos)
+              ├─→ WorkoutActionsMenu (Menú de acciones)
+              │
+              └─→ WorkoutInProgress (Gestión de ejercicios activos)
                     │
-                    └─→ AccordionItemComponent (Detalle de series, reps y peso)
+                    ├─→ WorkoutEdition (Edición de ejercicios)
+                    │
+                    └─→ WorkoutCompleteList (Lista completa)
+```
+
+MyWeek (Página / Container)
+│
+└─→ TrackingWeekComponent (Vista semanal)
+│
+├─→ NavigatorWeek (Navegación entre días del tracking)
+│
+└─→ TrackingWorkoutComponent (Contenedor de sesión de entrenamiento)
+│
+├─→ ExerciseSelector (Búsqueda y selección de ejercicios)
+│
+└─→ WorkoutInProgess (Gestión de ejercicios activos)
+│
+└─→ AccordionItemComponent (Detalle de series, reps y peso)
+
 ```
 
 ---
@@ -29,16 +51,18 @@ MyWeek (Página / Container)
 El tracking utiliza la arquitectura **Domain + (API | Storage) + State**:
 
 ```
+
 PlanTrackingService
-    │
-    ├── PlanTrackingDomainService (Lógica de negocio)
-    │       │
-    │       ├── PlanTrackingApi (Llamadas GraphQL)
-    │       │
-    │       └── PlanTrackingStorage (Persistencia local)
-    │
-    └── PlanTrackingStateService (Estado reactivo)
-```
+│
+├── PlanTrackingDomainService (Lógica de negocio)
+│ │
+│ ├── PlanTrackingApi (Llamadas GraphQL)
+│ │
+│ └── PlanTrackingStorage (Persistencia local)
+│
+└── PlanTrackingStateService (Estado reactivo)
+
+````
 
 ### Capas y Responsabilidades
 
@@ -110,7 +134,7 @@ export interface TrackingVM {
     planId?: string | null;
     completed: boolean;
 }
-```
+````
 
 ### [WorkoutSessionVM](/src/app/shared/interfaces/tracking.interface.ts#L37)
 

@@ -1,6 +1,6 @@
-# 📝 Formulario Rutina Semanal — RoutinePlanForm
+# 📝 Formulario Rutina Semanal — Plans
 
-Documentación técnica del componente `RoutinePlanForm` y su jerarquía de subcomponentes para el flujo de creación de una rutina semanal.
+Documentación técnica del componente `Plans` (lista) y `Create` (creación) para el flujo de creación de una rutina semanal.
 
 ---
 
@@ -9,23 +9,25 @@ Documentación técnica del componente `RoutinePlanForm` y su jerarquía de subc
 ### Árbol de Componentes
 
 ```
-RoutinePlanForm (Página Principal)
+Plans (Página Lista)
   │
-  └─→ WeeklyRoutinePlannerComponent
+  └─→ Create (Página Creación)
         │
-        ├─→ DaysRoutineProgressComponent (muestra progreso)
-        │
-        ├─→ DayOfRoutineComponent (muestra día individual)
-        │
-        └─→ WeekDayCellComponent (celda de día)
+        └─→ WeeklyRoutinePlannerComponent
               │
-              └─→ RoutineListBoxComponent
+              ├─→ DaysRoutineProgressComponent (muestra progreso)
+              │
+              ├─→ DayOfRoutineComponent (muestra día individual)
+              │
+              └─→ WeekDayCellComponent (celda de día)
                     │
-                    ├─→ RoutineExercisesComponent (acordeón de ejercicios)
-                    │
-                    └─→ RoutineExerciseFormComponent
+                    └─→ RoutineListBoxComponent
                           │
-                          └─→ ExerciseCreateComponent
+                          ├─→ RoutineExercisesComponent (acordeón de ejercicios)
+                          │
+                          └─→ RoutineExerciseFormComponent
+                                │
+                                └─→ ExerciseCreateComponent
 ```
 
 ---

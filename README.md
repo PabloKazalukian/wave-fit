@@ -45,12 +45,9 @@
 - 🗓️ **Planificación semanal** — Armá tu rutina día a día con un planificador visual
 - 💪 **Gestión de rutinas** — Organizá ejercicios por categoría muscular (pecho, espalda, piernas, etc.)
 - 📊 **Seguimiento de progreso** — Llevá un registro de tu avance semana a semana
+- 📈 **Estadísticas** — Gráficos de rendimiento y volumen de entrenamiento
+- 🏋️ **My Week** — Tu entrenamiento del día con seguimiento de series, pesos y reps
 - 🔐 **Autenticación con Google** — Inicio de sesión rápido y seguro
-
-### Próximamente
-
-- 📈 **Estadísticas avanzadas** — Gráficos de rendimiento, volumen de entrenamiento y más
-- 🏆 **Logros y metas** — Sistema de objetivos personalizados
 
 ---
 
@@ -99,24 +96,84 @@ La app se levanta en `http://localhost:4200/`
 ## 📂 Estructura del Proyecto
 
 ```
-src/
-├── app/
-│   ├── core/           # Guards, interceptors, servicios base
-│   ├── pages/          # Páginas de la app (auth, home, routines, tracking)
-│   ├── shared/         # Componentes, servicios y utilidades compartidas
-│   ├── app.routes.ts   # Configuración de rutas
-│   └── app.config.ts   # Configuración de la app (Apollo, SW, etc.)
-├── environments/       # Variables de entorno (dev/prod)
-└── styles.css          # Estilos globales
+src/app/
+├── core/                        # Servicios, Auth, Apollo
+│   ├── apollo/                  # Queries GraphQL
+│   ├── auth/                    # TokenStorage, inicializadores
+│   ├── services/                # Todos los servicios
+│   │   ├── auth/                # AuthService, CredentialsService
+│   │   ├── exercises/           # ExercisesService
+│   │   ├── plans/               # PlansService + API + Storage + State
+│   │   ├── routines/            # RoutinesService + API
+│   │   ├── trackings/           # PlanTrackingService (Domain + API + Storage + State)
+│   │   ├── user/                # UserService
+│   │   ├── workouts/            # WorkoutStateService
+│   │   └── warmup.service.ts
+│   └── auth-guard.ts
+├── pages/                       # Vistas de la app
+│   ├── auth/                    # Login, Register, Callback
+│   ├── exercises/               # Biblioteca de ejercicios
+│   ├── home/                    # Dashboard
+│   ├── my-week/                 # Entrenamiento de la semana
+│   ├── plans/                   # Planes y creación
+│   ├── routines/                # Gestión de rutinas
+│   ├── trackings/               # Seguimiento y estadísticas
+│   └── user/                    # Perfil de usuario
+├── shared/
+│   ├── components/
+│   │   ├── layout/              # Header, Footer
+│   │   ├── ui/                  # Botones, inputs, dialogs, tablas
+│   │   └── widgets/             # Componentes de negocio
+│   ├── interfaces/              # Tipos e interfaces
+│   ├── pipes/                   # Pipes personalizados
+│   ├── utils/                   # Utilidades
+│   ├── validators/              # Validadores de formularios
+│   └── wrappers/                # Transformadores de datos
+├── app.routes.ts                # Rutas de la app
+├── app.config.ts                # Configuración (Apollo, PWA, etc.)
+└── logo.svg                     # Logo de la app
 ```
+
+### Rutas de la App
+
+| Ruta               | Descripción              |
+| ------------------ | ------------------------ |
+| `/auth/login`      | Inicio de sesión         |
+| `/auth/register`   | Registro de usuario      |
+| `/home`            | Dashboard principal      |
+| `/exercises`       | Biblioteca de ejercicios |
+| `/routines`        | Gestión de rutinas       |
+| `/plans`           | Lista de planes          |
+| `/plans/create`    | Crear nuevo plan         |
+| `/my-week`         | Entrenamiento del día    |
+| `/trackings`       | Lista de seguimientos    |
+| `/trackings/:id`   | Detalle de seguimiento   |
+| `/trackings/stats` | Estadísticas de progreso |
+| `/user`            | Perfil de usuario        |
 
 ---
 
 ## 📖 Documentación
 
-La documentación técnica de componentes se encuentra en [`/documents`](./documents/):
+La documentación técnica de componentes y servicios se encuentra en [`/documents`](./documents/):
 
-- [RoutinePlanComponent](./documents/components/RoutinePlanComponent.md) — Jerarquía y flujo de datos del planificador de rutinas
+### Componentes
+
+| Documento                                                              | Descripción                        |
+| ---------------------------------------------------------------------- | ---------------------------------- |
+| [RoutinePlanComponent](./documents/components/RoutinePlanComponent.md) | Creación de rutinas semanales      |
+| [MyWeekComponent](./documents/components/MyWeekComponent.md)           | Tracking y seguimiento de workouts |
+
+### Servicios
+
+| Documento                                                                  | Descripción                        |
+| -------------------------------------------------------------------------- | ---------------------------------- |
+| [AuthenticationAndApollo](./documents/services/AuthenticationAndApollo.md) | Auth y configuración Apollo        |
+| [ExercisesService](./documents/services/ExercisesService.md)               | Biblioteca de ejercicios           |
+| [RoutinesService](./documents/services/RoutinesService.md)                 | Gestión de rutinas                 |
+| [UserService](./documents/services/UserService.md)                         | Perfil de usuario                  |
+| [WorkoutStateService](./documents/services/WorkoutStateService.md)         | Estado de workouts activos         |
+| [Índice de servicios](./documents/services/index.md)                       | Arquitectura completa de servicios |
 
 ---
 

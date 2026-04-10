@@ -39,15 +39,15 @@ Documentación de la arquitectura de servicios del frontend.
 
 ### Tracking
 
-| Documento                                                      | Descripción                                 |
-| -------------------------------------------------------------- | ------------------------------------------- |
-| [MyWeekComponent.md](/documents/components/MyWeekComponent.md) | Flujo de tracking con arquitectura completa |
+| Documento                                              | Descripción                                  |
+| ------------------------------------------------------ | -------------------------------------------- |
+| [MyWeekComponent.md](../components/MyWeekComponent.md) | Componente My Week con arquitectura completa |
 
 ### Plans
 
-| Documento                                                                | Descripción                   |
-| ------------------------------------------------------------------------ | ----------------------------- |
-| [RoutinePlanComponent.md](/documents/components/RoutinePlanComponent.md) | Creación de rutinas semanales |
+| Documento                                                        | Descripción                   |
+| ---------------------------------------------------------------- | ----------------------------- |
+| [RoutinePlanComponent.md](../components/RoutinePlanComponent.md) | Creación de rutinas semanales |
 
 ### Services
 
@@ -71,11 +71,13 @@ Documentación de la arquitectura de servicios del frontend.
 
 ### Servicios con State (Media complejidad)
 
-| Servicio | API | Storage | State |
-| -------- | --- | ------- | ----- |
-| Plans    | ✅  | ✅      | ✅    |
-| DayPlan  | ❌  | ❌      | ✅    |
-| Workouts | ❌  | ❌      | ✅    |
+| Servicio     | API | Storage | State |
+| ------------ | --- | ------- | ----- |
+| Plans        | ✅  | ✅      | ✅    |
+| DayPlan      | ❌  | ❌      | ✅    |
+| Workouts     | ❌  | ❌      | ✅    |
+| TrackingList | ❌  | ❌      | ✅    |
+| ExtraSession | ✅  | ✅      | ❌    |
 
 ### Servicios Simples (Baja complejidad)
 
@@ -86,6 +88,8 @@ Documentación de la arquitectura de servicios del frontend.
 | User        | ✅  | ✅      |
 | Auth        | ✅  | ✅      |
 | Credentials | ❌  | ✅      |
+| Date        | ❌  | ✅      |
+| Warmup      | ❌  | ✅      |
 
 ---
 
@@ -96,25 +100,35 @@ src/app/core/services/
 ├── auth/                    # AuthService, CredentialsService
 ├── exercises/              # ExercisesService
 ├── plans/
-│   ├── plans.service.ts    # Service principal
+│   ├── plans.service.ts      # Service principal
 │   ├── day-plan-state.service.ts
 │   ├── api/
-│   │   └── plans-api.service.ts
+│   │   └── plans.api.ts
 │   └── storage/
-│       └── plans-storage.service.ts
+│       └── plans.storage.ts
 ├── routines/
 │   ├── routines.service.ts  # Service principal
 │   └── api/
-│       └── routines-api.service.ts
+│       └── routines.api.ts
 ├── trackings/
-│   ├── plan-tracking.service.ts        # Fachada
-│   ├── plan-tracking-domain.service.ts # Lógica
-│   ├── plan-tracking-state.service.ts # Estado
-│   └── plan-tracking/
-│       ├── api/
-│       │   └── plan-tranking-api.service.ts
-│       └── storage/
-│           └── plan-tracking-storage.service.ts
-├── user/                   # UserService
-└── workouts/              # WorkoutStateService
+│   ├── plan-tracking.service.ts   # Fachada
+│   ├── plan-tracking.domain.ts   # Domain
+│   ├── plan-tracking.state.ts  # State
+│   ├── tracking-list.state.ts    # Estado lista
+│   ├── plan-tracking/
+│   │   ├── api/
+│   │   │   └── plan-tranking.api.ts
+│   │   └── storage/
+│   │       └── plan-tracking.storage.ts
+├── user/                    # UserService
+├── workouts/
+│   ├── workout.state.ts      # Estado workout activo
+│   └── api/
+│       └── workout.api.ts
+├── extra-session/
+│   ├── extra-session.service.ts
+│   └── api/
+│       └── extra-session.api.ts
+├── date.service.ts
+└── warmup.service.ts
 ```
