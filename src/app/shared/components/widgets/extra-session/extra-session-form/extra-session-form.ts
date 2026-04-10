@@ -7,7 +7,6 @@ import {
 } from '../../../../../core/services/extra-session/extra-session.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { FormSelectComponent } from '../../../ui/select/select';
-import { ExtraSessionCard } from '../extra-session-card/extra-session-card';
 import { SelectType } from '../../../../../shared/interfaces/input.interface';
 import {
     ExtraSessionCategory,
@@ -20,14 +19,7 @@ import { ExtraSessionCreate } from '../extra-session-create/extra-session-create
 @Component({
     selector: 'app-extra-session-form',
     standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        FormSelectComponent,
-        ExtraSessionCard,
-        Loading,
-        ExtraSessionCreate,
-    ],
+    imports: [CommonModule, ReactiveFormsModule, FormSelectComponent, Loading, ExtraSessionCreate],
     templateUrl: './extra-session-form.html',
 })
 export class ExtraSessionForm implements OnInit {
@@ -56,8 +48,8 @@ export class ExtraSessionForm implements OnInit {
     constructor() {
         effect(() => {
             const workoutSession = this.workoutState.workoutSession();
-            if (workoutSession?.id) {
-                this.service.loadByWorkoutSession(workoutSession.id);
+            if (workoutSession?.extras?.length) {
+                this.service.loadByWorkoutSession(workoutSession.extras);
             }
             this.resetForm();
         });
@@ -96,15 +88,9 @@ export class ExtraSessionForm implements OnInit {
         return this.extraSessionForm.get('calories') as FormControl<number>;
     }
 
-    save() {
+    save(): void {
         this.extraSessionForm.markAllAsTouched();
         if (this.extraSessionForm.invalid) return;
-
-        // const workoutSession = this.workoutState.workoutSession();
-        // if (!workoutSession || !workoutSession.id) {
-        //     console.error('No active workout session found to attach extra session to.');
-        //     return;
-        // }
 
         this.service
             .create({
@@ -123,44 +109,20 @@ export class ExtraSessionForm implements OnInit {
             });
     }
 
-    onCategoryClear() {
+    onCategoryClear(): void {
         this.categoryControl.setValue('');
         this.disciplineControl.setValue('');
         this.disciplineOptions.set([]);
         this.onClose.emit();
     }
 
-    onDisciplineClear() {
+    onDisciplineClear(): void {
         this.disciplineControl.setValue('');
     }
 
-    resetForm() {
+    resetForm(): void {
         this.categoryControl.setValue('');
         this.disciplineControl.setValue('');
         this.disciplineOptions.set([]);
-    }
-
-    deleteExtraSession(id: string) {
-        this.service.remove(id).subscribe({
-            error: (err) => console.error(err),
-        });
-    }
-
-    updateExtraSession(data: {
-        id: string;
-        duration: number;
-        intensityLevel: number;
-        calories?: number;
-    }) {
-        this.service
-            .update({
-                id: data.id,
-                duration: data.duration,
-                intensityLevel: data.intensityLevel,
-                calories: data.calories,
-            })
-            .subscribe({
-                error: (err) => console.error(err),
-            });
     }
 }

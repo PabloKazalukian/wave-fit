@@ -17,13 +17,10 @@ import {
     FIND_ALL_TRACKING_BY_USER,
     FIND_BY_ID,
     SYNC_WEEK_LOG_DAYS,
-    UPDATE_WEEK_LOG_WORKOUT_SESSION,
     UPDATE_WEEK_LOG_DAY,
     ASSIGN_ROUTINE_TO_DAY,
     UPDATE_WEEK_LOG,
 } from '../../../../apollo/tracking.queries';
-import { UpdateWeekLogExtraSessionInput } from '../../../../../shared/interfaces/extra-session.interface';
-import { UPDATE_EXTRA_SESSION } from '../../../../apollo/extra-session.queries';
 
 @Injectable({
     providedIn: 'root',
@@ -43,6 +40,7 @@ export class PlanTrackingApi {
                         fetchPolicy: 'no-cache',
                     })
                     .pipe(
+                        tap((data) => console.log(data)),
                         handleGraphqlError(this.authSvc),
                         map(({ data }) =>
                             data?.activeWeekLog.hasActiveWeek

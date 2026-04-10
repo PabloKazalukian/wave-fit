@@ -29,6 +29,7 @@ export class BtnComponent implements AfterContentInit {
         | 'basicLight'
         | 'raised'
         | 'stroked'
+        | 'strokedColor'
         | 'flat'
         | 'outline'
         | 'outlineLigth'
@@ -88,6 +89,8 @@ export class BtnComponent implements AfterContentInit {
                 return `bg-${this.color} text-white font-semibold tracking-wide ${this.showIcon() ? 'hover:bg-' + cleanColor + 'Hover' : 'shadow-md hover:bg-' + cleanColor + 'Hover'}`;
             case 'stroked':
                 return `border border-surface hover:bg-${cleanColor}-hover-faint`;
+            case 'strokedColor':
+                return `border border-surface text-${this.color} hover:bg-${this.color}-hover-faint`;
             case 'flat':
                 return `bg-${color3} text-${cleanColor}Light hover:bg-${cleanColor}-hover-faint`;
             case 'outline':

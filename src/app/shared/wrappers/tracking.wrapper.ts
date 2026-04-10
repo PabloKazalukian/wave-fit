@@ -46,7 +46,6 @@ export function wrapperTrackingApiToVM(payload: TrackingAPI, allExercises: Exerc
         notes: payload.notes,
         completed: payload.completed,
         workouts: payload.days.map((d) => wrapperWeekLogDayVMToWorkoutVM(d, allExercises)),
-        extras: [],
     };
 }
 
@@ -173,6 +172,7 @@ export function wrapperWeekLogDayVMToWorkoutVM(
         date: new Date(payload.date),
         exercises: wrapperExercisePerformanceApiToVM(payload.exercises || [], allExercises),
         status: wrapperDayStatusApiToStatusWorkoutSession(payload.status),
+        extras: payload.extraSessionIds ?? [],
         notes: '',
     };
 }

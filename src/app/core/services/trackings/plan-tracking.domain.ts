@@ -232,13 +232,12 @@ export class PlanTrackingDomainService {
 
         if (dayOrder === null) return of(null);
 
-        console.log(tracking);
+        console.log(tracking, dayOrder, day);
         const payload: UpdateWeekLogDayUnifiedInput = {
             id: tracking.id!,
             days: [
                 {
-                    order: Number(dayOrder), // usar el order real del día, no el index
-                    status: 'complete',
+                    order: Number(dayOrder) + 1, // usar el order real del día, no el index
                     extraSession: {
                         date: extraSession.date,
                         discipline: extraSession.discipline,
@@ -253,7 +252,14 @@ export class PlanTrackingDomainService {
 
         console.log('updateExtraSession payload:', payload);
 
-        return this.api.updateTrackingDay(payload);
+        return this.api.updateTrackingDay(payload).pipe(
+            tap((res) => {
+                if (res !== undefined && res !== null) {
+                    this._persist(res);
+                }
+            }),
+            map(() => this.state.getTrackingValue()),
+        );
     }
 
     toggleExercise(date: Date, exercise: ExercisePerformanceVM) {

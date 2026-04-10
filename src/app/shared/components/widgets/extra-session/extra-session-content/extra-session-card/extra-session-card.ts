@@ -1,14 +1,15 @@
-import { Component, input, output, signal, effect, OnInit, OnDestroy } from '@angular/core';
+import { Component, input, output, signal, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ExtraSessionService } from '../../../../../../core/services/extra-session/extra-session.service';
 import {
     ExtraSession,
     ExtraSessionDisciplineConfig,
-} from '../../../../../shared/interfaces/extra-session.interface';
-import { BtnComponent } from '../../../ui/btn/btn';
-import { RatingBar } from '../../../ui/rating-bar/rating-bar';
-import { InputNumber } from '../../../ui/input-number/input-number';
+} from '../../../../../interfaces/extra-session.interface';
 import { merge, Subscription } from 'rxjs';
+import { BtnComponent } from '../../../../ui/btn/btn';
+import { RatingBar } from '../../../../ui/rating-bar/rating-bar';
+import { InputNumber } from '../../../../ui/input-number/input-number';
 
 @Component({
     selector: 'app-extra-session-card',
@@ -17,8 +18,11 @@ import { merge, Subscription } from 'rxjs';
     templateUrl: './extra-session-card.html',
 })
 export class ExtraSessionCard implements OnInit, OnDestroy {
+    service = inject(ExtraSessionService);
     session = input.required<ExtraSession>();
     disciplines = input<ExtraSessionDisciplineConfig[]>([]);
+
+    readonly extraSessions = this.service.extraSessions;
 
     onDelete = output<string>();
     onSave = output<{ id: string; duration: number; intensityLevel: number; calories?: number }>();
@@ -46,7 +50,7 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
         this.subscription?.unsubscribe();
     }
 
-    startEdit() {
+    startEdit(): void {
         this.isEditing.set(true);
         this.form.patchValue({
             duration: this.session().duration,
@@ -55,12 +59,12 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
         });
     }
 
-    cancelEdit() {
+    cancelEdit(): void {
         this.isEditing.set(false);
         this.onCancelEdit.emit();
     }
 
-    saveChanges() {
+    saveChanges(): void {
         if (this.form.invalid) return;
 
         this.onSave.emit({
@@ -72,11 +76,11 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
         this.isEditing.set(false);
     }
 
-    deleteSession() {
+    deleteSession(): void {
         this.onDelete.emit(this.session().id);
     }
 
-    private updateCalories() {
+    private updateCalories(): void {
         const config = this.disciplines().find((d) => d.key === this.session().discipline);
         if (!config || config.met === undefined) return;
 

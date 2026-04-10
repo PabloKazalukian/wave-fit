@@ -28,6 +28,22 @@ export const GET_EXTRA_SESSIONS_BY_WORKOUT = gql`
     }
 `;
 
+export const GET_EXTRA_SESSIONS_BY_IDS = gql`
+    query extraSessionsByIds($ids: [String!]!) {
+        extraSessionsByIds(ids: $ids) {
+            id
+            workoutSessionId
+            category
+            discipline
+            date
+            duration
+            intensityLevel
+            calories
+            notes
+        }
+    }
+`;
+
 // export const CREATE_EXTRA_SESSION = gql`
 //     mutation createExtraSession($createExtraSessionInput: CreateExtraSessionInput!) {
 //         createExtraSession(createExtraSessionInput: $createExtraSessionInput) {

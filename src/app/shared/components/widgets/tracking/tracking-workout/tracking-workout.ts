@@ -14,6 +14,7 @@ import { WorkoutInProgress } from './workout-in-progress/workout-in-progress';
 import { WorkoutCompleteList } from './workout-complete-list/workout-complete-list';
 import { WorkoutEdition } from './workout-edition/workout-edition';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { ExtraSessionContent } from '../../extra-session/extra-session-content/extra-session-content';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -28,6 +29,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
         DialogComponent,
         WorkoutCompleteList,
         WorkoutEdition,
+        ExtraSessionContent,
     ],
     providers: [TrackingWorkoutFacade],
     standalone: true,

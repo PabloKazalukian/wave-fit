@@ -12,20 +12,6 @@
       </p>
     </div>
 
-    @if (service.extraSessions().length > 0) {
-      <div class="flex flex-col gap-3">
-        <h4 class="text-sm text-text2 font-medium">Sesiones registradas</h4>
-        @for (session of service.extraSessions(); track session.id) {
-          <app-extra-session-card
-            [session]="session"
-            [disciplines]="catalog()"
-            (onDelete)="deleteExtraSession($event)"
-            (onSave)="updateExtraSession($event)"
-          ></app-extra-session-card>
-        }
-      </div>
-    }
-
     <div class="flex flex-col gap-4 mt-2 pt-4 border-t-2 border-background2">
       <app-select
         [text]="'Selecciona una categoría'"

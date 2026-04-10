@@ -7,6 +7,7 @@ import {
     UPDATE_EXTRA_SESSION,
     REMOVE_EXTRA_SESSION,
     GET_EXTRA_SESSIONS_BY_WORKOUT,
+    GET_EXTRA_SESSIONS_BY_IDS,
 } from '../../../apollo/extra-session.queries';
 import {
     CreateExtraSessionForm,
@@ -42,9 +43,23 @@ export class ExtraSessionApi {
                 fetchPolicy: 'network-only',
             })
             .pipe(
-                tap((res) => console.log(workoutSessionId, res)),
                 handleGraphqlError(this.authSvc),
                 map((res) => res.data?.extraSessionsByWorkoutSession || []),
+            );
+    }
+
+    getByIds(ids: string[]): Observable<ExtraSession[]> {
+        return this.apollo
+            .query<{
+                extraSessionsByIds: ExtraSession[];
+            }>({
+                query: GET_EXTRA_SESSIONS_BY_IDS,
+                variables: { ids },
+                fetchPolicy: 'network-only',
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map((res) => res.data?.extraSessionsByIds || []),
             );
     }
 

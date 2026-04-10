@@ -1,10 +1,10 @@
 @if (!isEditing()) {
-  <div class="flex flex-col gap-2 p-4 rounded-xl bg-background2">
+  <div class="flex flex-col gap-2 p-4 rounded-xl bg-background2 text-primary3">
     <div class="flex justify-between items-center pb-2 border-b-2 border-primary">
-      <h4 class="text-lg text-primary font-bold">{{ getDisciplineLabel() }}</h4>
+      <h4 class="text-lg text-primary3 font-bold">{{ getDisciplineLabel() }}</h4>
       <app-btn
         [text]="'Modificar'"
-        [variant]="'outline'"
+        [variant]="'strokedColor'"
         [color]="'secondary'"
         [size]="'sm'"
         (click)="startEdit()"
@@ -12,36 +12,38 @@
       ></app-btn>
     </div>
 
-    <div class="flex flex-wrap gap-4 text-sm">
-      <div class="flex items-center gap-1">
-        <span class="text-text2">⏱</span>
-        <span class="font-medium">{{ session().duration }} min</span>
+    <div class="flex justify-between gap-2">
+      <div class="flex flex-wrap gap-4 text-sm">
+        <div class="flex items-center gap-1">
+          <span class="text-text2">⏱</span>
+          <span class="font-medium">{{ session().duration }} min</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="text-text2">💪</span>
+          <span class="font-medium">{{ session().intensityLevel }}</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="text-text2">🔥</span>
+          <span class="font-medium">{{ session().calories || 0 }} kcal</span>
+        </div>
       </div>
-      <div class="flex items-center gap-1">
-        <span class="text-text2">💪</span>
-        <span class="font-medium">{{ session().intensityLevel }}</span>
-      </div>
-      <div class="flex items-center gap-1">
-        <span class="text-text2">🔥</span>
-        <span class="font-medium">{{ session().calories || 0 }} kcal</span>
-      </div>
-    </div>
 
-    <div class="flex justify-end mt-2">
-      <app-btn
-        [text]="'Eliminar'"
-        [variant]="'outline'"
-        [color]="'error'"
-        [size]="'sm'"
-        (click)="deleteSession()"
-        type="button"
-      ></app-btn>
+      <div class="flex justify-end mt-2">
+        <app-btn
+          [text]="'Eliminar'"
+          [variant]="'strokedColor'"
+          [color]="'error'"
+          [size]="'sm'"
+          (click)="deleteSession()"
+          type="button"
+        ></app-btn>
+      </div>
     </div>
   </div>
 } @else {
   <div class="flex flex-col gap-4 p-4 rounded-xl bg-background2">
-    <div class="flex justify-between items-center pb-2 border-b-2 border-primary">
-      <h4 class="text-lg text-primary font-bold">{{ getDisciplineLabel() }}</h4>
+    <div class="flex justify-between items-center pb-2 border-b-2 border-primary3">
+      <h4 class="text-lg text-primary3 font-bold">{{ getDisciplineLabel() }}</h4>
       <span class="text-sm text-warning font-medium">Editando</span>
     </div>
 
@@ -69,14 +71,14 @@
     <div class="flex justify-end gap-2 mt-2">
       <app-btn
         [text]="'Cancelar'"
-        [variant]="'outline'"
+        [variant]="'strokedColor'"
         [color]="'error'"
         (click)="cancelEdit()"
         type="button"
       ></app-btn>
       <app-btn
         [text]="'Guardar'"
-        [variant]="'raised'"
+        [variant]="'strokedColor'"
         [color]="'primary'"
         (click)="saveChanges()"
         type="button"

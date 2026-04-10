@@ -26,7 +26,6 @@ export interface TrackingVM {
     startDate: Date;
     endDate: Date;
     workouts?: WorkoutSessionVM[];
-    extras?: ExtraActivityVM[];
     planId?: string | null; // plan elegido esa semana
     notes?: string;
     completed: boolean;
@@ -43,13 +42,14 @@ export interface TrackingVMS {
     notes?: string;
     // Opcionales enriquecidos (si los sigues necesitando en la UI)
     workouts?: WorkoutSessionVM[];
-    extras?: ExtraActivityVM[];
+    extras?: string[];
 }
 
 export interface WorkoutSessionVM {
     id?: string;
     date: Date;
     exercises: ExercisePerformanceVM[];
+    extras?: string[];
     status: StatusWorkoutSession;
     notes?: string;
     planId?: string;

@@ -1,0 +1,13 @@
+@if (extraSessions().length > 0) {
+  <div class="flex flex-col gap-3 mt-2 p-4 border border-background2 rounded-2xl bg-background3">
+    <h4 class="text-xl text-accent font-medium">Sesiones extra registradas</h4>
+    @for (session of extraSessions(); track session.id) {
+      <app-extra-session-card
+        [session]="session"
+        [disciplines]="catalog()"
+        (onDelete)="deleteExtraSession($event)"
+        (onSave)="updateExtraSession($event)"
+      ></app-extra-session-card>
+    }
+  </div>
+}
