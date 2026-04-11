@@ -1,9 +1,9 @@
-<div class="w-full">
+<section class="w-full">
   <p class="mb-2">
     <span class="text-text2 text-sm">Fecha de Rutina:</span>
     {{ this.facade.workoutVM()?.date | date: 'dd/MM/yyyy' }}
   </p>
-  <div>
+  <div class="flex flex-col gap-2">
     @if (this.facade.loadings()) {
       <div class="bg-background3 rounded-lg p-3 mb-4 border border-primary">
         <h4>Cargando...</h4>
@@ -13,50 +13,41 @@
       </div>
     } @else {
       @if (this.facade.workoutVM()) {
-        <div>
+        <main>
           @switch (this.facade.workoutVM()?.status) {
             @case (this.StatusWorkoutSessionEnum.COMPLETE) {
-              <div [@switchAnimation]="this.facade.workoutVM()">
+              <section [@switchAnimation]="this.facade.workoutVM()">
                 <app-workout-complete-list></app-workout-complete-list>
-              </div>
+              </section>
             }
             @case (this.StatusWorkoutSessionEnum.EDITED) {
-              <div [@switchAnimation]="this.facade.workoutVM()">
+              <section [@switchAnimation]="this.facade.workoutVM()">
                 <app-workout-edition></app-workout-edition>
-              </div>
+              </section>
             }
             @case (this.StatusWorkoutSessionEnum.NOT_STARTED) {
-              <div class="flex flex-col gap-6">
-                <div [@switchAnimation]="this.facade.workoutVM()">
+              <section class="flex flex-col gap-2">
+                <div [@switchAnimation]="this.facade.workoutVM()" class="flex flex-col gap-4">
+                  <app-btn
+                    [variant]="'raised'"
+                    [text]="'Completar el dia'"
+                    [color]="'primary3'"
+                    [isDisabled]="!this.facade.validateWorkout()"
+                    (click)="startRoutineTracking()"
+                  >
+                    <app-icon>
+                      <div class="h-6 w-6">
+                        @if (this.facade.loading()) {
+                          <app-spinner> </app-spinner>
+                        }
+                      </div>
+                    </app-icon>
+                  </app-btn>
                   <app-workout-in-progress></app-workout-in-progress>
                 </div>
 
                 <div>
-                  <div class="mb-6 flex flex-col gap-4">
-                    <app-btn
-                      [variant]="'raised'"
-                      [text]="'Completar el dia'"
-                      [color]="'primary3'"
-                      [isDisabled]="!this.facade.validateWorkout()"
-                      (click)="startRoutineTracking()"
-                    >
-                      <app-icon>
-                        <div class="h-6 w-6">
-                          @if (this.facade.loading()) {
-                            <app-spinner> </app-spinner>
-                          }
-                        </div>
-                      </app-icon>
-                    </app-btn>
-                    @if (this.facade.workoutVM()?.exercises?.length === 0) {
-                      <app-btn
-                        [text]="'Asignar dia como descanso.'"
-                        [color]="'secondary'"
-                        [variant]="'basicLight'"
-                        (click)="this.facade.setRestDay()"
-                      ></app-btn>
-                    }
-                  </div>
+                  <!-- agregar ejercicio -->
                   <app-btn
                     [text]="'Agregar ejercicio'"
                     [variant]="'stroked'"
@@ -102,10 +93,10 @@
                     </div>
                   </app-dialog>
                 </div>
-              </div>
+              </section>
             }
             @case (this.StatusWorkoutSessionEnum.REST) {
-              <div
+              <section
                 class="bg-secondary/10 border-secondary/30 bg-background2 rounded-2xl p-6 mb-6 flex flex-col items-center justify-center text-center gap-4 shadow-sm"
               >
                 <div
@@ -132,7 +123,7 @@
                 <p class="text-text2 text-sm max-w-[250px]">
                   Tómate este tiempo para recuperarte. ¡Mañana volvemos con más energía!
                 </p>
-              </div>
+              </section>
               <app-btn
                 class="w-full flex justify-center"
                 [variant]="'stroked'"
@@ -143,9 +134,9 @@
               </app-btn>
             }
           }
-        </div>
+        </main>
         <app-extra-session-content></app-extra-session-content>
       }
     }
   </div>
-</div>
+</section>

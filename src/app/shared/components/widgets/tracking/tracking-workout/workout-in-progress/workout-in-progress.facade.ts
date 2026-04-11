@@ -19,7 +19,8 @@ export class WorkoutInProgressFacade {
     private exerciseSetsData = signal<Map<string, SetData[]>>(new Map());
 
     readonly loading = this.trackingSvc.loadingWorkoutCreation();
-    readonly workoutDate = this.state.selectedDate();
+    readonly workoutDate = this.state.selectedDate;
+    readonly workoutVM = this.state.workoutSession;
 
     loadings = computed(() => this.trackingSvc.loadingWorkoutCreation().state === true);
     // Computed desde el service - única fuente de verdad
@@ -67,6 +68,16 @@ export class WorkoutInProgressFacade {
         });
 
         this.exerciseSetsData.set(newMap);
+    }
+
+    setRestDay(): void {
+        if (!this.workoutDate()) return;
+        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!).subscribe({
+            next: (tracking) => {
+                console.log(tracking);
+                // this.state.setTracking(tracking);
+            },
+        });
     }
 
     reorderExercises(previousIndex: number, currentIndex: number): void {

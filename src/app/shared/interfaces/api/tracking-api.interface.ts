@@ -108,6 +108,7 @@ export interface CreateExtraSessionWithoutWsInput {
 // Reemplaza el UpdateWeekLogDayInput legacy
 export interface UpdateDayInput {
     order: number;
+    isRest?: boolean;
     workoutSessionId?: string;
     workoutSession?: UpdateWorkoutSessionInput;
     extraSession?: CreateExtraSessionWithoutWsInput;

@@ -8,6 +8,7 @@ import {
     TrackingAPI,
     TrackingCreate,
     UpdateWeekLogDayUnifiedInput,
+    UpdateWeekLogInput,
 } from '../../../../../shared/interfaces/api/tracking-api.interface';
 import * as trackingWrappers from '../../../../../shared/wrappers/tracking.wrapper';
 import { ExercisesService } from '../../../exercises/exercises.service';
@@ -75,7 +76,7 @@ export class PlanTrackingApi {
             );
     }
 
-    updateTracking(payload: UpdateWeekLogDayUnifiedInput): Observable<TrackingVMS | null> {
+    updateTracking(payload: UpdateWeekLogInput): Observable<TrackingVMS | null> {
         return this.apollo
             .mutate<{ updateDay: TrackingAPI }>({
                 mutation: UPDATE_WEEK_LOG,
@@ -95,12 +96,15 @@ export class PlanTrackingApi {
     }
 
     updateTrackingDay(payload: UpdateWeekLogDayUnifiedInput): Observable<TrackingVM | null> {
+        console.log('aca', payload);
         return this.apollo
             .mutate<{ updateDay: TrackingAPI }>({
                 mutation: UPDATE_WEEK_LOG_DAY,
                 variables: { input: payload },
+                fetchPolicy: 'no-cache',
             })
             .pipe(
+                tap((data) => console.log(data)),
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.updateDay

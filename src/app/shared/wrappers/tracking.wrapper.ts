@@ -171,7 +171,9 @@ export function wrapperWeekLogDayVMToWorkoutVM(
         id: payload.workoutSessionId ?? '',
         date: new Date(payload.date),
         exercises: wrapperExercisePerformanceApiToVM(payload.exercises || [], allExercises),
-        status: wrapperDayStatusApiToStatusWorkoutSession(payload.status),
+        status: payload.isRest
+            ? StatusWorkoutSessionEnum.REST
+            : wrapperDayStatusApiToStatusWorkoutSession(payload.status),
         extras: payload.extraSessionIds ?? [],
         notes: '',
     };
@@ -193,13 +195,16 @@ export function wrapperDayStatusApiToStatusWorkoutSession(
 export function wrapperWorkoutSessionVMtoUpdateWeekLogDayInput(
     workouts: WorkoutSessionVM[],
 ): UpdateWeekLogDayInput[] {
-    return (workouts ?? []).map((w, i) => ({
-        order: i + 1,
-        workoutSessionId: w.id ?? undefined,
-        extraSessionIds: [],
-        isRest: w.id ? false : true,
-        status: w.id ? 'complete' : 'skipped',
-    }));
+    return (workouts ?? []).map((w, i) => {
+        const isRest = w.status === StatusWorkoutSessionEnum.REST;
+        return {
+            order: i + 1,
+            workoutSessionId: w.id ?? undefined,
+            extraSessionIds: [],
+            isRest: isRest,
+            status: w.id ? 'complete' : isRest ? 'skipped' : 'pending',
+        };
+    });
 }
 
 export function emptyDay(

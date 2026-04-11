@@ -69,8 +69,8 @@ export class PlanTrackingService {
         this.domain.setExercises(date, exercises);
     }
 
-    setRestDay(day: Date, workout: WorkoutSessionVM): void {
-        this.domain.setRestDay(day, workout);
+    setRestDay(day: Date, workout: WorkoutSessionVM): Observable<TrackingVM | null | undefined> {
+        return this.domain.setRestDay(day, workout);
     }
 
     updateExtraSession(

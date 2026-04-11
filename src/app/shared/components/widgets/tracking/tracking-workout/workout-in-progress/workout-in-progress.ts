@@ -3,10 +3,11 @@ import { WorkoutInProgressFacade } from './workout-in-progress.facade';
 import { AccordionItemComponent } from '../../../../ui/accordion-item/accordion-item';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { WorkoutActionsMenu } from '../workout-actions-menu/workout-actions-menu';
+import { BtnComponent } from '../../../../ui/btn/btn';
 
 @Component({
     selector: 'app-workout-in-progress',
-    imports: [AccordionItemComponent, DragDropModule, WorkoutActionsMenu],
+    imports: [AccordionItemComponent, DragDropModule, WorkoutActionsMenu, BtnComponent],
     standalone: true,
     providers: [WorkoutInProgressFacade],
     templateUrl: './workout-in-progress.html',
