@@ -143,4 +143,8 @@ export class PlanTrackingService {
     removeWorkoutSession(date: Date, id: string): Observable<boolean> {
         return this.domain.removeWorkoutSession(date, id);
     }
+
+    createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<any> {
+        return this.domain.createRoutineFromWorkout(title, exerciseIds);
+    }
 }

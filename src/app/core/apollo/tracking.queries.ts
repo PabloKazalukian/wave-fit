@@ -196,3 +196,12 @@ export const REMOVE_EXTRA_SESSION_FROM_DAY = gql`
         }
     }
 `;
+
+export const CREATE_ROUTINE_BY_WORKOUT = gql`
+    mutation CreateRoutineByWorkout($title: String!, $exerciseIds: [String!]!) {
+        createRoutineByWorkout(title: $title, exerciseIds: $exerciseIds) {
+            id
+            title
+        }
+    }
+`;

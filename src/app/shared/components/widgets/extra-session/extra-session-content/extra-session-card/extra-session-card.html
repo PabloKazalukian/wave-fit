@@ -5,7 +5,7 @@
       <app-btn
         [text]="'Modificar'"
         [variant]="'strokedColor'"
-        [color]="'secondary'"
+        [color]="'accent'"
         [size]="'sm'"
         (click)="startEdit()"
         type="button"
@@ -41,7 +41,7 @@
     </div>
   </div>
 } @else {
-  <div class="flex flex-col gap-4 p-4 rounded-xl bg-background2">
+  <form class="flex flex-col gap-4 p-4 rounded-xl bg-background2">
     <div class="flex justify-between items-center pb-2 border-b-2 border-primary3">
       <h4 class="text-lg text-primary3 font-bold">{{ getDisciplineLabel() }}</h4>
       <span class="text-sm text-warning font-medium">Editando</span>
@@ -51,7 +51,7 @@
       <app-input-number
         [label]="'Duración (min)'"
         [variant]="'buttons'"
-        [control]="$any(form.get('duration'))"
+        [control]="durationControl"
       ></app-input-number>
 
       <app-rating-bar
@@ -64,7 +64,7 @@
         [label]="'Calorías'"
         [variant]="'buttons'"
         [step]="10"
-        [control]="$any(form.get('calories'))"
+        [control]="caloriesControl"
       ></app-input-number>
     </div>
 
@@ -79,10 +79,10 @@
       <app-btn
         [text]="'Guardar'"
         [variant]="'strokedColor'"
+        [buttonType]="'submit'"
         [color]="'primary'"
         (click)="saveChanges()"
-        type="button"
       ></app-btn>
     </div>
-  </div>
+  </form>
 }

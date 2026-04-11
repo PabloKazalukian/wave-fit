@@ -487,4 +487,8 @@ export class PlanTrackingDomainService {
             })),
         };
     }
+
+    createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<any> {
+        return this.api.createRoutineByWorkout(title, exerciseIds);
+    }
 }

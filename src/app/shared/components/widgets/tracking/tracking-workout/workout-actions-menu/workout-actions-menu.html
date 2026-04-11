@@ -87,6 +87,26 @@
         </svg>
         Asignar descanso
       </button>
+      <button
+        (click)="openCreateRoutineDialog()"
+        class="w-full text-left px-4 py-2.5 text-text2 hover:bg-white/5 transition-colors flex items-center gap-3"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-5 h-5"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4.5v15m7.5-7.5h-15"
+          />
+        </svg>
+        Guardar una nueva routine
+      </button>
     </div>
   }
 </div>
@@ -106,4 +126,61 @@
       (routineSelected)="onRoutineSelected($event)"
     ></app-workout-routine-selector>
   }
+</app-dialog>
+
+<app-dialog
+  [isOpen]="isCreateRoutineDialogOpen()"
+  (closed)="closeCreateRoutineDialog()"
+  [title]="'Crear una nueva routine'"
+  [closeOnBackdrop]="true"
+>
+  <div class="flex flex-col gap-6 p-4">
+    <!-- Input for name -->
+    <div class="flex flex-col gap-2">
+      <label for="routineName" class="text-sm font-medium text-text2 ml-1">
+        Nombre de la rutina
+      </label>
+      <input
+        id="routineName"
+        type="text"
+        [value]="routineName()"
+        (input)="onNameChange($event)"
+        placeholder="Ej: Empuje A, Mi rutina explosiva..."
+        class="w-full bg-background2 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-text2/50 focus:outline-none focus:border-accent/50 transition-colors"
+      />
+    </div>
+
+    <!-- Exercise list -->
+    <div class="flex flex-col gap-3">
+      <span class="text-sm font-medium text-text2 ml-1">Ejercicios a incluir</span>
+      <div class="max-h-60 overflow-y-auto pr-2 flex flex-col gap-2 custom-scrollbar">
+        @for (exercise of facade.workoutVM()?.exercises; track exercise.exerciseId) {
+          <div class="bg-background2/50 border border-white/5 rounded-xl p-3 flex flex-col gap-0.5">
+            <span class="text-white font-medium">{{ exercise.name }}</span>
+            <span class="text-xs text-text2/70 uppercase tracking-wider">{{ exercise.category }}</span>
+          </div>
+        } @empty {
+          <div class="text-center py-4 text-text2/50 italic">
+            No hay ejercicios cargados
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3 mt-2">
+      <app-btn
+        [text]="'Cancelar'"
+        [variant]="'ghost'"
+        (click)="closeCreateRoutineDialog()"
+      ></app-btn>
+      <app-btn
+        [text]="'Confirmar'"
+        [color]="'accent'"
+        [variant]="'raised'"
+        [isDisabled]="!routineName() || (facade.workoutVM()?.exercises?.length === 0)"
+        (click)="confirmCreateRoutine()"
+      ></app-btn>
+    </div>
+  </div>
 </app-dialog>

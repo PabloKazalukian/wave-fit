@@ -3,7 +3,7 @@ import { FormSelectComponent } from '../../shared/components/ui/select/select';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FormControlsOf } from '../../shared/utils/form-types.util';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
-import { RoutinesServices } from '../../core/services/routines/routines.service';
+import { RoutinesService } from '../../core/services/routines/routines.service';
 import { SelectType, SelectTypeInput } from '../../shared/interfaces/input.interface';
 import { Exercise } from '../../shared/interfaces/exercise.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -48,6 +48,7 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
 })
 export class Plans implements OnInit {
     private destroyRef = inject(DestroyRef);
+    private readonly svcRoutines = inject(RoutinesService);
 
     feature = {
         icon: BookOpen,
@@ -104,8 +105,6 @@ export class Plans implements OnInit {
             return matchesSearch && matchesDays && matchesCategories;
         });
     });
-
-    private readonly svcRoutines = inject(RoutinesServices);
 
     ngOnInit(): void {
         this.selectForm = this.initForm();

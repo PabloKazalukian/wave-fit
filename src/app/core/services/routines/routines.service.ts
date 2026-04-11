@@ -16,7 +16,7 @@ import { RoutinePlanAPI } from '../../../shared/interfaces/api/routines-api.inte
 @Injectable({
     providedIn: 'root',
 })
-export class RoutinesServices {
+export class RoutinesService {
     private destroyRef = inject(DestroyRef);
 
     private routinesCache$ = new BehaviorSubject<RoutineDay[] | null>(null);

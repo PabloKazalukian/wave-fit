@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { switchMap, tap, take } from 'rxjs/operators';
 import { PlansService } from './plans.service';
 import { RoutineDayVM, RoutineDay, DayIndex } from '../../../shared/interfaces/routines.interface';
-import { RoutinesServices } from '../routines/routines.service';
+import { RoutinesService } from '../routines/routines.service';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
 
 @Injectable({
@@ -13,7 +13,7 @@ import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface'
 export class DayPlanStateService {
     private destroyRef = inject(DestroyRef);
     private plansSvc = inject(PlansService);
-    private routinesSvc = inject(RoutinesServices);
+    private routinesSvc = inject(RoutinesService);
 
     public readonly routinePlan = toSignal(this.plansSvc.routinePlanVM$, { initialValue: null });
 

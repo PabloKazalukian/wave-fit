@@ -10,10 +10,12 @@ import { WorkoutStateService } from '../../../../../../core/services/workouts/wo
 import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
 import { DateService } from '../../../../../../core/services/date.service';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { BtnComponent } from '../../../../ui/btn/btn';
+import { RoutinesService } from '../../../../../../core/services/routines/routines.service';
 
 @Component({
     selector: 'app-workout-actions-menu',
-    imports: [CommonModule, DialogComponent, WorkoutRoutineSelector, Loading],
+    imports: [CommonModule, DialogComponent, WorkoutRoutineSelector, Loading, BtnComponent],
     standalone: true,
     templateUrl: './workout-actions-menu.html',
     styles: ``,
@@ -41,8 +43,11 @@ export class WorkoutActionsMenu {
     private workoutState = inject(WorkoutStateService);
     private trackingSvc = inject(PlanTrackingService);
     private dateSvc = inject(DateService);
+    private routinesSvc = inject(RoutinesService);
 
     isRoutineDialogOpen = signal(false);
+    isCreateRoutineDialogOpen = signal(false);
+    routineName = signal('');
     isActionsOpen = signal(false);
     isLoading = signal(false);
 
@@ -57,6 +62,46 @@ export class WorkoutActionsMenu {
 
     closeRoutineDialog() {
         this.isRoutineDialogOpen.set(false);
+    }
+
+    openCreateRoutineDialog() {
+        this.routineName.set('');
+        this.isCreateRoutineDialogOpen.set(true);
+        this.isActionsOpen.set(false);
+    }
+
+    closeCreateRoutineDialog() {
+        this.isCreateRoutineDialogOpen.set(false);
+    }
+
+    confirmCreateRoutine() {
+        const name = this.routineName();
+        if (!name) return;
+
+        const exercises = this.facade.workoutVM()?.exercises || [];
+        const exerciseIds = exercises.map((e) => e.exerciseId);
+
+        if (exerciseIds.length === 0) return;
+
+        this.isLoading.set(true);
+        this.trackingSvc
+            .createRoutineFromWorkout(name, exerciseIds)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.isLoading.set(false);
+                    this.closeCreateRoutineDialog();
+                },
+                error: () => {
+                    this.isLoading.set(false);
+                    this.closeCreateRoutineDialog();
+                },
+            });
+    }
+
+    onNameChange(event: Event) {
+        const input = event.target as HTMLInputElement;
+        this.routineName.set(input.value);
     }
 
     onRoutineSelected(routine: RoutineDay) {

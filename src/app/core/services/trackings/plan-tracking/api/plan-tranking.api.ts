@@ -22,6 +22,7 @@ import {
     ASSIGN_ROUTINE_TO_DAY,
     UPDATE_WEEK_LOG,
     REMOVE_EXTRA_SESSION_FROM_DAY,
+    CREATE_ROUTINE_BY_WORKOUT,
 } from '../../../../apollo/tracking.queries';
 
 @Injectable({
@@ -211,5 +212,13 @@ export class PlanTrackingApi {
                         : null,
                 ),
             );
+    }
+    createRoutineByWorkout(title: string, exerciseIds: string[]): Observable<any> {
+        return this.apollo
+            .mutate({
+                mutation: CREATE_ROUTINE_BY_WORKOUT,
+                variables: { title, exerciseIds },
+            })
+            .pipe(handleGraphqlError(this.authSvc));
     }
 }

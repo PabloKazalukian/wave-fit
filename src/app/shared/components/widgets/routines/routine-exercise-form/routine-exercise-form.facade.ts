@@ -6,7 +6,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { requiredArray } from '../../../../validators/array.validator';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
-import { RoutinesServices } from '../../../../../core/services/routines/routines.service';
+import { RoutinesService } from '../../../../../core/services/routines/routines.service';
 
 type ExercisesType = FormControlsOf<{
     exercisesSelected: Exercise[];
@@ -19,7 +19,7 @@ type RoutineDayType = FormControlsOf<RoutineDayCreate>;
 export class RoutineExerciseFormFacade {
     private destroyRef = inject(DestroyRef);
     private readonly exerciseSvc = inject(ExercisesService);
-    private readonly routineSvc = inject(RoutinesServices);
+    private readonly routineSvc = inject(RoutinesService);
     private readonly injector = inject(Injector);
 
     routineForm = new FormGroup<RoutineDayType>({

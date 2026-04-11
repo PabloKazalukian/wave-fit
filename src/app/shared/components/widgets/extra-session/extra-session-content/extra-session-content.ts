@@ -12,7 +12,7 @@ import { delay } from 'rxjs';
     templateUrl: './extra-session-content.html',
     styles: ``,
 })
-export class ExtraSessionContent implements OnInit {
+export class ExtraSessionContent {
     service = inject(ExtraSessionService);
     destroyRef = inject(DestroyRef);
 
@@ -21,12 +21,6 @@ export class ExtraSessionContent implements OnInit {
     loading = signal<boolean>(false);
 
     readonly extraSessions = this.service.extraSessions;
-
-    ngOnInit(): void {
-        // this.service.findAll().subscribe({
-        //     error: (err) => console.error(err),
-        // });
-    }
 
     deleteExtraSession(id: string) {
         this.loading.set(true);

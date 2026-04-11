@@ -1,7 +1,6 @@
 import { Component, computed, effect, inject, output, signal } from '@angular/core';
-import { RoutinesServices } from '../../../../../../core/services/routines/routines.service';
+import { RoutinesService } from '../../../../../../core/services/routines/routines.service';
 import { RoutineDay } from '../../../../../interfaces/routines.interface';
-import { ExerciseCategory } from '../../../../../interfaces/exercise.interface';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { options } from '../../../../../interfaces/input.interface';
 import { CommonModule } from '@angular/common';
@@ -28,7 +27,7 @@ import { WorkoutSessionVM } from '../../../../../interfaces/tracking.interface';
     templateUrl: './workout-routine-selector.html',
 })
 export class WorkoutRoutineSelector {
-    private routinesSvc = inject(RoutinesServices);
+    private routinesSvc = inject(RoutinesService);
     private state = inject(WorkoutStateService);
 
     workout = signal<WorkoutSessionVM | null>(this.state.workoutSession());
