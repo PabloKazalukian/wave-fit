@@ -264,6 +264,37 @@ export class PlanTrackingDomainService {
         );
     }
 
+    removeExtraSession(
+        date: Date,
+        extraSessionId: string,
+    ): Observable<TrackingVM | null | undefined> {
+        const tracking = this.state.getTrackingValue();
+        if (!tracking) return of(null);
+
+        // Buscar el día por fecha y tomar su order real
+        const day = tracking.workouts?.find((d) => this.dateService.isEqualDate(d.date, date));
+
+        if (!day) return of(null);
+
+        let dayOrder: string | null = null;
+
+        this.state.tracking()?.workouts?.forEach((d, index) => {
+            if (this.dateService.isEqualDate(d.date, date)) {
+                dayOrder = index.toString();
+            }
+        });
+
+        return this.api.removeExtraSession(date, extraSessionId).pipe(
+            tap((res) => {
+                console.log(res);
+                if (res !== undefined && res !== null) {
+                    this._persist(res);
+                }
+            }),
+            map(() => this.state.getTrackingValue()),
+        );
+    }
+
     toggleExercise(date: Date, exercise: ExercisePerformanceVM) {
         this._updateWorkout(date, (workout) => {
             const exercises = workout.exercises || [];

@@ -126,16 +126,8 @@ export class ExtraSessionService {
         );
     }
 
-    remove(id: string) {
-        return this.api.remove(id).pipe(
-            tap((success) => {
-                if (success) {
-                    const current = this.activeWorkoutSessionsSubject.value;
-                    const filtered = current.filter((s) => s.id !== id);
-                    this.activeWorkoutSessionsSubject.next(filtered);
-                    this.extraSessions.set(filtered);
-                }
-            }),
-        );
+    remove(id: string): Observable<TrackingVM | null | undefined> {
+        if (!this.state.selectedDate()) return of(null);
+        return this.trackingService.removeExtraSession(this.state.selectedDate()!, id);
     }
 }

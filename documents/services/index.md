@@ -29,9 +29,9 @@ Documentación de la arquitectura de servicios del frontend.
 
 | Complejidad | Patrón                            | Ejemplos                        |
 | ----------- | --------------------------------- | ------------------------------- |
-| **Alta**    | Domain + (API \| Storage) + State | PlanTracking                    |
-| **Media**   | API + Storage + State             | Plans                           |
-| **Baja**    | API + Service (juntos)            | Exercises, Routines, User, Auth |
+| **Alta**    | Domain + (API + Storage) + State | PlanTracking                   |
+| **Media**   | API + Storage + State            | Plans, ExtraSession            |
+| **Baja**    | API + Service (juntos)           | Exercises, Routines, User, Auth |
 
 ---
 
@@ -58,6 +58,8 @@ Documentación de la arquitectura de servicios del frontend.
 | [RoutinesService.md](./RoutinesService.md)                 | RoutinesService, RoutinesApiService           | API + Service |
 | [UserService.md](./UserService.md)                         | UserService                                   | API + Service |
 | [WorkoutStateService.md](./WorkoutStateService.md)         | WorkoutStateService                           | State         |
+| [PlanTrackingService.md](./PlanTrackingService.md)           | PlanTrackingService, Domain, State            | Domain + API + Storage + State |
+| [ExtraSessionService.md](./ExtraSessionService.md)             | ExtraSessionService                            | API + Storage |
 
 ---
 
@@ -74,10 +76,9 @@ Documentación de la arquitectura de servicios del frontend.
 | Servicio     | API | Storage | State |
 | ------------ | --- | ------- | ----- |
 | Plans        | ✅  | ✅      | ✅    |
-| DayPlan      | ❌  | ❌      | ✅    |
-| Workouts     | ❌  | ❌      | ✅    |
-| TrackingList | ❌  | ❌      | ✅    |
-| ExtraSession | ✅  | ✅      | ❌    |
+| DayPlan      | ✅  | ✅      | ✅    |
+| TrackingList| ✅  | ✅      | ✅    |
+| ExtraSession| ✅  | ✅      | ✅    |
 
 ### Servicios Simples (Baja complejidad)
 

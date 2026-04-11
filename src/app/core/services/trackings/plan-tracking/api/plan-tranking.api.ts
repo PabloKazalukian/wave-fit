@@ -21,6 +21,7 @@ import {
     UPDATE_WEEK_LOG_DAY,
     ASSIGN_ROUTINE_TO_DAY,
     UPDATE_WEEK_LOG,
+    REMOVE_EXTRA_SESSION_FROM_DAY,
 } from '../../../../apollo/tracking.queries';
 
 @Injectable({
@@ -187,6 +188,24 @@ export class PlanTrackingApi {
                     data?.findOne
                         ? trackingWrappers.wrapperTrackingApiToVM(
                               data.findOne,
+                              this.exerciseSvc.exercises(),
+                          )
+                        : null,
+                ),
+            );
+    }
+
+    removeExtraSession(date: Date, extraSessionId: string): Observable<TrackingVM | null> {
+        return this.apollo
+            .mutate<{
+                removeExtraSessionFromDay: TrackingAPI;
+            }>({ mutation: REMOVE_EXTRA_SESSION_FROM_DAY, variables: { date, extraSessionId } })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.removeExtraSessionFromDay
+                        ? trackingWrappers.wrapperTrackingApiToVM(
+                              data.removeExtraSessionFromDay,
                               this.exerciseSvc.exercises(),
                           )
                         : null,

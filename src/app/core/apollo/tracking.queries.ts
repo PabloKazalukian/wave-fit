@@ -188,3 +188,11 @@ export const FIND_BY_ID = gql`
         }
     }
 `;
+
+export const REMOVE_EXTRA_SESSION_FROM_DAY = gql`
+    mutation RemoveExtraSessionFromDay($date: String!, $extraSessionId: String!) {
+        removeExtraSessionFromDay(date: $date, extraSessionId: $extraSessionId) {
+            ${WEEK_LOG_FIELDS}
+        }
+    }
+`;

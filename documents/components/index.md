@@ -17,12 +17,12 @@ Dumb Components → Facade → Domain Service → (API/Storage Services + State 
 │    Dumb      │ ───→ │  Facade  │ ───→ │ Domain Service  │
 │ Components   │      │          │      │                 │
 └──────────────┘      └──────────┘      └────────┬────────┘
-                                                 │
-                              ┌──────────────────┼──────────────────┐
-                              ▼                  ▼                  ▼
-                        ┌──────────┐      ┌──────────┐      ┌──────────┐
-                        │   API    │      │  Storage │      │  State   │
-                        └──────────┘      └──────────┘      └──────────┘
+                                                  │
+                               ┌──────────────────┼──────────────────┐
+                               ▼                  ▼                  ▼
+                         ┌──────────┐      ┌──────────┐      ┌──────────┐
+                         │   API    │      │  Storage │      │  State   │
+                         └──────────┘      └──────────┘      └──────────┘
 ```
 
 ---
@@ -38,19 +38,19 @@ Dumb Components → Facade → Domain Service → (API/Storage Services + State 
 
 ## Rutas y Componentes
 
-| Ruta                    | Página                    | Servicios                                |
-| ----------------------- | ------------------------- | ---------------------------------------- |
-| `/auth/*`               | Login, Register, Callback | AuthService                              |
-| `/home`                 | Dashboard                 | -                                        |
-| `/exercises`            | Biblioteca de ejercicios  | ExercisesService                         |
-| `/plans`                | Lista de planes           | PlansService                             |
-| `/plans/create`         | Creación de plan          | PlansService, DayPlanStateService        |
-| `/routines/show/:id`    | Ver rutina                | RoutinesService                          |
-| `/my-week`              | Seguimiento semanal       | PlanTrackingService, WorkoutStateService |
-| `/user/trackings`       | Lista de trackings        | PlanTrackingService                      |
-| `/user/trackings/:id`   | Ver tracking              | PlanTrackingService                      |
-| `/user/trackings/stats` | Estadísticas              | PlanTrackingService                      |
-| `/user`                 | Perfil                    | AuthService, UserService                 |
+| Ruta                  | Página                      | Servicios                                |
+| --------------------- | --------------------------- | ---------------------------------------- |
+| `/auth/*`             | Login, Register, Callback    | AuthService                              |
+| `/home`               | Dashboard                   | -                                      |
+| `/exercises`          | Biblioteca de ejercicios   | ExercisesService                         |
+| `/plans`              | Lista de planes             | PlansService                            |
+| `/plans/create`        | Creación de plan             | PlansService, DayPlanStateService           |
+| `/routines/show/:id`  | Ver rutina               | RoutinesService                         |
+| `/my-week`            | Seguimiento semanal        | PlanTrackingService, WorkoutStateService |
+| `/trackings`           | Lista de trackings          | PlanTrackingService                      |
+| `/trackings/show/:id`   | Ver tracking              | PlanTrackingService                      |
+| `/trackings/stats`     | Estadísticas             | PlanTrackingService                      |
+| `/user`               | Perfil                   | AuthService, UserService                 |
 
 ---
 
@@ -85,13 +85,17 @@ Plans (Lista)
                                 └─→ ExerciseCreateComponent
 ```
 
-### Trackings (/user/trackings)
+### Trackings (/trackings)
 
 ```
 Trackings (Lista)
-  └─→ Show
+  └─→ Trackings
+        └─→ TrackingWeekComponent
+  └─→ Show/:id
         └─→ TrackingWeekComponent
         └─→ TrackingWorkoutComponent
+  └─→ Stats
+        └─→ StatsComponent
 ```
 
 ---
@@ -100,11 +104,12 @@ Trackings (Lista)
 
 Los facades coordinan la vista con los servicios de dominio.
 
-| Facade                  | Ubicación                                               | Responsabilidad          |
-| ----------------------- | ------------------------------------------------------- | ------------------------ |
-| WorkoutInProgressFacade | shared/components/widgets/tracking/tracking-workout/... | Coordina workout activo  |
-| TrackingWeekFacade      | shared/components/widgets/tracking/tracking-week/...    | Coordina vista semanal   |
-| TrackingWorkoutFacade   | shared/components/widgets/tracking/tracking-workout/... | Coordina workout del día |
+| Facade                  | Responsabilidad              |
+| ----------------------- | ---------------------------- |
+| WorkoutInProgressFacade | Coordina workout activo      |
+| TrackingWeekFacade      | Coordina vista semanal       |
+| TrackingWorkoutFacade  | Coordina workout del día      |
+| RoutineCreationFacade   | Coordina creación de rutinas |
 
 ---
 
@@ -114,17 +119,21 @@ Los facades coordinan la vista con los servicios de dominio.
 src/app/
 ├── pages/
 │   ├── auth/
+│   │   ├── login/
+│   │   ├── register/
+│   │   └── callback/
 │   ├── home/
 │   ├── exercises/
 │   ├── plans/
-│   │   ├── plans.ts
-│   │   └── create/
+│   │   ├── plans.ts         # Lista de planes
+│   │   └── create/          # Creación
 │   ├── routines/
+│   │   └── show/
 │   ├── my-week/
 │   ├── trackings/
-│   │   ├── trackings.ts
-│   │   ├── show/
-│   │   └── stats/
+│   │   ├── trackings.ts      # Lista
+│   │   ├── show/           # Ver detalle
+│   │   └── stats/          # Estadísticas
 │   └── user/
 ├── shared/
 │   ├── components/widgets/
@@ -149,74 +158,15 @@ src/app/
 └── app.routes.ts
 ```
 
-MyWeek
-└─→ TrackingWeekComponent
-├─→ NavigatorWeek
-└─→ TrackingWorkoutComponent
-├─→ ExerciseSelector
-└─→ WorkoutInProgess
-└─→ AccordionItemComponent
-
-```
-
-### RoutinePlan (/routines/\*)
-
-```
-
-RoutinePlanForm
-└─→ WeeklyRoutinePlannerComponent
-├─→ DaysRoutineProgressComponent
-├─→ DayOfRoutineComponent
-└─→ WeekDayCellComponent
-└─→ RoutineListBoxComponent
-├─→ RoutineExercisesComponent
-└─→ RoutineExerciseFormComponent
-└─→ ExerciseCreateComponent
-
-```
-
 ---
 
-## Facades
+## Estado y Patrones
 
-Los facades coordinan la vista con los servicios de dominio.
-
-| Facade                  | Ubicación                              | Responsabilidad              |
-| ----------------------- | -------------------------------------- | ---------------------------- |
-| WorkoutInProgressFacade | shared/components/widgets/tracking/... | Coordina workout activo      |
-| TrackingWeekFacade      | -                                      | Coordina vista semanal       |
-| TrackingWorkoutFacade   | -                                      | Coordina workout del día     |
-| RoutineCreationFacade   | -                                      | Coordina creación de rutinas |
-
----
-
-## Estructura de Carpetas
-
-```
-
-src/app/
-├── pages/
-│ ├── auth/
-│ ├── home/
-│ ├── exercises/
-│ ├── routines/
-│ ├── my-week/
-│ └── user/
-├── shared/
-│ ├── components/widgets/
-│ │ └── tracking/
-│ │ ├── tracking-week/
-│ │ ├── tracking-workout/
-│ │ │ ├── workout-in-progess/
-│ │ │ │ └── workout-in-progress.facade.ts
-│ │ │ └── workout-in-progess.ts
-│ │ └── ...
-│ └── components/ui/
-│ ├── button/
-│ ├── card/
-│ └── ...
-└── app.routes.ts
-
-```
-
-```
+| Capa              | Responsabilidad                            | Ejemplo                          |
+| ----------------- | --------------------------------------- | -------------------------------  |
+| **Dumb Components** | Solo renderizado, sin lógica           | Button, Card                    |
+| **Facade**        | Coordina la vista                      | WorkoutInProgressFacade        |
+| **Domain Service** | Lógica de negocio                    | PlanTrackingDomainService     |
+| **State Service** | Estado reactivo (Signals)            | WorkoutStateService            |
+| **API Service**  | Llamadas GraphQL                     | PlanTrackingApi              |
+| **Storage**      | Persistencia local                    | PlanTrackingStorage          |

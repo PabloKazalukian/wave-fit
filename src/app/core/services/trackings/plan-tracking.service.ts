@@ -80,6 +80,13 @@ export class PlanTrackingService {
         return this.domain.updateExtraSession(date, extraSession);
     }
 
+    removeExtraSession(
+        date: Date,
+        extraSessionId: string,
+    ): Observable<TrackingVM | null | undefined> {
+        return this.domain.removeExtraSession(date, extraSessionId);
+    }
+
     updateWorkoutStatus(date: Date, status: StatusWorkoutSession): void {
         this.domain.updateWorkoutStatus(date, status);
     }
