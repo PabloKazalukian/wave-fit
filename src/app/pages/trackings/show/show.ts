@@ -21,7 +21,6 @@ export class Show {
     tracking$: Observable<TrackingVM | null> = this.route.params.pipe(
         map((params) => params['id']),
         switchMap((id) => this.facade.getTrackingById(id)),
-        tap((params) => console.log(params)),
         tap(() => (this.asyncLoaded = true)),
     );
 

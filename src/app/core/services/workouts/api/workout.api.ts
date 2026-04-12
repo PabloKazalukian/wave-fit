@@ -21,30 +21,6 @@ export class WorkoutApi {
     private readonly authSvc = inject(AuthService);
     private readonly exerciseSvc = inject(ExercisesService);
 
-    createWorkoutSession(
-        payload: WorkoutSessionVM,
-        weekLogId: string,
-    ): Observable<WorkoutSessionVM | undefined | null> {
-        const workout = this.wrapperWorkoutSessionVMToApi(payload, weekLogId);
-        workout.status = StatusWorkoutSessionEnum.COMPLETE;
-        return this.apollo
-            .mutate<{ createWorkoutSession: WorkoutSessionAPI }>({
-                mutation: CREATE_WORKOUT_SESSION,
-                variables: { createWorkoutSessionInput: workout },
-            })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map(({ data }) =>
-                    data?.createWorkoutSession
-                        ? trackingWrappers.wrapperWorkoutSessionApiToVM(
-                              data.createWorkoutSession,
-                              this.exerciseSvc.exercises(),
-                          )
-                        : null,
-                ),
-            );
-    }
-
     updateWorkoutSession(
         payload: WorkoutSessionVM,
         weekLogId: string,
@@ -65,23 +41,6 @@ export class WorkoutApi {
                           )
                         : null,
                 ),
-            );
-    }
-
-    removeWorkoutSession(id: string): Observable<boolean> {
-        return this.apollo
-            .mutate<{ removeWorkoutSessionFromDay: { id: string } }>({
-                mutation: REMOVE_WORKOUT_SESSION_FROM_DAY,
-                fetchPolicy: 'no-cache',
-                variables: {
-                    input: {
-                        workoutSessionId: id,
-                    },
-                },
-            })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map(({ data }) => !!data?.removeWorkoutSessionFromDay),
             );
     }
 

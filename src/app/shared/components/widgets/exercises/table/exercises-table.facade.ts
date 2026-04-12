@@ -120,7 +120,6 @@ export class ExercisesTableFacade {
             return;
         }
 
-        console.log('Procesando ejercicios seleccionados:', selected);
         // Aquí puedes agregar lógica para:
         // - Agregar a una rutina
         // - Exportar ejercicios

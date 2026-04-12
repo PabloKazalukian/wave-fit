@@ -53,10 +53,6 @@ export class PlanTrackingService {
         return this.domain.findById(id);
     }
 
-    toggleExercise(date: Date, exercise: ExercisePerformanceVM): void {
-        this.domain.toggleExercise(date, exercise);
-    }
-
     removeExercise(date: Date, exerciseId: string): void {
         this.domain.removeExercise(date, exerciseId);
     }

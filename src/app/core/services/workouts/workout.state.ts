@@ -54,7 +54,6 @@ export class WorkoutStateService {
                 .subscribe((workout) => {
                     if (!workout) return;
                     this.workoutSession.set(workout);
-                    // console.log(this.workoutSession());
                 });
         });
     }

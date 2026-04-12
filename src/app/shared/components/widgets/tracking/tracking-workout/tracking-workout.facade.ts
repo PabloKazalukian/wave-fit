@@ -92,6 +92,8 @@ export class TrackingWorkoutFacade {
     removeWorkoutSession(): Observable<boolean> {
         const date = this.workoutDate();
         const workoutId = this.workoutVM()?.id;
+        console.log('date', date);
+        console.log('workoutId', this.workoutVM());
         if (!date || !workoutId) return of(false);
         return this.trackingSvc.removeWorkoutSession(date, workoutId);
     }

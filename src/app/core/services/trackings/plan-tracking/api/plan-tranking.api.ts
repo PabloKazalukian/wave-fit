@@ -23,6 +23,7 @@ import {
     UPDATE_WEEK_LOG,
     REMOVE_EXTRA_SESSION_FROM_DAY,
     CREATE_ROUTINE_BY_WORKOUT,
+    REMOVE_WORKOUT_SESSION_FROM_DAY,
 } from '../../../../apollo/tracking.queries';
 import { DateService } from '../../../date.service';
 
@@ -45,7 +46,6 @@ export class PlanTrackingApi {
                         fetchPolicy: 'no-cache',
                     })
                     .pipe(
-                        tap((data) => console.log(data)),
                         handleGraphqlError(this.authSvc),
                         map(({ data }) =>
                             data?.activeWeekLog.hasActiveWeek
@@ -68,7 +68,6 @@ export class PlanTrackingApi {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                tap((data) => console.log(data)),
                 map(({ data }) =>
                     data?.createWeekLog
                         ? trackingWrappers.wrapperTrackingApiToVM(
@@ -100,7 +99,6 @@ export class PlanTrackingApi {
     }
 
     updateTrackingDay(payload: UpdateWeekLogDayUnifiedInput): Observable<TrackingVM | null> {
-        console.log('aca', payload);
         return this.apollo
             .mutate<{ updateDay: TrackingAPI }>({
                 mutation: UPDATE_WEEK_LOG_DAY,
@@ -108,7 +106,6 @@ export class PlanTrackingApi {
                 fetchPolicy: 'no-cache',
             })
             .pipe(
-                tap((data) => console.log(data)),
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.updateDay
@@ -138,14 +135,11 @@ export class PlanTrackingApi {
                           )
                         : null,
                 ),
-                tap((data) => console.log('aca', data)),
             );
     }
 
     assignRoutineToDay(routineDayId: string, date: string): Observable<TrackingVM | null> {
         const searchDate = this.dateSvc.parseLocalDate(date);
-        console.log('aca', searchDate);
-        console.log('date:', date);
         return this.apollo
             .mutate<{ assignRoutineToDay: TrackingAPI }>({
                 mutation: ASSIGN_ROUTINE_TO_DAY,
@@ -153,7 +147,6 @@ export class PlanTrackingApi {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                tap((data) => console.log(data)),
                 map(({ data }) =>
                     data?.assignRoutineToDay
                         ? trackingWrappers.wrapperTrackingApiToVM(
@@ -216,6 +209,25 @@ export class PlanTrackingApi {
                 ),
             );
     }
+
+    removeWorkoutSession(date: Date, workoutSessionId: string): Observable<TrackingVM | null> {
+        return this.apollo
+            .mutate<{
+                removeWorkoutSessionFromDay: TrackingAPI;
+            }>({ mutation: REMOVE_WORKOUT_SESSION_FROM_DAY, variables: { date, workoutSessionId } })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.removeWorkoutSessionFromDay
+                        ? trackingWrappers.wrapperTrackingApiToVM(
+                              data.removeWorkoutSessionFromDay,
+                              this.exerciseSvc.exercises(),
+                          )
+                        : null,
+                ),
+            );
+    }
+
     createRoutineByWorkout(title: string, exerciseIds: string[]): Observable<any> {
         return this.apollo
             .mutate({

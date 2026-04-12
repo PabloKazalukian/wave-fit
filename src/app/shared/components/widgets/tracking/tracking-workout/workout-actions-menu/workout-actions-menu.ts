@@ -117,7 +117,6 @@ export class WorkoutActionsMenu {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (res) => {
-                    console.log(res);
                     this.isLoading.set(false);
 
                     this.closeRoutineDialog();

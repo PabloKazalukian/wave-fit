@@ -72,12 +72,7 @@ export class WorkoutInProgressFacade {
 
     setRestDay(): void {
         if (!this.workoutDate()) return;
-        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!).subscribe({
-            next: (tracking) => {
-                console.log(tracking);
-                // this.state.setTracking(tracking);
-            },
-        });
+        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!).subscribe({});
     }
 
     reorderExercises(previousIndex: number, currentIndex: number): void {

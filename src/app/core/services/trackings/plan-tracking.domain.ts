@@ -125,18 +125,13 @@ export class PlanTrackingDomainService {
         if (index === undefined || index === -1) return of(null);
         const workoutDraft = tracking.workouts![index];
 
-        console.log('tracking', this.state.tracking());
-        console.log('dateWorkout', dateWorkout);
-        const orderDay = this.state.tracking()?.workouts?.findIndex((w) => w.date === dateWorkout);
-        // Usar el order real del día, no el índice
-        const order = Number(orderDay) + 1;
+        const order = Number(index) + 1;
 
         this.state.loadingWorkoutCreation.update((current) => ({
             ...current,
             wokout: dateWorkout,
             state: true,
         }));
-        console.log(order);
 
         const payload: UpdateWeekLogDayUnifiedInput = {
             id: tracking.id!,
@@ -166,6 +161,7 @@ export class PlanTrackingDomainService {
                         if (newWorkout) {
                             this._updateWorkout(newWorkout.date, () => ({
                                 ...newWorkout,
+                                id: workoutDraft.id,
                                 status: StatusWorkoutSessionEnum.COMPLETE,
                             }));
                         }
@@ -195,18 +191,11 @@ export class PlanTrackingDomainService {
         return this.api.assignRoutineToDay(routineDayId, date).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
-                console.log(res);
                 if (res !== undefined && res !== null) {
                     this._persist(res);
                 }
             }),
             map(() => this.state.getTrackingValue()),
-            tap((res) => console.log(res)),
-
-            // switchMap((workoutRes) => {
-            //     if (!workoutRes) return of(null);
-            //     return this.api.syncTrackingDays(tracking.id!).pipe(map(() => workoutRes));
-            // }),
         );
     }
 
@@ -232,7 +221,6 @@ export class PlanTrackingDomainService {
 
         if (dayOrder === null) return of(null);
 
-        console.log(tracking, dayOrder, day);
         const payload: UpdateWeekLogDayUnifiedInput = {
             id: tracking.id!,
             days: [
@@ -250,8 +238,6 @@ export class PlanTrackingDomainService {
                 },
             ],
         };
-
-        console.log('updateExtraSession payload:', payload);
 
         return this.api.updateTrackingDay(payload).pipe(
             tap((res) => {
@@ -285,27 +271,12 @@ export class PlanTrackingDomainService {
 
         return this.api.removeExtraSession(date, extraSessionId).pipe(
             tap((res) => {
-                console.log(res);
                 if (res !== undefined && res !== null) {
                     this._persist(res);
                 }
             }),
             map(() => this.state.getTrackingValue()),
         );
-    }
-
-    toggleExercise(date: Date, exercise: ExercisePerformanceVM) {
-        this._updateWorkout(date, (workout) => {
-            const exercises = workout.exercises || [];
-            const exists = exercises.some((e) => e.exerciseId === exercise.exerciseId);
-
-            return {
-                ...workout,
-                exercises: exists
-                    ? exercises.filter((e) => e.exerciseId !== exercise.exerciseId)
-                    : [...exercises, exercise],
-            };
-        });
     }
 
     removeExercise(date: Date, exerciseId: string) {
@@ -327,7 +298,6 @@ export class PlanTrackingDomainService {
     }
 
     setExercises(date: Date, exercises: ExercisePerformanceVM[]) {
-        console.log(exercises);
         this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
     }
 
@@ -350,17 +320,17 @@ export class PlanTrackingDomainService {
         this._updateWorkout(date, () => workout);
     }
 
-    removeWorkoutSession(date: Date, id: string): Observable<boolean> {
-        return this.workoutApi.removeWorkoutSession(id).pipe(
-            tap((success) => {
-                if (success) {
-                    this._updateWorkout(date, (workout) => ({
-                        ...workout,
-                        id: undefined,
-                        status: StatusWorkoutSessionEnum.NOT_STARTED,
-                        exercises: [],
-                    }));
-                }
+    removeWorkoutSession(date: Date, workoutSessionId: string): Observable<boolean> {
+        return this.api.removeWorkoutSession(date, workoutSessionId).pipe(
+            map((res) => {
+                if (!res) return false;
+                this._updateWorkout(date, (workout) => ({
+                    ...workout,
+                    id: undefined,
+                    status: StatusWorkoutSessionEnum.NOT_STARTED,
+                    exercises: [],
+                }));
+                return true;
             }),
         );
     }
