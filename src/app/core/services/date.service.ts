@@ -49,11 +49,27 @@ export class DateService {
         return isEqual(date1, date2);
     }
 
+    isSameDay(date1: Date, date2: Date): boolean {
+        return isEqual(startOfDay(date1), startOfDay(date2));
+    }
+
     toStringDate(date: Date): string {
         return format(date, 'dd-MM-yyyy');
     }
 
     formatDate(date: Date): string {
+        return format(date, 'yyyy-MM-dd');
+    }
+
+    parseLocalDate(dateStr: string): Date {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return startOfDay(new Date(year, month - 1, day));
+    }
+
+    /**
+     * Convierte un Date a string "YYYY-MM-DD" (formato para APIs/backend).
+     */
+    toApiDateString(date: Date): string {
         return format(date, 'yyyy-MM-dd');
     }
 }

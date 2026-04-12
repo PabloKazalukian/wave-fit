@@ -24,6 +24,7 @@ import {
     REMOVE_EXTRA_SESSION_FROM_DAY,
     CREATE_ROUTINE_BY_WORKOUT,
 } from '../../../../apollo/tracking.queries';
+import { DateService } from '../../../date.service';
 
 @Injectable({
     providedIn: 'root',
@@ -33,6 +34,7 @@ export class PlanTrackingApi {
 
     authSvc = inject(AuthService);
     exerciseSvc = inject(ExercisesService);
+    dateSvc = inject(DateService);
 
     getTrackingByUser(): Observable<TrackingVM | undefined | null> {
         return this.exerciseSvc.getExercises().pipe(
@@ -141,8 +143,9 @@ export class PlanTrackingApi {
     }
 
     assignRoutineToDay(routineDayId: string, date: string): Observable<TrackingVM | null> {
-        const searchDate = new Date(date);
+        const searchDate = this.dateSvc.parseLocalDate(date);
         console.log('aca', searchDate);
+        console.log('date:', date);
         return this.apollo
             .mutate<{ assignRoutineToDay: TrackingAPI }>({
                 mutation: ASSIGN_ROUTINE_TO_DAY,

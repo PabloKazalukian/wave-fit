@@ -99,11 +99,7 @@
           stroke="currentColor"
           class="w-5 h-5"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M12 4.5v15m7.5-7.5h-15"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
         Guardar una nueva routine
       </button>
@@ -111,6 +107,7 @@
   }
 </div>
 
+<!-- Dialog para seleccionar una rutina y crear un workout a partir de ella-->
 <app-dialog
   [isOpen]="isRoutineDialogOpen()"
   (closed)="closeRoutineDialog()"
@@ -128,6 +125,7 @@
   }
 </app-dialog>
 
+<!-- Dialog para crear una nueva rutina a partir del workout -->
 <app-dialog
   [isOpen]="isCreateRoutineDialogOpen()"
   (closed)="closeCreateRoutineDialog()"
@@ -157,12 +155,12 @@
         @for (exercise of facade.workoutVM()?.exercises; track exercise.exerciseId) {
           <div class="bg-background2/50 border border-white/5 rounded-xl p-3 flex flex-col gap-0.5">
             <span class="text-white font-medium">{{ exercise.name }}</span>
-            <span class="text-xs text-text2/70 uppercase tracking-wider">{{ exercise.category }}</span>
+            <span class="text-xs text-text2/70 uppercase tracking-wider">{{
+              exercise.category
+            }}</span>
           </div>
         } @empty {
-          <div class="text-center py-4 text-text2/50 italic">
-            No hay ejercicios cargados
-          </div>
+          <div class="text-center py-4 text-text2/50 italic">No hay ejercicios cargados</div>
         }
       </div>
     </div>
@@ -178,7 +176,7 @@
         [text]="'Confirmar'"
         [color]="'accent'"
         [variant]="'raised'"
-        [isDisabled]="!routineName() || (facade.workoutVM()?.exercises?.length === 0)"
+        [isDisabled]="!routineName() || facade.workoutVM()?.exercises?.length === 0"
         (click)="confirmCreateRoutine()"
       ></app-btn>
     </div>

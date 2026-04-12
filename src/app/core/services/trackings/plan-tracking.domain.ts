@@ -1,7 +1,7 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking.storage';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { delay, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
+import { delay, finalize, map, Observable, of, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     StatusWorkoutSession,
@@ -17,7 +17,6 @@ import {
     UpdateWeekLogDayInput,
     UpdateWeekLogDayUnifiedInput,
     UpdateWeekLogInput,
-    UpdateWorkoutSessionInput,
 } from '../../../shared/interfaces/api/tracking-api.interface';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -27,12 +26,8 @@ import {
 } from '../../../shared/wrappers/tracking.wrapper';
 import { PlanTrackingApi } from './plan-tracking/api/plan-tranking.api';
 import { WorkoutApi } from '../workouts/api/workout.api';
-import {
-    CreateExtraSessionContext,
-    CreateExtraSessionForm,
-    ExtraSession,
-} from '../../../shared/interfaces/extra-session.interface';
-import { mapToUpdateWeekLogExtraSessionInput } from '../../../shared/wrappers/extra-session.wrapper';
+import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session.interface';
+import { RoutinesService } from '../routines/routines.service';
 
 @Injectable({
     providedIn: 'root',
@@ -45,6 +40,7 @@ export class PlanTrackingDomainService {
     private state = inject(PlanTrackingStateService);
     private storage = inject(PlanTrackingStorage);
     private dateService = inject(DateService);
+    private routineService = inject(RoutinesService);
     private authService = inject(AuthService);
 
     user$ = toSignal(this.authService.user$);
@@ -123,12 +119,14 @@ export class PlanTrackingDomainService {
         if (!tracking) return of(null);
 
         const index = tracking.workouts?.findIndex((w) =>
-            this.dateService.isEqualDate(w.date, dateWorkout),
+            this.dateService.isSameDay(w.date, dateWorkout),
         );
 
         if (index === undefined || index === -1) return of(null);
         const workoutDraft = tracking.workouts![index];
 
+        console.log('tracking', this.state.tracking());
+        console.log('dateWorkout', dateWorkout);
         const orderDay = this.state.tracking()?.workouts?.findIndex((w) => w.date === dateWorkout);
         // Usar el order real del día, no el índice
         const order = Number(orderDay) + 1;
@@ -138,6 +136,7 @@ export class PlanTrackingDomainService {
             wokout: dateWorkout,
             state: true,
         }));
+        console.log(order);
 
         const payload: UpdateWeekLogDayUnifiedInput = {
             id: tracking.id!,
@@ -219,14 +218,14 @@ export class PlanTrackingDomainService {
         if (!tracking) return of(null);
 
         // Buscar el día por fecha y tomar su order real
-        const day = tracking.workouts?.find((d) => this.dateService.isEqualDate(d.date, date));
+        const day = tracking.workouts?.find((d) => this.dateService.isSameDay(d.date, date));
 
         if (!day) return of(null);
 
         let dayOrder: string | null = null;
 
         this.state.tracking()?.workouts?.forEach((d, index) => {
-            if (this.dateService.isEqualDate(d.date, date)) {
+            if (this.dateService.isSameDay(d.date, date)) {
                 dayOrder = index.toString();
             }
         });
@@ -272,14 +271,14 @@ export class PlanTrackingDomainService {
         if (!tracking) return of(null);
 
         // Buscar el día por fecha y tomar su order real
-        const day = tracking.workouts?.find((d) => this.dateService.isEqualDate(d.date, date));
+        const day = tracking.workouts?.find((d) => this.dateService.isSameDay(d.date, date));
 
         if (!day) return of(null);
 
         let dayOrder: string | null = null;
 
         this.state.tracking()?.workouts?.forEach((d, index) => {
-            if (this.dateService.isEqualDate(d.date, date)) {
+            if (this.dateService.isSameDay(d.date, date)) {
                 dayOrder = index.toString();
             }
         });
@@ -380,7 +379,7 @@ export class PlanTrackingDomainService {
         let indexDay: number | null = null;
 
         this.state.tracking()?.workouts?.forEach((d, index) => {
-            if (this.dateService.isEqualDate(d.date, day)) {
+            if (this.dateService.isSameDay(d.date, day)) {
                 indexDay = index;
             }
         });
@@ -488,7 +487,15 @@ export class PlanTrackingDomainService {
         };
     }
 
+    //reset routine s
     createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<any> {
-        return this.api.createRoutineByWorkout(title, exerciseIds);
+        return this.api.createRoutineByWorkout(title, exerciseIds).pipe(
+            tap((res) => {
+                this.routineService
+                    .updateAllRoutines()
+                    .pipe(takeUntilDestroyed(this.destroyRef))
+                    .subscribe();
+            }),
+        );
     }
 }
