@@ -12,6 +12,7 @@ import { DateService } from '../../../../../../core/services/date.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { RoutinesService } from '../../../../../../core/services/routines/routines.service';
+import { StatusWorkoutSessionEnum } from '../../../../../interfaces/tracking.interface';
 
 @Component({
     selector: 'app-workout-actions-menu',
@@ -44,6 +45,9 @@ export class WorkoutActionsMenu {
     private trackingSvc = inject(PlanTrackingService);
     private dateSvc = inject(DateService);
     private routinesSvc = inject(RoutinesService);
+
+    // const StatusWorkoutSessionEnum = StatusWorkoutSessionEnum;
+    StatusWorkoutSessionEnum = StatusWorkoutSessionEnum;
 
     isRoutineDialogOpen = signal(false);
     isCreateRoutineDialogOpen = signal(false);

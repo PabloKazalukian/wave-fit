@@ -27,6 +27,24 @@ export const WEEK_LOG_FIELDS = `
     }
 `;
 
+export const WEEK_LOG_DAY_FIELDS = `
+    order
+    date
+    isRest
+    workoutSessionId
+    exercises {
+        exerciseId
+        series
+        sets {
+            weights
+            reps
+        }
+        notes
+    }
+    extraSessionIds
+    status
+`;
+
 export const FIND_ACTIVE_WEEK_LOG = gql`
     query findActiveWeekLog {
         activeWeekLog {
@@ -85,12 +103,7 @@ export const CREATE_WORKOUT_SESSION = gql`
 export const REMOVE_WORKOUT_SESSION_FROM_DAY = gql`
     mutation RemoveWorkoutSessionFromDay($workoutSessionId: String!) {
         removeWorkoutSessionFromDay(workoutSessionId: $workoutSessionId) {
-            id
-            days {
-                order
-                workoutSessionId
-                status
-            }
+            ${WEEK_LOG_DAY_FIELDS}
         }
     }
 `;
@@ -137,7 +150,7 @@ export const UPDATE_WEEK_LOG_WORKOUT_SESSION = gql`
 export const UPDATE_WEEK_LOG_DAY = gql`
     mutation UpdateDay($input: UpdateWeekLogDayUnifiedInput!) {
         updateDay(input: $input) {
-            ${WEEK_LOG_FIELDS}
+            ${WEEK_LOG_DAY_FIELDS}
         }
     }
 `;
@@ -161,14 +174,14 @@ export const SYNC_WEEK_LOG_DAYS = gql`
 export const ASSIGN_ROUTINE_TO_DAYS = gql`
     mutation AssignRoutineToDay($routineDayId: String!, $date: String!) {
         assignRoutineToDay(routineDayId: $routineDayId, date: $date) {
-            ${WEEK_LOG_FIELDS}
+            ${WEEK_LOG_DAY_FIELDS}
         }
     }
 `;
 export const ASSIGN_ROUTINE_TO_DAY = gql`
     mutation AssignRoutineToDay($routineDayId: String!, $date: String!) {
         assignRoutineToDay(routineDayId: $routineDayId, date: $date) {
-            ${WEEK_LOG_FIELDS}
+            ${WEEK_LOG_DAY_FIELDS}
         }
     }
 `;
@@ -192,7 +205,7 @@ export const FIND_BY_ID = gql`
 export const REMOVE_EXTRA_SESSION_FROM_DAY = gql`
     mutation RemoveExtraSessionFromDay($date: String!, $extraSessionId: String!) {
         removeExtraSessionFromDay(date: $date, extraSessionId: $extraSessionId) {
-            ${WEEK_LOG_FIELDS}
+            ${WEEK_LOG_DAY_FIELDS}
         }
     }
 `;

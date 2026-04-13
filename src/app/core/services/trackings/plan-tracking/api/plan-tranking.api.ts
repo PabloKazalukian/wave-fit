@@ -3,9 +3,10 @@ import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
 import { map, Observable, of, switchMap, tap } from 'rxjs';
-import { TrackingVM, TrackingVMS } from '../../../../../shared/interfaces/tracking.interface';
+import { TrackingVM, TrackingVMS, WeekLogDayVM } from '../../../../../shared/interfaces/tracking.interface';
 import {
     TrackingAPI,
+    WeekLogDayAPI,
     TrackingCreate,
     UpdateWeekLogDayUnifiedInput,
     UpdateWeekLogInput,
@@ -98,9 +99,9 @@ export class PlanTrackingApi {
             );
     }
 
-    updateTrackingDay(payload: UpdateWeekLogDayUnifiedInput): Observable<TrackingVM | null> {
+    updateTrackingDay(payload: UpdateWeekLogDayUnifiedInput): Observable<WeekLogDayVM | null> {
         return this.apollo
-            .mutate<{ updateDay: TrackingAPI }>({
+            .mutate<{ updateDay: WeekLogDayAPI }>({
                 mutation: UPDATE_WEEK_LOG_DAY,
                 variables: { input: payload },
                 fetchPolicy: 'no-cache',
@@ -109,7 +110,7 @@ export class PlanTrackingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.updateDay
-                        ? trackingWrappers.wrapperTrackingApiToVM(
+                        ? trackingWrappers.wrapperWeekLogDayApiToVM(
                               data.updateDay,
                               this.exerciseSvc.exercises(),
                           )
@@ -138,10 +139,10 @@ export class PlanTrackingApi {
             );
     }
 
-    assignRoutineToDay(routineDayId: string, date: string): Observable<TrackingVM | null> {
+    assignRoutineToDay(routineDayId: string, date: string): Observable<WeekLogDayVM | null> {
         const searchDate = this.dateSvc.parseLocalDate(date);
         return this.apollo
-            .mutate<{ assignRoutineToDay: TrackingAPI }>({
+            .mutate<{ assignRoutineToDay: WeekLogDayAPI }>({
                 mutation: ASSIGN_ROUTINE_TO_DAY,
                 variables: { routineDayId, date },
             })
@@ -149,7 +150,7 @@ export class PlanTrackingApi {
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.assignRoutineToDay
-                        ? trackingWrappers.wrapperTrackingApiToVM(
+                        ? trackingWrappers.wrapperWeekLogDayApiToVM(
                               data.assignRoutineToDay,
                               this.exerciseSvc.exercises(),
                           )
@@ -192,16 +193,16 @@ export class PlanTrackingApi {
             );
     }
 
-    removeExtraSession(date: Date, extraSessionId: string): Observable<TrackingVM | null> {
+    removeExtraSession(date: Date, extraSessionId: string): Observable<WeekLogDayVM | null> {
         return this.apollo
             .mutate<{
-                removeExtraSessionFromDay: TrackingAPI;
+                removeExtraSessionFromDay: WeekLogDayAPI;
             }>({ mutation: REMOVE_EXTRA_SESSION_FROM_DAY, variables: { date, extraSessionId } })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.removeExtraSessionFromDay
-                        ? trackingWrappers.wrapperTrackingApiToVM(
+                        ? trackingWrappers.wrapperWeekLogDayApiToVM(
                               data.removeExtraSessionFromDay,
                               this.exerciseSvc.exercises(),
                           )
@@ -210,16 +211,16 @@ export class PlanTrackingApi {
             );
     }
 
-    removeWorkoutSession(date: Date, workoutSessionId: string): Observable<TrackingVM | null> {
+    removeWorkoutSession(date: Date, workoutSessionId: string): Observable<WeekLogDayVM | null> {
         return this.apollo
             .mutate<{
-                removeWorkoutSessionFromDay: TrackingAPI;
+                removeWorkoutSessionFromDay: WeekLogDayAPI;
             }>({ mutation: REMOVE_WORKOUT_SESSION_FROM_DAY, variables: { date, workoutSessionId } })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
                     data?.removeWorkoutSessionFromDay
-                        ? trackingWrappers.wrapperTrackingApiToVM(
+                        ? trackingWrappers.wrapperWeekLogDayApiToVM(
                               data.removeWorkoutSessionFromDay,
                               this.exerciseSvc.exercises(),
                           )

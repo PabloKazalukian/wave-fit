@@ -15,6 +15,8 @@ import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking.storage';
 import { AuthService } from '../auth/auth.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { wrapperDayStatusApiToStatusWorkoutSession } from '../../../shared/wrappers/tracking.wrapper';
+import { DayStatusAPI } from '../../../shared/interfaces/api/tracking-api.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -107,6 +109,7 @@ export class PlanTrackingService {
                 this._updateWorkout(workoutDraft.date, (w) => ({
                     ...w,
                     id: workoutDraft.id,
+                    exercises: workoutDraft.exercises,
                     status: StatusWorkoutSessionEnum.COMPLETE,
                 }));
 
@@ -122,11 +125,19 @@ export class PlanTrackingService {
         return this.domain.createWorkoutWithRoutine(routineDayId, date).pipe(
             takeUntilDestroyed(this.destroyRef),
             tap((res) => {
-                if (res !== undefined && res !== null) {
-                    this._persist(res);
+                if (res) {
+                    this._updateWorkout(res.date, (old) => ({
+                        ...old,
+                        id: res.workoutSessionId ?? old.id,
+                        exercises: res.exercises,
+                        status: res.isRest
+                            ? StatusWorkoutSessionEnum.REST
+                            : wrapperDayStatusApiToStatusWorkoutSession(
+                                  res.status as unknown as DayStatusAPI,
+                              ),
+                    }));
                 }
             }),
-            map(() => this.state.getTrackingValue()),
             switchMap(() => {
                 return this.getWorkout(new Date(date));
             }),
@@ -157,16 +168,22 @@ export class PlanTrackingService {
     }
 
     //control here
-    setRestDay(day: Date, workout: WorkoutSessionVM): Observable<TrackingVM | null | undefined> {
+    setRestDay(
+        day: Date,
+        workout: WorkoutSessionVM,
+        status: StatusWorkoutSessionEnum,
+    ): Observable<TrackingVM | null | undefined> {
+        console.log('day', day);
+        console.log('workout', workout);
+        console.log('status', status);
         return this.domain.setRestDay(day, workout).pipe(
-            map((res) => {
-                if (!res) return null;
-                this._updateWorkout(day, () => workout);
-                return res;
-            }),
             tap((res) => {
+                console.log(res, status);
                 if (res) {
-                    this._persist(res);
+                    this._updateWorkout(day, (old) => ({
+                        ...old,
+                        status: status,
+                    }));
                 }
             }),
         );
@@ -178,8 +195,12 @@ export class PlanTrackingService {
     ): Observable<TrackingVM | null | undefined> {
         return this.domain.updateExtraSession(date, extraSession).pipe(
             tap((res) => {
-                if (res !== undefined && res !== null) {
-                    this._updateWorkout(date, () => res);
+                if (res) {
+                    this._updateWorkout(date, (old) => ({
+                        ...old,
+                        id: res.workoutSessionId ?? old.id,
+                        extras: res.extraSessionIds,
+                    }));
                 }
             }),
             map(() => this.state.getTrackingValue()),
@@ -192,8 +213,11 @@ export class PlanTrackingService {
     ): Observable<TrackingVM | null | undefined> {
         return this.domain.removeExtraSession(date, extraSessionId).pipe(
             tap((res) => {
-                if (res !== undefined && res !== null) {
-                    this._persist(res);
+                if (res) {
+                    this._updateWorkout(date, (old) => ({
+                        ...old,
+                        extras: res.extraSessionIds,
+                    }));
                 }
             }),
             map(() => this.state.getTrackingValue()),
@@ -274,11 +298,11 @@ export class PlanTrackingService {
         return this.domain.removeWorkoutSession(date, id).pipe(
             map((res) => {
                 if (!res) return false;
-                this._updateWorkout(date, (workout) => ({
-                    ...workout,
+                this._updateWorkout(date, (old) => ({
+                    ...old,
                     id: undefined,
-                    status: StatusWorkoutSessionEnum.NOT_STARTED,
                     exercises: [],
+                    status: StatusWorkoutSessionEnum.NOT_STARTED,
                 }));
                 return true;
             }),

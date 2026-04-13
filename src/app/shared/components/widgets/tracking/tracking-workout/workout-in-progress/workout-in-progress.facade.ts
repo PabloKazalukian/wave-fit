@@ -1,5 +1,8 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { ExercisePerformanceVM } from '../../../../../interfaces/tracking.interface';
+import {
+    ExercisePerformanceVM,
+    StatusWorkoutSessionEnum,
+} from '../../../../../interfaces/tracking.interface';
 import { WorkoutStateService } from '../../../../../../core/services/workouts/workout.state';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
@@ -70,9 +73,9 @@ export class WorkoutInProgressFacade {
         this.exerciseSetsData.set(newMap);
     }
 
-    setRestDay(): void {
+    setRestDay(status: StatusWorkoutSessionEnum): void {
         if (!this.workoutDate()) return;
-        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!).subscribe({});
+        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!, status).subscribe({});
     }
 
     reorderExercises(previousIndex: number, currentIndex: number): void {

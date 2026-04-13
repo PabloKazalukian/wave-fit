@@ -8,6 +8,7 @@ import {
     StatusWorkoutSessionEnum,
     TrackingVM,
     TrackingVMS,
+    WeekLogDayVM,
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
 import { DateService } from '../date.service';
@@ -23,6 +24,7 @@ import {
     emptyDay,
     wrapperExercisePerformanceVMToApi,
     wrapperWorkoutSessionVMtoUpdateWeekLogDayInput,
+    wrapperWeekLogDayVMToWorkoutSessionVM,
 } from '../../../shared/wrappers/tracking.wrapper';
 import { PlanTrackingApi } from './plan-tracking/api/plan-tranking.api';
 import { WorkoutApi } from '../workouts/api/workout.api';
@@ -130,7 +132,7 @@ export class PlanTrackingDomainService {
             takeUntilDestroyed(this.destroyRef),
             map((res) => {
                 if (!res) return null;
-                return { index, workoutDraft }; // 👈 devuelve lo necesario, sin tocar state/storage
+                return { index, workoutDraft: wrapperWeekLogDayVMToWorkoutSessionVM(res) };
             }),
             finalize(() => {
                 this.state.loadingWorkoutCreation.update((current) => ({
@@ -144,7 +146,7 @@ export class PlanTrackingDomainService {
     createWorkoutWithRoutine(
         routineDayId: string,
         date: string,
-    ): Observable<TrackingVM | null | undefined> {
+    ): Observable<WeekLogDayVM | null | undefined> {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
@@ -154,7 +156,7 @@ export class PlanTrackingDomainService {
     updateExtraSession(
         date: Date,
         extraSession: CreateExtraSessionForm,
-    ): Observable<WorkoutSessionVM | null | undefined> {
+    ): Observable<WeekLogDayVM | null | undefined> {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
@@ -191,20 +193,13 @@ export class PlanTrackingDomainService {
             ],
         };
 
-        return this.api
-            .updateTrackingDay(payload)
-            .pipe(
-                map(
-                    (res) =>
-                        res?.workouts?.filter((w) => this.dateService.isSameDay(w.date, date))[0],
-                ),
-            );
+        return this.api.updateTrackingDay(payload);
     }
 
     removeExtraSession(
         date: Date,
         extraSessionId: string,
-    ): Observable<TrackingVM | null | undefined> {
+    ): Observable<WeekLogDayVM | null | undefined> {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
@@ -212,14 +207,6 @@ export class PlanTrackingDomainService {
         const day = tracking.workouts?.find((d) => this.dateService.isSameDay(d.date, date));
 
         if (!day) return of(null);
-
-        let dayOrder: string | null = null;
-
-        this.state.tracking()?.workouts?.forEach((d, index) => {
-            if (this.dateService.isSameDay(d.date, date)) {
-                dayOrder = index.toString();
-            }
-        });
 
         return this.api.removeExtraSession(date, extraSessionId);
     }
@@ -241,7 +228,7 @@ export class PlanTrackingDomainService {
     removeWorkoutSession(
         date: Date,
         workoutSessionId: string,
-    ): Observable<TrackingVM | null | undefined> {
+    ): Observable<WeekLogDayVM | null | undefined> {
         return this.api.removeWorkoutSession(date, workoutSessionId);
     }
 
@@ -251,10 +238,6 @@ export class PlanTrackingDomainService {
         if (!tracking) return of(null);
 
         const isRest = workout.status !== StatusWorkoutSessionEnum.REST;
-
-        const newWorkout = isRest
-            ? { ...workout, status: StatusWorkoutSessionEnum.REST, exercises: [] }
-            : { ...workout, status: StatusWorkoutSessionEnum.NOT_STARTED };
 
         let indexDay: number | null = null;
 
@@ -266,16 +249,18 @@ export class PlanTrackingDomainService {
 
         if (indexDay === null) return of(null);
 
-        return this.api.updateTrackingDay({
-            id: tracking.id!,
-            days: [
-                {
-                    order: indexDay + 1,
-                    isRest: isRest,
-                    status: isRest ? 'skipped' : 'pending',
-                },
-            ],
-        });
+        return this.api
+            .updateTrackingDay({
+                id: tracking.id!,
+                days: [
+                    {
+                        order: indexDay + 1,
+                        isRest: isRest,
+                        status: isRest ? 'skipped' : 'pending',
+                    },
+                ],
+            })
+            .pipe(map(() => this.state.getTrackingValue()));
     }
 
     completeTracking(complete: boolean): Observable<TrackingVMS | null> {

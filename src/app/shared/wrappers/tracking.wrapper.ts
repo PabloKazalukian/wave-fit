@@ -179,6 +179,19 @@ export function wrapperWeekLogDayVMToWorkoutVM(
     };
 }
 
+export function wrapperWeekLogDayVMToWorkoutSessionVM(payload: WeekLogDayVM): WorkoutSessionVM {
+    return {
+        id: payload.workoutSessionId ?? '',
+        date: payload.date,
+        exercises: payload.exercises,
+        status: payload.isRest
+            ? StatusWorkoutSessionEnum.REST
+            : wrapperDayStatusApiToStatusWorkoutSession(payload.status as DayStatusAPI),
+        extras: payload.extraSessionIds,
+        notes: '',
+    };
+}
+
 export function wrapperDayStatusApiToStatusWorkoutSession(
     payload: DayStatusAPI,
 ): StatusWorkoutSession {

@@ -1,6 +1,10 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
-import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
+import {
+    ExercisePerformanceVM,
+    StatusWorkoutSessionEnum,
+    WorkoutSessionVM,
+} from '../../../../interfaces/tracking.interface';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -61,9 +65,9 @@ export class TrackingWorkoutFacade {
             .subscribe();
     }
 
-    setRestDay() {
+    setRestDay(status: StatusWorkoutSessionEnum) {
         if (!this.workoutDate()) return;
-        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!);
+        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!, status);
     }
 
     setRemoveAllExercises() {
