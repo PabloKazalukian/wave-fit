@@ -179,7 +179,7 @@ export class PlanTrackingService {
         return this.domain.updateExtraSession(date, extraSession).pipe(
             tap((res) => {
                 if (res !== undefined && res !== null) {
-                    this._persist(res);
+                    this._updateWorkout(date, () => res);
                 }
             }),
             map(() => this.state.getTrackingValue()),

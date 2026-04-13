@@ -154,7 +154,7 @@ export class PlanTrackingDomainService {
     updateExtraSession(
         date: Date,
         extraSession: CreateExtraSessionForm,
-    ): Observable<TrackingVM | null | undefined> {
+    ): Observable<WorkoutSessionVM | null | undefined> {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
@@ -191,7 +191,14 @@ export class PlanTrackingDomainService {
             ],
         };
 
-        return this.api.updateTrackingDay(payload);
+        return this.api
+            .updateTrackingDay(payload)
+            .pipe(
+                map(
+                    (res) =>
+                        res?.workouts?.filter((w) => this.dateService.isSameDay(w.date, date))[0],
+                ),
+            );
     }
 
     removeExtraSession(
@@ -320,22 +327,6 @@ export class PlanTrackingDomainService {
             days,
         };
     }
-
-    // private transformUpdateWeekLogInputUnified(
-    //     days: UpdateWeekLogDayInput[],
-    //     current: TrackingVM,
-    //     complete: boolean,
-    // ): UpdateWeekLogDayUnifiedInput {
-    //     return {
-    //         id: current.id,
-    //         days: days.map((day) => ({
-    //             order: day.order,
-    //             status: day.status,
-    //             isRest: day.isRest ?? false,
-    //             workoutSession: day.workoutSession,
-    //         })),
-    //     };
-    // }
 
     //reset routine s
     createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<any> {

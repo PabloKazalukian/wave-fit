@@ -24,7 +24,6 @@ export class ExtraSessionCreate implements OnInit, OnDestroy {
     onSave = output<void>();
 
     private service = inject(ExtraSessionService);
-    private workoutState = inject(WorkoutStateService);
     private subscription?: Subscription;
 
     form: FormGroup<ExtraSessionFormType> = this.service.extraSessionForm;
