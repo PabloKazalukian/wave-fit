@@ -73,9 +73,20 @@ export class WorkoutInProgressFacade {
         this.exerciseSetsData.set(newMap);
     }
 
-    setRestDay(status: StatusWorkoutSessionEnum): void {
-        if (!this.workoutDate()) return;
-        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!, status).subscribe({});
+    setRestDay(): void {
+        this._setWorkoutStatus(StatusWorkoutSessionEnum.REST);
+    }
+
+    setTrainingDay(): void {
+        this._setWorkoutStatus(StatusWorkoutSessionEnum.NOT_STARTED);
+    }
+
+    private _setWorkoutStatus(status: StatusWorkoutSessionEnum): void {
+        const date = this.workoutDate();
+        const workout = this.workoutVM();
+        if (!date || !workout) return;
+
+        this.trackingSvc.setRestDay(date, workout, status).subscribe();
     }
 
     reorderExercises(previousIndex: number, currentIndex: number): void {

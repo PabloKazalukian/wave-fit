@@ -65,9 +65,17 @@ export class TrackingWorkoutFacade {
             .subscribe();
     }
 
-    setRestDay(status: StatusWorkoutSessionEnum) {
+    setRestDay() {
+        this._setWorkoutStatus(StatusWorkoutSessionEnum.REST);
+    }
+
+    setTrainingDay() {
+        this._setWorkoutStatus(StatusWorkoutSessionEnum.NOT_STARTED);
+    }
+
+    private _setWorkoutStatus(status: StatusWorkoutSessionEnum) {
         if (!this.workoutDate()) return;
-        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!, status);
+        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!, status).subscribe();
     }
 
     setRemoveAllExercises() {

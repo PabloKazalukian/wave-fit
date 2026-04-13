@@ -233,34 +233,11 @@ export class PlanTrackingDomainService {
     }
 
     //add loading
-    setRestDay(day: Date, workout: WorkoutSessionVM): Observable<TrackingVM | null> {
-        const tracking = this.state.getTrackingValue();
-        if (!tracking) return of(null);
+    setRestDay(date: string, isRest: boolean): Observable<WeekLogDayVM | null> {
+        // this.state.setLoading(true);
 
-        const isRest = workout.status !== StatusWorkoutSessionEnum.REST;
-
-        let indexDay: number | null = null;
-
-        this.state.tracking()?.workouts?.forEach((d, index) => {
-            if (this.dateService.isSameDay(d.date, day)) {
-                indexDay = index;
-            }
-        });
-
-        if (indexDay === null) return of(null);
-
-        return this.api
-            .updateTrackingDay({
-                id: tracking.id!,
-                days: [
-                    {
-                        order: indexDay + 1,
-                        isRest: isRest,
-                        status: isRest ? 'skipped' : 'pending',
-                    },
-                ],
-            })
-            .pipe(map(() => this.state.getTrackingValue()));
+        return this.api.updateDayWorkoutStatus(date, isRest);
+        // .pipe(finalize(() => this.state.setLoading(false)));
     }
 
     completeTracking(complete: boolean): Observable<TrackingVMS | null> {

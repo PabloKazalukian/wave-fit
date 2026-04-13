@@ -4,6 +4,7 @@ import { AccordionItemComponent } from '../../../../ui/accordion-item/accordion-
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { WorkoutActionsMenu } from '../workout-actions-menu/workout-actions-menu';
 import { BtnComponent } from '../../../../ui/btn/btn';
+import { StatusWorkoutSessionEnum } from '../../../../../interfaces/tracking.interface';
 
 @Component({
     selector: 'app-workout-in-progress',
@@ -38,6 +39,7 @@ export class WorkoutInProgress {
     facade = inject(WorkoutInProgressFacade);
 
     // ===== UI Event Handlers =====
+    statusWorkoutSessionEnum = StatusWorkoutSessionEnum;
 
     // Accordion
     toggleAccordion(exerciseId: string): void {

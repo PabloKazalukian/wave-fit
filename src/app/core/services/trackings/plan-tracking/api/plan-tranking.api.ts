@@ -3,7 +3,11 @@ import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
 import { map, Observable, of, switchMap, tap } from 'rxjs';
-import { TrackingVM, TrackingVMS, WeekLogDayVM } from '../../../../../shared/interfaces/tracking.interface';
+import {
+    TrackingVM,
+    TrackingVMS,
+    WeekLogDayVM,
+} from '../../../../../shared/interfaces/tracking.interface';
 import {
     TrackingAPI,
     WeekLogDayAPI,
@@ -25,6 +29,7 @@ import {
     REMOVE_EXTRA_SESSION_FROM_DAY,
     CREATE_ROUTINE_BY_WORKOUT,
     REMOVE_WORKOUT_SESSION_FROM_DAY,
+    UPDATE_DAY_WORKOUT_STATUS,
 } from '../../../../apollo/tracking.queries';
 import { DateService } from '../../../date.service';
 
@@ -236,5 +241,25 @@ export class PlanTrackingApi {
                 variables: { title, exerciseIds },
             })
             .pipe(handleGraphqlError(this.authSvc));
+    }
+
+    updateDayWorkoutStatus(date: string, isRest: boolean): Observable<WeekLogDayVM | null> {
+        return this.apollo
+            .mutate<{ updateDayWorkoutStatus: WeekLogDayAPI }>({
+                mutation: UPDATE_DAY_WORKOUT_STATUS,
+                variables: { input: { date, isRest } },
+                fetchPolicy: 'no-cache',
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.updateDayWorkoutStatus
+                        ? trackingWrappers.wrapperWeekLogDayApiToVM(
+                              data.updateDayWorkoutStatus,
+                              this.exerciseSvc.exercises(),
+                          )
+                        : null,
+                ),
+            );
     }
 }

@@ -1,7 +1,7 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingDomainService } from './plan-tracking.domain';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { filter, finalize, map, Observable, switchMap, tap } from 'rxjs';
+import { filter, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     StatusWorkoutSession,
@@ -82,6 +82,7 @@ export class PlanTrackingService {
     }
 
     private _updateWorkout(date: Date, updater: (w: WorkoutSessionVM) => WorkoutSessionVM) {
+        console.log(date, 'update workout', this.state.getTrackingValue());
         this.state.updateWorkout(date, updater);
         const updated = this.state.getTrackingValue();
         if (updated) {
@@ -167,25 +168,27 @@ export class PlanTrackingService {
         this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
     }
 
-    //control here
     setRestDay(
         day: Date,
         workout: WorkoutSessionVM,
-        status: StatusWorkoutSessionEnum,
+        desiredStatus: StatusWorkoutSessionEnum,
     ): Observable<TrackingVM | null | undefined> {
-        console.log('day', day);
-        console.log('workout', workout);
-        console.log('status', status);
-        return this.domain.setRestDay(day, workout).pipe(
+        const isRest = desiredStatus === StatusWorkoutSessionEnum.REST;
+
+        const formattedDate = this.dateService.formatDate(day);
+        return this.domain.setRestDay(formattedDate, isRest).pipe(
             tap((res) => {
-                console.log(res, status);
                 if (res) {
                     this._updateWorkout(day, (old) => ({
                         ...old,
-                        status: status,
+                        status: isRest
+                            ? StatusWorkoutSessionEnum.REST
+                            : StatusWorkoutSessionEnum.NOT_STARTED,
+                        exercises: isRest ? [] : old.exercises,
                     }));
                 }
             }),
+            map(() => this.state.getTrackingValue()),
         );
     }
 

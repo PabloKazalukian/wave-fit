@@ -226,3 +226,11 @@ export const CREATE_ROUTINE_BY_WORKOUT = gql`
         }
     }
 `;
+
+export const UPDATE_DAY_WORKOUT_STATUS = gql`
+    mutation UpdateDayWorkoutStatus($input: UpdateDayWorkoutStatusInput!) {
+        updateDayWorkoutStatus(input: $input) {
+            ${WEEK_LOG_DAY_FIELDS}
+        }
+    }
+`;
