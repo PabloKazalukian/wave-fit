@@ -65,8 +65,6 @@ export interface UpdateWeekLogInput {
     id: string;
     startDate?: string;
     endDate?: string;
-    userId?: string;
-    planId?: string;
     days?: UpdateWeekLogDayInput[];
     completed?: boolean;
     active?: boolean;
@@ -78,8 +76,7 @@ export interface UpdateWeekLogDayInput {
     isRest?: boolean;
     workoutSessionId?: string;
     workoutSession?: UpdateWorkoutSessionInput;
-    extraSessionIds?: string[];
-    extraSessions?: ExtraSessionAPI[];
+    extraSession?: CreateExtraSessionWithoutWsInput;
     status?: 'pending' | 'complete' | 'skipped';
 }
 

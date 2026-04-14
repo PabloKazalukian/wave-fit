@@ -213,7 +213,6 @@ export function wrapperWorkoutSessionVMtoUpdateWeekLogDayInput(
         return {
             order: i + 1,
             workoutSessionId: w.id ?? undefined,
-            extraSessionIds: [],
             isRest: isRest,
             status: w.id ? 'complete' : isRest ? 'skipped' : 'pending',
         };

@@ -87,16 +87,16 @@ export class PlanTrackingApi {
 
     updateTracking(payload: UpdateWeekLogInput): Observable<TrackingVMS | null> {
         return this.apollo
-            .mutate<{ updateDay: TrackingAPI }>({
+            .mutate<{ updateWeekLog: TrackingAPI }>({
                 mutation: UPDATE_WEEK_LOG,
                 variables: { input: payload },
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.updateDay
+                    data?.updateWeekLog
                         ? trackingWrappers.wrapperTrackingApiToVMS(
-                              data.updateDay,
+                              data.updateWeekLog,
                               this.exerciseSvc.exercises(),
                           )
                         : null,

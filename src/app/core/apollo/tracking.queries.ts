@@ -156,8 +156,8 @@ export const UPDATE_WEEK_LOG_DAY = gql`
 `;
 
 export const UPDATE_WEEK_LOG = gql`
-    mutation UpdateWeekLog($updateWeekLogInput: UpdateWeekLogInput!) {
-        updateWeekLog(input: $updateWeekLogInput) {
+    mutation UpdateWeekLog($input: UpdateWeekLogInput!) {
+        updateWeekLog(input: $input) {
             ${WEEK_LOG_FIELDS}
         }
     }
