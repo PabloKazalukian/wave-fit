@@ -178,16 +178,16 @@
             <span class="text-xs text-text2/50 uppercase tracking-wider mb-2 block">Planes</span>
             <div class="flex flex-col gap-2 pl-4">
               <a
-                routerLink="/routines"
+                routerLink="/plans"
                 class="text-text2 py-2"
-                [class.text-primary]="isActive('/routines')"
+                [class.text-primary]="isActive('/plans')"
                 (click)="toggleMobileMenu()"
                 >Ver Planes</a
               >
               <a
-                routerLink="/routines/creator"
+                routerLink="/plans/create"
                 class="text-text2 py-2"
-                [class.text-primary]="isActive('/routines/creator')"
+                [class.text-primary]="isActive('/plans/create')"
                 (click)="toggleMobileMenu()"
                 >Crear un plan semanal</a
               >

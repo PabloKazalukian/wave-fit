@@ -1,7 +1,16 @@
 @if (routerLink && !isDisabled) {
-  <a [routerLink]="routerLink" [fragment]="fragment" [class]="'block ' + classList" [attr.data-test]="dataTest">
+  <a
+    [routerLink]="routerLink"
+    [fragment]="fragment"
+    [class]="'block ' + classList"
+    [attr.data-test]="dataTest"
+  >
     <div class="flex flex-col w-full">
       <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
+      @if (this.descriptionText !== '') {
+        <!-- Descripción -->
+        <small class="block text-xs opacity-75">{{ this.descriptionText }}</small>
+      }
     </div>
 
     @if (showIcon()) {
@@ -24,7 +33,12 @@
     }
   </a>
 } @else {
-  <button [type]="buttonType" [disabled]="isDisabled" [class]="classList" [attr.data-test]="dataTest">
+  <button
+    [type]="buttonType"
+    [disabled]="isDisabled"
+    [class]="classList"
+    [attr.data-test]="dataTest"
+  >
     <div [ngClass]="this.descriptionText ? 'flex flex-col justify-start items-start w-full' : ''">
       <span>{{ text ? text.charAt(0).toUpperCase() + text.slice(1) : '' }}</span>
       @if (this.descriptionText !== '') {

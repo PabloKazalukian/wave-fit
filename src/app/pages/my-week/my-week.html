@@ -12,51 +12,47 @@
           <app-tracking-week [tracking]="this.tracking()"></app-tracking-week>
         </div>
       } @else {
-        <span class="text-text2 text-center text-sm mb-4">
-          Crea rutinas personalizadas, rastrea tus ejercicios semanales y alcanza tus metas de forma
-          simple y efectiva.
+        <span class="text-text2 text-center text-sm">
+          Organizá tus entrenamientos, seguí tu progreso y alcanzá tus objetivos de forma simple.
         </span>
-        <div class="flex flex-col justify-center items-center space-x-2 mt-2">
-          <div class="flex flex-col justify-center items-center my-4">
-            <p class="text-lg">No hay rutina activa</p>
-            <span class="text-text2 mb-4">Queres crear una?</span>
-          </div>
-          <div class="w-64 flex flex-col gap-4">
-            <app-btn
-              [text]="'Crear Plan'"
-              [descriptionText]="'Crear un plan'"
-              [variant]="'raised'"
-              size="md"
-              [showIcon]="true"
-              [color]="'primary3'"
-              [routerLink]="'/plans/create'"
-              dataTest="crear-plan"
-            ></app-btn>
-            <app-btn
-              [text]="'Seleccionar Plan'"
-              [descriptionText]="'Seleccionar un plan'"
-              [variant]="'raised'"
-              size="md"
-              [showIcon]="true"
-              [color]="'secondary'"
-              [routerLink]="'/plans'"
-              [fragment]="'plans'"
-              dataTest="seleccionar-plan"
-            ></app-btn>
-          </div>
-          <span class="text-text2 my-4"
-            >O tambien puedes iniciar una rutina sin necesidad de crearla</span
+        <div class="flex flex-col gap-6 justify-center items-center w-full px-4">
+          <div
+            class="flex flex-col justify-between items-center p-8 bg-primary/10 border-2 border-primary rounded-2xl w-full max-w-sm text-center shadow-lg shadow-primary/5"
           >
-          <div class="w-64">
+            <div>
+              <span class="text-primary text-xs font-bold uppercase tracking-widest"
+                >Recomendado</span
+              >
+              <h3 class="text-2xl font-bold mb-2 text-white">Explorar planes</h3>
+              <p class="text-text2 text-sm mb-6">
+                Elegí un plan según tus objetivos y comenzá tu semana de entrenamiento.
+              </p>
+            </div>
+
             <app-btn
-              [text]="'Iniciar Seguimiento'"
-              [descriptionText]="'Iniciar seguimiento sin plan'"
+              [text]="'Explorar planes'"
+              [descriptionText]="'Creá tu propia rutina semanal'"
+              [variant]="'raised'"
+              [size]="'md'"
+              [showIcon]="true"
+              [color]="'primary'"
+              [routerLink]="'/plans'"
+            ></app-btn>
+          </div>
+
+          <div
+            class="flex flex-col items-center p-6 bg-transparent border border-white/10 rounded-xl w-full max-w-sm text-center"
+          >
+            <h3 class="text-lg font-medium mb-1 text-white/80">¿Solo querés registrar hoy?</h3>
+            <p class="text-text2 text-xs mb-4">Entrenamiento libre sin necesidad de un plan.</p>
+
+            <app-btn
+              [text]="'Comenzar entrenamiento'"
               [variant]="'outline'"
-              size="md"
+              size="sm"
               [showIcon]="true"
               [color]="'accent'"
               (click)="createTracking()"
-              dataTest="iniciar-seguimiento"
             ></app-btn>
           </div>
         </div>
