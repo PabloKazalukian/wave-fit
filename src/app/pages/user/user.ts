@@ -3,7 +3,6 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { TrackingActiveComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-active/tracking-active';
 import { ExerciseCategory } from '../../shared/interfaces/exercise.interface';
-import { RouterLink } from '@angular/router';
 import {
     LucideAngularModule,
     Trophy,
