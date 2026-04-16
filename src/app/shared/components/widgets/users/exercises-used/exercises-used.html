@@ -1,0 +1,24 @@
+<div class="space-y-2">
+  @for (exercise of exercises(); track exercise.name) {
+    <div
+      class="bg-background2 border-2 border-background4 rounded-xl px-4 py-3 flex items-center justify-between history-item"
+    >
+      <div class="flex items-center gap-3">
+        <div class="text-primary">
+          <lucide-icon
+            [img]="exercise.usesWeight ? DumbbellIcon : TargetIcon"
+            [strokeWidth]="2"
+            size="24"
+          ></lucide-icon>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-text1">{{ exercise.name }}</p>
+          <span class="text-xs text-text2">{{ categoryLabel(exercise.category) }}</span>
+        </div>
+      </div>
+      <span class="text-xs px-2.5 py-1 bg-background4 rounded-full text-text2">
+        {{ exercise.usesWeight ? 'Con peso' : 'Sin peso' }}
+      </span>
+    </div>
+  }
+</div>

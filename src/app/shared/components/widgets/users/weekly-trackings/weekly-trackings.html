@@ -1,0 +1,72 @@
+<!-- Week stats -->
+<!-- <div class="flex items-center justify-between bg-background3 rounded-xl px-4 py-3 mb-3">
+  <div class="flex items-center gap-2">
+    <lucide-icon [img]="TrophyIcon" [strokeWidth]="2" size="24" class="text-primary2"></lucide-icon>
+    <span class="text-sm text-text2">Semanas completadas</span>
+  </div>
+
+  @if (stats | async; as stats) {
+    <span class="text-2xl font-bold text-primary">{{ stats.completed }}</span>
+  }
+</div> -->
+
+<!-- Trackings list -->
+<div class="flex items-center justify-between mb-3">
+  <h3
+    class="section-title text-base font-semibold text-text2 uppercase tracking-wider flex items-center gap-2"
+  >
+    <lucide-icon
+      [img]="TrophyIcon"
+      [strokeWidth]="2.5"
+      size="20"
+      class="text-primary"
+    ></lucide-icon>
+    Historial de Semanas
+  </h3>
+  <a
+    routerLink="/user/trackings"
+    class="text-xs font-bold text-primary hover:underline flex items-center gap-0.5"
+  >
+    Ver todo <lucide-icon [img]="ChevronRightIcon" size="12"></lucide-icon>
+  </a>
+</div>
+<div class="space-y-3">
+  @if (trackings | async; as trackingsList) {
+    @for (
+      tracking of limit() > 0 ? trackingsList.slice(0, limit()) : trackingsList;
+      track tracking.id
+    ) {
+      <a
+        [routerLink]="['/user/trackings', tracking.id]"
+        class="bg-background2 border-2 border-background4 rounded-xl px-4 py-3 flex items-center justify-between history-item hover:border-primary/40 transition-all"
+      >
+        <div>
+          <p class="text-sm font-medium text-text1">
+            {{ formatDate(tracking.startDate) }} → {{ formatDate(tracking.endDate) }}
+          </p>
+          @if (tracking.planId) {
+            <p class="text-xs text-text2 mt-0.5">Plan asignado</p>
+          }
+        </div>
+
+        @if (tracking.completed) {
+          <span
+            class="px-2.5 py-1 bg-success/20 text-success text-xs rounded-full border border-success/30 font-medium"
+          >
+            ✓ Completada
+          </span>
+        } @else {
+          <span
+            class="px-2.5 py-1 bg-warning/20 text-warning text-xs rounded-full border border-warning/30 font-medium"
+          >
+            En progreso
+          </span>
+        }
+      </a>
+    } @empty {
+      <p class="text-sm text-text3 italic text-center py-4">No hay trackings registrados</p>
+    }
+  } @else {
+    <div class="h-16 bg-background2 animate-pulse rounded-xl"></div>
+  }
+</div>

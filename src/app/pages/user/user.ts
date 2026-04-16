@@ -14,10 +14,11 @@ import {
     ChevronRight,
 } from 'lucide-angular';
 import { TrackingListState } from '../../core/services/trackings/tracking-list.state';
+import { WeeklyTrackings } from '../../shared/components/widgets/users/weekly-trackings/weekly-trackings';
 
 @Component({
     selector: 'app-user',
-    imports: [CommonModule, TrackingActiveComponent, LucideAngularModule, RouterLink],
+    imports: [CommonModule, TrackingActiveComponent, LucideAngularModule, WeeklyTrackings],
     standalone: true,
     templateUrl: './user.html',
     styleUrl: './user.css',
