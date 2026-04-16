@@ -1,10 +1,11 @@
 import { ExerciseCategory } from './exercise.interface';
 
+export type LocalDate = string; // "yyyy-MM-dd"
 export type DayStatusVM = 'pending' | 'complete' | 'skipped';
 
 export interface WeekLogDayVM {
     order: number;
-    date: Date;
+    date: LocalDate; // "yyyy-MM-dd" — nunca Date
     isRest: boolean;
     workoutSessionId?: string | null;
     exercises: ExercisePerformanceVM[];
@@ -20,13 +21,17 @@ export enum StatusWorkoutSessionEnum {
     EDITED = 'edited',
 }
 
+/**
+ * ViewModel del WeekLog / Tracking activo.
+ * startDate/endDate son LocalDate "yyyy-MM-dd" para comparaciones determinísticas.
+ */
 export interface TrackingVM {
     id: string;
     userId: string;
-    startDate: Date;
-    endDate: Date;
+    startDate: LocalDate; // "yyyy-MM-dd"
+    endDate: LocalDate;   // "yyyy-MM-dd"
     workouts?: WorkoutSessionVM[];
-    planId?: string | null; // plan elegido esa semana
+    planId?: string | null;
     notes?: string;
     completed: boolean;
 }
@@ -34,20 +39,23 @@ export interface TrackingVM {
 export interface TrackingVMS {
     id: string;
     userId: string;
-    startDate: Date;
-    endDate: Date;
+    startDate: LocalDate; // "yyyy-MM-dd"
+    endDate: LocalDate;   // "yyyy-MM-dd"
     planId?: string | null;
     days: WeekLogDayVM[];
     completed: boolean;
     notes?: string;
-    // Opcionales enriquecidos (si los sigues necesitando en la UI)
     workouts?: WorkoutSessionVM[];
     extras?: string[];
 }
 
+/**
+ * ViewModel de una sesión de entrenamiento.
+ * date es LocalDate "yyyy-MM-dd" — nunca Date object.
+ */
 export interface WorkoutSessionVM {
     id?: string;
-    date: Date;
+    date: LocalDate; // "yyyy-MM-dd"
     exercises: ExercisePerformanceVM[];
     extras?: string[];
     status: StatusWorkoutSession;
@@ -71,6 +79,6 @@ export interface ExercisePerformanceVM {
 export interface ExtraActivityVM {
     id: string;
     type: 'running' | 'yoga' | 'cycling' | 'other';
-    duration?: number; // minutos
-    distance?: number; // km
+    duration?: number;
+    distance?: number;
 }

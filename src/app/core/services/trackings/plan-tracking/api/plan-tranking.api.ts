@@ -145,11 +145,10 @@ export class PlanTrackingApi {
     }
 
     assignRoutineToDay(routineDayId: string, date: string): Observable<WeekLogDayVM | null> {
-        const searchDate = this.dateSvc.parseLocalDate(date);
         return this.apollo
             .mutate<{ assignRoutineToDay: WeekLogDayAPI }>({
                 mutation: ASSIGN_ROUTINE_TO_DAY,
-                variables: { routineDayId, date },
+                variables: { routineDayId, date }, // date es LocalDate string
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
@@ -198,7 +197,7 @@ export class PlanTrackingApi {
             );
     }
 
-    removeExtraSession(date: Date, extraSessionId: string): Observable<WeekLogDayVM | null> {
+    removeExtraSession(date: string, extraSessionId: string): Observable<WeekLogDayVM | null> {
         return this.apollo
             .mutate<{
                 removeExtraSessionFromDay: WeekLogDayAPI;
@@ -216,7 +215,7 @@ export class PlanTrackingApi {
             );
     }
 
-    removeWorkoutSession(date: Date, workoutSessionId: string): Observable<WeekLogDayVM | null> {
+    removeWorkoutSession(date: string, workoutSessionId: string): Observable<WeekLogDayVM | null> {
         return this.apollo
             .mutate<{
                 removeWorkoutSessionFromDay: WeekLogDayAPI;

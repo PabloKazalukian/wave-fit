@@ -1,9 +1,17 @@
 import { StatusWorkoutSession } from '../tracking.interface';
+
+export type LocalDate = string; // "yyyy-MM-dd"
 export type DayStatusAPI = 'pending' | 'complete' | 'skipped';
 
+/**
+ * Payload para crear un WeekLog.
+ * startDate/endDate son LocalDate "yyyy-MM-dd" — nunca Date ni ISO UTC.
+ * timezone es obligatorio para que el backend convierta correctamente a UTC.
+ */
 export interface TrackingCreate {
-    startDate: Date;
-    endDate: Date;
+    startDate: LocalDate;
+    endDate: LocalDate;
+    timezone: string; // IANA, ej: "America/Argentina/Buenos_Aires"
     planId?: string;
     notes?: string;
     completed?: boolean;
@@ -11,15 +19,16 @@ export interface TrackingCreate {
 
 export interface WorkoutSessionAPI {
     id?: string;
-    date?: Date;
+    date?: LocalDate; // "yyyy-MM-dd"
     weekLogId?: string;
     status: StatusWorkoutSession;
-    routineDayId?: string; // referencia al día del plan (si siguió uno)
+    routineDayId?: string;
     exercises?: ExercisePerformanceAPI[];
     notes?: string;
 }
+
 export interface ExercisePerformanceAPI {
-    exerciseId: string; // referencia al Exercise
+    exerciseId: string;
     sets: {
         reps: number;
         weights?: number;
@@ -30,18 +39,22 @@ export interface ExercisePerformanceAPI {
 
 export interface ExtraSessionAPI {
     id: string;
-    type: string; // "cardio", "yoga", "deporte", etc.
-    discipline: string; // "running", "bicicleta", "fútbol", etc.
-    duration: number; // en minutos
-    intensityLevel: number; // escala 1–5
+    type: string;
+    discipline: string;
+    duration: number;
+    intensityLevel: number;
     calories?: number;
     notes?: string;
 }
 
+/**
+ * Respuesta de la API para un WeekLog completo.
+ * Las fechas vienen como strings ISO de Mongo — se convierten a LocalDate en los wrappers.
+ */
 export interface TrackingAPI {
     id: string;
     userId: string;
-    startDate: string;
+    startDate: string; // ISO string de Mongo (se convierte a LocalDate en wrapper)
     endDate: string;
     planId?: string | null;
     days: WeekLogDayAPI[];
@@ -50,8 +63,8 @@ export interface TrackingAPI {
 }
 
 export interface WeekLogDayAPI {
-    order: number; // 1–7
-    date: string; // ISO string desde Mongo
+    order: number;
+    date: string; // ISO string de Mongo (se convierte a LocalDate en wrapper)
     isRest: boolean;
     workoutSessionId?: string | null;
     exercises?: ExercisePerformanceAPI[];
@@ -63,8 +76,9 @@ export interface WeekLogDayAPI {
 
 export interface UpdateWeekLogInput {
     id: string;
-    startDate?: string;
-    endDate?: string;
+    startDate?: LocalDate; // "yyyy-MM-dd"
+    endDate?: LocalDate;   // "yyyy-MM-dd"
+    timezone?: string;
     days?: UpdateWeekLogDayInput[];
     completed?: boolean;
     active?: boolean;
@@ -83,7 +97,7 @@ export interface UpdateWeekLogDayInput {
 export interface UpdateWorkoutSessionInput {
     id?: string;
     weekLogId?: string;
-    date?: string;
+    date?: LocalDate; // "yyyy-MM-dd"
     routineDayId?: string;
     exercises?: ExercisePerformanceAPI[];
     status?: StatusWorkoutSession;
@@ -91,10 +105,8 @@ export interface UpdateWorkoutSessionInput {
     edited?: boolean;
 }
 
-// plan-tracking.domain.interfaces.ts
-
 export interface CreateExtraSessionWithoutWsInput {
-    date: string;
+    date: LocalDate; // "yyyy-MM-dd"
     discipline: string;
     duration: number;
     intensityLevel: number;
@@ -102,7 +114,6 @@ export interface CreateExtraSessionWithoutWsInput {
     notes?: string;
 }
 
-// Reemplaza el UpdateWeekLogDayInput legacy
 export interface UpdateDayInput {
     order: number;
     isRest?: boolean;
@@ -112,7 +123,6 @@ export interface UpdateDayInput {
     status?: string;
 }
 
-// Input principal que espera el back
 export interface UpdateWeekLogDayUnifiedInput {
     id: string; // weekLogId
     days: UpdateDayInput[];

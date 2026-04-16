@@ -1,9 +1,10 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingDomainService } from './plan-tracking.domain';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { filter, finalize, map, Observable, of, switchMap, tap } from 'rxjs';
+import { filter, finalize, map, Observable, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
+    LocalDate,
     StatusWorkoutSession,
     StatusWorkoutSessionEnum,
     TrackingVM,
@@ -81,9 +82,8 @@ export class PlanTrackingService {
         }
     }
 
-    private _updateWorkout(date: Date, updater: (w: WorkoutSessionVM) => WorkoutSessionVM) {
-        console.log(date, 'update workout', this.state.getTrackingValue());
-        this.state.updateWorkout(date, updater);
+    private _updateWorkout(localDate: LocalDate, updater: (w: WorkoutSessionVM) => WorkoutSessionVM) {
+        this.state.updateWorkout(localDate, updater);
         const updated = this.state.getTrackingValue();
         if (updated) {
             this.storage.setTrackingStorage(updated, this.state.userId());
@@ -99,7 +99,7 @@ export class PlanTrackingService {
         return this.domain.createTracking(planId);
     }
 
-    createWorkout(dateWorkout: Date): Observable<WorkoutSessionVM | null | undefined> {
+    createWorkout(dateWorkout: LocalDate): Observable<WorkoutSessionVM | null | undefined> {
         return this.domain.createWorkout(dateWorkout).pipe(
             map((res) => {
                 if (!res) return null;
@@ -119,9 +119,10 @@ export class PlanTrackingService {
             }),
         );
     }
+
     createWorkoutWithRoutine(
         routineDayId: string,
-        date: string,
+        date: LocalDate,
     ): Observable<WorkoutSessionVM | null | undefined> {
         return this.domain.createWorkoutWithRoutine(routineDayId, date).pipe(
             takeUntilDestroyed(this.destroyRef),
@@ -140,7 +141,7 @@ export class PlanTrackingService {
                 }
             }),
             switchMap(() => {
-                return this.getWorkout(new Date(date));
+                return this.getWorkout(date);
             }),
         );
     }
@@ -153,30 +154,29 @@ export class PlanTrackingService {
         return this.domain.findById(id);
     }
 
-    removeExercise(date: Date, exerciseId: string): void {
+    removeExercise(date: LocalDate, exerciseId: string): void {
         this._updateWorkout(date, (workout) => ({
             ...workout,
             exercises: (workout.exercises || []).filter((e) => e.exerciseId !== exerciseId),
         }));
     }
 
-    setWorkouts(day: Date, workout: WorkoutSessionVM) {
+    setWorkouts(day: LocalDate, workout: WorkoutSessionVM) {
         this._updateWorkout(day, () => workout);
     }
 
-    setExercises(date: Date, exercises: ExercisePerformanceVM[]) {
+    setExercises(date: LocalDate, exercises: ExercisePerformanceVM[]) {
         this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
     }
 
     setRestDay(
-        day: Date,
+        day: LocalDate,
         workout: WorkoutSessionVM,
         desiredStatus: StatusWorkoutSessionEnum,
     ): Observable<TrackingVM | null | undefined> {
         const isRest = desiredStatus === StatusWorkoutSessionEnum.REST;
 
-        const formattedDate = this.dateService.formatDate(day);
-        return this.domain.setRestDay(formattedDate, isRest).pipe(
+        return this.domain.setRestDay(day, isRest).pipe(
             tap((res) => {
                 if (res) {
                     this._updateWorkout(day, (old) => ({
@@ -193,7 +193,7 @@ export class PlanTrackingService {
     }
 
     updateExtraSession(
-        date: Date,
+        date: LocalDate,
         extraSession: CreateExtraSessionForm,
     ): Observable<TrackingVM | null | undefined> {
         return this.domain.updateExtraSession(date, extraSession).pipe(
@@ -211,7 +211,7 @@ export class PlanTrackingService {
     }
 
     removeExtraSession(
-        date: Date,
+        date: LocalDate,
         extraSessionId: string,
     ): Observable<TrackingVM | null | undefined> {
         return this.domain.removeExtraSession(date, extraSessionId).pipe(
@@ -227,7 +227,7 @@ export class PlanTrackingService {
         );
     }
 
-    updateWorkoutStatus(date: Date, status: StatusWorkoutSession) {
+    updateWorkoutStatus(date: LocalDate, status: StatusWorkoutSession) {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return;
 
@@ -235,7 +235,7 @@ export class PlanTrackingService {
         this._updateWorkout(date, (workout) => ({ ...workout, status }));
     }
 
-    updateWorkoutSession(date: Date, workout: WorkoutSessionVM): void {
+    updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): void {
         // Call API
         this.domain
             .updateWorkoutSession(date, workout)
@@ -260,44 +260,44 @@ export class PlanTrackingService {
         );
     }
 
-    getExercises(workoutDate: Date): Observable<ExercisePerformanceVM[]> {
+    getExercises(workoutDate: LocalDate): Observable<ExercisePerformanceVM[]> {
         return this.state.tracking$.pipe(
             filter((tracking) => !!tracking),
             map(
                 (tracking) =>
                     tracking?.workouts?.filter((w) =>
-                        this.dateService.isEqualDate(w.date, workoutDate),
+                        this.dateService.isSameLocalDate(w.date, workoutDate),
                     ) || [],
             ),
             map((workouts) => workouts[0]?.exercises || []),
         );
     }
 
-    getWorkout(date: Date): Observable<WorkoutSessionVM | undefined> {
+    getWorkout(date: LocalDate): Observable<WorkoutSessionVM | undefined> {
         return this.state.tracking$.pipe(
             filter((tracking) => !!tracking),
             map((tracking) => tracking?.workouts || []),
-            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
+            map((workouts) => workouts.find((w) => this.dateService.isSameLocalDate(w.date, date))),
         );
     }
 
-    getExercise(date: Date, exerciseId: string): Observable<ExercisePerformanceVM | undefined> {
+    getExercise(date: LocalDate, exerciseId: string): Observable<ExercisePerformanceVM | undefined> {
         return this.state.tracking$.pipe(
             filter((tracking) => !!tracking),
             map((tracking) => tracking?.workouts || []),
-            map((workouts) => workouts.find((w) => this.dateService.isEqualDate(w.date, date))),
+            map((workouts) => workouts.find((w) => this.dateService.isSameLocalDate(w.date, date))),
             map((workout) => workout?.exercises.find((e) => e.exerciseId === exerciseId)),
         );
     }
 
-    setRemoveAllExercises(date: Date, workout: WorkoutSessionVM): void {
+    setRemoveAllExercises(date: LocalDate, workout: WorkoutSessionVM): void {
         this._updateWorkout(date, (workout) => ({
             ...workout,
             exercises: [],
         }));
     }
 
-    removeWorkoutSession(date: Date, id: string): Observable<boolean> {
+    removeWorkoutSession(date: LocalDate, id: string): Observable<boolean> {
         return this.domain.removeWorkoutSession(date, id).pipe(
             map((res) => {
                 if (!res) return false;

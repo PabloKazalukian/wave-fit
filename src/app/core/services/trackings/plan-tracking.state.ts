@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TrackingVM, WorkoutSessionVM } from '../../../shared/interfaces/tracking.interface';
+import { LocalDate, TrackingVM, WorkoutSessionVM } from '../../../shared/interfaces/tracking.interface';
 import { DateService } from '../date.service';
 
 @Injectable({
@@ -19,8 +19,8 @@ export class PlanTrackingStateService {
     readonly error = signal<string | null>(null);
 
     readonly userId = signal<string>('');
-    readonly loadingWorkoutCreation = signal<{ wokout: Date; state: boolean }>({
-        wokout: new Date(),
+    readonly loadingWorkoutCreation = signal<{ date: LocalDate; state: boolean }>({
+        date: '', // LocalDate vacío inicial
         state: false,
     });
 
@@ -55,14 +55,17 @@ export class PlanTrackingStateService {
         }
     }
 
-    updateWorkout(date: Date, updater: (w: WorkoutSessionVM) => WorkoutSessionVM): void {
+    /**
+     * Actualiza el workout del día identificado por LocalDate "yyyy-MM-dd".
+     */
+    updateWorkout(date: LocalDate, updater: (w: WorkoutSessionVM) => WorkoutSessionVM): void {
         const current = this.trackingSubject.value;
         if (!current) return;
 
         const updated = {
             ...current,
             workouts: current.workouts?.map((w) =>
-                this.dateService.isEqualDate(w.date, date) ? updater(w) : w,
+                this.dateService.isSameLocalDate(w.date, date) ? updater(w) : w,
             ),
         };
 

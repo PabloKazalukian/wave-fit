@@ -4,12 +4,12 @@ import { WorkoutStateService } from '../../../../../../core/services/workouts/wo
 import { toSignal } from '@angular/core/rxjs-interop';
 import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
 import { Loading } from '../../../../ui/loading/loading';
-import { StatusWorkoutSession } from '../../../../../interfaces/tracking.interface';
+import { LocalDate, StatusWorkoutSession } from '../../../../../interfaces/tracking.interface';
 
 interface DayWithState {
     day: string;
     dayNumber: number;
-    date: Date;
+    date: LocalDate;
     state: StatusWorkoutSession;
 }
 
@@ -31,20 +31,24 @@ export class NavigatorWeek {
     visibleDayCount = 4;
     currentDayIndex = signal<number>(0);
 
-    workoutDay = this.state.workoutSession();
+    workoutDay = this.state.workoutSession;
 
     selectedDay = computed(() => {
-        const day = {
-            date: this.state.selectedDate(),
-            dayNumber: this.dateSvc.dateToNumber(this.state.selectedDate()!),
-            day: this.dateSvc.dateToStringLocalWithDay(this.state.selectedDate()!),
+        const selected = this.state.selectedDate();
+        if (!selected) return null;
+
+        const day: DayWithState = {
+            date: selected,
+            dayNumber: this.dateSvc.localDateToDisplay(selected).getDate(),
+            day: this.dateSvc.dateToStringLocalWithDay(selected),
+            state: this.workoutDay()?.status ?? 'not_started',
         };
         return day;
     });
 
     sameDay(day: DayWithState): boolean {
-        if (this.selectedDay() === null || this.selectedDay()?.date === null) return false;
-        return this.dateSvc.isEqualDate(this.selectedDay()?.date!, day.date);
+        if (!this.selectedDay() || !this.selectedDay()?.date) return false;
+        return this.dateSvc.isSameLocalDate(this.selectedDay()!.date, day.date);
     }
 
     allDays = computed(() => {
@@ -53,7 +57,7 @@ export class NavigatorWeek {
         return t.workouts.map((w) => {
             return {
                 date: w.date,
-                dayNumber: this.dateSvc.dateToNumber(w.date),
+                dayNumber: this.dateSvc.localDateToDisplay(w.date).getDate(),
                 day: this.dateSvc.dateToStringLocalWithDay(w.date),
                 state: w.status,
             };
@@ -82,8 +86,8 @@ export class NavigatorWeek {
     }
 
     private calculateStartIndex(days: DayWithState[]) {
-        const today = this.dateSvc.today();
-        const todayIndex = days.findIndex((d) => this.dateSvc.isEqualDate(d.date, today));
+        const today = this.dateSvc.todayLocalDate();
+        const todayIndex = days.findIndex((d) => this.dateSvc.isSameLocalDate(d.date, today));
 
         if (todayIndex === -1) return 0;
 

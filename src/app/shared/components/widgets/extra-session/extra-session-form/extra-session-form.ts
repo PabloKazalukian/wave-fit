@@ -15,6 +15,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../ui/loading/loading';
 import { ExtraSessionCreate } from '../extra-session-create/extra-session-create';
+import { DateService } from '../../../../../core/services/date.service';
 
 @Component({
     selector: 'app-extra-session-form',
@@ -27,6 +28,7 @@ export class ExtraSessionForm implements OnInit {
 
     service = inject(ExtraSessionService);
     private workoutState = inject(WorkoutStateService);
+    private dateService = inject(DateService);
 
     catalog = toSignal(this.service.catalog$, { initialValue: [] });
 
@@ -59,7 +61,6 @@ export class ExtraSessionForm implements OnInit {
         this.service.loadCatalog();
 
         this.extraSessionForm.get('category')?.valueChanges.subscribe((category) => {
-            ExtraSessionCategory;
             this.disciplineOptions.set(
                 this.catalog()
                     .filter((c) => c.category === category)
@@ -94,7 +95,7 @@ export class ExtraSessionForm implements OnInit {
 
         this.service
             .create({
-                date: new Date().toISOString(),
+                date: this.dateService.todayLocalDate(), // ✅ LocalDate del timezone del usuario
                 discipline: this.disciplineControl.value,
                 duration: this.durationControl.value,
                 intensityLevel: this.intensityLevelControl.value,

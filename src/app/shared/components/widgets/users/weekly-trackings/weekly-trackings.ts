@@ -3,11 +3,9 @@ import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Trophy, ChevronRight } from 'lucide-angular';
 import { TrackingListState } from '../../../../../core/services/trackings/tracking-list.state';
+import { parseISO } from 'date-fns';
+import { LocalDate } from '../../../../../shared/interfaces/tracking.interface';
 
-interface StatsVM {
-    completed: number;
-    total: number;
-}
 
 @Component({
     selector: 'app-weekly-trackings',
@@ -26,10 +24,11 @@ export class WeeklyTrackings {
     readonly TrophyIcon = Trophy;
     readonly ChevronRightIcon = ChevronRight;
 
-    formatDate(date: Date): string {
+    /** Formatea un LocalDate "yyyy-MM-dd" para display */
+    formatDate(localDate: LocalDate): string {
         return new Intl.DateTimeFormat('es-AR', {
             day: '2-digit',
             month: 'short',
-        }).format(new Date(date));
+        }).format(parseISO(localDate)); // ✅ parseISO es seguro con yyyy-MM-dd
     }
 }

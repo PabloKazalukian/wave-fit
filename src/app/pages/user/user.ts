@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { parseISO } from 'date-fns';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { TrackingActiveComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-active/tracking-active';
 import { ExerciseCategory } from '../../shared/interfaces/exercise.interface';
@@ -90,10 +91,10 @@ export class User {
         return map[category] ?? category;
     }
 
-    formatDate(date: Date): string {
+    formatDate(localDate: string): string {
         return new Intl.DateTimeFormat('es-AR', {
             day: '2-digit',
             month: 'short',
-        }).format(new Date(date));
+        }).format(parseISO(localDate)); // ✅ parseISO es seguro con "yyyy-MM-dd"
     }
 }

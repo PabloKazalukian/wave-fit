@@ -4,7 +4,7 @@ import { PlanTrackingStateService } from './plan-tracking.state';
 import { delay, finalize, map, Observable, of, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
-    StatusWorkoutSession,
+    LocalDate,
     StatusWorkoutSessionEnum,
     TrackingVM,
     TrackingVMS,
@@ -72,11 +72,13 @@ export class PlanTrackingDomainService {
     }
 
     createTracking(planId?: string): Observable<TrackingVM | null | undefined> {
-        const { start, end } = this.dateService.todayPlusDays(7);
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const { start, end } = this.dateService.todayWeekRange(timezone); // ✅ LocalDate range
 
         const payload: TrackingCreate = {
-            startDate: start,
-            endDate: end,
+            startDate: start,   // ✅ LocalDate "yyyy-MM-dd"
+            endDate: end,       // ✅ LocalDate "yyyy-MM-dd"
+            timezone,           // ✅ IANA timezone del browser
             planId,
         };
 
@@ -91,13 +93,13 @@ export class PlanTrackingDomainService {
     }
 
     createWorkout(
-        dateWorkout: Date,
+        dateWorkout: LocalDate, // ✅ LocalDate "yyyy-MM-dd"
     ): Observable<{ index: number; workoutDraft: WorkoutSessionVM } | null> {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
         const index = tracking.workouts?.findIndex((w) =>
-            this.dateService.isSameDay(w.date, dateWorkout),
+            this.dateService.isSameLocalDate(w.date, dateWorkout), // ✅ string comparison
         );
 
         if (index === undefined || index === -1) return of(null);
@@ -106,7 +108,7 @@ export class PlanTrackingDomainService {
 
         this.state.loadingWorkoutCreation.update((current) => ({
             ...current,
-            wokout: dateWorkout,
+            date: dateWorkout,
             state: true,
         }));
 
@@ -119,7 +121,7 @@ export class PlanTrackingDomainService {
                     status: 'complete',
                     workoutSession: {
                         id: workoutDraft.id,
-                        date: this.dateService.formatDate(workoutDraft.date),
+                        date: workoutDraft.date, // ✅ ya es LocalDate — sin conversión
                         status: StatusWorkoutSessionEnum.COMPLETE,
                         exercises: wrapperExercisePerformanceVMToApi(workoutDraft.exercises),
                         notes: workoutDraft.notes,
@@ -145,7 +147,7 @@ export class PlanTrackingDomainService {
 
     createWorkoutWithRoutine(
         routineDayId: string,
-        date: string,
+        date: LocalDate, // ✅ LocalDate "yyyy-MM-dd"
     ): Observable<WeekLogDayVM | null | undefined> {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
@@ -154,21 +156,22 @@ export class PlanTrackingDomainService {
     }
 
     updateExtraSession(
-        date: Date,
+        date: LocalDate, // ✅ LocalDate "yyyy-MM-dd"
         extraSession: CreateExtraSessionForm,
     ): Observable<WeekLogDayVM | null | undefined> {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
-        // Buscar el día por fecha y tomar su order real
-        const day = tracking.workouts?.find((d) => this.dateService.isSameDay(d.date, date));
+        const day = tracking.workouts?.find((d) =>
+            this.dateService.isSameLocalDate(d.date, date),
+        );
 
         if (!day) return of(null);
 
         let dayOrder: string | null = null;
 
         this.state.tracking()?.workouts?.forEach((d, index) => {
-            if (this.dateService.isSameDay(d.date, date)) {
+            if (this.dateService.isSameLocalDate(d.date, date)) {
                 dayOrder = index.toString();
             }
         });
@@ -179,10 +182,10 @@ export class PlanTrackingDomainService {
             id: tracking.id!,
             days: [
                 {
-                    order: Number(dayOrder) + 1, // usar el order real del día, no el index
+                    order: Number(dayOrder) + 1,
                     isRest: false,
                     extraSession: {
-                        date: extraSession.date,
+                        date: extraSession.date, // ✅ ya es LocalDate
                         discipline: extraSession.discipline,
                         duration: extraSession.duration,
                         intensityLevel: extraSession.intensityLevel,
@@ -197,47 +200,41 @@ export class PlanTrackingDomainService {
     }
 
     removeExtraSession(
-        date: Date,
+        date: LocalDate, // ✅ LocalDate string
         extraSessionId: string,
     ): Observable<WeekLogDayVM | null | undefined> {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
-        // Buscar el día por fecha y tomar su order real
-        const day = tracking.workouts?.find((d) => this.dateService.isSameDay(d.date, date));
+        const day = tracking.workouts?.find((d) =>
+            this.dateService.isSameLocalDate(d.date, date),
+        );
 
         if (!day) return of(null);
 
         return this.api.removeExtraSession(date, extraSessionId);
     }
 
-    updateWorkoutSession(date: Date, workout: WorkoutSessionVM) {
+    updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM) {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return;
 
-        // Call API
         return this.workoutApi.updateWorkoutSession(workout, tracking.id!).pipe(
             finalize(() => {
                 this.state.setLoadingTracking(false);
             }),
         );
-
-        // Update local cache
     }
 
     removeWorkoutSession(
-        date: Date,
+        date: LocalDate, // ✅ LocalDate string
         workoutSessionId: string,
     ): Observable<WeekLogDayVM | null | undefined> {
         return this.api.removeWorkoutSession(date, workoutSessionId);
     }
 
-    //add loading
-    setRestDay(date: string, isRest: boolean): Observable<WeekLogDayVM | null> {
-        // this.state.setLoading(true);
-
+    setRestDay(date: LocalDate, isRest: boolean): Observable<WeekLogDayVM | null> {
         return this.api.updateDayWorkoutStatus(date, isRest);
-        // .pipe(finalize(() => this.state.setLoading(false)));
     }
 
     completeTracking(complete: boolean): Observable<TrackingVMS | null> {
@@ -271,21 +268,22 @@ export class PlanTrackingDomainService {
         current: TrackingVM,
         complete: boolean,
     ): UpdateWeekLogInput {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         return {
             id: current.id,
             completed: complete,
             active: false,
             notes: current.notes,
-            startDate: this.dateService.formatDate(current.startDate),
-            endDate: this.dateService.formatDate(current.endDate),
+            startDate: current.startDate, // ✅ ya es LocalDate
+            endDate: current.endDate,     // ✅ ya es LocalDate
+            timezone,
             days,
         };
     }
 
-    //reset routine s
     createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<any> {
         return this.api.createRoutineByWorkout(title, exerciseIds).pipe(
-            tap((res) => {
+            tap(() => {
                 this.routineService
                     .updateAllRoutines()
                     .pipe(takeUntilDestroyed(this.destroyRef))

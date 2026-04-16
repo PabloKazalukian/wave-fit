@@ -1,3 +1,4 @@
+import { formatInTimeZone } from 'date-fns-tz';
 import {
     DayStatusAPI,
     ExercisePerformanceAPI,
@@ -5,10 +6,10 @@ import {
     WorkoutSessionAPI,
     WeekLogDayAPI,
     UpdateWeekLogDayInput,
-    UpdateWeekLogInput,
 } from '../interfaces/api/tracking-api.interface';
 import {
     ExercisePerformanceVM,
+    LocalDate,
     StatusWorkoutSession,
     StatusWorkoutSessionEnum,
     TrackingVM,
@@ -17,7 +18,17 @@ import {
     WeekLogDayVM,
 } from '../interfaces/tracking.interface';
 import { Exercise, ExerciseCategory } from '../interfaces/exercise.interface';
-import { ExtraSessionForm } from '../components/widgets/extra-session/extra-session-form/extra-session-form';
+
+/**
+ * Convierte una fecha de la API (ISO string de MongoDB) a LocalDate "yyyy-MM-dd".
+ * Usa la timezone del usuario para evitar off-by-one en UTC-X.
+ */
+function apiDateToLocalDate(isoString: string): LocalDate {
+    // MongoDB devuelve ISO UTC (ej: "2024-04-16T03:00:00.000Z")
+    // formatInTimeZone lo convierte a la fecha correcta en la TZ del usuario
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return formatInTimeZone(new Date(isoString), timezone, 'yyyy-MM-dd');
+}
 
 export function wrapperTrackingApiToVMS(
     payload: TrackingAPI,
@@ -26,8 +37,8 @@ export function wrapperTrackingApiToVMS(
     return {
         id: payload.id,
         userId: payload.userId,
-        startDate: new Date(payload.startDate),
-        endDate: new Date(payload.endDate),
+        startDate: apiDateToLocalDate(payload.startDate), // ✅ ISO → LocalDate
+        endDate: apiDateToLocalDate(payload.endDate),
         planId: payload.planId,
         notes: payload.notes,
         completed: payload.completed,
@@ -40,8 +51,8 @@ export function wrapperTrackingApiToVM(payload: TrackingAPI, allExercises: Exerc
     return {
         id: payload.id,
         userId: payload.userId,
-        startDate: new Date(payload.startDate),
-        endDate: new Date(payload.endDate),
+        startDate: apiDateToLocalDate(payload.startDate), // ✅ ISO → LocalDate
+        endDate: apiDateToLocalDate(payload.endDate),
         planId: payload.planId,
         notes: payload.notes,
         completed: payload.completed,
@@ -55,7 +66,7 @@ export function wrapperWeekLogDayApiToVM(
 ): WeekLogDayVM {
     return {
         order: payload.order,
-        date: new Date(payload.date),
+        date: apiDateToLocalDate(payload.date), // ✅ ISO → LocalDate
         isRest: payload.isRest,
         workoutSessionId: payload.workoutSessionId ?? null,
         exercises: wrapperExercisePerformanceApiToVM(payload.exercises || [], allExercises),
@@ -69,13 +80,19 @@ export function wrapperWorkoutSessionApiToVM(
     allExercises: Exercise[],
 ): WorkoutSessionVM {
     let status: StatusWorkoutSessionEnum;
-    !payload.exercises || payload.exercises.length === 0
-        ? (status = StatusWorkoutSessionEnum.NOT_STARTED)
-        : (status = StatusWorkoutSessionEnum.COMPLETE);
+    if (!payload.exercises || payload.exercises.length === 0) {
+        status = StatusWorkoutSessionEnum.NOT_STARTED;
+    } else {
+        status = StatusWorkoutSessionEnum.COMPLETE;
+    }
+
+    // Si no hay date, usar hoy como LocalDate (via browser TZ)
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const today = formatInTimeZone(new Date(), timezone, 'yyyy-MM-dd');
 
     return {
         id: payload.id,
-        date: payload.date ? new Date(payload.date) : new Date(),
+        date: payload.date ?? today, // ya es LocalDate "yyyy-MM-dd"
         exercises: wrapperExercisePerformanceApiToVM(payload.exercises || [], allExercises),
         status,
         notes: payload.notes,
@@ -89,7 +106,7 @@ export function wrapperWorkoutSessionVMToApi(
     return {
         id: payload.id,
         weekLogId: trackingId,
-        date: payload.date,
+        date: payload.date, // ✅ ya es LocalDate — sin conversión
         exercises: wrapperExercisePerformanceVMToApi(payload.exercises),
         status: payload.status,
         notes: payload.notes,
@@ -107,18 +124,6 @@ export function wrapperWorkoutToUpdateWeekLogDayInput(
         order,
     };
 }
-
-// export function wrapperExtraSessionToUpdateWeekLogDayInput(
-//     payload: ExtraSessionForm,
-//     status: DayStatusAPI,
-//     order: number,
-// ): UpdateWeekLogDayInput {
-//     return {
-//         extraSessionId: payload.id,
-//         status,
-//         order,
-//     };
-// }
 
 export function wrapperExercisePerformanceVMToApi(
     payload: ExercisePerformanceVM[],
@@ -169,7 +174,7 @@ export function wrapperWeekLogDayVMToWorkoutVM(
 ): WorkoutSessionVM {
     return {
         id: payload.workoutSessionId ?? '',
-        date: new Date(payload.date),
+        date: apiDateToLocalDate(payload.date), // ✅ ISO → LocalDate
         exercises: wrapperExercisePerformanceApiToVM(payload.exercises || [], allExercises),
         status: payload.isRest
             ? StatusWorkoutSessionEnum.REST
@@ -182,7 +187,7 @@ export function wrapperWeekLogDayVMToWorkoutVM(
 export function wrapperWeekLogDayVMToWorkoutSessionVM(payload: WeekLogDayVM): WorkoutSessionVM {
     return {
         id: payload.workoutSessionId ?? '',
-        date: payload.date,
+        date: payload.date, // ✅ ya es LocalDate
         exercises: payload.exercises,
         status: payload.isRest
             ? StatusWorkoutSessionEnum.REST
