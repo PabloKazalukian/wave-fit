@@ -1,0 +1,36 @@
+<div class="container px-4 py-4 max-w-lg mx-auto mt-8">
+  <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-2">
+    <h1 class="text-5xl font-bold text-center">¡Felicidades!</h1>
+    <p class="text-center text-lg">Has completado tu entrenamiento.</p>
+    <div class="relative h-32 mt-4 mb-4 flex items-center justify-center">
+      <div class="absolute inset-0 bg-primary/10 rounded-3xl blur-2xl"></div>
+      <div class="relative">
+        <app-wave-logo-text
+          colorType="gradient-animated"
+          [gradientColors]="['#50C878', '#2D5694', '#A65353']"
+          width="140"
+          height="140"
+        >
+        </app-wave-logo-text>
+      </div>
+    </div>
+    <div class="flex flex-col gap-2">
+      <app-btn
+        [text]="'Volver'"
+        [variant]="'raised'"
+        [size]="'md'"
+        [showIcon]="true"
+        [color]="'primary'"
+        [routerLink]="'/my-week'"
+      ></app-btn>
+      <app-btn
+        [text]="'Ver mi progreso'"
+        [variant]="'outline'"
+        [size]="'md'"
+        [showIcon]="true"
+        [color]="'secondary'"
+        [routerLink]="'/user/trackings'"
+      ></app-btn>
+    </div>
+  </div>
+</div>

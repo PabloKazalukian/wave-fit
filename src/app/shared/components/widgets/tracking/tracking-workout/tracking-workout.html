@@ -123,15 +123,15 @@
                 <p class="text-text2 text-sm max-w-[250px]">
                   Tómate este tiempo para recuperarte. ¡Mañana volvemos con más energía!
                 </p>
+                <app-btn
+                  class="w-full flex justify-center"
+                  [variant]="'stroked'"
+                  [color]="'primary'"
+                  [text]="'Cambiar a día de entrenamiento'"
+                  (click)="this.facade.setTrainingDay()"
+                >
+                </app-btn>
               </section>
-              <app-btn
-                class="w-full flex justify-center"
-                [variant]="'stroked'"
-                [color]="'primary'"
-                [text]="'Cambiar a día de entrenamiento'"
-                (click)="this.facade.setTrainingDay()"
-              >
-              </app-btn>
             }
           }
         </main>

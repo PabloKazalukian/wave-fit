@@ -28,7 +28,7 @@ export class Show {
     readonly CalendarIcon = Calendar;
     readonly ClipboardListIcon = ClipboardList;
 
-    formatDate(date: Date): string {
+    formatDate(date: string): string {
         return new Intl.DateTimeFormat('es-AR', {
             day: '2-digit',
             month: 'short',

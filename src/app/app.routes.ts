@@ -29,7 +29,7 @@ export const routes: Routes = [
     },
     {
         path: 'my-week',
-        loadComponent: () => import('./pages/my-week/my-week').then((m) => m.MyWeek),
+        loadChildren: () => import('./pages/my-week/my-week.routes').then((m) => m.MY_WEEK_ROUTES),
         canActivate: [authGuard],
     },
     {
