@@ -101,7 +101,7 @@ export class PlansService {
     }
 
     createRoutinePlan(planInput: RoutinePlanVM): RoutinePlanVM {
-        const createdBy = this.authSvc.user();
+        const createdBy = this.authSvc.user()?.id;
         const newPlan: RoutinePlanVM = {
             ...planInput,
             createdBy,

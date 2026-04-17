@@ -14,10 +14,17 @@ import {
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { LoginWithGoogle } from '../../../shared/interfaces/auth.interface';
 import { TokenStorage } from '../../auth/token.storage';
+import { User } from '../../../shared/interfaces/token.interface';
 
 export interface LoginResponse {
-    data: any;
-    loading: boolean;
+    login: boolean;
+    loading?: boolean;
+}
+
+export interface CreateUserResponse {
+    id: string;
+    name: string;
+    email: string;
 }
 
 export interface MeResponse {
@@ -34,7 +41,7 @@ export class AuthService {
     private apollo = inject(Apollo);
     private tokenStorage = inject(TokenStorage);
 
-    user = signal<any | null>(this.tokenStorage.getUser());
+    user = signal<User | null>(this.tokenStorage.getUser());
 
     private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.user() !== null);
     isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -116,7 +123,7 @@ export class AuthService {
 
     register(name: string, email: string, password: string): Observable<boolean> {
         return this.apollo
-            .mutate<{ createUser: any }>({
+            .mutate<{ createUser: CreateUserResponse }>({
                 mutation: gql`
                     mutation CreateUser($createUserInput: CreateUserInput!) {
                         createUser(createUserInput: $createUserInput) {
@@ -178,11 +185,13 @@ export class AuthService {
             })
             .pipe(
                 tap((res) => {
-                    const user = res.data?.loginWithGoogle.user!;
-                    this.userIdSubject.next(user?.id);
-                    this.tokenStorage.setUser(user);
-                    this.user.set(user);
-                    this.isAuthenticatedSubject.next(true);
+                    const user = res.data?.loginWithGoogle.user ?? null;
+                    if (user) {
+                        this.userIdSubject.next(user.id);
+                        this.tokenStorage.setUser(user);
+                        this.user.set(user);
+                        this.isAuthenticatedSubject.next(true);
+                    }
                 }),
                 handleGraphqlError(this),
                 catchError(() => {

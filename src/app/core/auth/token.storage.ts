@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
+import { User } from '../../shared/interfaces/token.interface';
 
 @Injectable({ providedIn: 'root' })
 export class TokenStorage {
     private readonly userKey = 'auth_user';
 
-    getUser(): any | null {
+    getUser(): User | null {
         const data = localStorage.getItem(this.userKey);
         try {
             return data ? JSON.parse(data) : null;
@@ -13,8 +14,12 @@ export class TokenStorage {
         }
     }
 
-    setUser(user: any): void {
-        localStorage.setItem(this.userKey, JSON.stringify(user));
+    setUser(user: User | null): void {
+        if (user) {
+            localStorage.setItem(this.userKey, JSON.stringify(user));
+        } else {
+            this.clear();
+        }
     }
 
     clear(): void {

@@ -55,7 +55,7 @@ export class WeekDayCellComponent implements OnInit {
     });
 
     selectForm!: FormGroup<selectFormType>;
-    userId = this.authSvc.user().id;
+    userId = this.authSvc.user()?.id;
     isExpanded = signal<boolean>(false);
 
     options: SelectType[] = [
