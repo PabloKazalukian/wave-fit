@@ -15,9 +15,9 @@ export class AccordionItemComponent {
     @Input() isIncomplete = false;
     @Input() draggable = false;
 
-    @Output() toggle = new EventEmitter<void>();
+    @Output() toggleAccordion = new EventEmitter<void>();
 
     onToggle() {
-        this.toggle.emit();
+        this.toggleAccordion.emit();
     }
 }

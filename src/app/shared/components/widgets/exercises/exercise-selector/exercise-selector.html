@@ -23,12 +23,14 @@
         (click)="toggleCategory('')"
         (keydown.enter)="toggleCategory('')"
         (keydown.space)="toggleCategory('')"
+        tabindex="0"
         [@chipAnimation]
       >
         Todos
       </div>
       @for (opt of options; track opt.value) {
-        <div
+        <button
+          type="button"
           class="py-1 px-2 rounded-full border cursor-pointer transition-all duration-200 text-xs"
           [ngClass]="
             category() === opt.value
@@ -36,12 +38,10 @@
               : 'border border-primary3 text-text2 bg-background2'
           "
           (click)="toggleCategory(opt.value.toString())"
-          (keydown.enter)="toggleCategory(opt.value.toString())"
-          (keydown.space)="toggleCategory(opt.value.toString())"
           [@chipAnimation]
         >
           {{ opt.name }}
-        </div>
+        </button>
       }
     </div>
   </div>

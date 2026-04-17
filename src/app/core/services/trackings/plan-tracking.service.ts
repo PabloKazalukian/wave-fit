@@ -18,6 +18,7 @@ import { AuthService } from '../auth/auth.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { wrapperDayStatusApiToStatusWorkoutSession } from '../../../shared/wrappers/tracking.wrapper';
 import { DayStatusAPI } from '../../../shared/interfaces/api/tracking-api.interface';
+import { RoutineDayAPI } from '../../../shared/interfaces/api/routines-api.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -318,7 +319,10 @@ export class PlanTrackingService {
         );
     }
 
-    createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<any> {
+    createRoutineFromWorkout(
+        title: string,
+        exerciseIds: string[],
+    ): Observable<RoutineDayAPI | null> {
         return this.domain.createRoutineFromWorkout(title, exerciseIds);
     }
 }

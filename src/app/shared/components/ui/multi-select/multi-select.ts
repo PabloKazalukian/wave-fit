@@ -80,7 +80,7 @@ export class MultiSelectComponent {
         return `${selectedCount} seleccionados`;
     }
 
-    send() {
+    send(): void {
         this.onSend.emit();
         this.isOpen.set(false);
     }

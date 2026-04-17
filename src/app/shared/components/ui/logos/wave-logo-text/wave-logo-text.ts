@@ -97,34 +97,38 @@ import { CommonModule } from '@angular/common';
             </g>
 
             <!-- Degradados animados -->
-            <defs *ngIf="colorType === 'gradient-animated'">
-                <linearGradient [attr.id]="gradientId" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" [attr.style.stop-color]="gradientColors[0]">
-                        <animate
-                            attributeName="stop-color"
-                            [attr.values]="animationValues"
-                            [attr.dur]="animationDuration"
-                            repeatCount="indefinite"
-                        />
-                    </stop>
-                    <stop offset="100%" [attr.style.stop-color]="gradientColors[1]">
-                        <animate
-                            attributeName="stop-color"
-                            [attr.values]="animationValuesReverse"
-                            [attr.dur]="animationDuration"
-                            repeatCount="indefinite"
-                        />
-                    </stop>
-                </linearGradient>
-            </defs>
+            @if (colorType === 'gradient-animated') {
+                <defs>
+                    <linearGradient [attr.id]="gradientId" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" [attr.style.stop-color]="gradientColors[0]">
+                            <animate
+                                attributeName="stop-color"
+                                [attr.values]="animationValues"
+                                [attr.dur]="animationDuration"
+                                repeatCount="indefinite"
+                            />
+                        </stop>
+                        <stop offset="100%" [attr.style.stop-color]="gradientColors[1]">
+                            <animate
+                                attributeName="stop-color"
+                                [attr.values]="animationValuesReverse"
+                                [attr.dur]="animationDuration"
+                                repeatCount="indefinite"
+                            />
+                        </stop>
+                    </linearGradient>
+                </defs>
+            }
 
             <!-- Degradado estático -->
-            <defs *ngIf="colorType === 'gradient-static'">
-                <linearGradient [attr.id]="gradientId" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" [attr.style.stop-color]="gradientColors[0]" />
-                    <stop offset="100%" [attr.style.stop-color]="gradientColors[1]" />
-                </linearGradient>
-            </defs>
+            @if (colorType === 'gradient-static') {
+                <defs>
+                    <linearGradient [attr.id]="gradientId" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" [attr.style.stop-color]="gradientColors[0]" />
+                        <stop offset="100%" [attr.style.stop-color]="gradientColors[1]" />
+                    </linearGradient>
+                </defs>
+            }
         </svg>
     `,
     styles: [

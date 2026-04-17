@@ -89,7 +89,7 @@ export class WorkoutInProgress {
     }
 
     // Drag and Drop
-    onDrop(event: CdkDragDrop<any[]>) {
+    onDrop(event: CdkDragDrop<any[]>): void {
         this.facade.reorderExercises(event.previousIndex, event.currentIndex);
     }
 }

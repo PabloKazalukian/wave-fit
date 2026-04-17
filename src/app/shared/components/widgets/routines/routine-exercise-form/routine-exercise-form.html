@@ -68,6 +68,7 @@
             (click)="toggleExercise(exercise)"
             (keydown.enter)="toggleExercise(exercise)"
             (keydown.space)="toggleExercise(exercise)"
+            tabindex="0"
           >
             <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
 

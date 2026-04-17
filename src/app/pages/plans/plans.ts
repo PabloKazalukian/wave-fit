@@ -113,7 +113,7 @@ export class Plans implements OnInit {
             .getRoutinesPlans()
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((result) => {
-                this.routinesPlans.set(result);
+                this.routinesPlans.set(result || []);
                 this.loading.set(false);
             });
 

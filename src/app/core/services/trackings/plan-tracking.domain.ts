@@ -29,6 +29,7 @@ import { PlanTrackingApi } from './plan-tracking/api/plan-tranking.api';
 import { WorkoutApi } from '../workouts/api/workout.api';
 import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session.interface';
 import { RoutinesService } from '../routines/routines.service';
+import { RoutineDayAPI } from '../../../shared/interfaces/api/routines-api.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -275,7 +276,10 @@ export class PlanTrackingDomainService {
         };
     }
 
-    createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<any> {
+    createRoutineFromWorkout(
+        title: string,
+        exerciseIds: string[],
+    ): Observable<RoutineDayAPI | null> {
         return this.api.createRoutineByWorkout(title, exerciseIds).pipe(
             tap(() => {
                 this.routineService

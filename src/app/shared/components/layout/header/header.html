@@ -4,10 +4,11 @@
       class="bg-background3 border border-white/10 flex items-center justify-between px-4 w-full max-w-2xl py-3 rounded-2xl shadow-2xl"
     >
       <!-- Logo -->
-      <div
+      <button
         class="cursor-pointer flex items-center"
         (click)="goToHome()"
         (keydown.enter)="goToHome()"
+        tabindex="0"
       >
         <app-wave-logo
           colorType="gradient-animated"
@@ -19,7 +20,7 @@
           class="ml-2 font-bold text-2xl sm:text-lg bg-clip-text text-transparent bg-gradient-to-r from-secondary via-primary to-primary"
           >WaveFit</span
         >
-      </div>
+      </button>
 
       <!-- Desktop Navigation -->
       <div class="hidden md:flex items-center gap-2">
@@ -58,6 +59,7 @@
               [@dropdownAnimation]
               (click)="$event.stopPropagation()"
               (keydown.enter)="$event.stopPropagation()"
+              tabindex="0"
             >
               <a
                 routerLink="/plans"
@@ -99,12 +101,15 @@
             [@dropdownAnimation]
             (click)="$event.stopPropagation()"
             (keydown.enter)="$event.stopPropagation()"
+            tabindex="0"
           >
             <a
               routerLink="/user"
               class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
               [class.text-primary]="isActive('/user')"
               (click)="closeDropdowns()"
+              (keydown.enter)="closeDropdowns()"
+              tabindex="0"
               >Mi perfil</a
             >
             <hr class="border-white/5 my-1" />

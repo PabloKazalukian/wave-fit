@@ -9,13 +9,13 @@
 >
   <!-- Header -->
   @if (draggable) {
-    <div
+    <button
       cdkDragHandle
       class="cursor-move flex flex-col items-center justify-center text-text2 hover:text-brand"
       (click)="$event.stopPropagation()"
     >
       ☰
-    </div>
+    </button>
   }
   <button
     (click)="onToggle()"

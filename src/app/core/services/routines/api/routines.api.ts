@@ -46,7 +46,7 @@ export class RoutinesApiService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                map((data) => this.wrapperRoutineDayAPItoRoutineDay(data.data?.routineDays!)),
+                map(({ data }) => this.wrapperRoutineDayAPItoRoutineDay(data?.routineDays!)),
             );
     }
 

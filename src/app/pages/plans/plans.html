@@ -34,7 +34,7 @@
 
         <div class="flex flex-col md:flex-row gap-4">
           <div class="flex-1">
-            <label class="text-sm text-text2 mb-1 block">Buscar por nombre</label>
+            <span class="text-sm text-text2 mb-1 block">Buscar por nombre</span>
             <input
               type="text"
               [formControl]="searchControl"
@@ -44,7 +44,7 @@
           </div>
 
           <div class="w-full md:w-48">
-            <label class="text-sm text-text2 mb-1">Distribucion Semanal:</label>
+            <span class="text-sm text-text2 mb-1">Distribucion Semanal:</span>
             <app-select
               [placeholder]="'Distribución'"
               [text]="'Días / semana:'"

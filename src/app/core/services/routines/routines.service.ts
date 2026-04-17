@@ -64,7 +64,7 @@ export class RoutinesService {
         return this.api.getRoutineById(id);
     }
 
-    getRoutinesPlans(): Observable<any> {
+    getRoutinesPlans(): Observable<RoutinePlanAPI[] | undefined> {
         this.authSvc.user$.subscribe();
         return this.apollo
             .query<{ routinePlans: RoutinePlanAPI[] }>({
@@ -118,10 +118,10 @@ export class RoutinesService {
         );
     }
 
-    createRoutine(data: RoutineDayCreate): Observable<any> {
+    createRoutine(data: RoutineDayCreate): Observable<RoutineDayCreate | null | undefined> {
         const payload: RoutineDayCreateSend = this.createRoutinePayload(data);
         return this.apollo
-            .mutate<RoutineDayCreate>({
+            .mutate<{ createRoutineDay: RoutineDayCreate }>({
                 mutation: gql`
                     mutation createRoutineDay($createRoutineDayInput: CreateRoutineDayInput!) {
                         createRoutineDay(createRoutineDayInput: $createRoutineDayInput) {
@@ -135,7 +135,10 @@ export class RoutinesService {
                     createRoutineDayInput: payload,
                 },
             })
-            .pipe(handleGraphqlError(this.authSvc));
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map((res) => res.data?.createRoutineDay),
+            );
     }
 
     private createRoutinePayload(data: RoutineDayCreate): RoutineDayCreateSend {

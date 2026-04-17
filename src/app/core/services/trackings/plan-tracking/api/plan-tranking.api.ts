@@ -32,7 +32,6 @@ import {
     UPDATE_DAY_WORKOUT_STATUS,
 } from '../../../../apollo/tracking.queries';
 import { DateService } from '../../../date.service';
-import { RoutineDayVM } from '../../../../../shared/interfaces/routines.interface';
 import { RoutineDayAPI } from '../../../../../shared/interfaces/api/routines-api.interface';
 
 @Injectable({

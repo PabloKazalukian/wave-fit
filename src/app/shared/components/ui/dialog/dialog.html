@@ -6,6 +6,8 @@
       class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-colors"
       [@backdropPulse]="backdropState()"
       (click)="onBackdropClick()"
+      (keydown.escape)="onBackdropClick()"
+      tabindex="0"
     ></div>
 
     <!-- Panel del dialog con shake cuando está locked -->

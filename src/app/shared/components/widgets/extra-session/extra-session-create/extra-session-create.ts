@@ -19,8 +19,8 @@ import { merge, Subscription } from 'rxjs';
 })
 export class ExtraSessionCreate implements OnInit, OnDestroy {
     config = input.required<ExtraSessionDisciplineConfig>();
-    cancel = output<void>();
-    save = output<void>();
+    cancelES = output<void>();
+    saveES = output<void>();
 
     private service = inject(ExtraSessionService);
     private subscription?: Subscription;
@@ -57,7 +57,7 @@ export class ExtraSessionCreate implements OnInit, OnDestroy {
     }
 
     onSaveClick() {
-        this.save.emit();
+        this.saveES.emit();
     }
 
     calculateCalories(
@@ -91,6 +91,6 @@ export class ExtraSessionCreate implements OnInit, OnDestroy {
     }
 
     onCancelClick() {
-        this.cancel.emit();
+        this.cancelES.emit();
     }
 }
