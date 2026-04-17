@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { ExtraSessionService } from '../../../../../core/services/extra-session/extra-session.service';
 import { ExtraSessionCard } from './extra-session-card/extra-session-card';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';

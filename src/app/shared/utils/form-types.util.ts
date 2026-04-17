@@ -7,7 +7,7 @@ export type FormControlsOf<T> = {
 export function extractField<
     TQuery extends Record<string, any>,
     TField extends keyof TQuery,
-    TResult = TQuery[TField]
+    TResult = TQuery[TField],
 >(data: TQuery, field: TField): TResult {
     return data[field];
 }

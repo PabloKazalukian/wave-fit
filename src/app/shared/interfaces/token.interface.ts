@@ -1,5 +1,5 @@
 export interface Token {
-    access_token: any;
+    access_token: string;
     userId: string;
 }
 

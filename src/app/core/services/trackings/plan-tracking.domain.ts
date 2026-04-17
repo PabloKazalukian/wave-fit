@@ -1,9 +1,8 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking.storage';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { delay, finalize, map, Observable, of, tap } from 'rxjs';
+import { finalize, map, Observable, of, tap } from 'rxjs';
 import {
-    ExercisePerformanceVM,
     LocalDate,
     StatusWorkoutSessionEnum,
     TrackingVM,
@@ -51,7 +50,7 @@ export class PlanTrackingDomainService {
         effect(() => {
             const user = this.user$();
             if (user) {
-                this.initTracking(user);
+                this.initTracking();
             } else {
                 this.state.userId.set('');
                 this.state.setTracking(null);
@@ -59,7 +58,7 @@ export class PlanTrackingDomainService {
         });
     }
 
-    initTracking(userId: string): Observable<TrackingVM | null | undefined> {
+    initTracking(): Observable<TrackingVM | null | undefined> {
         return this.api.getTrackingByUser();
     }
 
@@ -76,9 +75,9 @@ export class PlanTrackingDomainService {
         const { start, end } = this.dateService.todayWeekRange(timezone); // ✅ LocalDate range
 
         const payload: TrackingCreate = {
-            startDate: start,   // ✅ LocalDate "yyyy-MM-dd"
-            endDate: end,       // ✅ LocalDate "yyyy-MM-dd"
-            timezone,           // ✅ IANA timezone del browser
+            startDate: start, // ✅ LocalDate "yyyy-MM-dd"
+            endDate: end, // ✅ LocalDate "yyyy-MM-dd"
+            timezone, // ✅ IANA timezone del browser
             planId,
         };
 
@@ -98,8 +97,8 @@ export class PlanTrackingDomainService {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
-        const index = tracking.workouts?.findIndex((w) =>
-            this.dateService.isSameLocalDate(w.date, dateWorkout), // ✅ string comparison
+        const index = tracking.workouts?.findIndex(
+            (w) => this.dateService.isSameLocalDate(w.date, dateWorkout), // ✅ string comparison
         );
 
         if (index === undefined || index === -1) return of(null);
@@ -162,9 +161,7 @@ export class PlanTrackingDomainService {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
-        const day = tracking.workouts?.find((d) =>
-            this.dateService.isSameLocalDate(d.date, date),
-        );
+        const day = tracking.workouts?.find((d) => this.dateService.isSameLocalDate(d.date, date));
 
         if (!day) return of(null);
 
@@ -206,9 +203,7 @@ export class PlanTrackingDomainService {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return of(null);
 
-        const day = tracking.workouts?.find((d) =>
-            this.dateService.isSameLocalDate(d.date, date),
-        );
+        const day = tracking.workouts?.find((d) => this.dateService.isSameLocalDate(d.date, date));
 
         if (!day) return of(null);
 
@@ -258,7 +253,6 @@ export class PlanTrackingDomainService {
                         this.state.setTracking(null);
                     }
                 }),
-                delay(2000),
                 finalize(() => this.state.setLoading(false)),
             );
     }
@@ -275,7 +269,7 @@ export class PlanTrackingDomainService {
             active: false,
             notes: current.notes,
             startDate: current.startDate, // ✅ ya es LocalDate
-            endDate: current.endDate,     // ✅ ya es LocalDate
+            endDate: current.endDate, // ✅ ya es LocalDate
             timezone,
             days,
         };

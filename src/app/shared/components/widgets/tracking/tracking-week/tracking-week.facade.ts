@@ -1,4 +1,4 @@
-import { computed, DestroyRef, inject, Injectable, signal, effect } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
@@ -74,7 +74,7 @@ export class TrackingWeekFacade {
             .subscribe({
                 next: () => {
                     this.showConfirmDialog.set(false);
-                    this.router.navigate(['/']);
+                    this.router.navigate(['/my-week/success']);
                 },
                 error: (err) => console.error(err),
             });

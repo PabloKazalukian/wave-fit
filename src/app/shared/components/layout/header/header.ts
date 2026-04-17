@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { trigger, transition, style, animate, state } from '@angular/animations';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { BtnComponent } from '../../ui/btn/btn';
 import { WaveLogoComponent } from '../../ui/logos/wave-logo/wave-logo';
 import { AuthService } from '../../../../core/services/auth/auth.service';

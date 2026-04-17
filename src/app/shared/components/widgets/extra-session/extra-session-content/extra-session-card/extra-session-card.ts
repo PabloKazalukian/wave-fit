@@ -24,9 +24,9 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
 
     readonly extraSessions = this.service.extraSessions;
 
-    onDelete = output<string>();
-    onSave = output<{ id: string; duration: number; intensityLevel: number; calories?: number }>();
-    onCancelEdit = output<void>();
+    delete = output<string>();
+    save = output<{ id: string; duration: number; intensityLevel: number; calories?: number }>();
+    cancelEdit = output<void>();
 
     isEditing = signal(false);
     private subscription?: Subscription;
@@ -59,15 +59,15 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
         });
     }
 
-    cancelEdit(): void {
+    onCancelEdit(): void {
         this.isEditing.set(false);
-        this.onCancelEdit.emit();
+        this.cancelEdit.emit();
     }
 
-    saveChanges(): void {
+    onSave(): void {
         if (this.form.invalid) return;
 
-        this.onSave.emit({
+        this.save.emit({
             id: this.session().id,
             duration: this.durationControl.value,
             intensityLevel: this.intensityControl.value,
@@ -76,8 +76,8 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
         this.isEditing.set(false);
     }
 
-    deleteSession(): void {
-        this.onDelete.emit(this.session().id);
+    onDelete(): void {
+        this.delete.emit(this.session().id);
     }
 
     private updateCalories(): void {

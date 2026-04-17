@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import {
     GET_EXTRA_SESSION_CATALOG,
     UPDATE_EXTRA_SESSION,
@@ -10,7 +10,6 @@ import {
     GET_EXTRA_SESSIONS_BY_IDS,
 } from '../../../apollo/extra-session.queries';
 import {
-    CreateExtraSessionForm,
     ExtraSession,
     ExtraSessionDisciplineConfig,
     UpdateExtraSessionInput,

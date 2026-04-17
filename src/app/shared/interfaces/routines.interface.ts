@@ -81,11 +81,3 @@ export interface RoutineDayCreateSend {
     exercises?: ExerciseSend[];
     planId?: string;
 }
-
-export interface CreateRoutinePlanInput {
-    name: string;
-    description: string;
-    weekly_distribution: string;
-    createdBy: string;
-    routineDays: any;
-}

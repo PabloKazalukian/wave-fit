@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
-import { map, Observable, of, switchMap, tap } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import {
     TrackingVM,
     TrackingVMS,
@@ -32,6 +32,8 @@ import {
     UPDATE_DAY_WORKOUT_STATUS,
 } from '../../../../apollo/tracking.queries';
 import { DateService } from '../../../date.service';
+import { RoutineDayVM } from '../../../../../shared/interfaces/routines.interface';
+import { RoutineDayAPI } from '../../../../../shared/interfaces/api/routines-api.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -233,13 +235,18 @@ export class PlanTrackingApi {
             );
     }
 
-    createRoutineByWorkout(title: string, exerciseIds: string[]): Observable<any> {
+    createRoutineByWorkout(title: string, exerciseIds: string[]): Observable<RoutineDayAPI | null> {
         return this.apollo
-            .mutate({
+            .mutate<{
+                createRoutineByWorkout: RoutineDayAPI;
+            }>({
                 mutation: CREATE_ROUTINE_BY_WORKOUT,
                 variables: { title, exerciseIds },
             })
-            .pipe(handleGraphqlError(this.authSvc));
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) => data?.createRoutineByWorkout ?? null),
+            );
     }
 
     updateDayWorkoutStatus(date: string, isRest: boolean): Observable<WeekLogDayVM | null> {

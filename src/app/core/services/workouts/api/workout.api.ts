@@ -1,17 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../auth/auth.service';
 import { ExercisesService } from '../../exercises/exercises.service';
-import {
-    StatusWorkoutSessionEnum,
-    WorkoutSessionVM,
-} from '../../../../shared/interfaces/tracking.interface';
+import { WorkoutSessionVM } from '../../../../shared/interfaces/tracking.interface';
 import { WorkoutSessionAPI } from '../../../../shared/interfaces/api/tracking-api.interface';
 import * as trackingWrappers from '../../../../shared/wrappers/tracking.wrapper';
-import { CREATE_WORKOUT_SESSION, UPDATE_WORKOUT_SESSION } from '../../../apollo/workout.queries';
-import { REMOVE_WORKOUT_SESSION_FROM_DAY } from '../../../apollo/tracking.queries';
+import { UPDATE_WORKOUT_SESSION } from '../../../apollo/workout.queries';
 
 @Injectable({
     providedIn: 'root',

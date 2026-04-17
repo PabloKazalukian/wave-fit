@@ -6,7 +6,10 @@ import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular
 import { IconComponent } from '../../../../ui/icon/icon';
 import { DialogComponent } from '../../../../ui/dialog/dialog';
 import { ExerciseSelector } from '../../../exercises/exercise-selector/exercise-selector';
-import { ExercisePerformanceVM } from '../../../../../interfaces/tracking.interface';
+import {
+    ExercisePerformanceVM,
+    WorkoutSessionVM,
+} from '../../../../../interfaces/tracking.interface';
 
 @Component({
     selector: 'app-workout-edition',
@@ -43,7 +46,7 @@ export class WorkoutEdition implements OnInit {
                 }
 
                 // Add new selected exercises
-                const formExIds = formArray.value.map((fe: any) => fe.exerciseId);
+                const formExIds: string[] = formArray.value.map((fe: any) => fe.exerciseId);
                 exercises.forEach((ex) => {
                     if (!formExIds.includes(ex.exerciseId)) {
                         this.addExerciseToForm(ex);
@@ -133,18 +136,18 @@ export class WorkoutEdition implements OnInit {
 
         // Use the forms value directly but merge from the source facade items
         // Since we allow adding new exercises from the selector, we MUST use formValue.exercises as the base.
-        const updatedExercises = formValue.exercises.map((fe: any) => {
-            const existingEx = currentWorkout.exercises.find(
+        const updatedExercises: ExercisePerformanceVM[] = formValue.exercises.map((fe: any) => {
+            const existingEx: ExercisePerformanceVM | undefined = currentWorkout.exercises.find(
                 (ex: any) => ex.exerciseId === fe.exerciseId,
             );
-            const sourceEx = this.facade
+            const sourceEx: ExercisePerformanceVM | undefined = this.facade
                 .exercisesSelected()
                 .find((ex) => ex.exerciseId === fe.exerciseId);
 
-            const mappedSets = fe.sets.map((s: any) => ({
-                    reps: Number(s.reps),
-                    weights: Number(s.weights),
-                }));
+            const mappedSets: { reps: number; weights: number }[] = fe.sets.map((s: any) => ({
+                reps: Number(s.reps),
+                weights: Number(s.weights),
+            }));
 
             return {
                 ...(existingEx || sourceEx), // Keep original properties like category, muscle, etc.
@@ -153,10 +156,10 @@ export class WorkoutEdition implements OnInit {
             };
         });
 
-        const updatedWorkout = {
+        const updatedWorkout: WorkoutSessionVM = {
             ...currentWorkout,
             exercises: updatedExercises,
-            status: 'complete' as any, // Explicitly return to complete
+            status: 'complete', // Explicitly return to complete
         };
 
         this.facade.updateWorkoutSession(updatedWorkout);

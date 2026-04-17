@@ -30,6 +30,9 @@ export class WorkoutRoutineSelector {
     private routinesSvc = inject(RoutinesService);
     private state = inject(WorkoutStateService);
 
+    routineSelected = output<RoutineDay>();
+    close = output<void>();
+
     workout = signal<WorkoutSessionVM | null>(this.state.workoutSession());
 
     private initialized = false;
@@ -90,9 +93,6 @@ export class WorkoutRoutineSelector {
     selectedRoutineId = signal<string | null>(null);
     showRoutine = signal<RoutineDay | null>(null);
     isLoading = signal(false);
-
-    routineSelected = output<RoutineDay>();
-    close = output<void>();
 
     selectRoutine(routine: RoutineDay) {
         if (this.selectedRoutineId() === routine.id) {

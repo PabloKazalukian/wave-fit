@@ -12,8 +12,8 @@
         <app-extra-session-card
           [session]="session"
           [disciplines]="catalog()"
-          (onDelete)="deleteExtraSession($event)"
-          (onSave)="updateExtraSession($event)"
+          (delete)="deleteExtraSession($event)"
+          (save)="updateExtraSession($event)"
         ></app-extra-session-card>
       }
     }

@@ -1,11 +1,10 @@
-import { Component, inject, input, output, effect, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, input, output, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
     ExtraSessionFormType,
     ExtraSessionService,
 } from '../../../../../core/services/extra-session/extra-session.service';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { ExtraSessionDisciplineConfig } from '../../../../../shared/interfaces/extra-session.interface';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { RatingBar } from '../../../ui/rating-bar/rating-bar';
@@ -20,8 +19,8 @@ import { merge, Subscription } from 'rxjs';
 })
 export class ExtraSessionCreate implements OnInit, OnDestroy {
     config = input.required<ExtraSessionDisciplineConfig>();
-    onCancel = output<void>();
-    onSave = output<void>();
+    cancel = output<void>();
+    save = output<void>();
 
     private service = inject(ExtraSessionService);
     private subscription?: Subscription;
@@ -58,7 +57,7 @@ export class ExtraSessionCreate implements OnInit, OnDestroy {
     }
 
     onSaveClick() {
-        this.onSave.emit();
+        this.save.emit();
     }
 
     calculateCalories(
@@ -91,7 +90,7 @@ export class ExtraSessionCreate implements OnInit, OnDestroy {
         return this.form.get('calories') as FormControl<number>;
     }
 
-    cancel() {
-        this.onCancel.emit();
+    onCancelClick() {
+        this.cancel.emit();
     }
 }

@@ -67,7 +67,7 @@ export class PlanTrackingService {
             this.state.setLoadingTracking(false);
         } else {
             this.domain
-                .initTracking(userId)
+                .initTracking()
                 .pipe(
                     takeUntilDestroyed(this.destroyRef),
                     finalize(() => this.state.setLoadingTracking(false)),
@@ -82,7 +82,10 @@ export class PlanTrackingService {
         }
     }
 
-    private _updateWorkout(localDate: LocalDate, updater: (w: WorkoutSessionVM) => WorkoutSessionVM) {
+    private _updateWorkout(
+        localDate: LocalDate,
+        updater: (w: WorkoutSessionVM) => WorkoutSessionVM,
+    ) {
         this.state.updateWorkout(localDate, updater);
         const updated = this.state.getTrackingValue();
         if (updated) {
@@ -281,7 +284,10 @@ export class PlanTrackingService {
         );
     }
 
-    getExercise(date: LocalDate, exerciseId: string): Observable<ExercisePerformanceVM | undefined> {
+    getExercise(
+        date: LocalDate,
+        exerciseId: string,
+    ): Observable<ExercisePerformanceVM | undefined> {
         return this.state.tracking$.pipe(
             filter((tracking) => !!tracking),
             map((tracking) => tracking?.workouts || []),

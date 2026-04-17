@@ -48,7 +48,7 @@ export class PlansApiService {
             );
     }
 
-    getRoutinePlanById(id: string): Observable<RoutinePlanVM | undefined> {
+    getRoutinePlanById(id: string): Observable<RoutinePlanVM | null | undefined> {
         return this.apollo
             .query<{ routinePlan: RoutinePlanAPI | null }>({
                 query: GET_ROUTINE_PLAN,

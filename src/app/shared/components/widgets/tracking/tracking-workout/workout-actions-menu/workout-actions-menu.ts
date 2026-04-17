@@ -11,7 +11,6 @@ import { PlanTrackingService } from '../../../../../../core/services/trackings/p
 import { DateService } from '../../../../../../core/services/date.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { BtnComponent } from '../../../../ui/btn/btn';
-import { RoutinesService } from '../../../../../../core/services/routines/routines.service';
 import { StatusWorkoutSessionEnum } from '../../../../../interfaces/tracking.interface';
 
 @Component({
@@ -44,9 +43,7 @@ export class WorkoutActionsMenu {
     private workoutState = inject(WorkoutStateService);
     private trackingSvc = inject(PlanTrackingService);
     private dateSvc = inject(DateService);
-    private routinesSvc = inject(RoutinesService);
 
-    // const StatusWorkoutSessionEnum = StatusWorkoutSessionEnum;
     StatusWorkoutSessionEnum = StatusWorkoutSessionEnum;
 
     isRoutineDialogOpen = signal(false);
@@ -120,7 +117,7 @@ export class WorkoutActionsMenu {
             .createWorkoutWithRoutine(routine.id, dateString)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: (res) => {
+                next: () => {
                     this.isLoading.set(false);
 
                     this.closeRoutineDialog();

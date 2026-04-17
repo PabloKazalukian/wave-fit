@@ -34,7 +34,7 @@
           [variant]="'strokedColor'"
           [color]="'error'"
           [size]="'sm'"
-          (click)="deleteSession()"
+          (click)="onDelete()"
           type="button"
         ></app-btn>
       </div>
@@ -73,7 +73,7 @@
         [text]="'Cancelar'"
         [variant]="'strokedColor'"
         [color]="'error'"
-        (click)="cancelEdit()"
+        (click)="onCancelEdit()"
         type="button"
       ></app-btn>
       <app-btn
@@ -81,7 +81,7 @@
         [variant]="'strokedColor'"
         [buttonType]="'submit'"
         [color]="'primary'"
-        (click)="saveChanges()"
+        (click)="onSave()"
       ></app-btn>
     </div>
   </form>

@@ -18,6 +18,8 @@ import {
     WeekLogDayVM,
 } from '../interfaces/tracking.interface';
 import { Exercise, ExerciseCategory } from '../interfaces/exercise.interface';
+import { RoutineDayAPI } from '../interfaces/api/routines-api.interface';
+import { DayIndex, RoutineDayVM } from '../interfaces/routines.interface';
 
 /**
  * Convierte una fecha de la API (ISO string de MongoDB) a LocalDate "yyyy-MM-dd".
@@ -233,4 +235,19 @@ export function emptyDay(
         const existing = workoutDays.find((d) => d.order === order);
         return existing ?? { order, status: 'skipped', extraSessionIds: [] };
     });
+}
+
+export function wrapperRoutineDayApiToVM(payload: RoutineDayAPI, day: DayIndex): RoutineDayVM {
+    const sortedExercises =
+        payload.exercises?.sort((a, b) => a.order - b.order).map((e) => e.exercise) ?? [];
+
+    return {
+        id: payload.id,
+        title: payload.title,
+        type: payload.category,
+        kind: payload.kind,
+        day,
+        expanded: false, // UI state default
+        exercises: sortedExercises,
+    };
 }
