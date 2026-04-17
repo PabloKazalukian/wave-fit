@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, DestroyRef } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RoutineDayVM } from '../../../../interfaces/routines.interface';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
 import { CommonModule } from '@angular/common';
@@ -13,7 +13,7 @@ type DayState = 'error' | 'accent' | 'rest' | 'complete';
     standalone: true,
     templateUrl: './day-of-routine.html',
 })
-export class DayOfRoutine implements OnInit {
+export class DayOfRoutine {
     private readonly planSvc = inject(PlansService);
     public readonly stateSvc = inject(DayPlanStateService);
 
@@ -22,8 +22,6 @@ export class DayOfRoutine implements OnInit {
 
     userId = '';
     dayState: DayState = 'error';
-
-    ngOnInit(): void {}
 
     changeExpanded(routine: RoutineDayVM) {
         this.stateSvc.setDay(routine.day);

@@ -24,7 +24,7 @@ import { DateService } from '../../../../../core/services/date.service';
     templateUrl: './extra-session-form.html',
 })
 export class ExtraSessionForm implements OnInit {
-    onClose = output<void>();
+    closed = output<void>();
 
     service = inject(ExtraSessionService);
     private workoutState = inject(WorkoutStateService);
@@ -104,7 +104,7 @@ export class ExtraSessionForm implements OnInit {
             })
             .subscribe({
                 next: () => {
-                    this.onClose.emit();
+                    this.closed.emit();
                 },
                 error: (err) => console.error(err),
             });
@@ -114,7 +114,7 @@ export class ExtraSessionForm implements OnInit {
         this.categoryControl.setValue('');
         this.disciplineControl.setValue('');
         this.disciplineOptions.set([]);
-        this.onClose.emit();
+        this.closed.emit();
     }
 
     onDisciplineClear(): void {

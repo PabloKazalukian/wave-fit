@@ -66,6 +66,8 @@
           <div
             class="p-2 hover:bg-background3 flex items-center justify-start gap-2 cursor-pointer group w-full"
             (click)="toggleExercise(exercise)"
+            (keydown.enter)="toggleExercise(exercise)"
+            (keydown.space)="toggleExercise(exercise)"
           >
             <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
 

@@ -21,6 +21,8 @@
             : 'border border-primary3 text-text2 bg-background2'
         "
         (click)="toggleCategory('')"
+        (keydown.enter)="toggleCategory('')"
+        (keydown.space)="toggleCategory('')"
         [@chipAnimation]
       >
         Todos
@@ -34,6 +36,8 @@
               : 'border border-primary3 text-text2 bg-background2'
           "
           (click)="toggleCategory(opt.value.toString())"
+          (keydown.enter)="toggleCategory(opt.value.toString())"
+          (keydown.space)="toggleCategory(opt.value.toString())"
           [@chipAnimation]
         >
           {{ opt.name }}
@@ -51,6 +55,8 @@
       <div
         class="p-3 hover:bg-background2 flex items-center justify-start gap-3 cursor-pointer group w-full border-b border-background4 last:border-0 transition-colors"
         (click)="toggleExercise(exercise)"
+        (keydown.enter)="toggleExercise(exercise)"
+        (keydown.space)="toggleExercise(exercise)"
       >
         <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
 

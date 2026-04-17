@@ -44,6 +44,7 @@ bootstrapApplication(AppComponent, {
                 } else {
                     // Network error (ej: 401 HTTP)
                     if ((error as any)?.status === 401) {
+                        console.log(error);
                         unauthorized = true;
                     }
                 }

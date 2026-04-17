@@ -31,7 +31,7 @@ export class WorkoutRoutineSelector {
     private state = inject(WorkoutStateService);
 
     routineSelected = output<RoutineDay>();
-    close = output<void>();
+    closed = output<void>();
 
     workout = signal<WorkoutSessionVM | null>(this.state.workoutSession());
 
@@ -123,6 +123,6 @@ export class WorkoutRoutineSelector {
     }
 
     onClose() {
-        this.close.emit();
+        this.closed.emit();
     }
 }

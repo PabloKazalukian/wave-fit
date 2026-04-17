@@ -6,6 +6,8 @@
       class="w-full bg-background2 border-hover:bg-primary flex flex-col items-center justify-center text-white font-medium transition-colors duration-150 cursor-pointer"
       [class.font-bold]="d.expanded"
       (click)="changeExpanded(d)"
+      (keydown.enter)="changeExpanded(d)"
+      (keydown.space)="changeExpanded(d)"
     >
       @if (d.day) {
         <p

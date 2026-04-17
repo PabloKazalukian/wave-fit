@@ -11,6 +11,10 @@ import {
     WorkoutSessionVM,
 } from '../../../../../interfaces/tracking.interface';
 
+interface SetsFormVM {
+    reps: number;
+    weights?: number;
+}
 @Component({
     selector: 'app-workout-edition',
     imports: [
@@ -46,7 +50,9 @@ export class WorkoutEdition implements OnInit {
                 }
 
                 // Add new selected exercises
-                const formExIds: string[] = formArray.value.map((fe: any) => fe.exerciseId);
+                const formExIds: string[] = formArray.value.map(
+                    (fe: ExercisePerformanceVM) => fe.exerciseId,
+                );
                 exercises.forEach((ex) => {
                     if (!formExIds.includes(ex.exerciseId)) {
                         this.addExerciseToForm(ex);
@@ -136,25 +142,29 @@ export class WorkoutEdition implements OnInit {
 
         // Use the forms value directly but merge from the source facade items
         // Since we allow adding new exercises from the selector, we MUST use formValue.exercises as the base.
-        const updatedExercises: ExercisePerformanceVM[] = formValue.exercises.map((fe: any) => {
-            const existingEx: ExercisePerformanceVM | undefined = currentWorkout.exercises.find(
-                (ex: any) => ex.exerciseId === fe.exerciseId,
-            );
-            const sourceEx: ExercisePerformanceVM | undefined = this.facade
-                .exercisesSelected()
-                .find((ex) => ex.exerciseId === fe.exerciseId);
+        const updatedExercises: ExercisePerformanceVM[] = formValue.exercises.map(
+            (fe: ExercisePerformanceVM) => {
+                const existingEx: ExercisePerformanceVM | undefined = currentWorkout.exercises.find(
+                    (ex: ExercisePerformanceVM) => ex.exerciseId === fe.exerciseId,
+                );
+                const sourceEx: ExercisePerformanceVM | undefined = this.facade
+                    .exercisesSelected()
+                    .find((ex) => ex.exerciseId === fe.exerciseId);
 
-            const mappedSets: { reps: number; weights: number }[] = fe.sets.map((s: any) => ({
-                reps: Number(s.reps),
-                weights: Number(s.weights),
-            }));
+                const mappedSets: { reps: number; weights: number }[] = fe.sets.map(
+                    (s: SetsFormVM) => ({
+                        reps: Number(s.reps),
+                        weights: Number(s.weights),
+                    }),
+                );
 
-            return {
-                ...(existingEx || sourceEx), // Keep original properties like category, muscle, etc.
-                sets: mappedSets,
-                series: mappedSets.length, // Always sync series with actual sets count
-            };
-        });
+                return {
+                    ...(existingEx || sourceEx), // Keep original properties like category, muscle, etc.
+                    sets: mappedSets,
+                    series: mappedSets.length, // Always sync series with actual sets count
+                };
+            },
+        );
 
         const updatedWorkout: WorkoutSessionVM = {
             ...currentWorkout,

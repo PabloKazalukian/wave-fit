@@ -1,11 +1,14 @@
 <div class="relative w-full">
-  <label class="block pb-1 text-sm text-text2">{{ labelControl() }}</label>
+  <span class="block pb-1 text-sm text-text2">{{ labelControl() }}</span>
 
   <!-- Trigger -->
   <div
     class="flex items-center justify-between pl-4 pr-4 rounded-md border-2 bg-background pt-2 pb-2 cursor-pointer transition-all w-full"
     [ngClass]="triggerClasses"
     (click)="toggleDropdown()"
+    tabindex="0"
+    (keydown.enter)="toggleDropdown()"
+    (keydown.space)="toggleDropdown()"
   >
     <span class="text-sm text-text2 truncate select-none whitespace-nowrap min-h-[20px]">
       {{ getSelectedLabel() }}
@@ -36,6 +39,10 @@
           <div
             class="flex items-center gap-3 p-2 rounded-md hover:bg-background3 cursor-pointer transition-colors"
             (click)="onOptionToggle(opt.value)"
+            tabindex="0"
+            role="button"
+            (keydown.enter)="onOptionToggle(opt.value)"
+            (keydown.space)="onOptionToggle(opt.value)"
           >
             <!-- Mock checkbox if not using app-checkbox directly for better alignment -->
             <div
