@@ -27,9 +27,11 @@ export class MultiSelectComponent {
     label = input<string>('');
     color = input<COLOR_VALUES>('primary');
     options = input<SelectType[]>([]);
-    control = input<FormControl<any[] | null>>(new FormControl<any[] | null>([]));
+    control = input<FormControl<(string | number)[] | null>>(
+        new FormControl<(string | number)[] | null>([]),
+    );
     btnText = input<string>('enviar');
-    onSend = output<void>();
+    send = output<void>();
 
     isOpen = signal(false);
 
@@ -80,8 +82,8 @@ export class MultiSelectComponent {
         return `${selectedCount} seleccionados`;
     }
 
-    send(): void {
-        this.onSend.emit();
+    emitSend(): void {
+        this.send.emit();
         this.isOpen.set(false);
     }
 

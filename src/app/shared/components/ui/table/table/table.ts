@@ -30,29 +30,29 @@ export interface SortEvent {
     imports: [CommonModule, CheckboxComponent, ReactiveFormsModule],
     templateUrl: './table.html',
 })
-export class TableComponent {
+export class TableComponent<RowType extends { id: string } & Record<string, any>> {
     // Inputs
-    data = input.required<any[]>();
+    data = input.required<RowType[]>();
     columns = input.required<TableColumn[]>();
     selectable = input<boolean>(false);
 
     // Template refs
-    actionsTemplate = contentChild<TemplateRef<any>>('actions');
-    selectionActions = contentChild<TemplateRef<any>>('selectionActions');
+    actionsTemplate = contentChild<TemplateRef<unknown>>('actions');
+    selectionActions = contentChild<TemplateRef<unknown>>('selectionActions');
 
     // Outputs
     sortChange = output<SortEvent>();
-    selectionChange = output<any[]>();
+    selectionChange = output<RowType[]>();
 
     // State signals
     private sortColumn = signal<string | null>(null);
     sortAscending = signal<boolean>(true);
-    private selectedRows = signal<Set<any>>(new Set());
+    private selectedRows = signal<Set<RowType>>(new Set());
     openActionMenu = signal<string | null>(null);
 
     // Form Controls para los checkboxes
     headerCheckboxControl = new FormControl<boolean>(false, { nonNullable: true });
-    rowCheckboxControls = new Map<any, FormControl<boolean>>();
+    rowCheckboxControls = new Map<RowType, FormControl<boolean>>();
 
     // Computed signals
     columnCount = computed(() => {
@@ -88,7 +88,7 @@ export class TableComponent {
 
             // Limpiar controles que ya no existen
             const currentRows = new Set(currentData);
-            for (const [row, _] of this.rowCheckboxControls.entries()) {
+            for (const [row] of this.rowCheckboxControls.entries()) {
                 if (!currentRows.has(row)) {
                     this.rowCheckboxControls.delete(row);
                 }
@@ -115,7 +115,17 @@ export class TableComponent {
     }
 
     // Methods
-    getValue(row: any, key: string): any {
+    // getValue(row: RowType, key: string): unknown {
+    //     const keys = key.split('.');
+    //     let result: unknown = row;
+    //     for (const part of keys) {
+    //         if (result && typeof result === 'object') {
+    //             result = (result as Record<string, unknown>)[part];
+    //         }
+    //     }
+    //     return result;
+    // }
+    getValue(row: any, key: string): string {
         return key.split('.').reduce((acc, part) => acc?.[part], row);
     }
 
@@ -137,7 +147,7 @@ export class TableComponent {
         return this.sortColumn() === colKey;
     }
 
-    getRowCheckboxControl(row: any): FormControl<boolean> {
+    getRowCheckboxControl(row: RowType): FormControl<boolean> {
         if (!this.rowCheckboxControls.has(row)) {
             const control = new FormControl<boolean>(false, { nonNullable: true });
             this.rowCheckboxControls.set(row, control);
@@ -146,10 +156,16 @@ export class TableComponent {
                 this.handleRowCheckboxChange(row, checked);
             });
         }
-        return this.rowCheckboxControls.get(row)!;
+        const control = this.rowCheckboxControls.get(row);
+        if (!control) {
+            const newControl = new FormControl<boolean>(false, { nonNullable: true });
+            this.rowCheckboxControls.set(row, newControl);
+            return newControl;
+        }
+        return control;
     }
 
-    private handleRowCheckboxChange(row: any, checked: boolean): void {
+    private handleRowCheckboxChange(row: RowType, checked: boolean): void {
         const newSelection = new Set(this.selectedRows());
 
         if (checked) {
@@ -183,7 +199,7 @@ export class TableComponent {
         this.selectionChange.emit(Array.from(this.selectedRows()));
     }
 
-    isRowSelected(row: any): boolean {
+    isRowSelected(row: RowType): boolean {
         return this.selectedRows().has(row);
     }
 

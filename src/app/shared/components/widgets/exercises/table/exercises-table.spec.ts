@@ -1,23 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { ExercisesTable } from './exercises-table';
+import { ExercisesTableComponent } from './exercises-table';
 
 describe('ExercisesTable', () => {
-  let component: ExercisesTable;
-  let fixture: ComponentFixture<ExercisesTable>;
+    let component: ExercisesTableComponent;
+    let fixture: ComponentFixture<ExercisesTableComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ExercisesTable]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [ExercisesTableComponent],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(ExercisesTable);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(ExercisesTableComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
