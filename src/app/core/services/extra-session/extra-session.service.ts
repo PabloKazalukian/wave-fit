@@ -109,6 +109,7 @@ export class ExtraSessionService {
     }
 
     create(input: CreateExtraSessionForm): Observable<TrackingVM | null | undefined> {
+        console.log(this.state.selectedDate()!, input);
         if (!this.state.selectedDate()) return of(null);
         return this.trackingService.updateExtraSession(this.state.selectedDate()!, input);
     }

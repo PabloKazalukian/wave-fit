@@ -2,7 +2,6 @@
   <form
     class="p-4 bg-background rounded-2xl shadow-md flex flex-col gap-4"
     [formGroup]="extraSessionForm"
-    (ngSubmit)="save()"
   >
     <div class="mb-2">
       <h3 class="text-xl text-accent font-bold">Actividades Extras</h3>
@@ -32,8 +31,8 @@
       @if (disciplineControl.value) {
         <app-extra-session-create
           [config]="getDisciplineConfig()!"
-          (onCancel)="onCategoryClear()"
-          (onSave)="save()"
+          (cancelES)="onCategoryClear()"
+          (saveES)="save()"
         ></app-extra-session-create>
       }
     </div>

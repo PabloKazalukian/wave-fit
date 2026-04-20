@@ -106,6 +106,7 @@ export class PlanTrackingApi {
     }
 
     updateTrackingDay(payload: UpdateWeekLogDayUnifiedInput): Observable<WeekLogDayVM | null> {
+        console.log(payload);
         return this.apollo
             .mutate<{ updateDay: WeekLogDayAPI }>({
                 mutation: UPDATE_WEEK_LOG_DAY,

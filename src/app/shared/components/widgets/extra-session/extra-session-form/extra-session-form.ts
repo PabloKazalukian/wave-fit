@@ -95,7 +95,7 @@ export class ExtraSessionForm implements OnInit {
 
         this.service
             .create({
-                date: this.dateService.todayLocalDate(), // ✅ LocalDate del timezone del usuario
+                date: this.workoutState.selectedDate()!, // ✅ LocalDate del timezone del usuario
                 discipline: this.disciplineControl.value,
                 duration: this.durationControl.value,
                 intensityLevel: this.intensityLevelControl.value,

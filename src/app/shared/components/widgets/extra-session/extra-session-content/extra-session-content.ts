@@ -42,6 +42,7 @@ export class ExtraSessionContent {
         intensityLevel: number;
         calories?: number;
     }) {
+        console.log(data);
         this.service
             .update({
                 id: data.id,

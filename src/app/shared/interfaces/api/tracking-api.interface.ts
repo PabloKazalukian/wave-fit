@@ -125,5 +125,6 @@ export interface UpdateDayInput {
 
 export interface UpdateWeekLogDayUnifiedInput {
     id: string; // weekLogId
+    timezone?: string;
     days: UpdateDayInput[];
 }

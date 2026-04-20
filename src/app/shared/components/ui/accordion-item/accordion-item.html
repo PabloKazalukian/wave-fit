@@ -9,15 +9,15 @@
 >
   <!-- Header -->
   @if (draggable) {
-    <button
+    <div
       cdkDragHandle
       class="cursor-move flex flex-col items-center justify-center text-text2 hover:text-brand"
       (click)="$event.stopPropagation()"
     >
       ☰
-    </button>
+    </div>
   }
-  <button
+  <div
     (click)="onToggle()"
     class="grid grid-cols-[1fr_24px] w-full flex justify-between items-center px-4 py-3 rounded-md transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     [class.bg-background3]="!isIncomplete"
@@ -48,7 +48,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
       </svg>
     </span>
-  </button>
+  </div>
 
   <div
     class="overflow-auto scrollbar-hide transition-all duration-300 px-4 scrollbar-thin delay-75"
