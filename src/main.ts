@@ -43,7 +43,6 @@ bootstrapApplication(AppComponent, {
                     }
                 } else {
                     // Network error (ej: 401 HTTP)
-                    console.log(error);
                     if ((error as any)?.status === 401) {
                         console.log(error);
                         unauthorized = true;
@@ -68,4 +67,22 @@ bootstrapApplication(AppComponent, {
             };
         }),
     ],
+}).then(() => {
+    if ('serviceWorker' in navigator && environment.production) {
+        import('workbox-window').then(({ Workbox }) => {
+            const wb = new Workbox('/sw.js');
+
+            wb.addEventListener('installed', (event) => {
+                if (event.isUpdate) {
+                    if (confirm('Nueva versión disponible. ¿Deseas actualizar?')) {
+                        window.location.reload();
+                    }
+                }
+            });
+
+            wb.register().catch((err) => {
+                console.error('Service Worker registration failed:', err);
+            });
+        });
+    }
 });
