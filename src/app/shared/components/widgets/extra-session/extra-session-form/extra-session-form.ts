@@ -110,7 +110,6 @@ export class ExtraSessionForm implements OnInit {
             .pipe(
                 takeUntilDestroyed(this.destroyRef),
                 tap(() => this.loading.set(true)),
-                delay(4000),
                 catchError(() => {
                     this.loading.set(false);
                     return of(null);
