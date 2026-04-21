@@ -1,6 +1,6 @@
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { StaleWhileRevalidate, CacheFirst, NetworkFirst } from 'workbox-strategies';
+import { CacheFirst, NetworkFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 
@@ -11,65 +11,65 @@ precacheAndRoute(self.__WB_MANIFEST);
 
 // Cache images with a Cache First strategy
 registerRoute(
-  ({ request }) => request.destination === 'image',
-  new CacheFirst({
-    cacheName: 'images',
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 60,
-        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
-      }),
-    ],
-  })
+    ({ request }) => request.destination === 'image',
+    new CacheFirst({
+        cacheName: 'images',
+        plugins: [
+            new ExpirationPlugin({
+                maxEntries: 60,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+            }),
+        ],
+    }),
 );
 
 // Cache fonts with a Cache First strategy
 registerRoute(
-  ({ request }) => request.destination === 'font',
-  new CacheFirst({
-    cacheName: 'webfonts',
-    plugins: [
-      new CacheableResponsePlugin({
-        statuses: [0, 200],
-      }),
-      new ExpirationPlugin({
-        maxEntries: 20,
-        maxAgeSeconds: 365 * 24 * 60 * 60, // 1 Year
-      }),
-    ],
-  })
+    ({ request }) => request.destination === 'font',
+    new CacheFirst({
+        cacheName: 'webfonts',
+        plugins: [
+            new CacheableResponsePlugin({
+                statuses: [0, 200],
+            }),
+            new ExpirationPlugin({
+                maxEntries: 20,
+                maxAgeSeconds: 365 * 24 * 60 * 60, // 1 Year
+            }),
+        ],
+    }),
 );
 
 // Handle navigation requests (SPA)
 registerRoute(
-  ({ request }) => request.mode === 'navigate',
-  new NetworkFirst({
-    cacheName: 'pages',
-    plugins: [
-      new CacheableResponsePlugin({
-        statuses: [200],
-      }),
-    ],
-  })
+    ({ request }) => request.mode === 'navigate',
+    new NetworkFirst({
+        cacheName: 'pages',
+        plugins: [
+            new CacheableResponsePlugin({
+                statuses: [200],
+            }),
+        ],
+    }),
 );
 
 // Handle API/GraphQL requests (StaleWhileRevalidate or NetworkFirst)
 // Since this is a tracking app, we might prefer NetworkFirst for some data
 // but StaleWhileRevalidate for others. Let's start with NetworkFirst for safety.
 registerRoute(
-  ({ url }) => url.pathname.includes('/graphql'),
-  new NetworkFirst({
-    cacheName: 'api-responses',
-    plugins: [
-      new CacheableResponsePlugin({
-        statuses: [200],
-      }),
-    ],
-  })
+    ({ url }) => url.pathname.includes('/graphql'),
+    new NetworkFirst({
+        cacheName: 'api-responses',
+        plugins: [
+            new CacheableResponsePlugin({
+                statuses: [200],
+            }),
+        ],
+    }),
 );
 
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
