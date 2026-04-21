@@ -10,7 +10,7 @@
   </div>
 
   <!-- Timeline de días -->
-  @if (routinePlan()?.routineDays?.length !== 0) {
+  @if (routinePlan()?.routineDays?.length !== 0 && !loading()) {
     <div class="relative mb-6">
       <!-- Línea vertical -->
       <div class="absolute left-5 top-0 bottom-0 w-0.5 bg-primary/30 z-0"></div>
@@ -146,6 +146,12 @@
           ></app-btn>
         </div>
       </app-dialog>
+    </div>
+  } @else {
+    <div class="flex justify-center items-center">
+      <div class="h-24 w-24">
+        <app-loading></app-loading>
+      </div>
     </div>
   }
 </div>

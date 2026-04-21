@@ -1,4 +1,10 @@
-@if (catalog().length > 0) {
+@if (loading()) {
+  <div class="flex justify-center items-center">
+    <div class="h-24 w-24">
+      <app-loading></app-loading>
+    </div>
+  </div>
+} @else {
   <form
     class="p-4 bg-background rounded-2xl shadow-md flex flex-col gap-4"
     [formGroup]="extraSessionForm"
@@ -37,6 +43,4 @@
       }
     </div>
   </form>
-} @else {
-  <app-loading></app-loading>
 }

@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, computed, effect } from '@angular/core';
+import { inject, Injectable, signal, computed, effect, DestroyRef } from '@angular/core';
 import { ExtraSessionApi } from './api/extra-session.api';
 import {
     CreateExtraSessionForm,
@@ -28,6 +28,8 @@ export interface IExtraSessionForm {
 
 @Injectable({ providedIn: 'root' })
 export class ExtraSessionService {
+    destroyRef = inject(DestroyRef);
+
     private api = inject(ExtraSessionApi);
     private trackingService = inject(PlanTrackingService);
     private state = inject(WorkoutStateService);

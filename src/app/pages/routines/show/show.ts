@@ -10,10 +10,19 @@ import { BtnComponent } from '../../../shared/components/ui/btn/btn';
 import { NgClass } from '@angular/common';
 import { PlanTrackingService } from '../../../core/services/trackings/plan-tracking.service';
 import { DialogComponent } from '../../../shared/components/ui/dialog/dialog';
+import { Loading } from '../../../shared/components/ui/loading/loading';
+import { delay, tap } from 'rxjs';
 
 @Component({
     selector: 'app-show',
-    imports: [AccordionItemComponent, ExerciseCategoryPipe, BtnComponent, NgClass, DialogComponent],
+    imports: [
+        AccordionItemComponent,
+        ExerciseCategoryPipe,
+        BtnComponent,
+        NgClass,
+        DialogComponent,
+        Loading,
+    ],
     standalone: true,
     templateUrl: './show.html',
     styles: ``,
@@ -25,6 +34,8 @@ export class Show implements OnInit {
     routinePlan = signal<RoutinePlanCreate | null>(null);
     isSelected = signal<boolean | null>(null);
     routinesDays = signal<RoutineDay[]>([]);
+
+    loading = signal<boolean>(true);
 
     isStartingRoutine = signal<boolean>(false);
 
@@ -46,7 +57,11 @@ export class Show implements OnInit {
             if (this.userId() !== '' || this.userId() !== undefined || this.userId() !== null) {
                 this.svcRoutines
                     .getRoutinePlanById(this.userId())
-                    .pipe(takeUntilDestroyed(this.destroyRef))
+                    .pipe(
+                        takeUntilDestroyed(this.destroyRef),
+                        // delay(1000),
+                        tap(() => this.loading.set(false)),
+                    )
                     .subscribe((result: RoutinePlanCreate | null) => {
                         this.routinePlan.set(result);
                     });
@@ -78,13 +93,19 @@ export class Show implements OnInit {
         }
 
         this.isStartingRoutine.set(true);
+        this.loading.set(true);
 
         this.svcTracking
             .createTracking(plan.id)
-            .pipe(takeUntilDestroyed(this.destroyRef))
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+                tap(() => this.loading.set(true)),
+                delay(1000),
+            )
             .subscribe({
                 next: (result) => {
                     this.isStartingRoutine.set(false);
+                    this.loading.set(false);
                     if (result) {
                         this.router.navigate(['/my-week']);
                     }
