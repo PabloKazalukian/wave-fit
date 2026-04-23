@@ -69,8 +69,9 @@
 
       @if (facade.workoutVM()?.status !== StatusWorkoutSessionEnum.REST) {
         <button
+          [disabled]="facade.loadingStatusWorkout()"
           (click)="this.facade.setRestDay(); isActionsOpen.set(false)"
-          class="w-full text-left px-4 py-2.5 text-text2 hover:bg-white/5 transition-colors flex items-center gap-3"
+          class="w-full text-left px-4 py-2.5 text-text2 hover:bg-white/5 transition-colors flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -90,8 +91,9 @@
         </button>
       } @else {
         <button
+          [disabled]="facade.loadingStatusWorkout()"
           (click)="this.facade.setTrainingDay(); isActionsOpen.set(false)"
-          class="w-full text-left px-4 py-2.5 text-text2 hover:bg-white/5 transition-colors flex items-center gap-3"
+          class="w-full text-left px-4 py-2.5 text-text2 hover:bg-white/5 transition-colors flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

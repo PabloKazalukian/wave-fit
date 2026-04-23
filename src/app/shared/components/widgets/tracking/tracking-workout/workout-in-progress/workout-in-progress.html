@@ -176,6 +176,7 @@
             [text]="'Asignar dia como descanso.'"
             [color]="'secondary'"
             [variant]="'strokedColor'"
+            [isDisabled]="this.facade.loadingStatusWorkout()"
             (click)="this.facade.setRestDay()"
           ></app-btn>
         }

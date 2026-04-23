@@ -8,7 +8,7 @@ import {
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, of } from 'rxjs';
+import { catchError, delay, finalize, Observable, of, tap } from 'rxjs';
 
 @Injectable()
 export class TrackingWorkoutFacade {
@@ -22,6 +22,7 @@ export class TrackingWorkoutFacade {
 
     readonly workoutDate = this.state.selectedDate;
     readonly workoutVM = this.state.workoutSession;
+    readonly loadingStatusWorkout = this.trackingSvc.loadingStatusWorkout;
 
     exercises = signal<ExercisePerformanceVM[]>([]);
     exercisesSelected = this.state.exercises;
@@ -75,7 +76,13 @@ export class TrackingWorkoutFacade {
 
     private _setWorkoutStatus(status: StatusWorkoutSessionEnum) {
         if (!this.workoutDate()) return;
-        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!, status).subscribe();
+        this.trackingSvc
+            .setRestDay(this.workoutDate()!, this.workoutVM()!, status)
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+                delay(1000),
+            )
+            .subscribe();
     }
 
     setRemoveAllExercises() {

@@ -36,6 +36,7 @@ export class PlanTrackingService {
     readonly loading = this.state.loading;
     readonly loadingTracking = this.state.loadingTracking;
     readonly loadingWorkoutCreation = this.state.loadingWorkoutCreation;
+    readonly loadingStatusWorkout = this.state.loadingStatusWorkout;
     readonly trackingPlanVM$ = this.state.tracking$; // Alias for backward compatibility
     private authService = inject(AuthService);
 
@@ -180,6 +181,7 @@ export class PlanTrackingService {
     ): Observable<TrackingVM | null | undefined> {
         const isRest = desiredStatus === StatusWorkoutSessionEnum.REST;
 
+        this.state.setLoadingStatusWorkout(true);
         return this.domain.setRestDay(day, isRest).pipe(
             tap((res) => {
                 if (res) {
@@ -193,6 +195,7 @@ export class PlanTrackingService {
                 }
             }),
             map(() => this.state.getTrackingValue()),
+            finalize(() => this.state.setLoadingStatusWorkout(false)),
         );
     }
 
@@ -305,6 +308,7 @@ export class PlanTrackingService {
     }
 
     removeWorkoutSession(date: LocalDate, id: string): Observable<boolean> {
+        this.state.setLoadingStatusWorkout(true);
         return this.domain.removeWorkoutSession(date, id).pipe(
             map((res) => {
                 if (!res) return false;
@@ -316,6 +320,7 @@ export class PlanTrackingService {
                 }));
                 return true;
             }),
+            finalize(() => this.state.setLoadingStatusWorkout(false)),
         );
     }
 
