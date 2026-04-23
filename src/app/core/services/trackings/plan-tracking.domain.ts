@@ -293,4 +293,18 @@ export class PlanTrackingDomainService {
             }),
         );
     }
+
+    removeTracking(id: string): Observable<boolean> {
+        return this.api.removeTracking(id).pipe(
+            tap((success) => {
+                if (success) {
+                    const current = this.state.getTrackingValue();
+                    if (current?.id === id) {
+                        this.storage.removeTrackingStorage(this.state.userId());
+                        this.state.setTracking(null);
+                    }
+                }
+            })
+        );
+    }
 }

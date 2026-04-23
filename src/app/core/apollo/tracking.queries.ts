@@ -234,3 +234,11 @@ export const UPDATE_DAY_WORKOUT_STATUS = gql`
         }
     }
 `;
+
+export const REMOVE_WEEK_LOG = gql`
+    mutation RemoveWeekLog($id: String!) {
+        removeWeekLog(id: $id) {
+            id
+        }
+    }
+`;

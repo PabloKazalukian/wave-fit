@@ -11,15 +11,24 @@
     @if (tracking$ | async; as tracking) {
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold text-text1">Detalle de Semana</h2>
-        <span
-          class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-          [ngClass]="{
-            'bg-success/20 text-success border border-success/30': tracking.completed,
-            'bg-warning/20 text-warning border border-warning/30': !tracking.completed,
-          }"
-        >
-          {{ tracking.completed ? 'Completada' : 'En progreso' }}
-        </span>
+        <div class="flex items-center gap-2">
+          <span
+            class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+            [ngClass]="{
+              'bg-success/20 text-success border border-success/30': tracking.completed,
+              'bg-warning/20 text-warning border border-warning/30': !tracking.completed,
+            }"
+          >
+            {{ tracking.completed ? 'Completada' : 'En progreso' }}
+          </span>
+          <button
+            (click)="removeTracking(tracking.id!)"
+            class="p-2 text-error hover:bg-error/10 rounded-full transition-colors"
+            title="Remover permanentemente semana de entrenamiento"
+          >
+            <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+          </button>
+        </div>
       </div>
 
       <div class="grid gap-6">
@@ -128,4 +137,33 @@
       </div>
     }
   </header>
+
+  <app-dialog
+    [isOpen]="showDeleteDialog()"
+    [title]="'Confirmar eliminación'"
+    [closeOnBackdrop]="true"
+    [locked]="true"
+    (closed)="showDeleteDialog.set(false)"
+  >
+    <div class="flex flex-col gap-4">
+      <p class="text-text2 text-sm md:text-lg leading-relaxed">
+        ¿Estás seguro de que deseas eliminar esta semana de entrenamiento permanentemente? Esta acción no se puede deshacer.
+      </p>
+
+      <div class="flex flex-col gap-2 mt-2">
+        <app-btn
+          [variant]="'raised'"
+          [text]="'Eliminar'"
+          [color]="'error'"
+          (click)="confirmDelete()"
+        ></app-btn>
+        <app-btn
+          [variant]="'outline'"
+          [text]="'Cancelar'"
+          [color]="'error'"
+          (click)="showDeleteDialog.set(false)"
+        ></app-btn>
+      </div>
+    </div>
+  </app-dialog>
 </div>

@@ -1,6 +1,6 @@
-import { inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 import { PlanTrackingService } from './plan-tracking.service';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable, startWith, Subject, switchMap, tap } from 'rxjs';
 import { TrackingVM } from '../../../shared/interfaces/tracking.interface';
 
 @Injectable({
@@ -9,7 +9,12 @@ import { TrackingVM } from '../../../shared/interfaces/tracking.interface';
 export class TrackingListState {
     private planTrackingService = inject(PlanTrackingService);
 
-    readonly trackings$ = this.planTrackingService.findAll();
+    private readonly _refresh$ = new Subject<void>();
+
+    readonly trackings$ = this._refresh$.pipe(
+        startWith(undefined),
+        switchMap(() => this.planTrackingService.findAll()),
+    );
 
     getTrackingById(id: string): Observable<TrackingVM | null> {
         return this.planTrackingService.findById(id);
@@ -26,5 +31,13 @@ export class TrackingListState {
                 };
             }),
         );
+    }
+
+    removeTracking(id: string): Observable<boolean> {
+        return this.planTrackingService.removeTracking(id);
+    }
+
+    resetData(): void {
+        this._refresh$.next();
     }
 }

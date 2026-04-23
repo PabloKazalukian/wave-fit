@@ -330,4 +330,8 @@ export class PlanTrackingService {
     ): Observable<RoutineDayAPI | null> {
         return this.domain.createRoutineFromWorkout(title, exerciseIds);
     }
+
+    removeTracking(id: string): Observable<boolean> {
+        return this.domain.removeTracking(id);
+    }
 }

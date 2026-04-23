@@ -30,6 +30,7 @@ import {
     CREATE_ROUTINE_BY_WORKOUT,
     REMOVE_WORKOUT_SESSION_FROM_DAY,
     UPDATE_DAY_WORKOUT_STATUS,
+    REMOVE_WEEK_LOG,
 } from '../../../../apollo/tracking.queries';
 import { DateService } from '../../../date.service';
 import { RoutineDayAPI } from '../../../../../shared/interfaces/api/routines-api.interface';
@@ -167,7 +168,9 @@ export class PlanTrackingApi {
 
     findAllTrackingByUser(): Observable<TrackingVM[] | null> {
         return this.apollo
-            .query<{ findAll: TrackingAPI[] }>({ query: FIND_ALL_TRACKING_BY_USER })
+            .query<{
+                findAll: TrackingAPI[];
+            }>({ query: FIND_ALL_TRACKING_BY_USER, fetchPolicy: 'no-cache' })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
@@ -266,6 +269,18 @@ export class PlanTrackingApi {
                           )
                         : null,
                 ),
+            );
+    }
+
+    removeTracking(id: string): Observable<boolean> {
+        return this.apollo
+            .mutate({
+                mutation: REMOVE_WEEK_LOG,
+                variables: { id },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) => !!data),
             );
     }
 }
