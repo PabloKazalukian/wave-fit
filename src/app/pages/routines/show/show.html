@@ -1,17 +1,37 @@
 <div class="container px-4 py-4 max-w-lg mx-auto mt-8">
-  <!-- Plan Info -->
-  <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-4 mb-4">
+  <header class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-4">
+    <h1 class="text-5xl font-bold text-center">Wave-Fit - Rutina Semanal</h1>
+    <!-- Plan Info -->
     <p class="text-xl bg-background rounded-2xl px-4 py-2">
-      {{ this.routinePlan()?.name }} {{ this.routinePlan()?.weekly_distribution }}
+      Nombre: <b class="text-confirm2">{{ this.routinePlan()?.name }}</b> ({{
+        this.routinePlan()?.weekly_distribution
+      }}/7 dias)
     </p>
     <p class="text-md bg-background rounded-2xl px-4 py-2">
       Descripción: {{ this.routinePlan()?.description }}
     </p>
-  </div>
+
+    <!-- Muscle Groups Tags -->
+    @if (muscleGroups().length > 0) {
+      <div class="flex flex-col px-2">
+        <span class="text-text2">Musculos principales:</span>
+
+        <div class="flex flex-wrap gap-2 mt-2">
+          @for (muscle of muscleGroups(); track muscle) {
+            <span
+              class="py-1 px-3 rounded-full border-2 border-confirm text-confirmLight font-bold bg-background2 font-medium transition-all duration-200"
+            >
+              {{ muscle | exerciseCategory }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+  </header>
 
   <!-- Timeline de días -->
   @if (routinePlan()?.routineDays?.length !== 0 && !loading()) {
-    <div class="relative mb-6">
+    <section class="relative mb-6">
       <!-- Línea vertical -->
       <div class="absolute left-5 top-0 bottom-0 w-0.5 bg-primary/30 z-0"></div>
 
@@ -30,7 +50,7 @@
                   class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-all duration-300"
                   [ngClass]="
                     routineDay?.id === 'rest'
-                      ? 'bg-background3 text-primary/40 border border-primary/20'
+                      ? 'bg-background3 text-secondary/40 border border-secondary/20'
                       : 'bg-primary text-white shadow-lg shadow-primary/30'
                   "
                 >
@@ -42,7 +62,7 @@
               </div>
 
               <!-- Contenido del día -->
-              <div class="flex-1 pb-4">
+              <section class="flex-1 pb-4">
                 @if (routineDay?.id === 'rest') {
                   <div
                     class="border rounded-md bg-background2 border-primary/20 text-primary/40 px-4 py-3 flex items-center gap-2"
@@ -96,14 +116,14 @@
                     </div>
                   </app-accordion-item>
                 }
-              </div>
+              </section>
             </div>
           </div>
         }
       </div>
-    </div>
+    </section>
 
-    <div
+    <section
       class="bg-background2 rounded-2xl px-6 py-6 flex flex-col items-center gap-4 text-center border border-primary/20"
     >
       <p class="text-primary font-semibold text-lg leading-snug">
@@ -146,7 +166,7 @@
           ></app-btn>
         </div>
       </app-dialog>
-    </div>
+    </section>
   } @else {
     <div class="flex justify-center items-center">
       <div class="h-24 w-24">

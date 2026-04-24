@@ -1,5 +1,5 @@
 <div class="container px-4 py-8 max-w-lg mx-auto">
-  <div class="flex items-center justify-between mb-6">
+  <header class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-bold text-text1 flex items-center gap-2">
       <lucide-icon [img]="TrophyIcon" size="24" class="text-primary"></lucide-icon>
       Historial de Tracking
@@ -7,9 +7,9 @@
     <a routerLink="stats" class="text-sm font-medium text-primary hover:underline">
       Ver Estadísticas
     </a>
-  </div>
+  </header>
 
-  <div class="space-y-4">
+  <section class="space-y-4">
     @if (trackings$ | async; as trackings) {
       @for (tracking of trackings; track tracking.id) {
         <a
@@ -26,7 +26,7 @@
                   class="text-xs px-2 py-0.5 rounded-full font-medium"
                   [ngClass]="{
                     'bg-success/20 text-success border border-success/30': tracking.completed,
-                    'bg-warning/20 text-warning border border-warning/30': !tracking.completed
+                    'bg-warning/20 text-warning border border-warning/30': !tracking.completed,
                   }"
                 >
                   {{ tracking.completed ? '✓ Completada' : 'En progreso' }}
@@ -44,7 +44,9 @@
           </div>
         </a>
       } @empty {
-        <div class="text-center py-12 bg-background2 border-2 border-dashed border-background4 rounded-2xl">
+        <div
+          class="text-center py-12 bg-background2 border-2 border-dashed border-background4 rounded-2xl"
+        >
           <p class="text-text2">No tienes trackings registrados aún.</p>
         </div>
       }
@@ -56,7 +58,7 @@
         <div class="h-20 bg-background2 animate-pulse rounded-xl"></div>
       </div>
     }
-  </div>
+  </section>
 
   @if (hasMore$ | async) {
     <div class="mt-8 flex justify-center">

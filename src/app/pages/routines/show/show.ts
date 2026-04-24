@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlansService } from '../../../core/services/plans/plans.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -36,11 +36,27 @@ import { delay, tap } from 'rxjs';
 })
 export class Show implements OnInit {
     private destroyRef = inject(DestroyRef);
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
+    private readonly svcRoutines = inject(PlansService);
+    private readonly svcTracking = inject(PlanTrackingService);
 
     userId = signal<string>('');
     routinePlan = signal<RoutinePlanCreate | null>(null);
-    isSelected = signal<boolean | null>(null);
-    routinesDays = signal<RoutineDay[]>([]);
+
+    muscleGroups = computed(() => {
+        const plan = this.routinePlan();
+        if (!plan) return [];
+        const categories = new Set<ExerciseCategory>();
+        plan.routineDays.forEach((day) => {
+            day.exercises?.forEach((exercise) => {
+                if (exercise.category) {
+                    categories.add(exercise.category);
+                }
+            });
+        });
+        return Array.from(categories);
+    });
 
     loading = signal<boolean>(true);
 
@@ -51,13 +67,6 @@ export class Show implements OnInit {
 
     showDialog = signal<boolean>(false);
 
-    private readonly route = inject(ActivatedRoute);
-    private readonly router = inject(Router);
-    private readonly svcRoutines = inject(PlansService);
-    private readonly svcTracking = inject(PlanTrackingService);
-
-    exerciseCategory = ExerciseCategory;
-
     ngOnInit() {
         this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
             this.userId.set(params['id']);
@@ -66,7 +75,6 @@ export class Show implements OnInit {
                     .getRoutinePlanById(this.userId())
                     .pipe(
                         takeUntilDestroyed(this.destroyRef),
-                        // delay(1000),
                         tap(() => this.loading.set(false)),
                     )
                     .subscribe((result: RoutinePlanVM | null | undefined) => {
