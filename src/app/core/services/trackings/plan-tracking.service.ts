@@ -31,7 +31,6 @@ export class PlanTrackingService {
     private dateService = inject(DateService);
     private storage = inject(PlanTrackingStorage);
 
-    readonly tracking$ = this.state.tracking$;
     readonly tracking = this.state.tracking;
     readonly loading = this.state.loading;
     readonly loadingTracking = this.state.loadingTracking;
@@ -64,24 +63,31 @@ export class PlanTrackingService {
 
         const stored = this.storage.getTrackingStorage(this.state.userId());
 
-        if (stored) {
-            this.state.setTracking(stored);
-            this.state.setLoadingTracking(false);
-        } else {
-            this.domain
-                .initTracking()
-                .pipe(
-                    takeUntilDestroyed(this.destroyRef),
-                    finalize(() => this.state.setLoadingTracking(false)),
-                )
-                .subscribe((res) => {
-                    if (!res) {
-                        return;
+        this.domain
+            .initTracking()
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+                finalize(() => this.state.setLoadingTracking(false)),
+            )
+            .subscribe((activeTracking) => {
+                if (stored) {
+                    if (activeTracking && activeTracking.id === stored.id) {
+                        this.state.setTracking(stored);
+                    } else if (activeTracking && activeTracking.id !== stored.id) {
+                        this.storage.removeTrackingStorage(this.state.userId());
+                        this._persist(activeTracking);
+                    } else {
+                        this.storage.removeTrackingStorage(this.state.userId());
+                        this.state.setTracking(null);
                     }
-
-                    this._persist(res);
-                });
-        }
+                } else {
+                    if (activeTracking) {
+                        this._persist(activeTracking);
+                    } else {
+                        this.state.setTracking(null);
+                    }
+                }
+            });
     }
 
     private _updateWorkout(
