@@ -2,18 +2,31 @@
   <header class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-4">
     <h1 class="text-5xl font-bold text-center">Wave-Fit - Rutinas</h1>
     <p class="text-center text-xl mt-4">
-      Podes seleccionar o crear tu rutina deacuerdo a tus necesidades.
+      Encontrá el plan ideal para tus objetivos o diseñá tu propia estructura semanal desde cero.
     </p>
-    <div class="mt-6">
-      <app-btn
-        [text]="'Crear un Plan'"
-        [descriptionText]="'Creá tu propia rutina semanal'"
-        [variant]="'raised'"
-        size="md"
-        [showIcon]="true"
-        [color]="'primary'"
-        [routerLink]="'/plans/create'"
-      ></app-btn>
+    <div class="mt-6 flex flex-wrap justify-center gap-4 w-full">
+      <div class="w-full">
+        <app-btn
+          [text]="'Crear mi propio Plan'"
+          [descriptionText]="'Diseñá una estructura semanal desde cero'"
+          [variant]="'raised'"
+          size="md"
+          [showIcon]="true"
+          [color]="'primaryDark'"
+          [routerLink]="'/plans/create'"
+        ></app-btn>
+      </div>
+      <div class="w-full bg-background rounded-2xl">
+        <app-btn
+          [text]="'Ver Planes Existentes'"
+          [descriptionText]="'Seleccion una rutina semanal'"
+          [variant]="'outline'"
+          size="md"
+          [showIcon]="true"
+          [color]="'primary'"
+          (click)="scrollToPlans()"
+        ></app-btn>
+      </div>
     </div>
   </header>
 
@@ -28,13 +41,17 @@
       <app-tracking-week-skeleton></app-tracking-week-skeleton>
     </div>
   } @else {
-    <section class="flex flex-col mt-8 gap-6 bg-background rounded-xl p-6" id="plans">
+    <section class="flex flex-col mt-8 gap-6 bg-background rounded-xl p-6" id="explore-plans">
       <header class="flex flex-col gap-4">
         <h2 class="text-2xl font-semibold">Filtros de búsqueda</h2>
 
         <div class="flex flex-col md:flex-row gap-4">
           <div class="flex-1">
-            <span class="text-sm text-text2 mb-1 block">Buscar por nombre</span>
+            <span
+              class="text-sm text-text2 mb-1 block"
+              aria-label="Buscar por nombre planes semanales"
+              >Buscar por nombre</span
+            >
             <input
               type="text"
               [formControl]="searchControl"

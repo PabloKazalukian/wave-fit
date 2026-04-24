@@ -137,4 +137,10 @@ export class Plans implements OnInit {
     get selectControl(): FormControl<string> {
         return this.daysControl;
     }
+    scrollToPlans(): void {
+        const element = document.getElementById('explore-plans');
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
 }
