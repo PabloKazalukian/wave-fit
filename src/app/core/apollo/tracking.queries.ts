@@ -187,8 +187,8 @@ export const ASSIGN_ROUTINE_TO_DAY = gql`
 `;
 
 export const FIND_ALL_TRACKING_BY_USER = gql`
-    query findAll {
-        findAll {
+    query findAll($limit: Int, $offset: Int) {
+        findAll(limit: $limit, offset: $offset) {
             ${WEEK_LOG_FIELDS}
         }
     }

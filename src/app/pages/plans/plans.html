@@ -1,5 +1,5 @@
 <div class="container px-4 py-4 max-w-lg mx-auto mt-8">
-  <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-4">
+  <header class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-4">
     <h1 class="text-5xl font-bold text-center">Wave-Fit - Rutinas</h1>
     <p class="text-center text-xl mt-4">
       Podes seleccionar o crear tu rutina deacuerdo a tus necesidades.
@@ -15,7 +15,7 @@
         [routerLink]="'/plans/create'"
       ></app-btn>
     </div>
-  </div>
+  </header>
 
   <app-info-card
     [title]="feature.title"
@@ -28,8 +28,8 @@
       <app-tracking-week-skeleton></app-tracking-week-skeleton>
     </div>
   } @else {
-    <div class="flex flex-col mt-8 gap-6 bg-background rounded-xl p-6" id="plans">
-      <div class="flex flex-col gap-4">
+    <section class="flex flex-col mt-8 gap-6 bg-background rounded-xl p-6" id="plans">
+      <header class="flex flex-col gap-4">
         <h2 class="text-2xl font-semibold">Filtros de búsqueda</h2>
 
         <div class="flex flex-col md:flex-row gap-4">
@@ -54,7 +54,7 @@
             ></app-select>
           </div>
         </div>
-      </div>
+      </header>
 
       <div class="border-t border-background3 pt-6">
         <p class="text-2xl mb-4">Rutinas semanales disponibles:</p>
@@ -77,7 +77,14 @@
               <app-btn
                 [routerLink]="`/routines/show/${routine.id}`"
                 [text]="routine.name"
-                [descriptionText]="routine.name + ' - ' + routine.description"
+                [descriptionText]="
+                  routine.name +
+                  ' - ' +
+                  routine.description +
+                  ' - ' +
+                  routine.weekly_distribution +
+                  '/7 días'
+                "
                 [variant]="'outline'"
                 [showIcon]="true"
                 [size]="'md'"
@@ -89,6 +96,6 @@
           </div>
         }
       </div>
-    </div>
+    </section>
   }
 </div>

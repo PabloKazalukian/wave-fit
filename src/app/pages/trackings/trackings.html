@@ -57,4 +57,21 @@
       </div>
     }
   </div>
+
+  @if (hasMore$ | async) {
+    <div class="mt-8 flex justify-center">
+      <button
+        (click)="loadMore()"
+        [disabled]="isLoadingMore$ | async"
+        class="bg-background2 border border-background4 hover:bg-background3 transition-colors text-text2 rounded-full p-3 disabled:opacity-50 flex items-center justify-center"
+        aria-label="Cargar más trackings"
+      >
+        @if (isLoadingMore$ | async) {
+          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+        } @else {
+          <lucide-icon [img]="ChevronDownIcon" size="24"></lucide-icon>
+        }
+      </button>
+    </div>
+  }
 </div>

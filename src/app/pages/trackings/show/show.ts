@@ -2,13 +2,14 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TrackingListState } from '../../../core/services/trackings/tracking-list.state';
 import { CommonModule } from '@angular/common';
-import { delay, map, Observable, switchMap, tap } from 'rxjs';
+import { delay, map, Observable, of, switchMap, tap } from 'rxjs';
 import { LucideAngularModule, ChevronLeft, Calendar, ClipboardList, X } from 'lucide-angular';
 import { TrackingVM } from '../../../shared/interfaces/tracking.interface';
 import { Router } from '@angular/router';
 import { DialogComponent } from '../../../shared/components/ui/dialog/dialog';
 import { BtnComponent } from '../../../shared/components/ui/btn/btn';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PlansService } from '../../../core/services/plans/plans.service';
 
 @Component({
     selector: 'app-show',
@@ -23,6 +24,7 @@ export class Show {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private facade = inject(TrackingListState);
+    private routinePlanSvc = inject(PlansService);
 
     showDeleteDialog = signal(false);
     trackingIdToDelete = signal<string | null>(null);
@@ -30,7 +32,17 @@ export class Show {
     asyncLoaded = false;
     tracking$: Observable<TrackingVM | null> = this.route.params.pipe(
         map((params) => params['id']),
+        tap((tracking) => console.log(tracking)),
         switchMap((id) => this.facade.getTrackingById(id)),
+        switchMap((tracking) => {
+            if (!tracking?.planId) return of(tracking);
+            return this.routinePlanSvc.getRoutinePlanById(tracking?.planId).pipe(
+                map((plan) => {
+                    if (!plan?.name) return tracking;
+                    return { ...tracking, planId: plan?.name };
+                }),
+            );
+        }),
         tap(() => (this.asyncLoaded = true)),
     );
 

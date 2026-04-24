@@ -63,8 +63,8 @@ export class PlanTrackingDomainService {
         return this.api.getTrackingByUser();
     }
 
-    findAllTrackingByUser(): Observable<TrackingVM[] | null> {
-        return this.api.findAllTrackingByUser();
+    findAllTrackingByUser(limit: number = 5, offset: number = 0): Observable<TrackingVM[] | null> {
+        return this.api.findAllTrackingByUser(limit, offset);
     }
 
     findById(id: string): Observable<TrackingVM | null> {

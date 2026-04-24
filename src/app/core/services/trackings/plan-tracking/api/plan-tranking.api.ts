@@ -166,11 +166,15 @@ export class PlanTrackingApi {
             );
     }
 
-    findAllTrackingByUser(): Observable<TrackingVM[] | null> {
+    findAllTrackingByUser(limit: number = 5, offset: number = 0): Observable<TrackingVM[] | null> {
         return this.apollo
             .query<{
                 findAll: TrackingAPI[];
-            }>({ query: FIND_ALL_TRACKING_BY_USER, fetchPolicy: 'no-cache' })
+            }>({
+                query: FIND_ALL_TRACKING_BY_USER,
+                variables: { limit, offset },
+                fetchPolicy: 'no-cache'
+            })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>

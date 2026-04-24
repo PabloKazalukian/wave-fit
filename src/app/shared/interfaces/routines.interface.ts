@@ -57,10 +57,10 @@ export interface RoutineDay {
 }
 
 export interface RoutineDayVM {
+    id?: string;
+    kind?: KindType;
     title?: string;
     type?: ExerciseCategory[];
-    kind?: KindType;
-    id?: string;
     expanded: boolean;
     day: DayIndex;
     exercises?: Exercise[];

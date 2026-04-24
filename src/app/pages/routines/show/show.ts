@@ -2,7 +2,14 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PlansService } from '../../../core/services/plans/plans.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RoutineDay, RoutinePlanCreate } from '../../../shared/interfaces/routines.interface';
+import {
+    DayIndex,
+    KindType,
+    RoutineDay,
+    RoutineDayCreate,
+    RoutinePlanCreate,
+    RoutinePlanVM,
+} from '../../../shared/interfaces/routines.interface';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
 import { AccordionItemComponent } from '../../../shared/components/ui/accordion-item/accordion-item';
 import { ExerciseCategoryPipe } from '../../../shared/pipes/exercise-category.pipe';
@@ -62,8 +69,26 @@ export class Show implements OnInit {
                         // delay(1000),
                         tap(() => this.loading.set(false)),
                     )
-                    .subscribe((result: RoutinePlanCreate | null) => {
-                        this.routinePlan.set(result);
+                    .subscribe((result: RoutinePlanVM | null | undefined) => {
+                        if (!result) return;
+                        const { routineDays, ...rest } = result;
+                        const routineDaysParsed: RoutineDayCreate[] = routineDays.map((day) => ({
+                            id: day.id as string,
+                            exercises: day.exercises,
+                            type: day.type as ExerciseCategory[] | string[],
+                            kind: day.kind as KindType,
+                            title: day.title as string,
+                            day: day.day as DayIndex,
+                        }));
+                        const routinePlanParsed: RoutinePlanCreate = {
+                            id: rest.id as string,
+                            name: rest.name as string,
+                            description: rest.description as string,
+                            weekly_distribution: rest.weekly_distribution as string,
+                            routineDays: routineDaysParsed,
+                        };
+                        console.log(routinePlanParsed);
+                        this.routinePlan.set(routinePlanParsed);
                     });
             }
         });

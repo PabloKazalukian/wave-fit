@@ -157,8 +157,8 @@ export class PlanTrackingService {
         );
     }
 
-    findAll(): Observable<TrackingVM[] | null> {
-        return this.domain.findAllTrackingByUser();
+    findAll(limit: number = 5, offset: number = 0): Observable<TrackingVM[] | null> {
+        return this.domain.findAllTrackingByUser(limit, offset);
     }
 
     findById(id: string): Observable<TrackingVM | null> {
