@@ -3,6 +3,7 @@ import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking.stora
 import { PlanTrackingStateService } from './plan-tracking.state';
 import { finalize, map, Observable, of, tap } from 'rxjs';
 import {
+    ExercisePerformanceVM,
     LocalDate,
     StatusWorkoutSessionEnum,
     TrackingVM,
@@ -63,7 +64,7 @@ export class PlanTrackingDomainService {
         return this.api.getTrackingByUser();
     }
 
-    findAllTrackingByUser(limit: number = 5, offset: number = 0): Observable<TrackingVM[] | null> {
+    findAllTrackingByUser(limit = 5, offset = 0): Observable<TrackingVM[] | null> {
         return this.api.findAllTrackingByUser(limit, offset);
     }
 
@@ -226,6 +227,39 @@ export class PlanTrackingDomainService {
         );
     }
 
+    updateExercises(
+        dateWorkout: LocalDate,
+        exercises: ExercisePerformanceVM[],
+    ): Observable<WeekLogDayVM | null> {
+        const tracking = this.state.getTrackingValue();
+        if (!tracking) return of(null);
+
+        const index = tracking.workouts?.findIndex((w) =>
+            this.dateService.isSameLocalDate(w.date, dateWorkout),
+        );
+
+        if (index === undefined || index === -1) return of(null);
+        const order = Number(index) + 1;
+
+        const payload: UpdateWeekLogDayUnifiedInput = {
+            id: tracking.id!,
+            timezone: this.dateService.getUserTimezone(),
+            days: [
+                {
+                    order,
+                    isRest: false,
+                    workoutSession: {
+                        date: dateWorkout,
+                        exercises: wrapperExercisePerformanceVMToApi(exercises),
+                        status: tracking.workouts![index].status,
+                    },
+                },
+            ],
+        };
+
+        return this.api.updateTrackingDay(payload);
+    }
+
     removeWorkoutSession(
         date: LocalDate, // ✅ LocalDate string
         workoutSessionId: string,
@@ -304,7 +338,7 @@ export class PlanTrackingDomainService {
                         this.state.setTracking(null);
                     }
                 }
-            })
+            }),
         );
     }
 }

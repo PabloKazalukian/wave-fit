@@ -8,7 +8,7 @@ import {
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, delay, finalize, Observable, of, tap } from 'rxjs';
+import { delay, Observable, of } from 'rxjs';
 
 @Injectable()
 export class TrackingWorkoutFacade {
@@ -87,7 +87,7 @@ export class TrackingWorkoutFacade {
 
     setRemoveAllExercises() {
         if (!this.workoutDate()) return;
-        this.trackingSvc.setRemoveAllExercises(this.workoutDate()!, this.workoutVM()!);
+        this.trackingSvc.setRemoveAllExercises(this.workoutDate()!);
     }
 
     setEditedStatus() {

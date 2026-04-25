@@ -1,7 +1,7 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingDomainService } from './plan-tracking.domain';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { filter, finalize, map, Observable, switchMap, tap } from 'rxjs';
+import { debounceTime, filter, finalize, map, Observable, Subject, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     LocalDate,
@@ -40,6 +40,7 @@ export class PlanTrackingService {
     private authService = inject(AuthService);
 
     user$ = toSignal(this.authService.user$);
+    private exercisesUpdate$ = new Subject<{ date: LocalDate; exercises: ExercisePerformanceVM[] }>();
 
     constructor() {
         effect(() => {
@@ -51,6 +52,12 @@ export class PlanTrackingService {
                 this.state.setTracking(null);
             }
         });
+
+        this.exercisesUpdate$
+            .pipe(debounceTime(4000), takeUntilDestroyed(this.destroyRef))
+            .subscribe(({ date, exercises }) => {
+                this.domain.updateExercises(date, exercises).subscribe();
+            });
     }
 
     private initTracking(userId: string) {
@@ -157,7 +164,7 @@ export class PlanTrackingService {
         );
     }
 
-    findAll(limit: number = 5, offset: number = 0): Observable<TrackingVM[] | null> {
+    findAll(limit = 5, offset = 0): Observable<TrackingVM[] | null> {
         return this.domain.findAllTrackingByUser(limit, offset);
     }
 
@@ -174,6 +181,7 @@ export class PlanTrackingService {
 
     setExercises(date: LocalDate, exercises: ExercisePerformanceVM[]) {
         this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
+        this.exercisesUpdate$.next({ date, exercises });
     }
 
     setRestDay(
@@ -302,11 +310,12 @@ export class PlanTrackingService {
         );
     }
 
-    setRemoveAllExercises(date: LocalDate, workout: WorkoutSessionVM): void {
+    setRemoveAllExercises(date: LocalDate): void {
         this._updateWorkout(date, (workout) => ({
             ...workout,
             exercises: [],
         }));
+        this.exercisesUpdate$.next({ date, exercises: [] });
     }
 
     removeWorkoutSession(date: LocalDate, id: string): Observable<boolean> {
