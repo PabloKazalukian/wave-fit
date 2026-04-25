@@ -38,7 +38,11 @@
           </button>
         </div>
 
-        <div formArrayName="sets" class="flex flex-col gap-2" [class.hidden]="getSetsFormArray(i).length === 0">
+        <div
+          formArrayName="sets"
+          class="flex flex-col gap-2"
+          [class.hidden]="getSetsFormArray(i).length === 0"
+        >
           @for (setGroup of getSetsFormArray(i).controls; track setGroup; let j = $index) {
             <div [formGroupName]="j" class="flex items-center gap-2 bg-background3 p-2 rounded-lg">
               <span class="border-r-2 pr-2 border-background4 text-center w-8">

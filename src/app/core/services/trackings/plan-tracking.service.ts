@@ -165,16 +165,12 @@ export class PlanTrackingService {
         return this.domain.findById(id);
     }
 
-    removeExercise(date: LocalDate, exerciseId: string): void {
-        this._updateWorkout(date, (workout) => ({
-            ...workout,
-            exercises: (workout.exercises || []).filter((e) => e.exerciseId !== exerciseId),
-        }));
-    }
-
-    setWorkouts(day: LocalDate, workout: WorkoutSessionVM) {
-        this._updateWorkout(day, () => workout);
-    }
+    // removeExercise(date: LocalDate, exerciseId: string): void {
+    //     this._updateWorkout(date, (workout) => ({
+    //         ...workout,
+    //         exercises: (workout.exercises || []).filter((e) => e.exerciseId !== exerciseId),
+    //     }));
+    // }
 
     setExercises(date: LocalDate, exercises: ExercisePerformanceVM[]) {
         this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
