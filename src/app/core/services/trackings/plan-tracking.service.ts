@@ -40,7 +40,10 @@ export class PlanTrackingService {
     private authService = inject(AuthService);
 
     user$ = toSignal(this.authService.user$);
-    private exercisesUpdate$ = new Subject<{ date: LocalDate; exercises: ExercisePerformanceVM[] }>();
+    private exercisesUpdate$ = new Subject<{
+        date: LocalDate;
+        exercises: ExercisePerformanceVM[];
+    }>();
 
     constructor() {
         effect(() => {
@@ -68,7 +71,7 @@ export class PlanTrackingService {
         this.state.userId.set(userId);
         this.state.setLoadingTracking(true);
 
-        const stored = this.storage.getTrackingStorage(this.state.userId());
+        // const stored = this.storage.getTrackingStorage(this.state.userId());
 
         this.domain
             .initTracking()
@@ -77,23 +80,23 @@ export class PlanTrackingService {
                 finalize(() => this.state.setLoadingTracking(false)),
             )
             .subscribe((activeTracking) => {
-                if (stored) {
-                    if (activeTracking && activeTracking.id === stored.id) {
-                        this.state.setTracking(stored);
-                    } else if (activeTracking && activeTracking.id !== stored.id) {
-                        this.storage.removeTrackingStorage(this.state.userId());
-                        this._persist(activeTracking);
-                    } else {
-                        this.storage.removeTrackingStorage(this.state.userId());
-                        this.state.setTracking(null);
-                    }
+                // if (stored) {
+                //     if (activeTracking && activeTracking.id === stored.id) {
+                //         this.state.setTracking(stored);
+                //     } else if (activeTracking && activeTracking.id !== stored.id) {
+                //         this.storage.removeTrackingStorage(this.state.userId());
+                //         this._persist(activeTracking);
+                //     } else {
+                //         this.storage.removeTrackingStorage(this.state.userId());
+                //         this.state.setTracking(null);
+                //     }
+                // } else {
+                if (activeTracking) {
+                    this._persist(activeTracking);
                 } else {
-                    if (activeTracking) {
-                        this._persist(activeTracking);
-                    } else {
-                        this.state.setTracking(null);
-                    }
+                    this.state.setTracking(null);
                 }
+                // }
             });
     }
 
