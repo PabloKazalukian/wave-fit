@@ -1,41 +1,54 @@
-<div class="bg-background2 border-2 border-primary rounded-2xl p-4 mb-6">
-  <div class="flex items-center justify-between mb-2">
-    <span class="text-lg font-medium text-primary">Semana Activa:</span>
-    @if (weekActive) {
-      <span
-        class="px-3 py-1 bg-success/20 text-success text-xs rounded-full border-2 border-success/30"
-      >
-        Activa
-      </span>
-    } @else {
-      <span class="px-3 py-1 bg-error/20 text-error text-xs rounded-full border-2 border-error/30">
-        No iniciada
-      </span>
-    }
+@if (loadingTracking()) {
+  <div class="bg-background2 border-2 border-primary/20 rounded-2xl p-4 mb-6 animate-pulse">
+    <div class="flex items-center justify-between mb-2">
+      <div class="h-6 bg-background3 rounded w-32"></div>
+      <div class="h-6 bg-background3 rounded-full w-20"></div>
+    </div>
+    <div class="flex flex-col w-full md:flex-row items-center justify-between mt-1">
+      <div class="h-5 bg-background3 rounded w-64 mb-4 md:mb-0"></div>
+      <div class="h-8 bg-background3 rounded w-32"></div>
+    </div>
   </div>
-  <div class="flex flex-col w-full md:flex-row items-center justify-between">
-    @if (weekActive) {
-      <p class="text-md text-text2">Continúa con tu rutina de esta semana</p>
-      <app-btn
-        text="Ir a mi día"
-        [routerLink]="'/my-week'"
-        [showIcon]="true"
-        size="sm"
-        variant="raised"
-        color="primary"
-        dataTest="ir-a-mi-dia"
-      ></app-btn>
-    } @else {
-      <p class="text-xs text-text2 max-w-40">Comienza tu primera semana de entrenamiento ahora</p>
-      <app-btn
-        text="comenzar ahora"
-        [routerLink]="'/my-week'"
-        [showIcon]="true"
-        variant="raised"
-        size="sm"
-        color="primary"
-        dataTest="comenzar-ahora"
-      ></app-btn>
-    }
+} @else {
+  <div class="bg-background2 border-2 border-primary rounded-2xl p-4 mb-6">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-lg font-medium text-primary">Semana Activa:</span>
+      @if (weekActive) {
+        <span
+          class="px-3 py-1 bg-success/20 text-success text-xs rounded-full border-2 border-success/30"
+        >
+          Activa
+        </span>
+      } @else {
+        <span class="px-3 py-1 bg-error/20 text-error text-xs rounded-full border-2 border-error/30">
+          No iniciada
+        </span>
+      }
+    </div>
+    <div class="flex flex-col w-full md:flex-row items-center justify-between">
+      @if (weekActive) {
+        <p class="text-md text-text2">Continúa con tu rutina de esta semana</p>
+        <app-btn
+          text="Ir a mi día"
+          [routerLink]="'/my-week'"
+          [showIcon]="true"
+          size="sm"
+          variant="raised"
+          color="primary"
+          dataTest="ir-a-mi-dia"
+        ></app-btn>
+      } @else {
+        <p class="text-xs text-text2 max-w-40">Comienza tu primera semana de entrenamiento ahora</p>
+        <app-btn
+          text="comenzar ahora"
+          [routerLink]="'/my-week'"
+          [showIcon]="true"
+          variant="raised"
+          size="sm"
+          color="primary"
+          dataTest="comenzar-ahora"
+        ></app-btn>
+      }
+    </div>
   </div>
-</div>
+}

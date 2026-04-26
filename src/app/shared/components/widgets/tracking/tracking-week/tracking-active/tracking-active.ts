@@ -13,6 +13,7 @@ import { BtnComponent } from '../../../../ui/btn/btn';
 export class TrackingActiveComponent {
     private trackingSvc = inject(PlanTrackingService);
     private tracking = toSignal(this.trackingSvc.trackingPlanVM$);
+    loadingTracking = this.trackingSvc.loadingTracking;
 
     get weekActive(): boolean {
         return !!this.tracking();

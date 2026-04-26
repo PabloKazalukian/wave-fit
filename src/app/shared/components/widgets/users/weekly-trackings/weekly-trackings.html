@@ -34,11 +34,13 @@
   @if (trackings | async; as trackingsList) {
     @for (
       tracking of limit() > 0 ? trackingsList.slice(0, limit()) : trackingsList;
-      track tracking.id
+      track tracking.id;
+      let i = $index
     ) {
       <a
         [routerLink]="['/user/trackings', tracking.id]"
-        class="bg-background2 border-2 border-background4 rounded-xl px-4 py-3 flex items-center justify-between history-item hover:border-primary/40 transition-all"
+        class="bg-background2 border-2 border-background4 rounded-xl px-4 py-3 flex items-center justify-between history-item hover:border-primary/40 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/20 hover:scale-[1.02] transition-all duration-300 animate-fade-in-up"
+        [style.animation-delay.ms]="i * 100"
       >
         <div>
           <p class="text-sm font-medium text-text1">
