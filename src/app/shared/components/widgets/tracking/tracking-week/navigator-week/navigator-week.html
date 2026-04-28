@@ -26,12 +26,16 @@
               ? 'bg-secondary text-background'
               : day.state === 'edited'
                 ? 'bg-accent text-background'
-                : 'bg-primary text-background'
+                : day.state === 'complete'
+                  ? 'bg-primaryDark text-background'
+                  : 'bg-primary text-background'
             : day.state === 'rest'
               ? 'border border-secondary bg-background2 text-secondary hover:bg-secondary/10'
               : day.state === 'edited'
                 ? 'border border-accent bg-background2 text-accent hover:bg-accent/10'
-                : 'border border-primary bg-background2 text-primary hover:bg-primary/10'
+                : day.state === 'complete'
+                  ? 'border border-primary bg-primary/10 text-primary hover:bg-primary/20'
+                  : 'border border-primary bg-background2 text-primary hover:bg-primary/10'
         "
         class="flex flex-col items-center justify-center rounded-xl px-3 py-2 min-w-[60px] transition-all"
       >
@@ -41,7 +45,12 @@
             <app-loading [color]="'background2'" [size]="'sm'"></app-loading>
           </div>
         } @else {
-          <span class="text-lg font-bold">{{ day.dayNumber }}</span>
+          <div class="relative flex flex-col items-center">
+            <span class="text-lg font-bold">{{ day.dayNumber }}</span>
+            @if (day.hasExtra) {
+              <div class="absolute -bottom-0.5 w-6 h-[3px] bg-accent rounded-full"></div>
+            }
+          </div>
         }
       </button>
     }
