@@ -1,5 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, Router, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { AppComponent } from './app/app';
 import { routes } from './app/app.routes';
@@ -36,16 +36,15 @@ bootstrapApplication(AppComponent, {
 
                 if (CombinedGraphQLErrors.is(error)) {
                     for (const gqlError of error.errors) {
-                        if (gqlError.extensions?.['code'] === 'UNAUTHENTICATED') {
+                        const code = gqlError.extensions?.['code'];
+                        if (code === 'UNAUTHENTICATED' || code === 'UNAUTHORIZED') {
                             unauthorized = true;
                             break;
                         }
                     }
                 } else {
                     // Network error (ej: 401 HTTP)
-                    console.log(error);
                     if ((error as any)?.status === 401) {
-                        console.log(error);
                         unauthorized = true;
                     }
                 }
@@ -53,10 +52,17 @@ bootstrapApplication(AppComponent, {
                 if (unauthorized && !isHandlingAuthError) {
                     isHandlingAuthError = true;
 
+                    // console.warn(
+                    //     '[Interceptor] Autenticación fallida o token expirado (401 / UNAUTHENTICATED). Cerrando sesión y redirigiendo al login...',
+                    // );
+
                     const authService = injector.get(AuthService);
+                    const router = injector.get(Router);
+
                     authService.logout();
 
                     setTimeout(() => {
+                        router.navigate(['/auth/login']);
                         isHandlingAuthError = false;
                     }, 500);
                 }

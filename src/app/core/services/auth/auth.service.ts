@@ -15,6 +15,7 @@ import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { LoginWithGoogle } from '../../../shared/interfaces/auth.interface';
 import { TokenStorage } from '../../auth/token.storage';
 import { User } from '../../../shared/interfaces/token.interface';
+import { Router } from '@angular/router';
 
 export interface LoginResponse {
     login: boolean;
@@ -40,6 +41,7 @@ export interface MeResponse {
 export class AuthService {
     private apollo = inject(Apollo);
     private tokenStorage = inject(TokenStorage);
+    private readonly router = inject(Router);
 
     user = signal<User | null>(this.tokenStorage.getUser());
 
@@ -116,8 +118,14 @@ export class AuthService {
                 `,
             })
             .subscribe({
-                next: () => this.clearSession(),
-                error: () => this.clearSession(),
+                next: () => {
+                    this.clearSession();
+                    this.router.navigate(['/auth/login']);
+                },
+                error: () => {
+                    this.clearSession();
+                    this.router.navigate(['/auth/login']);
+                },
             });
     }
 

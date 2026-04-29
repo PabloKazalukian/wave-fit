@@ -10,8 +10,7 @@ export function handleGraphqlError<T>(authSvc: AuthService): OperatorFunction<T,
             // TypeScript now knows `error` is a `CombinedGraphQLErrors` object
             const [errors] = formattedGraphQLErrors(error);
             if (errors.message === 'Unauthorized') {
-                authSvc.logout();
-                throwError(() => new Error('UNAUTHORIZED'));
+                return throwError(() => new Error('UNAUTHORIZED'));
             }
         }
         console.log(error.message);
@@ -25,7 +24,6 @@ export function handleGraphqlError<T>(authSvc: AuthService): OperatorFunction<T,
                 // Control especial de UNAUTHORIZED
                 const unauthorized = gqlErrors.find((e) => e?.extensions?.code === 'UNAUTHORIZED');
                 if (unauthorized) {
-                    authSvc.logout();
                     return throwError(() => new Error('UNAUTHORIZED'));
                 }
 
@@ -35,11 +33,8 @@ export function handleGraphqlError<T>(authSvc: AuthService): OperatorFunction<T,
         }
 
         if (graphQLError?.extensions?.code === 'UNAUTHORIZED') {
-            console.warn('Sesión expirada o token inválido. Cerrando sesión...');
-            authSvc.logout();
             // devolvés un observable vacío o falso según tu flujo
-            throwError(() => new Error('UNAUTHORIZED'));
-            // return of() as any;
+            return throwError(() => new Error('UNAUTHORIZED'));
         }
 
         console.error('GraphQL Error:', graphQLError);

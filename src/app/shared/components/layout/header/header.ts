@@ -90,7 +90,6 @@ export class Header implements OnInit {
 
     logout() {
         this.authSvc.logout();
-        this.router.navigate(['/auth/login']);
     }
 
     goToHome() {
