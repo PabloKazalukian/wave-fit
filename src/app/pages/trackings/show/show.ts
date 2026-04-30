@@ -3,7 +3,14 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TrackingListState } from '../../../core/services/trackings/tracking-list.state';
 import { CommonModule } from '@angular/common';
 import { delay, map, Observable, of, switchMap, tap } from 'rxjs';
-import { LucideAngularModule, ChevronLeft, Calendar, ClipboardList, X } from 'lucide-angular';
+import {
+    LucideAngularModule,
+    ChevronLeft,
+    Calendar,
+    ClipboardList,
+    X,
+    CircuitBoard,
+} from 'lucide-angular';
 import { TrackingVM } from '../../../shared/interfaces/tracking.interface';
 import { Router } from '@angular/router';
 import { DialogComponent } from '../../../shared/components/ui/dialog/dialog';
@@ -52,10 +59,12 @@ export class Show {
     readonly XIcon = X;
 
     formatDate(date: string): string {
-        return new Intl.DateTimeFormat('es-AR', {
+        console.log(date, new Date(date));
+        return new Intl.DateTimeFormat('en-GB', {
             day: '2-digit',
             month: 'short',
             year: 'numeric',
+            timeZone: 'UTC'
         }).format(new Date(date));
     }
 

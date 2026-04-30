@@ -16,14 +16,14 @@
       <div class="flex flex-col">
         <span class="text-xs text-text2">Inicio</span>
         <span class="text-sm font-medium">
-          {{ tracking()?.startDate | date: 'dd/MM/yyyy' }}
+          {{ tracking()?.startDate | date: 'dd/MM/yyyy' : 'UTC' }}
         </span>
       </div>
       <div class="text-text2 text-2xl">→</div>
       <div class="flex flex-col">
         <span class="text-xs text-text2">Final</span>
         <span class="text-sm font-medium text-confirm2">
-          {{ tracking()?.endDate | date: 'dd/MM/yyyy' }}
+          {{ tracking()?.endDate | date: 'dd/MM/yyyy' : 'UTC' }}
         </span>
       </div>
     </div>
