@@ -69,6 +69,8 @@
       <p class="text-sm text-text3 italic text-center py-4">No hay trackings registrados</p>
     }
   } @else {
-    <div class="h-16 bg-background2 animate-pulse rounded-xl"></div>
+    @for (i of [].constructor(limit() > 0 ? limit() : 3); track $index) {
+      <div class="h-[74px] bg-background2 border-2 border-background4 animate-pulse rounded-xl"></div>
+    }
   }
 </div>

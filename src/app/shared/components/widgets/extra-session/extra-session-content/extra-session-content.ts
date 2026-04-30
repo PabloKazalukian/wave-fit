@@ -26,10 +26,7 @@ export class ExtraSessionContent {
         this.loading.set(true);
         this.service
             .remove(id)
-            .pipe(
-                delay(1000), // ⏱️ demora en ms
-                takeUntilDestroyed(this.destroyRef),
-            )
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 error: (err) => console.error(err),
                 complete: () => this.loading.set(false),

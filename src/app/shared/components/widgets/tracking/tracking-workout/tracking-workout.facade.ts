@@ -78,10 +78,7 @@ export class TrackingWorkoutFacade {
         if (!this.workoutDate()) return;
         this.trackingSvc
             .setRestDay(this.workoutDate()!, this.workoutVM()!, status)
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                delay(1000),
-            )
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
     }
 

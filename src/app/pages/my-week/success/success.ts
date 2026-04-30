@@ -15,6 +15,6 @@ export class Success implements OnInit {
     private facade = inject(TrackingListState);
 
     ngOnInit(): void {
-        this.facade.getStats();
+        this.facade.resetData();
     }
 }

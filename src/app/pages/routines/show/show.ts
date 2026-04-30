@@ -5,7 +5,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
     DayIndex,
     KindType,
-    RoutineDay,
     RoutineDayCreate,
     RoutinePlanCreate,
     RoutinePlanVM,
