@@ -8,11 +8,12 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { options } from '../../../../interfaces/input.interface';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
 
 @Component({
     selector: 'app-exercise-selector',
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule],
+    imports: [ReactiveFormsModule, CommonModule, ExerciseCategoryPipe],
     templateUrl: './exercise-selector.html',
     animations: [
         trigger('chipAnimation', [

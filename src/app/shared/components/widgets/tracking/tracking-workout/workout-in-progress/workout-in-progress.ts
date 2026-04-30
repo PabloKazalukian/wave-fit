@@ -5,10 +5,17 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { WorkoutActionsMenu } from '../workout-actions-menu/workout-actions-menu';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { StatusWorkoutSessionEnum } from '../../../../../interfaces/tracking.interface';
+import { ExerciseCategoryPipe } from '../../../../../pipes/exercise-category.pipe';
 
 @Component({
     selector: 'app-workout-in-progress',
-    imports: [AccordionItemComponent, DragDropModule, WorkoutActionsMenu, BtnComponent],
+    imports: [
+        AccordionItemComponent,
+        DragDropModule,
+        WorkoutActionsMenu,
+        BtnComponent,
+        ExerciseCategoryPipe,
+    ],
     standalone: true,
     providers: [WorkoutInProgressFacade],
     templateUrl: './workout-in-progress.html',

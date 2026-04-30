@@ -3,10 +3,11 @@ import { TrackingWorkoutFacade } from '../tracking-workout.facade';
 import { CommonModule } from '@angular/common';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { DialogComponent } from '../../../../ui/dialog/dialog';
+import { ExerciseCategoryPipe } from '../../../../../pipes/exercise-category.pipe';
 
 @Component({
     selector: 'app-workout-complete-list',
-    imports: [CommonModule, BtnComponent, DialogComponent],
+    imports: [CommonModule, BtnComponent, DialogComponent, ExerciseCategoryPipe],
     standalone: true,
     templateUrl: './workout-complete-list.html',
     styles: ``,

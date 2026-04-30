@@ -19,7 +19,7 @@
               'bg-warning/20 text-warning border border-warning/30': !tracking.completed,
             }"
           >
-            {{ tracking.completed ? 'Completada' : 'En progreso' }}
+            {{ tracking.completed ? 'Completada' : 'Incompleto' }}
           </span>
           <button
             (click)="removeTracking(tracking.id!)"

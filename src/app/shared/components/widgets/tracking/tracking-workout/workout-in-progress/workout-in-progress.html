@@ -24,7 +24,7 @@
           <div class="w-full">
             <app-accordion-item
               [title]="exercise.name"
-              [subtitle]="exercise.category"
+              [subtitle]="exercise.category | exerciseCategory"
               [draggable]="true"
               [open]="this.facade.isOpen(exercise.exerciseId)"
               [isSelected]="false"
