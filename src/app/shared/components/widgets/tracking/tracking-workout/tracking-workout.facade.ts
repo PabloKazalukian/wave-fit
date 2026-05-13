@@ -8,7 +8,7 @@ import {
 import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { delay, Observable, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 @Injectable()
 export class TrackingWorkoutFacade {

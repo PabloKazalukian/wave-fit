@@ -3,7 +3,6 @@ import { ExtraSessionService } from '../../../../../core/services/extra-session/
 import { ExtraSessionCard } from './extra-session-card/extra-session-card';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../ui/loading/loading';
-import { delay } from 'rxjs';
 
 @Component({
     selector: 'app-extra-session-content',

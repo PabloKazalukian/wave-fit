@@ -4,7 +4,10 @@ import { AccordionItemComponent } from '../../../../ui/accordion-item/accordion-
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { WorkoutActionsMenu } from '../workout-actions-menu/workout-actions-menu';
 import { BtnComponent } from '../../../../ui/btn/btn';
-import { StatusWorkoutSessionEnum } from '../../../../../interfaces/tracking.interface';
+import {
+    ExercisePerformanceVM,
+    StatusWorkoutSessionEnum,
+} from '../../../../../interfaces/tracking.interface';
 import { ExerciseCategoryPipe } from '../../../../../pipes/exercise-category.pipe';
 
 @Component({
@@ -96,7 +99,7 @@ export class WorkoutInProgress {
     }
 
     // Drag and Drop
-    onDrop(event: CdkDragDrop<any[]>): void {
+    onDrop(event: CdkDragDrop<ExercisePerformanceVM[], any, any>): void {
         this.facade.reorderExercises(event.previousIndex, event.currentIndex);
     }
 }

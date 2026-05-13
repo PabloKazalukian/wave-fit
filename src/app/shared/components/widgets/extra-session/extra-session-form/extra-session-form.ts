@@ -15,7 +15,7 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../ui/loading/loading';
 import { ExtraSessionCreate } from '../extra-session-create/extra-session-create';
-import { catchError, delay, of, tap } from 'rxjs';
+import { catchError, of, tap } from 'rxjs';
 
 @Component({
     selector: 'app-extra-session-form',

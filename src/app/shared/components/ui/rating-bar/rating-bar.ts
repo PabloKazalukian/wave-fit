@@ -19,16 +19,16 @@ const HINTS: Record<RatingBarSteps, string[]> = {
     5: ['Muy bajo', 'Bajo', 'Moderado', 'Alto', 'Muy alto'],
 };
 
-const COLOR_CLASSES: Record<RatingBarColor, { border: string; fill: string }> = {
-    primary: { border: 'border-primary', fill: 'bg-primary' },
-    secondary: { border: 'border-secondary', fill: 'bg-secondary' },
-    confirm: { border: 'border-confirm', fill: 'bg-confirm' },
-    accent: { border: 'border-accent', fill: 'bg-accent' },
-    success: { border: 'border-success', fill: 'bg-success' },
-    error: { border: 'border-error', fill: 'bg-error' },
-    warning: { border: 'border-warning', fill: 'bg-warning' },
-    text: { border: 'border-text', fill: 'bg-text' },
-};
+// const COLOR_CLASSES: Record<RatingBarColor, { border: string; fill: string }> = {
+//     primary: { border: 'border-primary', fill: 'bg-primary' },
+//     secondary: { border: 'border-secondary', fill: 'bg-secondary' },
+//     confirm: { border: 'border-confirm', fill: 'bg-confirm' },
+//     accent: { border: 'border-accent', fill: 'bg-accent' },
+//     success: { border: 'border-success', fill: 'bg-success' },
+//     error: { border: 'border-error', fill: 'bg-error' },
+//     warning: { border: 'border-warning', fill: 'bg-warning' },
+//     text: { border: 'border-text', fill: 'bg-text' },
+// };
 
 export type RatingBarDirection = 'ascending' | 'descending';
 
