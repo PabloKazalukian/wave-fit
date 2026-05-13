@@ -62,18 +62,6 @@ export class ExtraSessionApi {
             );
     }
 
-    // create(createExtraSessionInput: CreateExtraSessionForm): Observable<ExtraSession> {
-    //     return this.apollo
-    //         .mutate<{ createExtraSession: ExtraSession }>({
-    //             mutation: CREATE_EXTRA_SESSION,
-    //             variables: { createExtraSessionInput },
-    //         })
-    //         .pipe(
-    //             handleGraphqlError(this.authSvc),
-    //             map((res) => res.data!.createExtraSession),
-    //         );
-    // }
-
     update(updateExtraSessionInput: UpdateExtraSessionInput): Observable<ExtraSession> {
         return this.apollo
             .mutate<{ updateExtraSession: ExtraSession }>({

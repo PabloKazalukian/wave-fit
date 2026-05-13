@@ -178,8 +178,6 @@ export class PlanTrackingDomainService {
 
         if (dayOrder === null) return of(null);
 
-        console.log(extraSession.date);
-
         const payload: UpdateWeekLogDayUnifiedInput = {
             id: tracking.id!,
             timezone: this.dateService.getUserTimezone(),

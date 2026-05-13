@@ -15,7 +15,6 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../ui/loading/loading';
 import { ExtraSessionCreate } from '../extra-session-create/extra-session-create';
-import { DateService } from '../../../../../core/services/date.service';
 import { catchError, delay, of, tap } from 'rxjs';
 
 @Component({
