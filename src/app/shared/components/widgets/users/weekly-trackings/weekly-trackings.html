@@ -11,7 +11,7 @@
 </div> -->
 
 <!-- Trackings list -->
-<div class="flex items-center justify-between mb-3">
+<header class="flex items-center justify-between mb-3">
   <h3
     class="section-title text-base font-semibold text-text2 uppercase tracking-wider flex items-center gap-2"
   >
@@ -29,8 +29,8 @@
   >
     Ver todo <lucide-icon [img]="ChevronRightIcon" size="12"></lucide-icon>
   </a>
-</div>
-<div class="space-y-3">
+</header>
+<section class="space-y-3">
   @if (trackings | async; as trackingsList) {
     @for (
       tracking of limit() > 0 ? trackingsList.slice(0, limit()) : trackingsList;
@@ -70,7 +70,9 @@
     }
   } @else {
     @for (i of [].constructor(limit() > 0 ? limit() : 3); track $index) {
-      <div class="h-[74px] bg-background2 border-2 border-background4 animate-pulse rounded-xl"></div>
+      <div
+        class="h-[74px] bg-background2 border-2 border-background4 animate-pulse rounded-xl"
+      ></div>
     }
   }
-</div>
+</section>

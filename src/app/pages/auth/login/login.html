@@ -1,4 +1,4 @@
-<div class="flex flex-wrap gap-5 justify-center items-center min-h-screen -mt-32">
+<section class="flex flex-wrap gap-5 justify-center items-center min-h-screen -mt-32">
   <div
     class="flex flex-col items-center justify-center border-2 border-background4 bg-background mt-8 p-8 rounded-3xl shadow-lg space-y-6 w-80"
   >
@@ -11,18 +11,18 @@
       ></app-wave-logo-text>
 
       <form class="space-y-" (ngSubmit)="onSubmit()" [formGroup]="contactForm">
-        <div class="text-center login-title">
+        <header class="text-center login-title">
           <h3 class="text-3xl mb-8">Inicie sesión</h3>
-        </div>
-        <div class="">
+        </header>
+        <article class="">
           <app-input
             [label]="'Email o nombre de usuario'"
             [type]="'text'"
             [placeholder]="'pat@example.com'"
             [control]="identifierControl"
           ></app-input>
-        </div>
-        <div class="">
+        </article>
+        <article class="">
           <app-input
             [label]="'Contraseña'"
             [type]="'password'"
@@ -30,7 +30,7 @@
             [control]="passwordControl"
             [showTogglePassword]="true"
           ></app-input>
-        </div>
+        </article>
 
         <div class="flex flex-col gap-3 mb-10">
           <div>
@@ -48,13 +48,13 @@
             </div>
           </div>
         } @else {
-          <div class="">
+          <section class="">
             @if (this.login === false) {
               <div>
                 <app-alert [type]="'error'" [message]="'Credenciales incorrectas'"></app-alert>
               </div>
             }
-            <div class="">
+            <article class="">
               <app-btn
                 [text]="'Iniciar sesión'"
                 [color]="'primary3'"
@@ -63,14 +63,14 @@
                 [isDisabled]="contactForm.invalid"
                 class="text-md text-error"
               ></app-btn>
-            </div>
+            </article>
 
             <!-- Divider -->
-            <div class="flex items-center w-full my-3">
+            <aside class="flex items-center w-full my-3">
               <div class="flex-1 h-px bg-primary"></div>
               <span class="mx-2 whitespace-nowrap text-gray-400 text-sm">o continuar con</span>
               <div class="flex-1 h-px bg-primary"></div>
-            </div>
+            </aside>
 
             <!-- Botón Google -->
             <button
@@ -81,9 +81,9 @@
               <img src="/images/Google__G__logo.svg" alt="Google logo" class="w-5 h-5" />
               Iniciar con Google
             </button>
-          </div>
+          </section>
         }
       </form>
     }
   </div>
-</div>
+</section>

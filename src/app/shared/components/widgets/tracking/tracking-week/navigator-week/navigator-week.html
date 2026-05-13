@@ -1,4 +1,4 @@
-<div class="flex items-center justify-between mb-6 gap-2">
+<section class="flex items-center justify-between mb-6 gap-2">
   <button
     (click)="previousDays()"
     [disabled]="currentDayIndex() === 0"
@@ -16,7 +16,7 @@
     </svg>
   </button>
 
-  <div class="flex gap-2 flex-1 justify-center">
+  <article class="flex gap-2 flex-1 justify-center">
     @for (day of visibleDays(); track $index; let i = $index) {
       <button
         (click)="selectDay(day)"
@@ -54,7 +54,7 @@
         }
       </button>
     }
-  </div>
+  </article>
 
   <button
     (click)="nextDays()"
@@ -72,4 +72,4 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
     </svg>
   </button>
-</div>
+</section>

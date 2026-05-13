@@ -1,5 +1,5 @@
-<div class="container px-4 py-8 max-w-lg mx-auto">
-  <header class="mb-8">
+<section class="container px-4 py-8 max-w-lg mx-auto">
+  <section class="mb-8">
     <a
       routerLink=".."
       class="inline-flex items-center gap-1 text-sm font-medium text-text2 hover:text-primary transition-colors mb-4"
@@ -9,7 +9,7 @@
     </a>
 
     @if (tracking$ | async; as tracking) {
-      <div class="flex items-center justify-between mb-4">
+      <article class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold text-text1">Detalle de Semana</h2>
         <div class="flex items-center gap-2">
           <span
@@ -29,11 +29,11 @@
             <lucide-icon [img]="XIcon" size="20"></lucide-icon>
           </button>
         </div>
-      </div>
+      </article>
 
-      <div class="grid gap-6">
+      <article class="grid gap-6">
         <!-- Date Range Card -->
-        <div class="bg-background2 border-2 border-background4 rounded-2xl p-5">
+        <section class="bg-background2 border-2 border-background4 rounded-2xl p-5">
           <div class="flex items-center gap-3 mb-4">
             <div class="p-2 bg-primary/10 rounded-lg text-primary">
               <lucide-icon [img]="CalendarIcon" size="24"></lucide-icon>
@@ -57,7 +57,7 @@
               </div>
             </div>
           }
-        </div>
+        </section>
 
         <!-- Workouts Info -->
         <section>
@@ -119,16 +119,16 @@
             </div>
           </section>
         }
-      </div>
+      </article>
     } @else if (asyncLoaded) {
-      <div
+      <article
         class="text-center py-12 bg-background2 border-2 border-dashed border-background4 rounded-2xl"
       >
         <p class="text-text2">No se encontró la información de este tracking.</p>
         <a routerLink=".." class="text-primary hover:underline mt-4 inline-block"
           >Volver al historial</a
         >
-      </div>
+      </article>
     } @else {
       <!-- Skeleton -->
       <div class="animate-pulse space-y-4">
@@ -136,7 +136,7 @@
         <div class="h-48 bg-background2 rounded-2xl"></div>
       </div>
     }
-  </header>
+  </section>
 
   <app-dialog
     [isOpen]="showDeleteDialog()"
@@ -167,4 +167,4 @@
       </div>
     </div>
   </app-dialog>
-</div>
+</section>

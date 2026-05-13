@@ -10,8 +10,8 @@
     </div>
   </div>
 } @else {
-  <div class="bg-background2 border-2 border-primary rounded-2xl p-4 mb-6">
-    <div class="flex items-center justify-between mb-2">
+  <article class="bg-background2 border-2 border-primary rounded-2xl p-4 mb-6">
+    <header class="flex items-center justify-between mb-2">
       <span class="text-lg font-medium text-primary">Semana Activa:</span>
       @if (weekActive) {
         <span
@@ -20,12 +20,14 @@
           Activa
         </span>
       } @else {
-        <span class="px-3 py-1 bg-error/20 text-error text-xs rounded-full border-2 border-error/30">
+        <span
+          class="px-3 py-1 bg-error/20 text-error text-xs rounded-full border-2 border-error/30"
+        >
           No iniciada
         </span>
       }
-    </div>
-    <div class="flex flex-col w-full md:flex-row items-center justify-between">
+    </header>
+    <footer class="flex flex-col w-full md:flex-row items-center justify-between">
       @if (weekActive) {
         <p class="text-md text-text2">Continúa con tu rutina de esta semana</p>
         <app-btn
@@ -49,6 +51,6 @@
           dataTest="comenzar-ahora"
         ></app-btn>
       }
-    </div>
-  </div>
+    </footer>
+  </article>
 }

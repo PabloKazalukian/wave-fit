@@ -1,6 +1,6 @@
 @if (!isEditing()) {
-  <div class="flex flex-col gap-2 p-4 rounded-xl bg-background2 text-primary3">
-    <div class="flex justify-between items-center pb-2 border-b-2 border-primary">
+  <section class="flex flex-col gap-2 p-4 rounded-xl bg-background2 text-primary3">
+    <header class="flex justify-between items-center pb-2 border-b-2 border-primary">
       <h4 class="text-lg text-primary3 font-bold">{{ getDisciplineLabel() }}</h4>
       <app-btn
         [text]="'Modificar'"
@@ -10,9 +10,9 @@
         (click)="startEdit()"
         type="button"
       ></app-btn>
-    </div>
+    </header>
 
-    <div class="flex justify-between gap-2">
+    <article class="flex justify-between gap-2">
       <div class="flex flex-wrap gap-4 text-sm">
         <div class="flex items-center gap-1">
           <span class="text-text2">⏱</span>
@@ -38,16 +38,16 @@
           type="button"
         ></app-btn>
       </div>
-    </div>
-  </div>
+    </article>
+  </section>
 } @else {
   <form class="flex flex-col gap-4 p-4 rounded-xl bg-background2">
-    <div class="flex justify-between items-center pb-2 border-b-2 border-primary3">
+    <header class="flex justify-between items-center pb-2 border-b-2 border-primary3">
       <h4 class="text-lg text-primary3 font-bold">{{ getDisciplineLabel() }}</h4>
       <span class="text-sm text-warning font-medium">Editando</span>
-    </div>
+    </header>
 
-    <div class="flex flex-wrap justify-between gap-4">
+    <section class="flex flex-wrap justify-between gap-4">
       <app-input-number
         [label]="'Duración (min)'"
         [variant]="'buttons'"
@@ -66,9 +66,9 @@
         [step]="10"
         [control]="caloriesControl"
       ></app-input-number>
-    </div>
+    </section>
 
-    <div class="flex justify-end gap-2 mt-2">
+    <footer class="flex justify-end gap-2 mt-2">
       <app-btn
         [text]="'Cancelar'"
         [variant]="'strokedColor'"
@@ -83,6 +83,6 @@
         [color]="'primary'"
         (click)="onSave()"
       ></app-btn>
-    </div>
+    </footer>
   </form>
 }

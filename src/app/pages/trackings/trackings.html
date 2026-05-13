@@ -1,4 +1,4 @@
-<div class="container px-4 py-8 max-w-lg mx-auto">
+<section class="container px-4 py-8 max-w-lg mx-auto">
   <header class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-bold text-text1 flex items-center gap-2">
       <lucide-icon [img]="TrophyIcon" size="24" class="text-primary"></lucide-icon>
@@ -61,7 +61,7 @@
   </section>
 
   @if (hasMore$ | async) {
-    <div class="mt-8 flex justify-center">
+    <footer class="mt-8 flex justify-center">
       <button
         (click)="loadMore()"
         [disabled]="isLoadingMore$ | async"
@@ -74,6 +74,6 @@
           <lucide-icon [img]="ChevronDownIcon" size="24"></lucide-icon>
         }
       </button>
-    </div>
+    </footer>
   }
-</div>
+</section>

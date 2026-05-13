@@ -1,8 +1,8 @@
-<div class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
   <!-- ─── Profile Card ─────────────────────────────────────────────────── -->
-  <div class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
+  <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
     <!-- Avatar + Name + Edit -->
-    <div class="flex items-center justify-between mb-4">
+    <header class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-4">
         <!-- Avatar placeholder -->
         <div
@@ -21,7 +21,7 @@
           <p class="text-sm text-text2 mt-0.5">{{ user()?.email || '' }}</p>
         </div>
       </div>
-    </div>
+    </header>
 
     <!-- Divider -->
     <hr class="border-background4 mb-4" />
@@ -30,7 +30,7 @@
     <app-tracking-active></app-tracking-active>
 
     <!-- Weeks done stat -->
-    <div class="flex items-center justify-between bg-background3 rounded-xl px-4 py-3">
+    <article class="flex items-center justify-between bg-background3 rounded-xl px-4 py-3">
       <div class="flex items-center gap-2">
         <lucide-icon
           [img]="AwardIcon"
@@ -43,8 +43,8 @@
       @if (stats$ | async; as stats) {
         <span class="text-2xl font-bold text-primary">{{ stats.completed }}</span>
       }
-    </div>
-  </div>
+    </article>
+  </section>
 
   <!-- ─── History: Weekly Trackings ────────────────────────────────────── -->
   <app-weekly-trackings></app-weekly-trackings>
@@ -179,4 +179,4 @@
       }
     </div>
   </section> -->
-</div>
+</section>
