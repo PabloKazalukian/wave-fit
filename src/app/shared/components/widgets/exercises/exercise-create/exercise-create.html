@@ -7,9 +7,12 @@
     </div>
   } @else {
     @if (facade.complete()) {
-      <div class="bg-background border border-primaryDark rounded-lg shadow-md">
-        <h4 class="text-primary text-2xl text-center mt-8">Crear Ejercicio:</h4>
-        <form class="flex flex-col px-6 pb-6 pt-4" (ngSubmit)="onSubmit()">
+      <div class="bg-background border border-secondaryDark rounded-lg shadow-md">
+        <header class="flex justify-between items-center px-6 pt-4">
+          <button type="button" class="text-text2 underline text-sm ml-auto" (click)="cancel()">Cancelar</button>
+        </header>
+        <h4 class="text-secondary text-2xl text-center mt-2">Crear Ejercicio:</h4>
+        <form class="flex flex-col px-6 pb-6 pt-4" (submit)="$event.preventDefault(); onSubmit()">
           <app-input
             [label]="'Nombre de tu ejercicio:'"
             [type]="'text'"
@@ -23,12 +26,12 @@
             [control]="descriptionControl"
           ></app-input>
           <div class="mb-4">
-            <app-select
-              [placeholder]="'Seleccione'"
-              [text]="'Elige una opcion:'"
-              [options]="facade.options"
-              [control]="selectControl"
-            ></app-select>
+            <p class="text-text2 text-sm mb-1">Categoría seleccionada:</p>
+            @if (selectControl.value) {
+              <span class="font-bold text-primary">{{ selectControl.value | exerciseCategory }}</span>
+            } @else {
+              <span class="font-bold text-error">Aún no se seleccionó ninguna categoría</span>
+            }
           </div>
           <div class="mb-4">
             <app-checkbox [text]="'¿Usa peso?'" [control]="usesWeightControl"></app-checkbox>

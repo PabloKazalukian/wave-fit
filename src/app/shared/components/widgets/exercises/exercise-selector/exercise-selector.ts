@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, effect, inject } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -9,11 +9,12 @@ import { options } from '../../../../interfaces/input.interface';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
+import { ExerciseCreate } from '../exercise-create/exercise-create';
 
 @Component({
     selector: 'app-exercise-selector',
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule, ExerciseCategoryPipe],
+    imports: [ReactiveFormsModule, CommonModule, ExerciseCategoryPipe, ExerciseCreate],
     templateUrl: './exercise-selector.html',
     animations: [
         trigger('chipAnimation', [
@@ -38,6 +39,21 @@ export class ExerciseSelector {
 
     search = toSignal(this.searchControl.valueChanges, { initialValue: '' });
     category = toSignal(this.categoryControl.valueChanges, { initialValue: '' });
+    showCreateForm = signal(false);
+
+    toggleCreateForm() {
+        this.showCreateForm.set(!this.showCreateForm());
+    }
+
+    onExerciseCreated() {
+        this.exercisesSvc
+            .getExercises(true)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => this.toggleCreateForm(),
+                error: () => this.toggleCreateForm(),
+            });
+    }
 
     exercises = computed(() => wrapperExerciseAPItoVM(this.exercisesSvc.exercises()));
 

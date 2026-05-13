@@ -46,33 +46,54 @@
     </div>
   </aside>
 
-  <header class="bg-background3 p-2 rounded-t-lg">
-    <p class="text-sm font-semibold">Ejercicios disponibles:</p>
-  </header>
+  @if (!showCreateForm()) {
+    <header class="bg-background3 p-2 rounded-t-lg">
+      <p class="text-sm font-semibold">Ejercicios disponibles:</p>
+    </header>
 
-  <section class="max-h-64 overflow-y-auto flex flex-col">
-    @for (exercise of this.filteredExercises(); track exercise.exerciseId) {
-      <article
-        class="p-3 hover:bg-background2 flex items-center justify-start gap-3 cursor-pointer group w-full border-b border-background4 last:border-0 transition-colors"
-        (click)="toggleExercise(exercise)"
-        (keydown.enter)="toggleExercise(exercise)"
-        (keydown.space)="toggleExercise(exercise)"
+    <section class="max-h-64 overflow-y-auto flex flex-col">
+      @for (exercise of this.filteredExercises(); track exercise.exerciseId) {
+        <article
+          class="p-3 hover:bg-background2 flex items-center justify-start gap-3 cursor-pointer group w-full border-b border-background4 last:border-0 transition-colors"
+          (click)="toggleExercise(exercise)"
+          (keydown.enter)="toggleExercise(exercise)"
+          (keydown.space)="toggleExercise(exercise)"
+        >
+          <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
+
+          <span
+            class="relative flex-shrink-0 w-5 h-5 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-xs peer-checked:before:font-bold"
+          ></span>
+
+          <div class="flex flex-col flex-1">
+            <span class="text-sm font-medium">{{ exercise.name }}</span>
+            <span class="text-xs text-text2 uppercase">{{
+              exercise.category | exerciseCategory
+            }}</span>
+          </div>
+        </article>
+      } @empty {
+        <span class="p-4 text-center text-text2 text-sm italic">No se encontraron ejercicios</span>
+      }
+    </section>
+    <div class="p-2 bg-background3 rounded-b-xl flex justify-center">
+      <button
+        type="button"
+        class="flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors"
+        (click)="toggleCreateForm()"
       >
-        <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
-
         <span
-          class="relative flex-shrink-0 w-5 h-5 rounded-md border-2 border-primary bg-background2 transition-colors peer-checked:bg-primary peer-checked:before:content-['✓'] peer-checked:before:text-white peer-checked:before:absolute peer-checked:before:inset-0 peer-checked:before:flex peer-checked:before:items-center peer-checked:before:justify-center peer-checked:before:text-xs peer-checked:before:font-bold"
-        ></span>
-
-        <div class="flex flex-col flex-1">
-          <span class="text-sm font-medium">{{ exercise.name }}</span>
-          <span class="text-xs text-text2 uppercase">{{
-            exercise.category | exerciseCategory
-          }}</span>
-        </div>
-      </article>
-    } @empty {
-      <span class="p-4 text-center text-text2 text-sm italic">No se encontraron ejercicios</span>
-    }
-  </section>
+          class="w-6 h-6 rounded-full border-2 border-primary flex items-center justify-center font-bold"
+          >+</span
+        >
+        Crear nuevo ejercicio
+      </button>
+    </div>
+  } @else {
+    <app-exercise-create
+      [selectedCategory]="category()"
+      (onCancel)="toggleCreateForm()"
+      (onCreateSuccess)="onExerciseCreated()"
+    ></app-exercise-create>
+  }
 </section>

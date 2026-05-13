@@ -1,23 +1,24 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, inject, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FormInputComponent } from '../../../ui/input/input';
 import { CheckboxComponent } from '../../../ui/checkbox/checkbox';
-import { FormSelectComponent } from '../../../ui/select/select';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
 import { Loading } from '../../../ui/loading/loading';
 import { Notification } from '../../../ui/notification/notification';
 import { ExerciseCreateFacade } from './exercise-create.facade';
+import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
 
 @Component({
     selector: 'app-exercise-create',
     imports: [
         FormInputComponent,
         CheckboxComponent,
-        FormSelectComponent,
         BtnComponent,
         Loading,
         Notification,
+        ExerciseCategoryPipe,
+        ReactiveFormsModule,
     ],
     standalone: true,
     templateUrl: './exercise-create.html',
@@ -25,6 +26,23 @@ import { ExerciseCreateFacade } from './exercise-create.facade';
 })
 export class ExerciseCreate implements OnInit {
     facade = inject(ExerciseCreateFacade);
+
+    @Input() set selectedCategory(val: string) {
+        if (val) {
+            this.facade.selectForm.patchValue({ option: val });
+        } else {
+            this.facade.selectForm.patchValue({ option: '' });
+        }
+    }
+
+    @Output() onCancel = new EventEmitter<void>();
+    @Output() onCreateSuccess = new EventEmitter<void>();
+
+    cancel() {
+        this.facade.routineExerciseCreateForm.reset();
+        this.facade.selectForm.reset();
+        this.onCancel.emit();
+    }
 
     ngOnInit(): void {
         this.facade.initFacade();
@@ -37,6 +55,7 @@ export class ExerciseCreate implements OnInit {
                 this.facade.complete.set(false);
                 this.facade.showNotification.set(true);
                 this.facade.notification.set('success');
+                this.onCreateSuccess.emit();
             },
             error: (error) => {
                 this.facade.complete.set(false);
