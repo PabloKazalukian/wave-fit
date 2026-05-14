@@ -77,11 +77,15 @@ export class ExerciseCreate implements OnInit {
 
         result.subscribe({
             next: (response) => {
+                console.log(response);
                 this.facade.loading.set(false);
                 this.facade.complete.set(false);
                 this.facade.showNotification.set(true);
                 this.facade.notification.set('success');
-                this.onCreateSuccess.emit();
+                setTimeout(() => {
+                    // this.onCancel.emit();
+                    this.onCreateSuccess.emit();
+                }, 2000);
             },
             error: (error) => {
                 this.facade.loading.set(false);

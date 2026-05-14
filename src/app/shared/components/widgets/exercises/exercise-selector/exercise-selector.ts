@@ -2,6 +2,7 @@ import { Component, computed, DestroyRef, effect, inject, signal } from '@angula
 import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { startWith } from 'rxjs';
 import { wrapperExerciseAPItoVM } from '../../../../wrappers/exercises.wrapper';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -47,7 +48,10 @@ export class ExerciseSelector {
     options = options;
 
     search = toSignal(this.searchControl.valueChanges, { initialValue: '' });
-    category = toSignal(this.categoryControl.valueChanges, { initialValue: '' });
+    category = toSignal(
+        this.categoryControl.valueChanges.pipe(startWith(this.categoryControl.value)),
+        { initialValue: this.categoryControl.value },
+    );
     showCreateForm = signal(false);
 
     toggleCreateForm() {

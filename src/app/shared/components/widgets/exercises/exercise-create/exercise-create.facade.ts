@@ -59,6 +59,15 @@ export class ExerciseCreateFacade {
             this.loading.set(false);
             this.complete.set(true);
         }, 1000);
+
+        // Initial sync of category
+        const initialCategory = this.selectForm.get('option')?.value;
+        if (initialCategory) {
+            this.routineExerciseCreateForm.patchValue({
+                category: initialCategory as ExerciseCategory,
+            });
+        }
+
         this.selectForm.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((value) => {
