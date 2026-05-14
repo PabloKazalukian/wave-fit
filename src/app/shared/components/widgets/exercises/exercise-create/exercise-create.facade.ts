@@ -50,6 +50,7 @@ export class ExerciseCreateFacade {
     complete = signal<boolean | null>(null);
     showNotification = signal<boolean>(false);
     notification = signal<notificationType | ''>('');
+    errorMessage = signal<string | null>(null);
 
     private readonly exerciseSvc = inject(ExercisesService);
 
@@ -70,19 +71,12 @@ export class ExerciseCreateFacade {
     submit(): Observable<Exercise> | null {
         if (this.routineExerciseCreateForm.invalid || this.selectForm.invalid) {
             this.selectForm.markAllAsTouched();
-
             this.routineExerciseCreateForm.markAllAsTouched();
-            setTimeout(() => {
-                this.loading.set(false);
-            }, 1000);
             return null;
         }
 
         const newExercise: Exercise = this.routineExerciseCreateForm.value as Exercise;
         if (this.routineExerciseCreateForm.value.category === null) {
-            setTimeout(() => {
-                this.loading.set(false);
-            }, 1000);
             return null;
         }
 

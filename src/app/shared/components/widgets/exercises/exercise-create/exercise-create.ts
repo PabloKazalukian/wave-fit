@@ -9,6 +9,8 @@ import { Notification } from '../../../ui/notification/notification';
 import { ExerciseCreateFacade } from './exercise-create.facade';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
 
+import { trigger, transition, style, animate } from '@angular/animations';
+
 @Component({
     selector: 'app-exercise-create',
     imports: [
@@ -23,6 +25,17 @@ import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
     standalone: true,
     templateUrl: './exercise-create.html',
     providers: [ExerciseCreateFacade],
+    animations: [
+        trigger('contentAnimation', [
+            transition(':enter', [
+                style({ opacity: 0, transform: 'translateY(10px)' }),
+                animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+            ]),
+            transition(':leave', [
+                animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' })),
+            ]),
+        ]),
+    ],
 })
 export class ExerciseCreate implements OnInit {
     facade = inject(ExerciseCreateFacade);
@@ -49,25 +62,34 @@ export class ExerciseCreate implements OnInit {
     }
 
     onSubmit() {
-        this.facade.submit()?.subscribe({
+        this.facade.errorMessage.set(null);
+        this.facade.loading.set(true);
+
+        const result = this.facade.submit();
+
+        if (!result) {
+            // Validation failed
+            setTimeout(() => {
+                this.facade.loading.set(false);
+            }, 500);
+            return;
+        }
+
+        result.subscribe({
             next: (response) => {
-                console.log('Exercise created successfully:', response);
+                this.facade.loading.set(false);
                 this.facade.complete.set(false);
                 this.facade.showNotification.set(true);
                 this.facade.notification.set('success');
                 this.onCreateSuccess.emit();
             },
             error: (error) => {
-                this.facade.complete.set(false);
-                this.facade.showNotification.set(true);
-                this.facade.notification.set('error');
+                this.facade.loading.set(false);
+                // Si hay un error, lo mostramos debajo del input, no usamos notificación
+                const message = error.message || 'Error al crear el ejercicio';
+                this.facade.errorMessage.set(message);
 
                 console.error('Error creating exercise:', error);
-            },
-            complete: () => {
-                this.facade.loading.set(false);
-                // this.facade.showNotification.set();
-                this.facade.notification.set('');
             },
         });
     }
