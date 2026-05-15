@@ -1,15 +1,15 @@
-<div
+<section
   class="bg-background1 rounded-lg p-3 mb-4 border border-accent text-accent"
   [formGroup]="workoutForm"
 >
-  <div class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-accent">
+  <header class="flex justify-between text-lg mb-2 pb-2 border-b-2 border-accent">
     <h3 class="">Edición de entrenamiento:</h3>
-  </div>
+  </header>
 
   <div formArrayName="exercises" [class.hidden]="exerciseFormArray.length === 0">
     @for (exerciseGroup of exerciseFormArray.controls; track exerciseGroup; let i = $index) {
-      <div [formGroupName]="i" class="mb-4 flex flex-col gap-2">
-        <div
+      <article [formGroupName]="i" class="mb-4 flex flex-col gap-2">
+        <header
           class="flex items-center justify-center relative border-b-2 border-background4 mb-4 pb-2"
         >
           <h4 class="text-center font-semibold">
@@ -36,9 +36,13 @@
               />
             </svg>
           </button>
-        </div>
+        </header>
 
-        <div formArrayName="sets" class="flex flex-col gap-2" [class.hidden]="getSetsFormArray(i).length === 0">
+        <section
+          formArrayName="sets"
+          class="flex flex-col gap-2"
+          [class.hidden]="getSetsFormArray(i).length === 0"
+        >
           @for (setGroup of getSetsFormArray(i).controls; track setGroup; let j = $index) {
             <div [formGroupName]="j" class="flex items-center gap-2 bg-background3 p-2 rounded-lg">
               <span class="border-r-2 pr-2 border-background4 text-center w-8">
@@ -84,9 +88,9 @@
               </button>
             </div>
           }
-        </div>
+        </section>
 
-        <div class="flex justify-center">
+        <aside class="flex justify-center">
           <app-btn
             [text]="'+'"
             [variant]="'stroked'"
@@ -94,12 +98,12 @@
             [size]="'sm'"
             (click)="addSet(i)"
           ></app-btn>
-        </div>
-      </div>
+        </aside>
+      </article>
     }
   </div>
 
-  <div class="mt-4 flex justify-center">
+  <aside class="mt-4 flex justify-center">
     <app-btn
       [text]="'Agregar ejercicio'"
       [variant]="'stroked'"
@@ -108,7 +112,7 @@
       [showIcon]="true"
       (click)="openDialog()"
     >
-      <app-icon>
+      <app-icon name="trash">
         <div class="h-5 w-5">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -123,7 +127,7 @@
         </div>
       </app-icon>
     </app-btn>
-  </div>
+  </aside>
 
   <app-dialog
     [isOpen]="isDialogOpen()"
@@ -142,8 +146,8 @@
     </div>
   </app-dialog>
 
-  <div class="mt-6 flex flex-col gap-4 text-primary">
+  <footer class="mt-6 flex flex-col gap-4 text-primary">
     <app-btn [text]="'Guardar'" [color]="'primaryDark'" [variant]="'raised'" (click)="onSave()">
     </app-btn>
-  </div>
-</div>
+  </footer>
+</section>

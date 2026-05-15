@@ -187,8 +187,8 @@ export const ASSIGN_ROUTINE_TO_DAY = gql`
 `;
 
 export const FIND_ALL_TRACKING_BY_USER = gql`
-    query findAll {
-        findAll {
+    query findAll($limit: Int, $offset: Int) {
+        findAll(limit: $limit, offset: $offset) {
             ${WEEK_LOG_FIELDS}
         }
     }
@@ -231,6 +231,14 @@ export const UPDATE_DAY_WORKOUT_STATUS = gql`
     mutation UpdateDayWorkoutStatus($input: UpdateDayWorkoutStatusInput!) {
         updateDayWorkoutStatus(input: $input) {
             ${WEEK_LOG_DAY_FIELDS}
+        }
+    }
+`;
+
+export const REMOVE_WEEK_LOG = gql`
+    mutation RemoveWeekLog($id: String!) {
+        removeWeekLog(id: $id) {
+            id
         }
     }
 `;

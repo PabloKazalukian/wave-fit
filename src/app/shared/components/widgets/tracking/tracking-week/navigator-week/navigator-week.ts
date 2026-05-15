@@ -11,6 +11,7 @@ interface DayWithState {
     dayNumber: number;
     date: LocalDate;
     state: StatusWorkoutSession;
+    hasExtra: boolean;
 }
 
 @Component({
@@ -42,6 +43,7 @@ export class NavigatorWeek {
             dayNumber: this.dateSvc.localDateToDisplay(selected).getDate(),
             day: this.dateSvc.dateToStringLocalWithDay(selected),
             state: this.workoutDay()?.status ?? 'not_started',
+            hasExtra: !!this.workoutDay()?.extras?.length,
         };
         return day;
     });
@@ -60,6 +62,7 @@ export class NavigatorWeek {
                 dayNumber: this.dateSvc.localDateToDisplay(w.date).getDate(),
                 day: this.dateSvc.dateToStringLocalWithDay(w.date),
                 state: w.status,
+                hasExtra: !!w.extras?.length,
             };
         });
     });

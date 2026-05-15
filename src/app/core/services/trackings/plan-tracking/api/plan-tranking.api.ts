@@ -30,6 +30,7 @@ import {
     CREATE_ROUTINE_BY_WORKOUT,
     REMOVE_WORKOUT_SESSION_FROM_DAY,
     UPDATE_DAY_WORKOUT_STATUS,
+    REMOVE_WEEK_LOG,
 } from '../../../../apollo/tracking.queries';
 import { DateService } from '../../../date.service';
 import { RoutineDayAPI } from '../../../../../shared/interfaces/api/routines-api.interface';
@@ -126,25 +127,25 @@ export class PlanTrackingApi {
             );
     }
 
-    syncTrackingDays(weekLogId: string): Observable<TrackingVM | null> {
-        return this.apollo
-            .mutate<{ syncWeekLogDays: TrackingAPI }>({
-                mutation: SYNC_WEEK_LOG_DAYS,
-                variables: { weekLogId },
-                fetchPolicy: 'no-cache',
-            })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map(({ data }) =>
-                    data?.syncWeekLogDays
-                        ? trackingWrappers.wrapperTrackingApiToVM(
-                              data.syncWeekLogDays,
-                              this.exerciseSvc.exercises(),
-                          )
-                        : null,
-                ),
-            );
-    }
+    // syncTrackingDays(weekLogId: string): Observable<TrackingVM | null> {
+    //     return this.apollo
+    //         .mutate<{ syncWeekLogDays: TrackingAPI }>({
+    //             mutation: SYNC_WEEK_LOG_DAYS,
+    //             variables: { weekLogId },
+    //             fetchPolicy: 'no-cache',
+    //         })
+    //         .pipe(
+    //             handleGraphqlError(this.authSvc),
+    //             map(({ data }) =>
+    //                 data?.syncWeekLogDays
+    //                     ? trackingWrappers.wrapperTrackingApiToVM(
+    //                           data.syncWeekLogDays,
+    //                           this.exerciseSvc.exercises(),
+    //                       )
+    //                     : null,
+    //             ),
+    //         );
+    // }
 
     assignRoutineToDay(routineDayId: string, date: string): Observable<WeekLogDayVM | null> {
         return this.apollo
@@ -165,9 +166,15 @@ export class PlanTrackingApi {
             );
     }
 
-    findAllTrackingByUser(): Observable<TrackingVM[] | null> {
+    findAllTrackingByUser(limit: number = 5, offset: number = 0): Observable<TrackingVM[] | null> {
         return this.apollo
-            .query<{ findAll: TrackingAPI[] }>({ query: FIND_ALL_TRACKING_BY_USER })
+            .query<{
+                findAll: TrackingAPI[];
+            }>({
+                query: FIND_ALL_TRACKING_BY_USER,
+                variables: { limit, offset },
+                fetchPolicy: 'no-cache',
+            })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
@@ -266,6 +273,18 @@ export class PlanTrackingApi {
                           )
                         : null,
                 ),
+            );
+    }
+
+    removeTracking(id: string): Observable<boolean> {
+        return this.apollo
+            .mutate({
+                mutation: REMOVE_WEEK_LOG,
+                variables: { id },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) => !!data),
             );
     }
 }

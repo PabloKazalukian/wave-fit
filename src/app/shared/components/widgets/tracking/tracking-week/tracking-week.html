@@ -1,14 +1,14 @@
-<div class="w-full bg-background2 rounded-2xl p-4 flex flex-col gap-4">
-  <div class="mb-4 border border-background3 rounded-2xl">
+<section class="w-full bg-background2 rounded-2xl p-4 flex flex-col gap-4">
+  <aside class="mb-4 border border-background3 rounded-2xl">
     <app-info-card
       [title]="feature.title"
       [description]="feature.description"
       [icon]="feature.icon"
     ></app-info-card>
-  </div>
+  </aside>
 
-  <h1 class="text-primary text-5xl font-bold text-center">Mi Semana</h1>
-  <div class="flex flex-col gap-2">
+  <header class="flex flex-col gap-2">
+    <h2 class="text-primary text-5xl font-bold text-center">Mi Semana</h2>
     <h4 class="text-text2 text-lg font-bold">Fechas de la semana</h4>
     <div
       class="bg-background rounded-2xl p-4 flex items-center justify-evenly gap-4 mb-2 border border-background3"
@@ -16,18 +16,18 @@
       <div class="flex flex-col">
         <span class="text-xs text-text2">Inicio</span>
         <span class="text-sm font-medium">
-          {{ tracking()?.startDate | date: 'dd/MM/yyyy' }}
+          {{ tracking()?.startDate | date: 'dd/MM/yyyy' : 'UTC' }}
         </span>
       </div>
       <div class="text-text2 text-2xl">→</div>
       <div class="flex flex-col">
         <span class="text-xs text-text2">Final</span>
         <span class="text-sm font-medium text-confirm2">
-          {{ tracking()?.endDate | date: 'dd/MM/yyyy' }}
+          {{ tracking()?.endDate | date: 'dd/MM/yyyy' : 'UTC' }}
         </span>
       </div>
     </div>
-  </div>
+  </header>
 
   <div class="w-full">
     <app-btn
@@ -112,7 +112,7 @@
   </app-dialog>
 
   @if (this.tracking()?.planId) {
-    <div class="mb-4">
+    <aside class="mb-4">
       <h2 class="text-xl font-bold text-text2 mb-2">Semana empezada con plan</h2>
       <div class="bg-background3 rounded-lg p-3">
         <div class="flex justify-between items-center text-sm">
@@ -130,15 +130,15 @@
           </app-btn>
         </div>
       </div>
-    </div>
+    </aside>
   }
   <app-navigator-week></app-navigator-week>
 
-  <div class="mb-6">
+  <aside class="mb-6">
     <div>
       <app-tracking-workout> </app-tracking-workout>
     </div>
-    <div class="mt-4">
+    <article class="mt-4">
       <app-btn
         [text]="'Agregar actividad extra'"
         [variant]="'strokedColor'"
@@ -173,6 +173,6 @@
           (closed)="facade.showExtraSessionDialog.set(false)"
         ></app-extra-session-form>
       </app-dialog>
-    </div>
-  </div>
-</div>
+    </article>
+  </aside>
+</section>

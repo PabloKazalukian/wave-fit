@@ -5,7 +5,7 @@
 } @else {
   @if (facade.loadingCreate()) {
     @if (facade.success()) {
-      <div
+      <section
         class="flex flex-col items-center justify-center p-8 bg-success/10 rounded-2xl border-2 border-success gap-4"
       >
         <div class="text-success text-5xl">✓</div>
@@ -13,12 +13,12 @@
         <p class="text-center text-text2">
           Tu rutina ha sido guardada y ya está disponible en el listado.
         </p>
-      </div>
+      </section>
     } @else {
       <app-loading [color]="'primary'"></app-loading>
     }
   } @else {
-    <div class="w-full">
+    <section class="w-full">
       <app-btn
         [text]="'Crear Rutina'"
         [variant]="'raised'"
@@ -27,16 +27,16 @@
       >
       </app-btn>
 
-      <div class="p-2 mt-6 rounded-t-lg border-t-2 border-l-2 border-r-2 border-background3">
-        <div class="">
+      <article class="p-2 mt-6 rounded-t-lg border-t-2 border-l-2 border-r-2 border-background3">
+        <header class="">
           <app-input
             [label]="'Nombre de tu rutina :'"
             [type]="'text'"
             [placeholder]="'Ingresa un nombre para tu rutina '"
             [control]="titleControl"
           ></app-input>
-        </div>
-        <div class="pl-3 py-1">
+        </header>
+        <section class="pl-3 py-1">
           <p>Categorías:</p>
 
           @for (category of facade.categories(); track category) {
@@ -57,13 +57,13 @@
           ) {
             <p class="text-error text-sm mt-1">Debes seleccionar al menos un ejercicio</p>
           }
-        </div>
+        </section>
 
         <div class="bg-background3 pl-3 py-1">
           <p>Ejercicios:</p>
         </div>
         @for (exercise of facade.exercises(); track exercise.id) {
-          <div
+          <article
             class="p-2 hover:bg-background3 flex items-center justify-start gap-2 cursor-pointer group w-full"
             (click)="toggleExercise(exercise)"
             (keydown.enter)="toggleExercise(exercise)"
@@ -85,10 +85,10 @@
                 {{ exercise.category }}
               </span>
             </p>
-          </div>
+          </article>
         }
-      </div>
-      <div class="bg-background2 rounded-b-lg">
+      </article>
+      <footer class="bg-background2 rounded-b-lg">
         @if (!showCreateExercise()) {
           <button
             class="bg-secondary2 hover:bg-secondaryDark w-full font-bold p-1 rounded-b-lg tracking-wide"
@@ -108,7 +108,7 @@
             <app-exercise-create (closeForm)="showCreateExercise.set(false)"></app-exercise-create>
           </div>
         }
-      </div>
-    </div>
+      </footer>
+    </section>
   }
 }

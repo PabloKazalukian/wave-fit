@@ -1,5 +1,5 @@
 <!-- Kebab Menu con dropdown -->
-<div class="relative bg-background rounded-full">
+<section class="relative bg-background rounded-full">
   <button
     (click)="toggleActions()"
     class="p-2 rounded-full hover:bg-white/10 transition-colors text-text2"
@@ -69,8 +69,9 @@
 
       @if (facade.workoutVM()?.status !== StatusWorkoutSessionEnum.REST) {
         <button
+          [disabled]="facade.loadingStatusWorkout()"
           (click)="this.facade.setRestDay(); isActionsOpen.set(false)"
-          class="w-full text-left px-4 py-2.5 text-text2 hover:bg-white/5 transition-colors flex items-center gap-3"
+          class="w-full text-left px-4 py-2.5 text-text2 hover:bg-white/5 transition-colors flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -90,8 +91,9 @@
         </button>
       } @else {
         <button
+          [disabled]="facade.loadingStatusWorkout()"
           (click)="this.facade.setTrainingDay(); isActionsOpen.set(false)"
-          class="w-full text-left px-4 py-2.5 text-text2 hover:bg-white/5 transition-colors flex items-center gap-3"
+          class="w-full text-left px-4 py-2.5 text-text2 hover:bg-white/5 transition-colors flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -124,11 +126,11 @@
         >
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
-        Guardar una nueva routine
+        Guardar una nueva rutina
       </button>
     </div>
   }
-</div>
+</section>
 
 <!-- Dialog para seleccionar una rutina y crear un workout a partir de ella-->
 <app-dialog

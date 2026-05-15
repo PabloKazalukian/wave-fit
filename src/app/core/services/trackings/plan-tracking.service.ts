@@ -1,7 +1,7 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingDomainService } from './plan-tracking.domain';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { filter, finalize, map, Observable, switchMap, tap } from 'rxjs';
+import { debounceTime, filter, finalize, map, Observable, Subject, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     LocalDate,
@@ -31,15 +31,19 @@ export class PlanTrackingService {
     private dateService = inject(DateService);
     private storage = inject(PlanTrackingStorage);
 
-    readonly tracking$ = this.state.tracking$;
     readonly tracking = this.state.tracking;
     readonly loading = this.state.loading;
     readonly loadingTracking = this.state.loadingTracking;
     readonly loadingWorkoutCreation = this.state.loadingWorkoutCreation;
+    readonly loadingStatusWorkout = this.state.loadingStatusWorkout;
     readonly trackingPlanVM$ = this.state.tracking$; // Alias for backward compatibility
     private authService = inject(AuthService);
 
     user$ = toSignal(this.authService.user$);
+    private exercisesUpdate$ = new Subject<{
+        date: LocalDate;
+        exercises: ExercisePerformanceVM[];
+    }>();
 
     constructor() {
         effect(() => {
@@ -51,6 +55,12 @@ export class PlanTrackingService {
                 this.state.setTracking(null);
             }
         });
+
+        this.exercisesUpdate$
+            .pipe(debounceTime(4000), takeUntilDestroyed(this.destroyRef))
+            .subscribe(({ date, exercises }) => {
+                this.domain.updateExercises(date, exercises).subscribe();
+            });
     }
 
     private initTracking(userId: string) {
@@ -61,26 +71,33 @@ export class PlanTrackingService {
         this.state.userId.set(userId);
         this.state.setLoadingTracking(true);
 
-        const stored = this.storage.getTrackingStorage(this.state.userId());
+        // const stored = this.storage.getTrackingStorage(this.state.userId());
 
-        if (stored) {
-            this.state.setTracking(stored);
-            this.state.setLoadingTracking(false);
-        } else {
-            this.domain
-                .initTracking()
-                .pipe(
-                    takeUntilDestroyed(this.destroyRef),
-                    finalize(() => this.state.setLoadingTracking(false)),
-                )
-                .subscribe((res) => {
-                    if (!res) {
-                        return;
-                    }
-
-                    this._persist(res);
-                });
-        }
+        this.domain
+            .initTracking()
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+                finalize(() => this.state.setLoadingTracking(false)),
+            )
+            .subscribe((activeTracking) => {
+                // if (stored) {
+                //     if (activeTracking && activeTracking.id === stored.id) {
+                //         this.state.setTracking(stored);
+                //     } else if (activeTracking && activeTracking.id !== stored.id) {
+                //         this.storage.removeTrackingStorage(this.state.userId());
+                //         this._persist(activeTracking);
+                //     } else {
+                //         this.storage.removeTrackingStorage(this.state.userId());
+                //         this.state.setTracking(null);
+                //     }
+                // } else {
+                if (activeTracking) {
+                    this._persist(activeTracking);
+                } else {
+                    this.state.setTracking(null);
+                }
+                // }
+            });
     }
 
     private _updateWorkout(
@@ -150,27 +167,24 @@ export class PlanTrackingService {
         );
     }
 
-    findAll(): Observable<TrackingVM[] | null> {
-        return this.domain.findAllTrackingByUser();
+    findAll(limit = 5, offset = 0): Observable<TrackingVM[] | null> {
+        return this.domain.findAllTrackingByUser(limit, offset);
     }
 
     findById(id: string): Observable<TrackingVM | null> {
         return this.domain.findById(id);
     }
 
-    removeExercise(date: LocalDate, exerciseId: string): void {
-        this._updateWorkout(date, (workout) => ({
-            ...workout,
-            exercises: (workout.exercises || []).filter((e) => e.exerciseId !== exerciseId),
-        }));
-    }
-
-    setWorkouts(day: LocalDate, workout: WorkoutSessionVM) {
-        this._updateWorkout(day, () => workout);
-    }
+    // removeExercise(date: LocalDate, exerciseId: string): void {
+    //     this._updateWorkout(date, (workout) => ({
+    //         ...workout,
+    //         exercises: (workout.exercises || []).filter((e) => e.exerciseId !== exerciseId),
+    //     }));
+    // }
 
     setExercises(date: LocalDate, exercises: ExercisePerformanceVM[]) {
         this._updateWorkout(date, (workout) => ({ ...workout, exercises }));
+        this.exercisesUpdate$.next({ date, exercises });
     }
 
     setRestDay(
@@ -180,6 +194,7 @@ export class PlanTrackingService {
     ): Observable<TrackingVM | null | undefined> {
         const isRest = desiredStatus === StatusWorkoutSessionEnum.REST;
 
+        this.state.setLoadingStatusWorkout(true);
         return this.domain.setRestDay(day, isRest).pipe(
             tap((res) => {
                 if (res) {
@@ -193,6 +208,7 @@ export class PlanTrackingService {
                 }
             }),
             map(() => this.state.getTrackingValue()),
+            finalize(() => this.state.setLoadingStatusWorkout(false)),
         );
     }
 
@@ -297,14 +313,16 @@ export class PlanTrackingService {
         );
     }
 
-    setRemoveAllExercises(date: LocalDate, workout: WorkoutSessionVM): void {
+    setRemoveAllExercises(date: LocalDate): void {
         this._updateWorkout(date, (workout) => ({
             ...workout,
             exercises: [],
         }));
+        this.exercisesUpdate$.next({ date, exercises: [] });
     }
 
     removeWorkoutSession(date: LocalDate, id: string): Observable<boolean> {
+        this.state.setLoadingStatusWorkout(true);
         return this.domain.removeWorkoutSession(date, id).pipe(
             map((res) => {
                 if (!res) return false;
@@ -316,6 +334,7 @@ export class PlanTrackingService {
                 }));
                 return true;
             }),
+            finalize(() => this.state.setLoadingStatusWorkout(false)),
         );
     }
 
@@ -324,5 +343,9 @@ export class PlanTrackingService {
         exerciseIds: string[],
     ): Observable<RoutineDayAPI | null> {
         return this.domain.createRoutineFromWorkout(title, exerciseIds);
+    }
+
+    removeTracking(id: string): Observable<boolean> {
+        return this.domain.removeTracking(id);
     }
 }

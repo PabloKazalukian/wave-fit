@@ -15,8 +15,8 @@ export class ExercisesService {
     private readonly apollo = inject(Apollo);
     private readonly authSvc = inject(AuthService);
 
-    getExercises(): Observable<Exercise[]> {
-        if (this.exercises().length > 0) {
+    getExercises(force = false): Observable<Exercise[]> {
+        if (!force && this.exercises().length > 0) {
             return of(this.exercises());
         }
 

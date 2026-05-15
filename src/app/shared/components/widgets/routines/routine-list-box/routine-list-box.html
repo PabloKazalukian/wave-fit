@@ -1,22 +1,22 @@
-<div class="flex gap-4 flex-col item-center justify-center w-full">
+<section class="flex gap-4 flex-col item-center justify-center w-full">
   @if (this.facade.isRoutine()) {
-    <div class="w-full">
+    <article class="w-full">
       <app-select
         [text]="'Elige una categoria:'"
         [options]="options"
         (clearValue)="this.removeCateogry()"
         [control]="selectControl"
       ></app-select>
-    </div>
+    </article>
   } @else {
-    <div class="mt-2">
+    <article class="mt-2">
       <app-btn
         [buttonType]="'button'"
         [variant]="'outline'"
         [color]="'primary'"
         [text]="getNameOfSelectControl()"
       ></app-btn>
-    </div>
+    </article>
   }
 
   @if (!this.facade.creatingRoutine()) {
@@ -103,4 +103,4 @@
       </app-btn>
     }
   }
-</div>
+</section>

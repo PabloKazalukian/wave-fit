@@ -22,6 +22,7 @@ export class WorkoutInProgressFacade {
     private exerciseSetsData = signal<Map<string, SetData[]>>(new Map());
 
     readonly loading = this.trackingSvc.loadingWorkoutCreation();
+    readonly loadingStatusWorkout = this.trackingSvc.loadingStatusWorkout;
     readonly workoutDate = this.state.selectedDate;
     readonly workoutVM = this.state.workoutSession;
 

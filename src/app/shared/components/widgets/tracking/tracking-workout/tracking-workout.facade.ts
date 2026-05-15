@@ -22,6 +22,7 @@ export class TrackingWorkoutFacade {
 
     readonly workoutDate = this.state.selectedDate;
     readonly workoutVM = this.state.workoutSession;
+    readonly loadingStatusWorkout = this.trackingSvc.loadingStatusWorkout;
 
     exercises = signal<ExercisePerformanceVM[]>([]);
     exercisesSelected = this.state.exercises;
@@ -75,12 +76,15 @@ export class TrackingWorkoutFacade {
 
     private _setWorkoutStatus(status: StatusWorkoutSessionEnum) {
         if (!this.workoutDate()) return;
-        this.trackingSvc.setRestDay(this.workoutDate()!, this.workoutVM()!, status).subscribe();
+        this.trackingSvc
+            .setRestDay(this.workoutDate()!, this.workoutVM()!, status)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
     }
 
     setRemoveAllExercises() {
         if (!this.workoutDate()) return;
-        this.trackingSvc.setRemoveAllExercises(this.workoutDate()!, this.workoutVM()!);
+        this.trackingSvc.setRemoveAllExercises(this.workoutDate()!);
     }
 
     setEditedStatus() {

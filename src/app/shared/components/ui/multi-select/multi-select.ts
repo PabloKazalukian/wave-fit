@@ -36,7 +36,6 @@ export class MultiSelectComponent {
     isOpen = signal(false);
 
     labelControl = computed(() => {
-        console.log(this.label());
         if (this.label() !== undefined && this.label() !== '') return this.label();
         return 'Selecciona por grupo muscular';
     });

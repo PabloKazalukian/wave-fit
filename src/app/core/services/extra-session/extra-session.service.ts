@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, computed, effect } from '@angular/core';
+import { inject, Injectable, signal, computed, effect, DestroyRef } from '@angular/core';
 import { ExtraSessionApi } from './api/extra-session.api';
 import {
     CreateExtraSessionForm,
@@ -28,6 +28,8 @@ export interface IExtraSessionForm {
 
 @Injectable({ providedIn: 'root' })
 export class ExtraSessionService {
+    destroyRef = inject(DestroyRef);
+
     private api = inject(ExtraSessionApi);
     private trackingService = inject(PlanTrackingService);
     private state = inject(WorkoutStateService);
@@ -94,7 +96,6 @@ export class ExtraSessionService {
                 error: (err) => console.error('ExtraSessionService error:', err),
             });
         }
-        // this.extraSessionForm = this.initForm();
     }
 
     loadByWorkoutSession(workoutSessionId: string[]) {
@@ -109,7 +110,6 @@ export class ExtraSessionService {
     }
 
     create(input: CreateExtraSessionForm): Observable<TrackingVM | null | undefined> {
-        console.log(this.state.selectedDate()!, input);
         if (!this.state.selectedDate()) return of(null);
         return this.trackingService.updateExtraSession(this.state.selectedDate()!, input);
     }

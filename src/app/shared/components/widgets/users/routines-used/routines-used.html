@@ -1,6 +1,6 @@
-<div class="grid grid-cols-2 gap-3">
+<section class="grid grid-cols-2 gap-3">
   @for (routine of routines(); track routine.id) {
-    <div class="bg-background2 border-2 border-background4 rounded-xl p-3 history-item">
+    <article class="bg-background2 border-2 border-background4 rounded-xl p-3 history-item">
       <p class="text-sm font-semibold text-text1 mb-1.5">{{ routine.title }}</p>
       @if (routine.type && routine.type.length) {
         <div class="flex flex-wrap gap-1">
@@ -11,6 +11,6 @@
           }
         </div>
       }
-    </div>
+    </article>
   }
-</div>
+</section>

@@ -42,7 +42,7 @@ export class RoutinesService {
         this.loading = true;
 
         return this.api.getRoutines().pipe(
-            delay(2000),
+            delay(500),
             tap((res) => {
                 this.loading = false;
                 this.loadingRoutines$.next(false);

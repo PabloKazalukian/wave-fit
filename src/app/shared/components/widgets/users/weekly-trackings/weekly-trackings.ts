@@ -6,17 +6,34 @@ import { TrackingListState } from '../../../../../core/services/trackings/tracki
 import { parseISO } from 'date-fns';
 import { LocalDate } from '../../../../../shared/interfaces/tracking.interface';
 
-
 @Component({
     selector: 'app-weekly-trackings',
     imports: [CommonModule, RouterLink, LucideAngularModule],
     standalone: true,
     templateUrl: './weekly-trackings.html',
+    styles: [
+        `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .animate-fade-in-up {
+                animation: fadeInUp 0.4s ease-out forwards;
+                opacity: 0;
+            }
+        `,
+    ],
 })
 export class WeeklyTrackings {
     private facade = inject(TrackingListState);
 
-    limit = input(0);
+    limit = input<number>(5);
 
     trackings = this.facade.trackings$;
     stats = this.facade.getStats();

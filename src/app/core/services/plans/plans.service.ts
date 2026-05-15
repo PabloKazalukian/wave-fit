@@ -96,7 +96,7 @@ export class PlansService {
         // const data = this.planStorage.getPlanStorage(idUser);
         return this.plansSubject.getValue();
     }
-    getRoutinePlanById(id: string): Observable<any | null> {
+    getRoutinePlanById(id: string): Observable<RoutinePlanVM | null | undefined> {
         return this.planApi.getRoutinePlanById(id);
     }
 

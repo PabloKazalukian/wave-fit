@@ -1,4 +1,4 @@
-import { Component, inject, signal, DestroyRef } from '@angular/core';
+import { Component, inject, signal, DestroyRef, HostListener, ElementRef } from '@angular/core';
 import { TrackingWorkoutFacade } from '../tracking-workout.facade';
 import { CommonModule } from '@angular/common';
 import { WorkoutRoutineSelector } from '../workout-routine-selector/workout-routine-selector';
@@ -40,9 +40,17 @@ import { StatusWorkoutSessionEnum } from '../../../../../interfaces/tracking.int
 export class WorkoutActionsMenu {
     facade = inject(TrackingWorkoutFacade);
     destroyRef = inject(DestroyRef);
+    private elementRef = inject(ElementRef);
     private workoutState = inject(WorkoutStateService);
     private trackingSvc = inject(PlanTrackingService);
     private dateSvc = inject(DateService);
+
+    @HostListener('document:click', ['$event'])
+    onClickOutside(event: MouseEvent) {
+        if (this.isActionsOpen() && !this.elementRef.nativeElement.contains(event.target)) {
+            this.isActionsOpen.set(false);
+        }
+    }
 
     StatusWorkoutSessionEnum = StatusWorkoutSessionEnum;
 

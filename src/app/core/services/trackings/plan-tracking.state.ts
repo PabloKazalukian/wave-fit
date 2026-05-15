@@ -24,6 +24,8 @@ export class PlanTrackingStateService {
         state: false,
     });
 
+    readonly loadingStatusWorkout = signal<boolean>(false);
+
     getTracking(): TrackingVM | null {
         return this.trackingSubject.value;
     }
@@ -42,6 +44,10 @@ export class PlanTrackingStateService {
 
     setLoadingTracking(isLoading: boolean): void {
         this.loadingTracking.set(isLoading);
+    }
+
+    setLoadingStatusWorkout(isLoading: boolean): void {
+        this.loadingStatusWorkout.set(isLoading);
     }
 
     setError(error: string | null): void {

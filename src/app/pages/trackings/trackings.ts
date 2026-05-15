@@ -3,7 +3,7 @@ import { TrackingListState } from '../../core/services/trackings/tracking-list.s
 import { parseISO } from 'date-fns';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, Trophy, ChevronRight } from 'lucide-angular';
+import { LucideAngularModule, Trophy, ChevronRight, ChevronDown } from 'lucide-angular';
 
 @Component({
     selector: 'app-trackings',
@@ -15,14 +15,21 @@ import { LucideAngularModule, Trophy, ChevronRight } from 'lucide-angular';
 export class Trackings {
     private facade = inject(TrackingListState);
     trackings$ = this.facade.trackings$;
+    hasMore$ = this.facade.hasMore$;
+    isLoadingMore$ = this.facade.isLoadingMore$;
 
     readonly TrophyIcon = Trophy;
     readonly ChevronRightIcon = ChevronRight;
+    readonly ChevronDownIcon = ChevronDown;
 
     formatDate(localDate: string): string {
         return new Intl.DateTimeFormat('es-AR', {
             day: '2-digit',
             month: 'short',
         }).format(parseISO(localDate));
+    }
+
+    loadMore(): void {
+        this.facade.loadMore();
     }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, effect, output } from '@angular/core';
+import { Component, inject, OnInit, signal, effect, output, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
 import {
@@ -12,10 +12,10 @@ import {
     ExtraSessionCategory,
     ExtraSessionDisciplineConfig,
 } from '../../../../../shared/interfaces/extra-session.interface';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../ui/loading/loading';
 import { ExtraSessionCreate } from '../extra-session-create/extra-session-create';
-import { DateService } from '../../../../../core/services/date.service';
+import { catchError, of, tap } from 'rxjs';
 
 @Component({
     selector: 'app-extra-session-form',
@@ -24,11 +24,14 @@ import { DateService } from '../../../../../core/services/date.service';
     templateUrl: './extra-session-form.html',
 })
 export class ExtraSessionForm implements OnInit {
+    destroyRef = inject(DestroyRef);
+
     closed = output<void>();
 
     service = inject(ExtraSessionService);
     private workoutState = inject(WorkoutStateService);
-    private dateService = inject(DateService);
+
+    loading = signal<boolean>(false);
 
     catalog = toSignal(this.service.catalog$, { initialValue: [] });
 
@@ -93,6 +96,7 @@ export class ExtraSessionForm implements OnInit {
         this.extraSessionForm.markAllAsTouched();
         if (this.extraSessionForm.invalid) return;
 
+        this.loading.set(true);
         this.service
             .create({
                 date: this.workoutState.selectedDate()!, // ✅ LocalDate del timezone del usuario
@@ -102,8 +106,17 @@ export class ExtraSessionForm implements OnInit {
                 calories: this.caloriesControl.value || undefined,
                 notes: '',
             })
+            .pipe(
+                takeUntilDestroyed(this.destroyRef),
+                tap(() => this.loading.set(true)),
+                catchError(() => {
+                    this.loading.set(false);
+                    return of(null);
+                }),
+            )
             .subscribe({
                 next: () => {
+                    this.loading.set(false);
                     this.closed.emit();
                 },
                 error: (err) => console.error(err),

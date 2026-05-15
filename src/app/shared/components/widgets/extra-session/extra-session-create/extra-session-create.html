@@ -1,9 +1,9 @@
-<div class="flex flex-col gap-4 mt-2 p-4 rounded-xl bg-background2">
-  <div class="flex items-center gap-2 mb-2 pb-2 border-b-2 border-primary">
+<section class="flex flex-col gap-4 mt-2 p-4 rounded-xl bg-background2">
+  <header class="flex items-center gap-2 mb-2 pb-2 border-b-2 border-primary">
     <h4 class="text-lg text-primary font-bold">Detalles para: {{ config().label }}</h4>
-  </div>
+  </header>
 
-  <div class="flex flex-wrap justify-between">
+  <section class="flex flex-wrap justify-between">
     <app-input-number
       [label]="'Duración (minutos)'"
       [variant]="'buttons'"
@@ -22,9 +22,9 @@
       [step]="10"
       [control]="$any(form.get('calories'))"
     ></app-input-number>
-  </div>
+  </section>
 
-  <div class="flex justify-end gap-2 mt-4">
+  <footer class="flex justify-end gap-2 mt-4">
     <app-btn
       [text]="'Cancelar'"
       [variant]="'outline'"
@@ -41,5 +41,5 @@
       (click)="onSaveClick()"
       type="submit"
     ></app-btn>
-  </div>
-</div>
+  </footer>
+</section>

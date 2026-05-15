@@ -3,7 +3,6 @@ import { ExtraSessionService } from '../../../../../core/services/extra-session/
 import { ExtraSessionCard } from './extra-session-card/extra-session-card';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../ui/loading/loading';
-import { delay } from 'rxjs';
 
 @Component({
     selector: 'app-extra-session-content',
@@ -26,10 +25,7 @@ export class ExtraSessionContent {
         this.loading.set(true);
         this.service
             .remove(id)
-            .pipe(
-                delay(1000), // ⏱️ demora en ms
-                takeUntilDestroyed(this.destroyRef),
-            )
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 error: (err) => console.error(err),
                 complete: () => this.loading.set(false),
