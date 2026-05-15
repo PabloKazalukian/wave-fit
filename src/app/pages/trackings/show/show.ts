@@ -39,7 +39,7 @@ export class Show {
     asyncLoaded = false;
     tracking$: Observable<TrackingVM | null> = this.route.params.pipe(
         map((params) => params['id']),
-        tap((tracking) => console.log(tracking)),
+        // tap((tracking) => console.log(tracking)),
         switchMap((id) => this.facade.getTrackingById(id)),
         switchMap((tracking) => {
             if (!tracking?.planId) return of(tracking);
@@ -59,12 +59,11 @@ export class Show {
     readonly XIcon = X;
 
     formatDate(date: string): string {
-        console.log(date, new Date(date));
         return new Intl.DateTimeFormat('en-GB', {
             day: '2-digit',
             month: 'short',
             year: 'numeric',
-            timeZone: 'UTC'
+            timeZone: 'UTC',
         }).format(new Date(date));
     }
 

@@ -1,6 +1,16 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { PlanTrackingService } from './plan-tracking.service';
-import { BehaviorSubject, filter, finalize, map, Observable, startWith, Subject, switchMap, tap } from 'rxjs';
+import {
+    BehaviorSubject,
+    filter,
+    finalize,
+    map,
+    Observable,
+    startWith,
+    Subject,
+    switchMap,
+    tap,
+} from 'rxjs';
 import { TrackingVM } from '../../../shared/interfaces/tracking.interface';
 
 @Injectable({
@@ -24,50 +34,58 @@ export class TrackingListState {
     readonly isLoadingMore$ = new BehaviorSubject<boolean>(false);
 
     constructor() {
-        this._refresh$.pipe(
-            startWith(undefined),
-            tap(() => {
-                this._offset = 0;
-                this._hasMore = true;
-                this.hasMore$.next(this._hasMore);
-                this._trackingsState.next(null);
-            }),
-            switchMap(() => this.planTrackingService.findAll(this._limit, this._offset)),
-        ).subscribe(trackings => {
-            if (trackings) {
-                if (trackings.length < this._limit) {
-                    this._hasMore = false;
+        this._refresh$
+            .pipe(
+                startWith(undefined),
+                tap(() => {
+                    this._offset = 0;
+                    this._hasMore = true;
                     this.hasMore$.next(this._hasMore);
+                    this._trackingsState.next(null);
+                }),
+                switchMap(() => this.planTrackingService.findAll(this._limit, this._offset)),
+            )
+            .subscribe((trackings) => {
+                if (trackings) {
+                    if (trackings.length < this._limit) {
+                        this._hasMore = false;
+                        this.hasMore$.next(this._hasMore);
+                    }
+                    this._trackingsState.next(trackings);
                 }
-                this._trackingsState.next(trackings);
-            }
-        });
+            });
 
-        this._loadMore$.pipe(
-            filter(() => this._hasMore && !this._isLoadingMore),
-            tap(() => {
-                this._isLoadingMore = true;
-                this.isLoadingMore$.next(true);
-                this._offset += this._limit;
-            }),
-            switchMap(() => this.planTrackingService.findAll(this._limit, this._offset).pipe(
-                finalize(() => {
-                    this._isLoadingMore = false;
-                    this.isLoadingMore$.next(false);
-                })
-            )),
-        ).subscribe(newTrackings => {
-            if (newTrackings) {
-                if (newTrackings.length < this._limit) {
-                    this._hasMore = false;
-                    this.hasMore$.next(this._hasMore);
+        this._loadMore$
+            .pipe(
+                filter(() => this._hasMore && !this._isLoadingMore),
+                tap(() => {
+                    this._isLoadingMore = true;
+                    this.isLoadingMore$.next(true);
+                    this._offset += this._limit;
+                }),
+                switchMap(() =>
+                    this.planTrackingService.findAll(this._limit, this._offset).pipe(
+                        finalize(() => {
+                            this._isLoadingMore = false;
+                            this.isLoadingMore$.next(false);
+                        }),
+                    ),
+                ),
+            )
+            .subscribe((newTrackings) => {
+                if (newTrackings) {
+                    if (newTrackings.length < this._limit) {
+                        this._hasMore = false;
+                        this.hasMore$.next(this._hasMore);
+                    }
+                    const current = this._trackingsState.value || [];
+                    // Evitamos duplicados por si acaso
+                    const uniqueNewTrackings = newTrackings.filter(
+                        (nt) => !current.some((ct) => ct.id === nt.id),
+                    );
+                    this._trackingsState.next([...current, ...uniqueNewTrackings]);
                 }
-                const current = this._trackingsState.value || [];
-                // Evitamos duplicados por si acaso
-                const uniqueNewTrackings = newTrackings.filter(nt => !current.some(ct => ct.id === nt.id));
-                this._trackingsState.next([...current, ...uniqueNewTrackings]);
-            }
-        });
+            });
     }
 
     loadMore(): void {
@@ -80,7 +98,7 @@ export class TrackingListState {
 
     getStats() {
         return this.trackings$.pipe(
-            tap((trackings) => console.log(trackings)),
+            // tap((trackings) => console.log(trackings)),
             map((trackings: TrackingVM[] | null) => {
                 if (!trackings) return { completed: 0, total: 0 };
                 return {

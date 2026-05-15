@@ -94,7 +94,6 @@ export class Show implements OnInit {
                             weekly_distribution: rest.weekly_distribution as string,
                             routineDays: routineDaysParsed,
                         };
-                        console.log(routinePlanParsed);
                         this.routinePlan.set(routinePlanParsed);
                     });
             }
