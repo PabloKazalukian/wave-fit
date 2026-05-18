@@ -1,4 +1,4 @@
-import { precacheAndRoute } from 'workbox-precaching';
+import { precacheAndRoute, matchPrecache } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { CacheFirst, NetworkFirst } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
@@ -40,32 +40,135 @@ registerRoute(
     }),
 );
 
-// Handle navigation requests (SPA)
+// Handle navigation requests (SPA) with fallback to precached index.html
 registerRoute(
     ({ request }) => request.mode === 'navigate',
-    new NetworkFirst({
-        cacheName: 'pages',
-        plugins: [
-            new CacheableResponsePlugin({
-                statuses: [200],
-            }),
-        ],
-    }),
+    async ({ request }) => {
+        try {
+            // Try network first
+            return await fetch(request);
+        } catch (error) {
+            // Offline fallback: serve precached index.html using native browser Cache API
+            let cachedResponse = await caches.match('/index.html');
+            if (!cachedResponse) {
+                cachedResponse = await caches.match('index.html');
+            }
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+            throw error;
+        }
+    }
 );
 
-// Handle API/GraphQL requests (StaleWhileRevalidate or NetworkFirst)
-// Since this is a tracking app, we might prefer NetworkFirst for some data
-// but StaleWhileRevalidate for others. Let's start with NetworkFirst for safety.
+// --- IndexedDB Helper (Singleton Connection) ---
+const DB_NAME = 'WaveFitDB';
+const DB_VERSION = 2;
+const STORE_NAME = 'graphqlCache';
+
+let dbPromise = null;
+
+function getDB() {
+    if (!dbPromise) {
+        dbPromise = new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onerror = (event) => reject(event.target.error);
+            request.onsuccess = (event) => resolve(event.target.result);
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: 'cacheKey' });
+                }
+                if (!db.objectStoreNames.contains('pendingMutations')) {
+                    const store = db.createObjectStore('pendingMutations', { keyPath: 'id' });
+                    store.createIndex('operationName', 'operationName', { unique: false });
+                    store.createIndex('status', 'status', { unique: false });
+                }
+                if (!db.objectStoreNames.contains('authUser')) {
+                    db.createObjectStore('authUser', { keyPath: 'id' });
+                }
+            };
+        });
+    }
+    return dbPromise;
+}
+
+async function putInCache(cacheKey, data) {
+    const db = await getDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const record = {
+            cacheKey,
+            data,
+            updatedAt: Date.now()
+        };
+        const request = store.put(record);
+        request.onsuccess = () => resolve();
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+
+async function getFromCache(cacheKey) {
+    const db = await getDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(cacheKey);
+        request.onsuccess = (event) => {
+            const result = event.target.result;
+            resolve(result ? result.data : null);
+        };
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+
+const GRAPHQL_WHITELIST = [
+    'GetExercises',
+    'Me',
+    // Add other read operations here as they get implemented
+];
+
+// Handle API/GraphQL requests using IndexedDB for POST support
 registerRoute(
-    ({ url }) => url.pathname.includes('/graphql'),
-    new NetworkFirst({
-        cacheName: 'api-responses',
-        plugins: [
-            new CacheableResponsePlugin({
-                statuses: [200],
-            }),
-        ],
-    }),
+    ({ url, request }) => url.pathname.includes('/graphql') && request.method === 'POST',
+    async ({ request }) => {
+        try {
+            const reqClone = request.clone();
+            const body = await reqClone.json();
+
+            if (!body.operationName || !GRAPHQL_WHITELIST.includes(body.operationName)) {
+                return fetch(request);
+            }
+
+            const cacheKey = JSON.stringify({
+                operationName: body.operationName,
+                variables: body.variables || {}
+            });
+
+            try {
+                const response = await fetch(request);
+                const resClone = response.clone();
+                const resBody = await resClone.json();
+
+                if (resBody && !resBody.errors) {
+                    await putInCache(cacheKey, resBody.data);
+                }
+
+                return response;
+            } catch (networkError) {
+                const cachedData = await getFromCache(cacheKey);
+                if (cachedData) {
+                    return new Response(JSON.stringify({ data: cachedData }), {
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
+                throw networkError;
+            }
+        } catch (error) {
+            return fetch(request);
+        }
+    }
 );
 
 self.addEventListener('message', (event) => {

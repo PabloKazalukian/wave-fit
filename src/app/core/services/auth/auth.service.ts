@@ -43,14 +43,23 @@ export class AuthService {
     private tokenStorage = inject(TokenStorage);
     private readonly router = inject(Router);
 
-    user = signal<User | null>(this.tokenStorage.getUser());
+    user = signal<User | null>(null);
 
-    private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.user() !== null);
+    private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
     isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
     isAuthenticated = computed(() => this.user() !== null);
 
-    private userIdSubject = new BehaviorSubject<string | null>(this.user()?.id || null);
+    private userIdSubject = new BehaviorSubject<string | null>(null);
     user$ = this.userIdSubject.asObservable();
+
+    async initializeUserFromStorage() {
+        const storedUser = await this.tokenStorage.getUser();
+        if (storedUser) {
+            this.user.set(storedUser);
+            this.userIdSubject.next(storedUser.id);
+            this.isAuthenticatedSubject.next(true);
+        }
+    }
 
     login(identifier: string, password: string) {
         return this.apollo
@@ -77,7 +86,7 @@ export class AuthService {
             );
     }
 
-    me(): Observable<MeResponse['me'] | undefined> {
+    me(): Observable<MeResponse['me'] | null | undefined> {
         return this.apollo
             .query<{ me: MeResponse['me'] }>({
                 query: gql`
@@ -93,17 +102,37 @@ export class AuthService {
                 fetchPolicy: 'no-cache',
             })
             .pipe(
-                timeout(5000),
-                tap(({ data }) => {
-                    this.user.set(data?.me ?? null);
-                    this.userIdSubject.next(data?.me?.id ?? null);
-                    this.tokenStorage.setUser(this.user());
-                    this.isAuthenticatedSubject.next(this.user() !== null);
+                timeout(2000),
+                switchMap(async (res) => {
+                    console.log(res);
+                    const me = res.data?.me ?? null;
+                    this.user.set(me);
+                    this.userIdSubject.next(me?.id ?? null);
+                    await this.tokenStorage.setUser(me);
+                    this.isAuthenticatedSubject.next(me !== null);
+                    return me;
                 }),
-                map((res) => res.data?.me),
                 catchError((err) => {
-                    this.clearSession();
-                    return throwError(() => err);
+                    // Solo limpiamos la sesión si es un error de autenticación explícito (ej: 401, UNAUTHORIZED, UNAUTHENTICATED)
+                    // Si es un error de red, de timeout o cualquier otro error temporal, mantenemos el estado actual para modo offline.
+                    // El errorLink global en main.ts ya se encarga de hacer logout y clearSession si detecta 401/UNAUTHORIZED real.
+                    const isExplicitUnauthorized = 
+                        err?.message?.includes('UNAUTHENTICATED') || 
+                        err?.message?.includes('UNAUTHORIZED') || 
+                        err?.networkError?.status === 401 ||
+                        err?.graphQLErrors?.some((gErr: any) => 
+                            gErr.extensions?.code === 'UNAUTHENTICATED' || 
+                            gErr.extensions?.code === 'UNAUTHORIZED'
+                        );
+
+                    if (isExplicitUnauthorized) {
+                        console.error('Explicit auth error in me(), clearing session:', err);
+                        this.clearSession();
+                        return throwError(() => err);
+                    }
+
+                    console.warn('Non-auth or network/timeout/SW error in me(), keeping offline session:', err);
+                    return of(this.user() || undefined);
                 }),
             );
     }
@@ -118,12 +147,12 @@ export class AuthService {
                 `,
             })
             .subscribe({
-                next: () => {
-                    this.clearSession();
+                next: async () => {
+                    await this.clearSession();
                     this.router.navigate(['/auth/login']);
                 },
-                error: () => {
-                    this.clearSession();
+                error: async () => {
+                    await this.clearSession();
                     this.router.navigate(['/auth/login']);
                 },
             });
@@ -192,14 +221,15 @@ export class AuthService {
                 },
             })
             .pipe(
-                tap((res) => {
+                switchMap(async (res) => {
                     const user = res.data?.loginWithGoogle.user ?? null;
                     if (user) {
-                        this.userIdSubject.next(user.id);
-                        this.tokenStorage.setUser(user);
                         this.user.set(user);
+                        this.userIdSubject.next(user.id);
+                        await this.tokenStorage.setUser(user);
                         this.isAuthenticatedSubject.next(true);
                     }
+                    return res;
                 }),
                 handleGraphqlError(this),
                 catchError(() => {
@@ -212,8 +242,8 @@ export class AuthService {
         return this.user() !== null;
     }
 
-    clearSession() {
-        this.tokenStorage.clear();
+    async clearSession() {
+        await this.tokenStorage.clear();
         this.user.set(null);
         this.isAuthenticatedSubject.next(false);
     }

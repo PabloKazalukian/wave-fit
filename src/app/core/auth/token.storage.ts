@@ -1,28 +1,53 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { User } from '../../shared/interfaces/token.interface';
+import { IndexedDbStorageService } from '../services/storage/indexed-db.service';
 
 @Injectable({ providedIn: 'root' })
 export class TokenStorage {
-    private readonly userKey = 'auth_user';
+    private indexedDb = inject(IndexedDbStorageService);
+    private readonly AUTH_KEY = 'current';
 
-    getUser(): User | null {
-        const data = localStorage.getItem(this.userKey);
+    async getUser(): Promise<User | null> {
         try {
-            return data ? JSON.parse(data) : null;
-        } catch {
+            const authUser = await this.indexedDb.db.authUser.get(this.AUTH_KEY);
+            if (authUser) {
+                return {
+                    id: authUser.userId,
+                    name: authUser.name,
+                    email: authUser.email,
+                    role: authUser.role,
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error('Error reading user from IndexedDB:', error);
             return null;
         }
     }
 
-    setUser(user: User | null): void {
-        if (user) {
-            localStorage.setItem(this.userKey, JSON.stringify(user));
-        } else {
-            this.clear();
+    async setUser(user: User | null): Promise<void> {
+        try {
+            if (user) {
+                await this.indexedDb.db.authUser.put({
+                    id: this.AUTH_KEY,
+                    userId: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                });
+            } else {
+                await this.clear();
+            }
+        } catch (error) {
+            console.error('Error saving user to IndexedDB:', error);
         }
     }
 
-    clear(): void {
-        localStorage.removeItem(this.userKey);
+    async clear(): Promise<void> {
+        try {
+            await this.indexedDb.db.authUser.delete(this.AUTH_KEY);
+        } catch (error) {
+            console.error('Error clearing user from IndexedDB:', error);
+        }
     }
 }
