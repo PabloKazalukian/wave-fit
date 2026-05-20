@@ -34,7 +34,6 @@
         "@angular/forms": "20.3.19",
         "@angular/platform-browser": "20.3.19",
         "@angular/router": "20.3.19",
-        "@angular/service-worker": "20.3.19",
         "@apollo/client": "^4.0.1",
         "apollo-angular": "^12.1.0",
         "date-fns": "^4.1.0",
