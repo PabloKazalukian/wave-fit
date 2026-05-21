@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { AuthService } from '../auth/auth.service';
-import { map, Observable, of, tap, from } from 'rxjs';
+import { map, Observable, of, tap, from, firstValueFrom } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { Exercise } from '../../../shared/interfaces/exercise.interface';
 import { ExercisePerformanceVM } from '../../../shared/interfaces/tracking.interface';
@@ -9,6 +9,7 @@ import { wrapperExerciseAPItoVM } from '../../../shared/wrappers/exercises.wrapp
 import { CREATE_EXERCISE, GET_EXERCISES } from '../../apollo/exercises.queries';
 import { NetworkStatusService } from '../network/network-status.service';
 import { IndexedDbStorageService } from '../storage/indexed-db.service';
+import { SyncQueueService } from '../sync/sync-queue.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExercisesService {
@@ -18,6 +19,18 @@ export class ExercisesService {
     private readonly authSvc = inject(AuthService);
     private readonly networkSvc = inject(NetworkStatusService);
     private readonly idb = inject(IndexedDbStorageService);
+    private readonly syncQueue = inject(SyncQueueService);
+
+    constructor() {
+        this.syncQueue.registerHandler('CreateExercise', async (mutation) => {
+            const exercise = mutation.variables.input;
+            const res = await firstValueFrom(this.apollo.mutate<{ createExercise: Exercise }>({
+                mutation: CREATE_EXERCISE,
+                variables: { input: exercise }
+            }));
+            return res.data?.createExercise;
+        });
+    }
 
     getExercises(force = false): Observable<Exercise[]> {
         if (!force && this.exercises().length > 0) {
@@ -31,7 +44,10 @@ export class ExercisesService {
             })
             .pipe(
                 tap(({ data }) => {
-                    if (data) this.exercises.set(data.exercises);
+                    if (data) {
+                        this.exercises.set(data.exercises);
+                        this.idb.saveExercises(data.exercises);
+                    }
                 }),
                 handleGraphqlError(this.authSvc),
                 map((res) => res.data!.exercises),
@@ -79,7 +95,7 @@ export class ExercisesService {
     }
 
     private async saveOfflineMutation(pending: any, newExercise: Exercise): Promise<Exercise> {
-        await this.idb.db.pendingMutations.put(pending);
+        await this.syncQueue.enqueue(pending);
         await this.updateLocalCache(newExercise);
         return newExercise;
     }
@@ -90,6 +106,8 @@ export class ExercisesService {
             if (existing) return current;
             return [...current, newExercise];
         });
+        
+        this.idb.saveExercises(this.exercises());
 
         const cacheKey = JSON.stringify({ operationName: 'GetExercises', variables: {} });
         

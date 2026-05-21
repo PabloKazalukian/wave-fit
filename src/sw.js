@@ -63,7 +63,7 @@ registerRoute(
 
 // --- IndexedDB Helper (Singleton Connection) ---
 const DB_NAME = 'WaveFitDB';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORE_NAME = 'graphqlCache';
 
 let dbPromise = null;
@@ -86,6 +86,18 @@ function getDB() {
                 }
                 if (!db.objectStoreNames.contains('authUser')) {
                     db.createObjectStore('authUser', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('exercises')) {
+                    db.createObjectStore('exercises', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('routines')) {
+                    db.createObjectStore('routines', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('plans')) {
+                    db.createObjectStore('plans', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('tracking')) {
+                    db.createObjectStore('tracking', { keyPath: 'id' });
                 }
             };
         });
@@ -174,5 +186,17 @@ registerRoute(
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
+    }
+});
+
+self.addEventListener('sync', (event) => {
+    if (event.tag === 'sync-mutations') {
+        event.waitUntil(
+            self.clients.matchAll().then(clients => {
+                clients.forEach(client => {
+                    client.postMessage({ type: 'PROCESS_SYNC_QUEUE' });
+                });
+            })
+        );
     }
 });

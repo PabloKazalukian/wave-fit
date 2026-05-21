@@ -12,12 +12,14 @@ import {
     tap,
 } from 'rxjs';
 import { TrackingVM } from '../../../shared/interfaces/tracking.interface';
+import { IndexedDbStorageService } from '../storage/indexed-db.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class TrackingListState {
     private planTrackingService = inject(PlanTrackingService);
+    private idb = inject(IndexedDbStorageService);
 
     private readonly _refresh$ = new Subject<void>();
     private readonly _loadMore$ = new Subject<void>();
@@ -52,6 +54,7 @@ export class TrackingListState {
                         this.hasMore$.next(this._hasMore);
                     }
                     this._trackingsState.next(trackings);
+                    this.idb.saveTrackings(trackings);
                 }
             });
 
@@ -83,7 +86,9 @@ export class TrackingListState {
                     const uniqueNewTrackings = newTrackings.filter(
                         (nt) => !current.some((ct) => ct.id === nt.id),
                     );
-                    this._trackingsState.next([...current, ...uniqueNewTrackings]);
+                    const newTrackingsState = [...current, ...uniqueNewTrackings];
+                    this._trackingsState.next(newTrackingsState);
+                    this.idb.saveTrackings(newTrackingsState);
                 }
             });
     }

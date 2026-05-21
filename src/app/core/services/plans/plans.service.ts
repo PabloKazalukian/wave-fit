@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { BehaviorSubject, filter, Observable, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, Observable, take, tap, from, firstValueFrom } from 'rxjs';
 import {
     DayIndex,
     RoutineDayVM,
@@ -10,6 +10,9 @@ import {
 import { PlansStorageService } from './storage/plans.storage';
 import { PlansApiService } from './api/plans.api';
 import { wrapperRoutinePlanVMtoRoutinePlan } from '../../../shared/wrappers/plans.wrapper';
+import { NetworkStatusService } from '../network/network-status.service';
+import { SyncQueueService } from '../sync/sync-queue.service';
+import { IndexedDbStorageService } from '../storage/indexed-db.service';
 
 @Injectable({
     providedIn: 'root',
@@ -22,6 +25,23 @@ export class PlansService {
     private readonly authSvc = inject(AuthService);
     private readonly planStorage = inject(PlansStorageService);
     private readonly planApi = inject(PlansApiService);
+    private readonly networkSvc = inject(NetworkStatusService);
+    private readonly syncQueue = inject(SyncQueueService);
+    private readonly idb = inject(IndexedDbStorageService);
+
+    constructor() {
+        this.syncQueue.registerHandler('CreateRoutinePlan', async (mutation) => {
+            const input = mutation.variables.input;
+            const res = await firstValueFrom(this.planApi.createPlan(input));
+            return res;
+        });
+    }
+
+    private generateObjectId(): string {
+        const timestamp = Math.floor(new Date().getTime() / 1000).toString(16);
+        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16));
+        return (timestamp + randomHex).toLowerCase();
+    }
 
     initPlanForUser(userId: string) {
         if (this.userId() !== '') {
@@ -60,6 +80,9 @@ export class PlansService {
     setRoutinePlan(plan: RoutinePlanVM) {
         this.plansSubject.next(plan);
         this.planStorage.setPlanStorage(plan, this.userId());
+        if (plan.id) {
+            this.idb.savePlan(plan);
+        }
     }
 
     setKindRoutineDay(dayIndex: number, kind: 'REST' | 'WORKOUT') {
@@ -97,7 +120,13 @@ export class PlansService {
         return this.plansSubject.getValue();
     }
     getRoutinePlanById(id: string): Observable<RoutinePlanVM | null | undefined> {
-        return this.planApi.getRoutinePlanById(id);
+        return this.planApi.getRoutinePlanById(id).pipe(
+            tap((plan) => {
+                if (plan && plan.id) {
+                    this.idb.savePlan(plan);
+                }
+            })
+        );
     }
 
     createRoutinePlan(planInput: RoutinePlanVM): RoutinePlanVM {
@@ -144,12 +173,29 @@ export class PlansService {
     }
 
     submitPlan(current: RoutinePlanVM): Observable<any> {
-        return this.planApi.createPlan(this.wrapperRoutinePlanVMtoRoutinePlan(current)).pipe(
-            tap({
-                next: () => this.clearPlan(),
-            }),
-            // map(() => void 0),
-        );
+        const payload = this.wrapperRoutinePlanVMtoRoutinePlan(current);
+        const newId = current.id || this.generateObjectId();
+
+        if (this.networkSvc.isOnline()) {
+            return this.planApi.createPlan(payload).pipe(
+                tap({
+                    next: () => this.clearPlan(),
+                })
+            );
+        } else {
+            const pending = {
+                id: newId,
+                operationName: 'CreateRoutinePlan',
+                variables: { input: payload },
+                status: 'pending' as const,
+                createdAt: Date.now()
+            };
+            
+            return from(this.syncQueue.enqueue(pending).then(() => {
+                this.clearPlan();
+                return { ...payload, id: newId };
+            }));
+        }
     }
 
     validateTitleUnique(title: string): Observable<boolean | undefined> {

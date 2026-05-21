@@ -1,7 +1,7 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking.storage';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { finalize, map, Observable, of, tap } from 'rxjs';
+import { finalize, map, Observable, of, tap, from, firstValueFrom } from 'rxjs';
 import {
     ExercisePerformanceVM,
     LocalDate,
@@ -31,6 +31,8 @@ import { WorkoutApi } from '../workouts/api/workout.api';
 import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session.interface';
 import { RoutinesService } from '../routines/routines.service';
 import { RoutineDayAPI } from '../../../shared/interfaces/api/routines-api.interface';
+import { NetworkStatusService } from '../network/network-status.service';
+import { SyncQueueService } from '../sync/sync-queue.service';
 
 @Injectable({
     providedIn: 'root',
@@ -45,10 +47,18 @@ export class PlanTrackingDomainService {
     private dateService = inject(DateService);
     private routineService = inject(RoutinesService);
     private authService = inject(AuthService);
+    private networkSvc = inject(NetworkStatusService);
+    private syncQueue = inject(SyncQueueService);
 
     user$ = toSignal(this.authService.user$);
 
     constructor() {
+        this.syncQueue.registerHandler('UpdateWeekLogDay', async (mutation) => {
+            const input = mutation.variables.input;
+            const res = await firstValueFrom(this.api.updateTrackingDay(input));
+            return res;
+        });
+
         effect(() => {
             const user = this.user$();
             if (user) {
@@ -58,6 +68,12 @@ export class PlanTrackingDomainService {
                 this.state.setTracking(null);
             }
         });
+    }
+
+    private generateObjectId(): string {
+        const timestamp = Math.floor(new Date().getTime() / 1000).toString(16);
+        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16));
+        return (timestamp + randomHex).toLowerCase();
     }
 
     initTracking(): Observable<TrackingVM | null | undefined> {
@@ -255,7 +271,22 @@ export class PlanTrackingDomainService {
             ],
         };
 
-        return this.api.updateTrackingDay(payload);
+        if (this.networkSvc.isOnline()) {
+            return this.api.updateTrackingDay(payload);
+        } else {
+            const pending = {
+                id: this.generateObjectId(),
+                operationName: 'UpdateWeekLogDay',
+                variables: { input: payload },
+                status: 'pending' as const,
+                createdAt: Date.now()
+            };
+            
+            return from(this.syncQueue.enqueue(pending).then(() => {
+                // Optimistic UI update can just return null and the service will update local cache
+                return null;
+            }));
+        }
     }
 
     removeWorkoutSession(

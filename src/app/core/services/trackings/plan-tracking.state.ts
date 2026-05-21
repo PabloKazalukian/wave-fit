@@ -3,12 +3,14 @@ import { BehaviorSubject } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LocalDate, TrackingVM, WorkoutSessionVM } from '../../../shared/interfaces/tracking.interface';
 import { DateService } from '../date.service';
+import { IndexedDbStorageService } from '../storage/indexed-db.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class PlanTrackingStateService {
     private dateService = inject(DateService);
+    private idb = inject(IndexedDbStorageService);
 
     private trackingSubject = new BehaviorSubject<TrackingVM | null>(null);
     readonly tracking$ = this.trackingSubject.asObservable();
@@ -36,6 +38,9 @@ export class PlanTrackingStateService {
 
     setTracking(tracking: TrackingVM | null): void {
         this.trackingSubject.next(tracking);
+        if (tracking) {
+            this.idb.saveTracking(tracking);
+        }
     }
 
     setLoading(isLoading: boolean): void {
@@ -57,7 +62,9 @@ export class PlanTrackingStateService {
     updateTracking(updater: (t: TrackingVM) => TrackingVM): void {
         const current = this.trackingSubject.value;
         if (current) {
-            this.trackingSubject.next(updater(current));
+            const updated = updater(current);
+            this.trackingSubject.next(updated);
+            this.idb.saveTracking(updated);
         }
     }
 
@@ -76,5 +83,6 @@ export class PlanTrackingStateService {
         };
 
         this.trackingSubject.next(updated);
+        this.idb.saveTracking(updated);
     }
 }

@@ -127,25 +127,25 @@ export class PlanTrackingApi {
             );
     }
 
-    // syncTrackingDays(weekLogId: string): Observable<TrackingVM | null> {
-    //     return this.apollo
-    //         .mutate<{ syncWeekLogDays: TrackingAPI }>({
-    //             mutation: SYNC_WEEK_LOG_DAYS,
-    //             variables: { weekLogId },
-    //             fetchPolicy: 'no-cache',
-    //         })
-    //         .pipe(
-    //             handleGraphqlError(this.authSvc),
-    //             map(({ data }) =>
-    //                 data?.syncWeekLogDays
-    //                     ? trackingWrappers.wrapperTrackingApiToVM(
-    //                           data.syncWeekLogDays,
-    //                           this.exerciseSvc.exercises(),
-    //                       )
-    //                     : null,
-    //             ),
-    //         );
-    // }
+    syncTrackingDays(weekLogId: string): Observable<TrackingVM | null> {
+        return this.apollo
+            .mutate<{ syncWeekLogDays: TrackingAPI }>({
+                mutation: SYNC_WEEK_LOG_DAYS,
+                variables: { weekLogId },
+                fetchPolicy: 'no-cache',
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.syncWeekLogDays
+                        ? trackingWrappers.wrapperTrackingApiToVM(
+                              data.syncWeekLogDays,
+                              this.exerciseSvc.exercises(),
+                          )
+                        : null,
+                ),
+            );
+    }
 
     assignRoutineToDay(routineDayId: string, date: string): Observable<WeekLogDayVM | null> {
         return this.apollo

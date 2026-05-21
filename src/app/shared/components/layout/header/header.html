@@ -1,5 +1,13 @@
 @if (show) {
-  <header class="fixed top-0 left-0 z-50 w-full flex justify-center p-4">
+  <!-- Offline Banner -->
+  @if (!isOnline()) {
+    <div class="fixed top-0 left-0 z-[60] w-full bg-yellow-500 text-yellow-900 text-center text-sm font-semibold py-1 animate-in slide-in-from-top flex items-center justify-center gap-2 shadow-md">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c3.65 0 6.89 1.43 9.3 3.7l-1.4 1.4M2.7 8.7a10.43 10.43 0 0 1 5.3-3.6L2 2l20 20-2-2-4.1-4.1a10.43 10.43 0 0 1-3.9 1.1c-3.65 0-6.89-1.43-9.3-3.7l1.4-1.4a8.43 8.43 0 0 0 5.3 3.6L4.1 6.1 2.7 8.7z"></path></svg>
+      Trabajando sin conexión (Offline)
+    </div>
+  }
+
+  <header class="fixed left-0 z-50 w-full flex justify-center p-4 transition-all duration-300" [class.top-8]="!isOnline()" [class.top-0]="isOnline()">
     <nav
       class="bg-background3 border border-white/10 flex items-center justify-between px-4 w-full max-w-2xl py-3 rounded-2xl shadow-2xl"
     >
@@ -80,6 +88,17 @@
         </div>
       </div>
 
+      <!-- Sync Status Badge (Desktop) -->
+      @if (pendingMutations() > 0) {
+        <div class="hidden md:flex items-center ml-auto mr-4" title="Sincronización pendiente">
+          <span class="relative flex h-3 w-3 mr-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+          </span>
+          <span class="text-xs text-text2">{{ pendingMutations() }} pendient.</span>
+        </div>
+      }
+
       <!-- User Profile Dropdown -->
       <div class="hidden md:flex relative">
         <app-btn
@@ -124,8 +143,19 @@
         }
       </div>
 
-      <!-- Mobile Menu Button -->
-      <div class="md:hidden">
+
+      <!-- Mobile Menu Button & Sync Badge -->
+      <div class="md:hidden flex items-center gap-3">
+        @if (pendingMutations() > 0) {
+          <div class="flex items-center" title="Sincronización pendiente">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
+            </span>
+            <span class="text-xs text-text2 ml-1">{{ pendingMutations() }}</span>
+          </div>
+        }
+        
         <button
           (click)="toggleMobileMenu()"
           class="p-2 text-text2 hover:text-primary transition-colors"

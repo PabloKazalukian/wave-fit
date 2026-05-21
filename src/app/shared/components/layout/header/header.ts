@@ -7,6 +7,8 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NetworkStatusService } from '../../../../core/services/network/network-status.service';
+import { SyncQueueService } from '../../../../core/services/sync/sync-queue.service';
 
 @Component({
     selector: 'app-header',
@@ -41,10 +43,15 @@ export class Header implements OnInit {
     private readonly authSvc = inject(AuthService);
     private readonly router = inject(Router);
     private readonly destroyRef = inject(DestroyRef);
+    private readonly networkSvc = inject(NetworkStatusService);
+    private readonly syncQueue = inject(SyncQueueService);
 
     user = this.authSvc.user;
     userName = computed(() => this.user()?.name || 'Usuario');
     currentUrl = signal(this.router.url);
+    
+    isOnline = this.networkSvc.isOnline;
+    pendingMutations = this.syncQueue.pendingCount;
 
     ngOnInit() {
         this.authSvc.isAuthenticated$.subscribe({

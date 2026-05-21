@@ -75,6 +75,16 @@ bootstrapApplication(AppComponent, {
         }),
     ],
 }).then(() => {
+    if ('serviceWorker' in navigator && !environment.production) {
+        // In dev mode, unregister any stale Service Workers left from a PWA build run.
+        // This prevents "ServiceWorker script evaluation failed" errors during ng serve.
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (const registration of registrations) {
+                registration.unregister();
+            }
+        });
+    }
+
     if ('serviceWorker' in navigator && environment.production) {
         import('workbox-window').then(({ Workbox }) => {
             const wb = new Workbox('/sw.js');
