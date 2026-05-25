@@ -17,6 +17,14 @@ if (environment.production) {
     enableProdMode();
 }
 
+if ('serviceWorker' in navigator && !environment.production) {
+    // navigator.serviceWorker.getRegistrations().then((registrations) => {
+    //     for (const registration of registrations) {
+    //         registration.unregister();
+    //     }
+    // });
+}
+
 bootstrapApplication(AppComponent, {
     providers: [
         provideAnimations(),
@@ -52,10 +60,6 @@ bootstrapApplication(AppComponent, {
                 if (unauthorized && !isHandlingAuthError) {
                     isHandlingAuthError = true;
 
-                    // console.warn(
-                    //     '[Interceptor] Autenticación fallida o token expirado (401 / UNAUTHENTICATED). Cerrando sesión y redirigiendo al login...',
-                    // );
-
                     const authService = injector.get(AuthService);
                     const router = injector.get(Router);
 
@@ -75,16 +79,6 @@ bootstrapApplication(AppComponent, {
         }),
     ],
 }).then(() => {
-    if ('serviceWorker' in navigator && !environment.production) {
-        // In dev mode, unregister any stale Service Workers left from a PWA build run.
-        // This prevents "ServiceWorker script evaluation failed" errors during ng serve.
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-            for (const registration of registrations) {
-                registration.unregister();
-            }
-        });
-    }
-
     if ('serviceWorker' in navigator && environment.production) {
         import('workbox-window').then(({ Workbox }) => {
             const wb = new Workbox('/sw.js');

@@ -6,11 +6,10 @@
         "start": "ng serve",
         "build": "ng build && npm run sw:build",
         "sw:build": "workbox injectManifest workbox-config.js",
-        "serve:pwa": "npm run build && npx http-server dist/wave-fit/browser -p 4200 -a localhost -c-1 -o",
+        "serve:pwa": "npm run build && npx workbox-cli injectManifest workbox-config.js && npx http-server dist/wave-fit/browser -p 4200 -a localhost -c-1 -o",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
-        "lint": "ng lint",
-        "format": "prettier --write ."
+        "lint": "ng lint"
     },
     "prettier": {
         "printWidth": 100,
