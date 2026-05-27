@@ -26,7 +26,7 @@ export class RoutinesApiService {
         return this.apollo
             .query<{ routineDays: RoutineDayAPI[] }>({
                 query: gql`
-                    query {
+                    query GetRoutineDays {
                         routineDays {
                             id
                             title
@@ -86,7 +86,7 @@ export class RoutinesApiService {
         this.authSvc.user$.subscribe();
         return this.apollo.query({
             query: gql`
-                query {
+                query GetRoutinePlans {
                     routinePlans {
                         id
                     }

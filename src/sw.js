@@ -10,6 +10,21 @@ self.addEventListener('fetch', (event) => {
     console.log('[SW FETCH]', event.request.url, event.request.method);
 });
 
+self.addEventListener('activate', (event) => {
+    event.waitUntil(self.clients.claim());
+});
+
+function hashCode(str) {
+    let hash = 0;
+    if (!str) return '0';
+    for (let i = 0; i < str.length; i++) {
+        const chr = str.charCodeAt(i);
+        hash = (hash << 5) - hash + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(16);
+}
+
 precacheAndRoute(self.__WB_MANIFEST || []);
 
 // Cache images
@@ -55,14 +70,17 @@ registerRoute(
     async ({ request }) => {
         let body = null;
         let cacheKey = null;
+        let isMutation = false;
+        let isWarmup = false;
+        let opName = 'Unknown';
 
         try {
-            console.group('[GRAPHQL REQUEST]');
+            // console.group('[GRAPHQL REQUEST]');
 
-            console.log('[REQUEST]', {
-                url: request.url,
-                method: request.method,
-            });
+            // console.log('[REQUEST]', {
+            //     url: request.url,
+            //     method: request.method,
+            // });
 
             // =========================
             // PARSE BODY
@@ -70,87 +88,110 @@ registerRoute(
             try {
                 body = await request.clone().json();
 
-                const isMutation = body?.query?.includes('mutation');
+                isMutation = body?.query?.includes('mutation') || false;
+                isWarmup =
+                    body?.operationName === 'Warmup' ||
+                    body?.query?.includes('query Warmup') ||
+                    false;
+                opName = body?.operationName;
+
+                // Fallback for unnamed queries to prevent collisions on {"variables":{}}
+                if (!opName && body?.query) {
+                    const match = body.query.match(/(query|mutation)\s+([a-zA-Z0-9_]+)/);
+                    if (match && match[2]) {
+                        opName = match[2];
+                    } else {
+                        opName = 'UnnamedQuery_' + hashCode(body.query);
+                    }
+                }
 
                 cacheKey = JSON.stringify({
-                    operationName: body?.operationName,
+                    operationName: opName || 'Unknown',
                     variables: body?.variables || {},
                 });
 
-                console.log('[GRAPHQL BODY]', {
-                    operationName: body?.operationName,
-                    variables: body?.variables,
-                    isMutation,
-                });
+                // console.log('[GRAPHQL BODY]', {
+                //     operationName: opName,
+                //     variables: body?.variables,
+                //     isMutation,
+                //     isWarmup,
+                // });
 
-                console.log('[CACHE KEY]', cacheKey);
-
-                console.log('[WHITELISTED]', GRAPHQL_WHITELIST.includes(body?.operationName));
+                // console.log('[CACHE KEY]', cacheKey);
             } catch (err) {
                 console.error('[BODY PARSE ERROR]', err);
+            }
+
+            // Bypass caching entirely for mutations and Warmup heartbeat pings
+            if (isMutation || isWarmup) {
+                // console.log('[BYPASS CACHE]', { operationName: opName, isMutation, isWarmup });
+                // console.groupEnd();
+                return await fetch(request);
             }
 
             // =========================
             // NETWORK TRY
             // =========================
             try {
-                console.log('[NETWORK TRY]', body?.operationName);
+                // console.log('[NETWORK TRY]', opName);
 
                 const response = await fetch(request);
 
-                console.log('[NETWORK SUCCESS]', body?.operationName, response.status);
+                // console.log('[NETWORK SUCCESS]', opName, response.status);
 
                 const cloned = response.clone();
 
                 try {
                     const resBody = await cloned.json();
 
-                    console.log('[NETWORK RESPONSE BODY]', resBody);
+                    // console.log('[NETWORK RESPONSE BODY]', resBody);
 
-                    if (resBody?.data) {
-                        console.log('[CACHE SAVE START]', body?.operationName);
+                    if (resBody?.data && cacheKey) {
+                        // console.log('[CACHE SAVE START]', opName);
 
                         await putInCache(cacheKey, resBody.data);
 
-                        console.log('[CACHE SAVED]', body?.operationName);
+                        // console.log('[CACHE SAVED]', opName);
                     } else {
-                        console.warn('[NO DATA TO CACHE]', body?.operationName);
+                        // console.warn('[NO DATA TO CACHE]', opName);
                     }
                 } catch (jsonErr) {
-                    console.error('[RESPONSE JSON PARSE ERROR]', jsonErr);
+                    // console.error('[RESPONSE JSON PARSE ERROR]', jsonErr);
                 }
 
-                console.groupEnd();
+                // console.groupEnd();
 
                 return response;
             } catch (networkError) {
-                console.error('[NETWORK FAILED]', body?.operationName, networkError);
+                // console.error('[NETWORK FAILED]', opName, networkError);
 
-                console.log('[OFFLINE FALLBACK START]', body?.operationName);
+                // console.log('[OFFLINE FALLBACK START]', opName);
 
                 // =========================
                 // CACHE FALLBACK
                 // =========================
-                const cachedData = await getFromCache(cacheKey);
+                if (cacheKey) {
+                    const cachedData = await getFromCache(cacheKey);
 
-                if (cachedData) {
-                    console.log('[OFFLINE CACHE HIT]', body?.operationName);
+                    if (cachedData) {
+                        // console.log('[OFFLINE CACHE HIT]', opName);
 
-                    console.log('[OFFLINE DATA]', cachedData);
+                        // console.log('[OFFLINE DATA]', cachedData);
 
-                    console.groupEnd();
+                        // console.groupEnd();
 
-                    return new Response(JSON.stringify({ data: cachedData }), {
-                        status: 200,
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
+                        return new Response(JSON.stringify({ data: cachedData }), {
+                            status: 200,
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                    }
                 }
 
-                console.warn('[OFFLINE CACHE MISS]', body?.operationName);
+                // console.warn('[OFFLINE CACHE MISS]', opName);
 
-                console.groupEnd();
+                // console.groupEnd();
 
                 return new Response(
                     JSON.stringify({
@@ -169,15 +210,15 @@ registerRoute(
                 );
             }
         } catch (fatalError) {
-            console.error('[SW FATAL ERROR]', fatalError);
+            // console.error('[SW FATAL ERROR]', fatalError);
 
-            console.error('[FATAL CONTEXT]', {
-                operationName: body?.operationName,
-                variables: body?.variables,
-                cacheKey,
-            });
+            // console.error('[FATAL CONTEXT]', {
+            //     operationName: opName,
+            //     variables: body?.variables,
+            //     cacheKey,
+            // });
 
-            console.groupEnd();
+            // console.groupEnd();
 
             return new Response(
                 JSON.stringify({
@@ -245,10 +286,10 @@ function getDB() {
 }
 
 async function putInCache(cacheKey, data) {
-    console.log('[IDB PUT]', {
-        cacheKey,
-        data,
-    });
+    // console.log('[IDB PUT]', {
+    //     cacheKey,
+    //     data,
+    // });
     const db = await getDB();
     return new Promise((resolve, reject) => {
         const tx = db.transaction([STORE_NAME], 'readwrite');
@@ -260,9 +301,9 @@ async function putInCache(cacheKey, data) {
 }
 
 async function getFromCache(cacheKey) {
-    console.log('[IDB GET]', {
-        cacheKey,
-    });
+    // console.log('[IDB GET]', {
+    //     cacheKey,
+    // });
     const db = await getDB();
     return new Promise((resolve, reject) => {
         const tx = db.transaction([STORE_NAME], 'readonly');

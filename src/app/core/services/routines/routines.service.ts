@@ -101,7 +101,7 @@ export class RoutinesService {
         return this.apollo
             .query<{ routinePlans: RoutinePlanAPI[] }>({
                 query: gql`
-                    query {
+                    query GetRoutinePlansList {
                         routinePlans {
                             id
                             name

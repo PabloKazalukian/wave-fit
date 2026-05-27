@@ -1,7 +1,7 @@
 import { gql } from 'apollo-angular';
 
 export const GET_ROUTINE_DAYS = gql`
-    query {
+    query GetRoutineDays {
         routineDays {
             id
             title
@@ -37,7 +37,7 @@ export const GET_ROUTINE_DAY = gql`
 `;
 
 export const GET_ROUTINE_PLANS = gql`
-    query {
+    query GetRoutinePlans {
         routinePlans {
             id
         }

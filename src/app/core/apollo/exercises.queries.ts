@@ -1,7 +1,7 @@
 import { gql } from 'apollo-angular';
 
 export const GET_EXERCISES = gql`
-    query {
+    query GetExercises {
         exercises {
             id
             name

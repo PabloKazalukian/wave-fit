@@ -1,7 +1,7 @@
 import { gql } from 'apollo-angular';
 
 export const GET_PLANS = gql`
-    query {
+    query GetPlans {
         plans {
             id
             name
