@@ -31,12 +31,12 @@ import { LocalDate } from '../../../../../shared/interfaces/tracking.interface';
     ],
 })
 export class WeeklyTrackings {
-    private facade = inject(TrackingListState);
+    private state = inject(TrackingListState);
 
     limit = input<number>(5);
 
-    trackings = this.facade.trackings$;
-    stats = this.facade.getStats();
+    trackings = this.state.trackings$;
+    stats = this.state.getStats();
 
     readonly TrophyIcon = Trophy;
     readonly ChevronRightIcon = ChevronRight;

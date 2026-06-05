@@ -15,6 +15,7 @@ export class TokenStorage {
                     id: authUser.userId,
                     name: authUser.name,
                     email: authUser.email,
+                    avatar: { url: authUser.avatar },
                     role: authUser.role,
                 };
             }
@@ -32,6 +33,7 @@ export class TokenStorage {
                     id: this.AUTH_KEY,
                     userId: user.id,
                     name: user.name,
+                    avatar: user.avatar?.url || '',
                     email: user.email,
                     role: user.role,
                 });

@@ -33,6 +33,9 @@ export interface MeResponse {
         id: string;
         name: string;
         email: string;
+        avatar: {
+            url: string;
+        } | null;
         role: string;
     };
 }
@@ -96,6 +99,9 @@ export class AuthService {
                             name
                             email
                             role
+                            avatar {
+                                url
+                            }
                         }
                     }
                 `,
@@ -104,7 +110,6 @@ export class AuthService {
             .pipe(
                 timeout(2000),
                 switchMap(async (res) => {
-                    console.log(res);
                     const me = res.data?.me ?? null;
                     this.user.set(me);
                     this.userIdSubject.next(me?.id ?? null);
@@ -116,13 +121,14 @@ export class AuthService {
                     // Solo limpiamos la sesión si es un error de autenticación explícito (ej: 401, UNAUTHORIZED, UNAUTHENTICATED)
                     // Si es un error de red, de timeout o cualquier otro error temporal, mantenemos el estado actual para modo offline.
                     // El errorLink global en main.ts ya se encarga de hacer logout y clearSession si detecta 401/UNAUTHORIZED real.
-                    const isExplicitUnauthorized = 
-                        err?.message?.includes('UNAUTHENTICATED') || 
-                        err?.message?.includes('UNAUTHORIZED') || 
+                    const isExplicitUnauthorized =
+                        err?.message?.includes('UNAUTHENTICATED') ||
+                        err?.message?.includes('UNAUTHORIZED') ||
                         err?.networkError?.status === 401 ||
-                        err?.graphQLErrors?.some((gErr: any) => 
-                            gErr.extensions?.code === 'UNAUTHENTICATED' || 
-                            gErr.extensions?.code === 'UNAUTHORIZED'
+                        err?.graphQLErrors?.some(
+                            (gErr: any) =>
+                                gErr.extensions?.code === 'UNAUTHENTICATED' ||
+                                gErr.extensions?.code === 'UNAUTHORIZED',
                         );
 
                     if (isExplicitUnauthorized) {
@@ -131,7 +137,10 @@ export class AuthService {
                         return throwError(() => err);
                     }
 
-                    console.warn('Non-auth or network/timeout/SW error in me(), keeping offline session:', err);
+                    console.warn(
+                        'Non-auth or network/timeout/SW error in me(), keeping offline session:',
+                        err,
+                    );
                     return of(this.user() || undefined);
                 }),
             );

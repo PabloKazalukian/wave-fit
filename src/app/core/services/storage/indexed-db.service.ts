@@ -20,6 +20,7 @@ export interface AuthUser {
     id: string; // Will use 'current'
     userId: string;
     name: string;
+    avatar: string;
     email: string;
     role: string;
 }
@@ -39,14 +40,14 @@ export class WaveFitDB extends Dexie {
         this.version(2).stores({
             graphqlCache: 'cacheKey', // Primary key
             pendingMutations: 'id, operationName, status', // Primary key and indexes
-            authUser: 'id' // Primary key
+            authUser: 'id', // Primary key
         });
 
         this.version(3).stores({
             exercises: 'id',
             routines: 'id',
             plans: 'id',
-            tracking: 'id'
+            tracking: 'id',
         });
     }
 }

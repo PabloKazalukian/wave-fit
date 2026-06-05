@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-
-import { PlanTrackingApi } from './plan-tranking-api.service';
+import { PlanTrackingApi } from './plan-tranking.api';
 
 describe('PlanTrackingApi', () => {
     let service: PlanTrackingApi;
