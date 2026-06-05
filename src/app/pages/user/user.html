@@ -9,19 +9,20 @@
           class="avatar-circle relative w-16 h-16 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden flex-shrink-0"
         >
           <!-- Fallback por defecto (las iniciales) -->
-          <span class="text-3xl font-bold text-primary select-none capitalize">
-            {{ (user()?.name | slice: 0 : 1) || '?' }}
-          </span>
 
           <!-- Imagen superpuesta. Si falla la carga, se oculta y deja ver el fallback -->
-          @if (user()?.avatar?.url) {
-            <img 
-              [src]="user()?.avatar?.url" 
-              alt="User avatar" 
+          @if (avatarUrl()) {
+            <img
+              [src]="avatarUrl()"
+              alt="User avatar"
               class="absolute inset-0 w-full h-full object-cover z-10"
-              (error)="img.style.display='none'"
+              (error)="img.style.display = 'none'"
               #img
             />
+          } @else {
+            <span class="text-3xl font-bold text-primary select-none capitalize">
+              {{ (user()?.name | slice: 0 : 1) || '?' }}
+            </span>
           }
         </div>
 

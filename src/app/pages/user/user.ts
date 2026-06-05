@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { parseISO } from 'date-fns';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { TrackingActiveComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-active/tracking-active';
@@ -23,11 +23,12 @@ import { WeeklyTrackings } from '../../shared/components/widgets/users/weekly-tr
     templateUrl: './user.html',
     styleUrl: './user.css',
 })
-export class User {
+export class User implements OnInit {
     private authService = inject(AuthService);
     private trackingFacade = inject(TrackingListState);
 
     user = this.authService.user;
+    avatarUrl = this.authService.avatarUrl;
     trackings$ = this.trackingFacade.trackings$;
     stats$ = this.trackingFacade.getStats();
 
@@ -37,6 +38,11 @@ export class User {
     readonly BicepsFlexedIcon = BicepsFlexed;
     readonly TargetIcon = Target;
     readonly ChevronRightIcon = ChevronRight;
+
+    ngOnInit(): void {
+        // console.log(this.avatarUrl());
+        this.authService.me().subscribe();
+    }
 
     // ── Pre-existing mock data (keeping routines and exercises for now as they are not part of the refactor) ──
     routinesUsed = [

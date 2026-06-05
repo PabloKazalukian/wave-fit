@@ -47,6 +47,7 @@ export class AuthService {
     private readonly router = inject(Router);
 
     user = signal<User | null>(null);
+    avatarUrl = computed(() => this.user()?.avatar?.url);
 
     private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
     isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
