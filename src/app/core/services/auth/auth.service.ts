@@ -211,6 +211,35 @@ export class AuthService {
             );
     }
 
+    updateAvatar(base64Image: string): Observable<User | null> {
+        return this.apollo
+            .mutate<{ updateAvatar: User }>({
+                mutation: gql`
+                    mutation UpdateAvatar($base64Image: String!) {
+                        updateAvatar(base64Image: $base64Image) {
+                            id
+                            name
+                            email
+                            avatar {
+                                url
+                            }
+                        }
+                    }
+                `,
+                variables: { base64Image },
+            })
+            .pipe(
+                map((res) => res.data?.updateAvatar ?? null),
+                tap((updated) => {
+                    if (updated) {
+                        this.user.set(updated);
+                        this.tokenStorage.setUser(updated);
+                    }
+                }),
+                handleGraphqlError(this),
+            );
+    }
+
     loginWithGoogle(code: string, codeVerifier: string) {
         return this.apollo
             .mutate<{ loginWithGoogle: LoginWithGoogle }>({

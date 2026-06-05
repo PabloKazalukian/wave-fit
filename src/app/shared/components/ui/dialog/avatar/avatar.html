@@ -30,16 +30,15 @@
         <div
           class="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden flex-shrink-0"
         >
-          <span class="text-5xl font-bold text-primary select-none">?</span>
+          @if (previewUrl) {
+            <img [src]="previewUrl" alt="Preview" class="w-full h-full object-cover" />
+          } @else {
+            <span class="text-5xl font-bold text-primary select-none">?</span>
+          }
         </div>
 
         <label class="cursor-pointer">
-          <input
-            type="file"
-            accept="image/*"
-            class="hidden"
-            (change)="onFileSelected($event)"
-          />
+          <input type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
           <div
             class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-150 active:scale-95"
           >
@@ -51,6 +50,25 @@
         <div class="text-center">
           <p class="text-sm text-text1 font-medium">{{ fileName }}</p>
           <p class="text-xs text-text2">{{ fileSize }}</p>
+        </div>
+        <div class="w-full flex flex-col gap-2">
+          <app-btn
+            [text]="'Cancelar'"
+            [color]="'error'"
+            [variant]="'outline'"
+            [buttonType]="'button'"
+            (click)="close()"
+            class="text-md text-error"
+          ></app-btn>
+          <app-btn
+            [text]="'Guardar'"
+            [color]="'primary3'"
+            [variant]="'raised'"
+            [buttonType]="'button'"
+            [isDisabled]="!avatarForm.controls.file.value"
+            (click)="onSave()"
+            class="text-md text-error"
+          ></app-btn>
         </div>
       </div>
     </div>
