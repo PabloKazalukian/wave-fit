@@ -1,0 +1,58 @@
+@if (isOpen()) {
+  <div class="fixed inset-0 z-50 flex items-end justify-center" [@backdropAnimation]>
+    <div
+      class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-colors"
+      (click)="onBackdropClick()"
+      (keydown.escape)="onBackdropClick()"
+      tabindex="0"
+    ></div>
+
+    <div
+      class="relative z-10 w-full max-w-lg bg-background1 rounded-t-3xl border-t-2 border-x-2 border-background4 shadow-2xl"
+      [@slideUp]
+    >
+      <div class="flex justify-center pt-3 pb-1">
+        <div class="w-12 h-1.5 rounded-full bg-background4"></div>
+      </div>
+
+      <div class="flex items-center justify-between px-5 pt-3 pb-4 border-b border-background4">
+        <h2 class="text-lg font-semibold text-white">{{ title() }}</h2>
+        <button
+          (click)="close()"
+          class="w-8 h-8 flex items-center justify-center rounded-full bg-background3 border border-background4 text-text2 hover:text-white hover:bg-background4 transition-colors duration-150 active:scale-95"
+          aria-label="Cerrar"
+        >
+          <lucide-icon [img]="XIcon" size="16"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="px-5 py-6 flex flex-col items-center gap-5">
+        <div
+          class="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden flex-shrink-0"
+        >
+          <span class="text-5xl font-bold text-primary select-none">?</span>
+        </div>
+
+        <label class="cursor-pointer">
+          <input
+            type="file"
+            accept="image/*"
+            class="hidden"
+            (change)="onFileSelected($event)"
+          />
+          <div
+            class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-150 active:scale-95"
+          >
+            <lucide-icon [img]="UploadIcon" size="18"></lucide-icon>
+            <span class="text-sm font-medium">Seleccionar archivo</span>
+          </div>
+        </label>
+
+        <div class="text-center">
+          <p class="text-sm text-text1 font-medium">{{ fileName }}</p>
+          <p class="text-xs text-text2">{{ fileSize }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+}

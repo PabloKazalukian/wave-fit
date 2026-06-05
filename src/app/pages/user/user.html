@@ -6,11 +6,8 @@
       <div class="flex items-center gap-4">
         <!-- Avatar placeholder -->
         <div
-          class="avatar-circle relative w-16 h-16 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden flex-shrink-0"
+          class="avatar-circle group relative w-16 h-16 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden flex-shrink-0"
         >
-          <!-- Fallback por defecto (las iniciales) -->
-
-          <!-- Imagen superpuesta. Si falla la carga, se oculta y deja ver el fallback -->
           @if (avatarUrl()) {
             <img
               [src]="avatarUrl()"
@@ -24,6 +21,14 @@
               {{ (user()?.name | slice: 0 : 1) || '?' }}
             </span>
           }
+
+          <!-- Overlay -->
+          <button
+            class="absolute inset-0 z-20 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+            (click)="openAvatarUpload()"
+          >
+            <lucide-icon [img]="UserPlusIcon" size="24" class="text-white"></lucide-icon>
+          </button>
         </div>
 
         <!-- Name + email -->
@@ -58,6 +63,11 @@
       }
     </article>
   </section>
+
+  <app-avatar
+    [isOpen]="showAvatarDialog()"
+    (closed)="showAvatarDialog.set(false)"
+  ></app-avatar>
 
   <!-- ─── History: Weekly Trackings ────────────────────────────────────── -->
   <app-weekly-trackings></app-weekly-trackings>

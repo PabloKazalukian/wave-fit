@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { parseISO } from 'date-fns';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { TrackingActiveComponent } from '../../shared/components/widgets/tracking/tracking-week/tracking-active/tracking-active';
@@ -12,13 +12,14 @@ import {
     BicepsFlexed,
     Target,
     ChevronRight,
+    UserPlus,
 } from 'lucide-angular';
 import { TrackingListState } from '../../core/services/trackings/tracking-list.state';
 import { WeeklyTrackings } from '../../shared/components/widgets/users/weekly-trackings/weekly-trackings';
+import { Avatar } from '../../shared/components/ui/dialog/avatar/avatar';
 
 @Component({
-    selector: 'app-user',
-    imports: [CommonModule, TrackingActiveComponent, LucideAngularModule, WeeklyTrackings],
+    imports: [CommonModule, TrackingActiveComponent, LucideAngularModule, WeeklyTrackings, Avatar],
     standalone: true,
     templateUrl: './user.html',
     styleUrl: './user.css',
@@ -31,6 +32,7 @@ export class User implements OnInit {
     avatarUrl = this.authService.avatarUrl;
     trackings$ = this.trackingFacade.trackings$;
     stats$ = this.trackingFacade.getStats();
+    showAvatarDialog = signal<boolean>(false);
 
     readonly TrophyIcon = Trophy;
     readonly AwardIcon = Award;
@@ -38,10 +40,14 @@ export class User implements OnInit {
     readonly BicepsFlexedIcon = BicepsFlexed;
     readonly TargetIcon = Target;
     readonly ChevronRightIcon = ChevronRight;
+    readonly UserPlusIcon = UserPlus;
 
     ngOnInit(): void {
-        // console.log(this.avatarUrl());
         this.authService.me().subscribe();
+    }
+
+    openAvatarUpload() {
+        this.showAvatarDialog.set(true);
     }
 
     // ── Pre-existing mock data (keeping routines and exercises for now as they are not part of the refactor) ──
