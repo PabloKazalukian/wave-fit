@@ -1,0 +1,31 @@
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
+    <header>
+      <div class="flex items-center justify-between">
+        <h2>Perfil</h2>
+      </div>
+    </header>
+
+    <section class="flex flex-col gap-5 mt-6">
+      <div>
+        <h2>Datos básicos</h2>
+        <p>Name: {{ user()?.name }}</p>
+        <p>Email: {{ user()?.email }}</p>
+        <!-- <button (click)="editProfile()">Editar</button> -->
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-5 mt-6">
+      <div>
+        <h2>Configuración del perfil</h2>
+        <p>Peso: {{ profile.weightKg }}</p>
+        <p>Altura: {{ profile.heightCm }}</p>
+        <p>Fecha de nacimiento: {{ profile.birthDate }}</p>
+        <p>Sexo: {{ profile.gender }}</p>
+        <p>Nivel: {{ profile.goal?.trainingExperience }}</p>
+        <p>Objetivo: {{ profile.goal?.primaryGoal }}</p>
+        <!-- <button (click)="editProfile()">Editar</button> -->
+      </div>
+    </section>
+  </section>
+</section>

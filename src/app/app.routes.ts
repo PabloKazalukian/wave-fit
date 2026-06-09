@@ -41,6 +41,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/user/user').then((m) => m.User),
             },
             {
+                path: 'profile',
+                loadComponent: () => import('./pages/user/profile/profile').then((m) => m.Profile),
+            },
+            {
                 path: 'trackings',
                 loadChildren: () =>
                     import('./pages/trackings/tracking.routes').then((m) => m.TRACKINGS_ROUTES),

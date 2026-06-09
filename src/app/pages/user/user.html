@@ -2,41 +2,53 @@
   <!-- ─── Profile Card ─────────────────────────────────────────────────── -->
   <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
     <!-- Avatar + Name + Edit -->
-    <header class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-4">
-        <!-- Avatar placeholder -->
-        <div
-          class="avatar-circle group relative w-16 h-16 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden flex-shrink-0"
-        >
-          @if (avatarUrl()) {
-            <img
-              [src]="avatarUrl()"
-              alt="User avatar"
-              class="absolute inset-0 w-full h-full object-cover z-10"
-              (error)="img.style.display = 'none'"
-              #img
-            />
-          } @else {
-            <span class="text-3xl font-bold text-primary select-none capitalize">
-              {{ (user()?.name | slice: 0 : 1) || '?' }}
-            </span>
-          }
-
-          <!-- Overlay -->
-          <button
-            class="absolute inset-0 z-20 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
-            (click)="openAvatarUpload()"
+    <header class="flex flex-col mb-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <!-- Avatar placeholder -->
+          <div
+            class="avatar-circle group relative w-16 h-16 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden flex-shrink-0"
           >
-            <lucide-icon [img]="UserPlusIcon" size="24" class="text-white"></lucide-icon>
-          </button>
+            @if (avatarUrl()) {
+              <img
+                [src]="avatarUrl()"
+                alt="User avatar"
+                class="absolute inset-0 w-full h-full object-cover z-10"
+                (error)="img.style.display = 'none'"
+                #img
+              />
+            } @else {
+              <span class="text-3xl font-bold text-primary select-none capitalize">
+                {{ (user()?.name | slice: 0 : 1) || '?' }}
+              </span>
+            }
+
+            <!-- Overlay -->
+            <button
+              class="absolute inset-0 z-20 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+              (click)="openAvatarUpload()"
+            >
+              <lucide-icon [img]="UserPlusIcon" size="24" class="text-white"></lucide-icon>
+            </button>
+          </div>
+
+          <!-- Name + email -->
+          <div>
+            <h2 class="text-xl font-bold text-text1 leading-tight">
+              {{ user()?.name || 'Usuario' }}
+            </h2>
+            <p class="text-sm text-text2 mt-0.5">{{ user()?.email || '' }}</p>
+          </div>
         </div>
 
-        <!-- Name + email -->
         <div>
-          <h2 class="text-xl font-bold text-text1 leading-tight">
-            {{ user()?.name || 'Usuario' }}
-          </h2>
-          <p class="text-sm text-text2 mt-0.5">{{ user()?.email || '' }}</p>
+          <app-btn
+            [text]="'Editar Perfil'"
+            [color]="'primary'"
+            [variant]="'outline'"
+            [routerLink]="'/user/profile'"
+          >
+          </app-btn>
         </div>
       </div>
     </header>
@@ -64,10 +76,7 @@
     </article>
   </section>
 
-  <app-avatar
-    [isOpen]="showAvatarDialog()"
-    (closed)="showAvatarDialog.set(false)"
-  ></app-avatar>
+  <app-avatar [isOpen]="showAvatarDialog()" (closed)="showAvatarDialog.set(false)"></app-avatar>
 
   <!-- ─── History: Weekly Trackings ────────────────────────────────────── -->
   <app-weekly-trackings></app-weekly-trackings>

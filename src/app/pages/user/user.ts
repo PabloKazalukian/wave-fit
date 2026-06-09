@@ -17,9 +17,17 @@ import {
 import { TrackingListState } from '../../core/services/trackings/tracking-list.state';
 import { WeeklyTrackings } from '../../shared/components/widgets/users/weekly-trackings/weekly-trackings';
 import { Avatar } from '../../shared/components/ui/dialog/avatar/avatar';
+import { BtnComponent } from '../../shared/components/ui/btn/btn';
 
 @Component({
-    imports: [CommonModule, TrackingActiveComponent, LucideAngularModule, WeeklyTrackings, Avatar],
+    imports: [
+        CommonModule,
+        TrackingActiveComponent,
+        LucideAngularModule,
+        WeeklyTrackings,
+        Avatar,
+        BtnComponent,
+    ],
     standalone: true,
     templateUrl: './user.html',
     styleUrl: './user.css',
