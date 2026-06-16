@@ -17,7 +17,7 @@ export class Profile {
     private profileUserService = inject(UserProfileService);
 
     user = this.authService.user;
-    userProfile = this.profileUserService.userProfile$;
+    userProfile = this.profileUserService.userProfile;
     profile: ProfileUser = {
         _id: '',
         userId: '',
