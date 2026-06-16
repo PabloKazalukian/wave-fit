@@ -3,10 +3,11 @@ import { AuthService } from '../../../core/services/auth/auth.service';
 import { Router } from '@angular/router';
 import { ProfileUser } from '../../../shared/utils/profile.types';
 import { UserProfileService } from '../../../core/services/user/user-profile.service';
+import { UserProfile } from '../../../shared/components/widgets/users/profile/user-profile/user-profile';
 
 @Component({
     selector: 'app-profile',
-    imports: [],
+    imports: [UserProfile],
     templateUrl: './profile.html',
     styles: ``,
 })

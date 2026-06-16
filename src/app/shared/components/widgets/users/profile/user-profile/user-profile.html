@@ -1,0 +1,41 @@
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
+    <header>
+      <h2>Perfil</h2>
+    </header>
+
+    <section class="mt-6">
+      <p>Nombre:{{ user()?.name }}</p>
+
+      <p>Email:{{ user()?.email }}</p>
+    </section>
+
+    <form class="flex flex-wrap gap-5 mt-8" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <h2>Configuración del perfil</h2>
+
+      <app-input [label]="'Fecha de nacimiento'" [type]="'text'" [control]="birthDateControl">
+      </app-input>
+
+      <app-input-number [label]="'Altura cm'" [control]="heightCmControl"> </app-input-number>
+
+      <app-input-number [label]="'Peso kg'" [control]="weightKgControl"> </app-input-number>
+
+      <app-input [label]="'Sexo'" [type]="'text'" [control]="genderControl"> </app-input>
+
+      <app-input [label]="'Distribución'" [type]="'text'" [control]="distributionDaysControl">
+      </app-input>
+
+      <app-input [label]="'Unidades'" [type]="'text'" [control]="unitsPreferenceControl">
+      </app-input>
+
+      <app-btn
+        [text]="'Guardar perfil'"
+        [color]="'primary3'"
+        [variant]="'raised'"
+        [buttonType]="'submit'"
+        [isDisabled]="profileForm.invalid"
+      >
+      </app-btn>
+    </form>
+  </section>
+</section>
