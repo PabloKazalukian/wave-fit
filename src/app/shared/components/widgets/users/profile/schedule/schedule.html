@@ -1,1 +1,31 @@
-<p>schedule works!</p>
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8">
+  <section class="bg-background2 border-2 border-background4 rounded-2xl p-5">
+    <h2>Disponibilidad semanal</h2>
+
+    <form class="flex flex-wrap gap-5 mt-8" [formGroup]="scheduleForm" (ngSubmit)="onSubmit()">
+      <app-input-number [label]="'Días por semana'" [control]="daysPerWeekControl">
+      </app-input-number>
+
+      <!-- <app-input [label]="'Días preferidos'" [type]="'text'" [control]="preferredDaysControl">
+      </app-input> -->
+
+      <app-input-number [label]="'Duración sesión minutos'" [control]="sessionDurationMinControl">
+      </app-input-number>
+
+      <app-input [label]="'Horario preferido'" [type]="'text'" [control]="preferredTimeControl">
+      </app-input>
+
+      <app-input [label]="'Actividad descanso'" [type]="'text'" [control]="restDayActivityControl">
+      </app-input>
+
+      <app-btn
+        [text]="'Guardar horario'"
+        [color]="'primary3'"
+        [variant]="'raised'"
+        [buttonType]="'submit'"
+        [isDisabled]="scheduleForm.invalid"
+      >
+      </app-btn>
+    </form>
+  </section>
+</section>

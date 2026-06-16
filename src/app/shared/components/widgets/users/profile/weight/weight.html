@@ -1,1 +1,28 @@
-<p>weight works!</p>
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8">
+  <section class="bg-background2 border-2 border-background4 rounded-2xl p-5">
+    <header>
+      <h2>Historial de peso</h2>
+    </header>
+
+    <form class="flex flex-wrap gap-5 mt-8" [formGroup]="weightForm" (ngSubmit)="onSubmit()">
+      <app-input-number [label]="'Peso kg'" [control]="weightKgControl"> </app-input-number>
+
+      <app-input-number [label]="'Grasa corporal %'" [control]="bodyFatPctControl">
+      </app-input-number>
+
+      <app-input [label]="'Fecha registro'" [type]="'text'" [control]="loggedAtControl">
+      </app-input>
+
+      <app-input [label]="'Notas'" [type]="'text'" [control]="notesControl"> </app-input>
+
+      <app-btn
+        [text]="'Guardar peso'"
+        [color]="'primary3'"
+        [variant]="'raised'"
+        [buttonType]="'submit'"
+        [isDisabled]="weightForm.invalid"
+      >
+      </app-btn>
+    </form>
+  </section>
+</section>

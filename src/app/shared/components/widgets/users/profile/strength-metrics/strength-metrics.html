@@ -1,1 +1,28 @@
-<p>strength-metrics works!</p>
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8">
+  <section class="bg-background2 border-2 border-background4 rounded-2xl p-5">
+    <h2>Métricas de fuerza</h2>
+
+    <form class="flex flex-wrap gap-5 mt-8" [formGroup]="strengthForm" (ngSubmit)="onSubmit()">
+      <app-input [label]="'Ejercicio'" [type]="'text'" [control]="exerciseKeyControl"> </app-input>
+
+      <app-input-number [label]="'1RM Kg'" [control]="oneRmKgControl"> </app-input-number>
+
+      <app-input [label]="'Nivel confianza'" [type]="'text'" [control]="confidenceLevelControl">
+      </app-input>
+
+      <app-input [label]="'Fecha medición'" [type]="'text'" [control]="measuredAtControl">
+      </app-input>
+
+      <app-input [label]="'Notas'" [type]="'text'" [control]="notesControl"> </app-input>
+
+      <app-btn
+        [text]="'Guardar métrica'"
+        [color]="'primary3'"
+        [variant]="'raised'"
+        [buttonType]="'submit'"
+        [isDisabled]="strengthForm.invalid"
+      >
+      </app-btn>
+    </form>
+  </section>
+</section>

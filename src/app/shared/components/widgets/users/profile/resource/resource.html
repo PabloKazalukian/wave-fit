@@ -1,1 +1,32 @@
-<p>resource works!</p>
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8">
+  <section class="bg-background2 border-2 border-background4 rounded-2xl p-5">
+    <h2>Recursos disponibles</h2>
+
+    <form class="flex flex-wrap gap-5 mt-8" [formGroup]="resourceForm" (ngSubmit)="onSubmit()">
+      <!-- <app-input
+        [label]="'Ambientes entrenamiento'"
+        [type]="'text'"
+        [control]="trainingEnvironmentsControl"
+      >
+      </app-input> -->
+
+      <app-input [label]="'Equipamiento disponible'" [type]="'text'" [control]="equipmentControl">
+      </app-input>
+
+      <app-input-number [label]="'Máximo mancuerna Kg'" [control]="dumbbellMaxKgControl">
+      </app-input-number>
+
+      <app-input-number [label]="'Distancia gimnasio Km'" [control]="gymDistanceKmControl">
+      </app-input-number>
+
+      <app-btn
+        [text]="'Guardar recursos'"
+        [color]="'primary3'"
+        [variant]="'raised'"
+        [buttonType]="'submit'"
+        [isDisabled]="resourceForm.invalid"
+      >
+      </app-btn>
+    </form>
+  </section>
+</section>

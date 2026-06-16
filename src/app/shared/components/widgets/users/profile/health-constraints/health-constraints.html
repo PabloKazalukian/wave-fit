@@ -1,1 +1,30 @@
-<p>health-constraints works!</p>
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8">
+  <section class="bg-background2 border-2 border-background4 rounded-2xl p-5">
+    <h2>Salud y restricciones</h2>
+
+    <form class="flex flex-wrap gap-5 mt-8" [formGroup]="healthForm" (ngSubmit)="onSubmit()">
+      <!-- <app-input [label]="'Lesiones'" [type]="'text'" [control]="injuriesControl"> </app-input> -->
+
+      <!-- <app-input
+        [label]="'Restricciones movimiento'"
+        [type]="'text'"
+        [control]="movementRestrictionsControl"
+      >
+      </app-input> -->
+
+      <!-- <app-input [label]="'Condiciones'" [type]="'text'" [control]="conditionsControl"> </app-input> -->
+
+      <app-input [label]="'Nivel movilidad'" [type]="'text'" [control]="mobilityLevelControl">
+      </app-input>
+
+      <app-btn
+        [text]="'Guardar salud'"
+        [color]="'primary3'"
+        [variant]="'raised'"
+        [buttonType]="'submit'"
+        [isDisabled]="healthForm.invalid"
+      >
+      </app-btn>
+    </form>
+  </section>
+</section>

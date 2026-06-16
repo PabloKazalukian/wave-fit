@@ -1,1 +1,46 @@
-<p>goals works!</p>
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8">
+  <section class="bg-background2 border-2 border-background4 rounded-2xl p-5">
+    <h2>Objetivos</h2>
+
+    <form class="flex flex-wrap gap-5 mt-8" [formGroup]="goalForm" (ngSubmit)="onSubmit()">
+      <app-input [label]="'Objetivo principal'" [type]="'text'" [control]="primaryGoalControl">
+      </app-input>
+
+      <!-- <app-input
+        [label]="'Objetivos secundarios'"
+        [type]="'text'"
+        [control]="secondaryGoalsControl"
+      >
+      </app-input> -->
+
+      <app-input-number [label]="'Peso objetivo'" [control]="targetWeightKgControl">
+      </app-input-number>
+
+      <app-input-number [label]="'Semanas objetivo'" [control]="timelineWeeksControl">
+      </app-input-number>
+
+      <app-input
+        [label]="'Experiencia entrenamiento'"
+        [type]="'text'"
+        [control]="trainingExperienceControl"
+      >
+      </app-input>
+
+      <app-input
+        [label]="'Especificidad deporte'"
+        [type]="'text'"
+        [control]="sportSpecificityControl"
+      >
+      </app-input>
+
+      <app-btn
+        [text]="'Guardar objetivo'"
+        [color]="'primary3'"
+        [variant]="'raised'"
+        [buttonType]="'submit'"
+        [isDisabled]="goalForm.invalid"
+      >
+      </app-btn>
+    </form>
+  </section>
+</section>
