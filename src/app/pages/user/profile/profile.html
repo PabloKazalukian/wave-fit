@@ -28,29 +28,68 @@
       </div>
     </section>
 
-    <section>
+    <section class="mt-6">
       <app-user-profile></app-user-profile>
     </section>
-    <section>
-      <app-weight></app-weight>
+
+    <section class="flex flex-col gap-3 mt-6 p-4 border rounded bg-background3">
+      <h3 class="font-semibold mb-2">Mostrar secciones</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-start">
+        <app-checkbox [control]="weightControl" text="Peso"></app-checkbox>
+        <app-checkbox [control]="strengthMetricsControl" text="Métricas de fuerza"></app-checkbox>
+        <app-checkbox [control]="resourceControl" text="Recursos"></app-checkbox>
+        <app-checkbox
+          [control]="trainingPreferenceControl"
+          text="Rendimiento de entrenamiento"
+        ></app-checkbox>
+        <app-checkbox
+          [control]="healthConstraintsControl"
+          text="Restricciones de salud"
+        ></app-checkbox>
+        <app-checkbox [control]="scheduleControl" text="Horario"></app-checkbox>
+        <app-checkbox [control]="goalsControl" text="Objetivos"></app-checkbox>
+      </div>
     </section>
+    @if (weightControl.value) {
+      <section>
+        <app-weight></app-weight>
+      </section>
+    }
+
+    @if (strengthMetricsControl.value) {
+      <section>
+        <app-strength-metrics></app-strength-metrics>
+      </section>
+    }
+  </section>
+
+  @if (resourceControl.value) {
     <section>
-      <app-strength-metrics></app-strength-metrics>
+      <app-resource></app-resource>
     </section>
-  </section>
-  <section>
-    <app-resource></app-resource>
-  </section>
-  <section>
-    <app-training-performance></app-training-performance>
-  </section>
-  <section>
-    <app-health-constraints></app-health-constraints>
-  </section>
-  <section>
-    <app-schedule></app-schedule>
-  </section>
-  <section>
-    <app-goals></app-goals>
-  </section>
+  }
+
+  @if (trainingPreferenceControl.value) {
+    <section>
+      <app-training-performance></app-training-performance>
+    </section>
+  }
+
+  @if (healthConstraintsControl.value) {
+    <section>
+      <app-health-constraints></app-health-constraints>
+    </section>
+  }
+
+  @if (scheduleControl.value) {
+    <section>
+      <app-schedule></app-schedule>
+    </section>
+  }
+
+  @if (goalsControl.value) {
+    <section>
+      <app-goals></app-goals>
+    </section>
+  }
 </section>
