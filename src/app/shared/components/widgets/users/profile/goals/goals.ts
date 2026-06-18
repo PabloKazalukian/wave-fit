@@ -3,6 +3,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { FormControlsOf } from '../../../../../utils/form-types.util';
 import { FormInputComponent } from '../../../../ui/input/input';
 import { InputNumber } from '../../../../ui/input-number/input-number';
+import { FormSelectComponent } from '../../../../ui/select/select';
+import { SelectType } from '../../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../../ui/btn/btn';
 
 export interface GoalForm {
@@ -20,11 +22,27 @@ type GoalFormType = FormControlsOf<GoalForm>;
 @Component({
     selector: 'app-goals',
     standalone: true,
-    imports: [ReactiveFormsModule, FormInputComponent, InputNumber, BtnComponent],
+    imports: [ReactiveFormsModule, FormInputComponent, InputNumber, BtnComponent, FormSelectComponent],
     templateUrl: './goals.html',
 })
 export class Goals implements OnInit {
     goalForm!: FormGroup<GoalFormType>;
+
+    primaryGoalOptions: SelectType[] = [
+        { name: 'Pérdida de grasa', value: 'fat_loss' },
+        { name: 'Ganancia muscular', value: 'muscle_gain' },
+        { name: 'Fuerza', value: 'strength' },
+        { name: 'Resistencia', value: 'endurance' },
+        { name: 'Mantenimiento', value: 'maintenance' },
+        { name: 'Recomposición corporal', value: 'recomp' },
+    ];
+
+    trainingExperienceOptions: SelectType[] = [
+        { name: 'Principiante', value: 'beginner' },
+        { name: 'Intermedio', value: 'intermediate' },
+        { name: 'Avanzado', value: 'advanced' },
+        { name: 'Atleta', value: 'athlete' },
+    ];
 
     ngOnInit() {
         this.goalForm = this.initForm();

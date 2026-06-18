@@ -14,8 +14,8 @@
 
       <!-- <app-input [label]="'Condiciones'" [type]="'text'" [control]="conditionsControl"> </app-input> -->
 
-      <app-input [label]="'Nivel movilidad'" [type]="'text'" [control]="mobilityLevelControl">
-      </app-input>
+      <app-select [label]="'Nivel movilidad'" [options]="mobilityLevelOptions" [control]="mobilityLevelControl">
+      </app-select>
 
       <app-btn
         [text]="'Guardar salud'"

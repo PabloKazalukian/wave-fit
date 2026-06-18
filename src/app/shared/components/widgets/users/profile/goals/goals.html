@@ -3,8 +3,8 @@
     <h2>Objetivos</h2>
 
     <form class="flex flex-wrap gap-5 mt-8" [formGroup]="goalForm" (ngSubmit)="onSubmit()">
-      <app-input [label]="'Objetivo principal'" [type]="'text'" [control]="primaryGoalControl">
-      </app-input>
+      <app-select [label]="'Objetivo principal'" [options]="primaryGoalOptions" [control]="primaryGoalControl">
+      </app-select>
 
       <!-- <app-input
         [label]="'Objetivos secundarios'"
@@ -19,12 +19,12 @@
       <app-input-number [label]="'Semanas objetivo'" [control]="timelineWeeksControl">
       </app-input-number>
 
-      <app-input
+      <app-select
         [label]="'Experiencia entrenamiento'"
-        [type]="'text'"
+        [options]="trainingExperienceOptions"
         [control]="trainingExperienceControl"
       >
-      </app-input>
+      </app-select>
 
       <app-input
         [label]="'Especificidad deporte'"

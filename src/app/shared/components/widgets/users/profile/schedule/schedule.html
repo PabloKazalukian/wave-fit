@@ -6,17 +6,22 @@
       <app-input-number [label]="'Días por semana'" [control]="daysPerWeekControl">
       </app-input-number>
 
-      <!-- <app-input [label]="'Días preferidos'" [type]="'text'" [control]="preferredDaysControl">
-      </app-input> -->
+      <app-multi-select
+        [label]="'Días preferidos'"
+        [text]="'Selecciona días'"
+        [options]="preferredDaysOptions"
+        [control]="preferredDaysControl"
+      >
+      </app-multi-select>
 
       <app-input-number [label]="'Duración sesión minutos'" [control]="sessionDurationMinControl">
       </app-input-number>
 
-      <app-input [label]="'Horario preferido'" [type]="'text'" [control]="preferredTimeControl">
-      </app-input>
+      <app-select [label]="'Horario preferido'" [options]="preferredTimeOptions" [control]="preferredTimeControl">
+      </app-select>
 
-      <app-input [label]="'Actividad descanso'" [type]="'text'" [control]="restDayActivityControl">
-      </app-input>
+      <app-select [label]="'Actividad descanso'" [options]="restDayActivityOptions" [control]="restDayActivityControl">
+      </app-select>
 
       <app-btn
         [text]="'Guardar horario'"

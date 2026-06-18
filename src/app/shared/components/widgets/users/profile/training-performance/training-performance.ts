@@ -1,17 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormControlsOf } from '../../../../../utils/form-types.util';
 
 import { FormInputComponent } from '../../../../ui/input/input';
+import { FormSelectComponent } from '../../../../ui/select/select';
+import { SelectType } from '../../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../../ui/btn/btn';
+import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
+import {
+    CardioPreference,
+    IntensityPreference,
+    TrainingStyle,
+    UpdateTrainingPreferenceInput,
+} from '../../../../../utils/profile.types';
 
 export interface TrainingPerformanceForm {
-    preferredStyles: string[];
+    preferredStyles: TrainingStyle[];
     dislikedExercises: string[];
     favoriteExercises: string[];
-    cardioPreference: string;
-    intensityPreference: string;
+    cardioPreference: CardioPreference;
+    intensityPreference: IntensityPreference;
     workoutVibe: string;
 }
 
@@ -20,11 +30,28 @@ type TrainingPerformanceFormType = FormControlsOf<TrainingPerformanceForm>;
 @Component({
     selector: 'app-training-performance',
     standalone: true,
-    imports: [ReactiveFormsModule, FormInputComponent, BtnComponent],
+    imports: [ReactiveFormsModule, FormInputComponent, BtnComponent, FormSelectComponent],
     templateUrl: './training-performance.html',
 })
 export class TrainingPerformance implements OnInit {
+    private destroyRef = inject(DestroyRef);
+    private userProfileService = inject(UserProfileService);
+
     trainingForm!: FormGroup<TrainingPerformanceFormType>;
+
+    cardioOptions: SelectType[] = [
+        { name: 'Ninguno', value: 'none' },
+        { name: 'Baja Intensidad', value: 'low_intensity' },
+        { name: 'HIIT', value: 'hiit' },
+        { name: 'Mixto', value: 'mixed' },
+    ];
+
+    intensityOptions: SelectType[] = [
+        { name: 'Ligera', value: 'light' },
+        { name: 'Moderada', value: 'moderate' },
+        { name: 'Intensa', value: 'intense' },
+        { name: 'Esfuerzo Máximo', value: 'max_effort' },
+    ];
 
     ngOnInit(): void {
         this.trainingForm = this.initForm();
@@ -32,17 +59,17 @@ export class TrainingPerformance implements OnInit {
 
     initForm(): FormGroup<TrainingPerformanceFormType> {
         return new FormGroup<TrainingPerformanceFormType>({
-            preferredStyles: new FormControl([], {
+            preferredStyles: new FormControl([] as TrainingStyle[], {
                 nonNullable: true,
                 validators: [Validators.required],
             }),
-            dislikedExercises: new FormControl([], { nonNullable: true }),
-            favoriteExercises: new FormControl([], { nonNullable: true }),
-            cardioPreference: new FormControl('', {
+            dislikedExercises: new FormControl([] as string[], { nonNullable: true }),
+            favoriteExercises: new FormControl([] as string[], { nonNullable: true }),
+            cardioPreference: new FormControl('' as CardioPreference, {
                 nonNullable: true,
                 validators: [Validators.required],
             }),
-            intensityPreference: new FormControl('', {
+            intensityPreference: new FormControl('' as IntensityPreference, {
                 nonNullable: true,
                 validators: [Validators.required],
             }),
@@ -53,9 +80,10 @@ export class TrainingPerformance implements OnInit {
     onSubmit() {
         if (this.trainingForm.invalid) return;
 
-        const payload = this.trainingForm.getRawValue();
-
-        console.log(payload);
+        this.userProfileService
+            .updateTrainingPreference(this.trainingForm.getRawValue())
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
     }
 
     get preferredStylesControl() {

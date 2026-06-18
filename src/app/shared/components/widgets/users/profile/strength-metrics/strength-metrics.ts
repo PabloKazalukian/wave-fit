@@ -6,12 +6,9 @@ import { FormControlsOf } from '../../../../../utils/form-types.util';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { FormInputComponent } from '../../../../ui/input/input';
 import { InputNumber } from '../../../../ui/input-number/input-number';
-
-export enum ConfidenceLevel {
-    LOW = 'LOW',
-    MEDIUM = 'MEDIUM',
-    HIGH = 'HIGH',
-}
+import { FormSelectComponent } from '../../../../ui/select/select';
+import { SelectType } from '../../../../../interfaces/input.interface';
+import { ConfidenceLevel } from '../../../../../utils/profile.types';
 
 export interface StrengthMetricForm {
     exerciseKey: string;
@@ -32,12 +29,18 @@ type StrengthMetricFormType = FormControlsOf<StrengthMetricForm>;
 
     standalone: true,
 
-    imports: [ReactiveFormsModule, FormInputComponent, InputNumber, BtnComponent],
+    imports: [ReactiveFormsModule, FormInputComponent, InputNumber, BtnComponent, FormSelectComponent],
 
     templateUrl: './strength-metrics.html',
 })
 export class StrengthMetrics implements OnInit {
     strengthForm!: FormGroup<StrengthMetricFormType>;
+
+    confidenceOptions: SelectType[] = [
+        { name: 'Probado', value: 'tested' },
+        { name: 'Estimado', value: 'estimated' },
+        { name: 'Auto-reportado', value: 'self_reported' },
+    ];
 
     ngOnInit(): void {
         this.strengthForm = this.initForm();
@@ -57,13 +60,9 @@ export class StrengthMetrics implements OnInit {
                 validators: [Validators.required, Validators.min(1)],
             }),
 
-            confidenceLevel: new FormControl(
-                ConfidenceLevel.MEDIUM,
-
-                {
-                    nonNullable: true,
-                },
-            ),
+            confidenceLevel: new FormControl('estimated', {
+                nonNullable: true,
+            }),
 
             measuredAt: new FormControl('', {
                 nonNullable: true,

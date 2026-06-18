@@ -4,7 +4,14 @@ import { UserProfileStateService } from './user-profile.state';
 import { AuthService } from '../auth/auth.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
-import { ProfileUser } from '../../../shared/utils/profile.types';
+import {
+    ProfileUser,
+    Schedule,
+    TrainingPreference,
+    UpdateProfileInput,
+    UpdateScheduleInput,
+    UpdateTrainingPreferenceInput,
+} from '../../../shared/utils/profile.types';
 
 @Injectable({
     providedIn: 'root',
@@ -46,5 +53,17 @@ export class UserProfileService {
     // For manual refreshing if needed
     fetchUserProfile(): Observable<ProfileUser | null> {
         return this.domain.initUserProfile();
+    }
+
+    updateProfile(input: UpdateProfileInput): Observable<ProfileUser | null> {
+        return this.domain.updateProfile(input);
+    }
+
+    updateSchedule(input: UpdateScheduleInput): Observable<Schedule | null> {
+        return this.domain.updateSchedule(input);
+    }
+
+    updateTrainingPreference(input: UpdateTrainingPreferenceInput): Observable<TrainingPreference | null> {
+        return this.domain.updateTrainingPreference(input);
     }
 }

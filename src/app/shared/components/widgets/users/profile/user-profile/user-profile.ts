@@ -8,22 +8,22 @@ import { FormInputComponent } from '../../../../ui/input/input';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { FormControlsOf } from '../../../../../utils/form-types.util';
 import { InputNumber } from '../../../../ui/input-number/input-number';
+import { UpdateProfileInput } from '../../../../../utils/profile.types';
+import { FormSelectComponent } from '../../../../ui/select/select';
+import { SelectType } from '../../../../../interfaces/input.interface';
 
-export interface UserProfileForm {
-    gender: string;
-    birthDate: string;
-    heightCm: number;
-    weightKg: number;
-    distributionDays: string;
-    unitsPreference: string;
-}
-
-type UserProfileFormType = FormControlsOf<UserProfileForm>;
+type UserProfileFormType = FormControlsOf<UpdateProfileInput>;
 
 @Component({
     selector: 'app-user-profile',
     standalone: true,
-    imports: [ReactiveFormsModule, FormInputComponent, BtnComponent, InputNumber],
+    imports: [
+        ReactiveFormsModule,
+        FormInputComponent,
+        BtnComponent,
+        InputNumber,
+        FormSelectComponent,
+    ],
     templateUrl: './user-profile.html',
 })
 export class UserProfile implements OnInit {
@@ -38,6 +38,22 @@ export class UserProfile implements OnInit {
 
     loading = false;
     success = false;
+
+    genderOptions: SelectType[] = [
+        { name: 'Masculino', value: 'M' },
+        { name: 'Femenino', value: 'F' },
+        { name: 'Otro', value: 'other' },
+    ];
+
+    distributionOptions: SelectType[] = [
+        { name: 'Semanal', value: 'Week-log' },
+        { name: 'Diario', value: 'Day-log' },
+    ];
+
+    unitsOptions: SelectType[] = [
+        { name: 'Métrico', value: 'metric' },
+        { name: 'Imperial', value: 'imperial' },
+    ];
 
     ngOnInit(): void {
         this.profileForm = this.initForm();
@@ -69,6 +85,10 @@ export class UserProfile implements OnInit {
                 validators: [Validators.required, Validators.min(20)],
             }),
 
+            bodyFatPct: new FormControl(0, {
+                nonNullable: true,
+            }),
+
             distributionDays: new FormControl('Week-log', {
                 nonNullable: true,
             }),
@@ -79,42 +99,25 @@ export class UserProfile implements OnInit {
         });
     }
 
-    // loadProfile() {
-    //     this.profileUserService.userProfile$
-    //         .pipe(takeUntilDestroyed(this.destroyRef))
-    //         .subscribe((profile) => {
-    //             if (!profile) return;
-
-    //             this.profileForm.patchValue({
-    //                 gender: profile.gender,
-    //                 birthDate: profile.birthDate,
-    //                 heightCm: profile.heightCm,
-    //                 weightKg: profile.weightKg,
-    //                 distributionDays: profile.distributionDays,
-    //                 unitsPreference: profile.unitsPreference,
-    //             });
-    //         });
-    // }
-
     onSubmit() {
         if (this.profileForm.invalid) return;
 
         this.loading = true;
 
-        // this.profileUserService
-        //     .updateUserProfile(this.profileForm.getRawValue())
-        //     .pipe(takeUntilDestroyed(this.destroyRef))
-        //     .subscribe({
-        //         next: () => {
-        //             this.loading = false;
-        //             this.success = true;
-        //         },
+        this.profileUserService
+            .updateProfile(this.profileForm.getRawValue())
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.loading = false;
+                    this.success = true;
+                },
 
-        //         error: (err) => {
-        //             this.loading = false;
-        //             console.error(err);
-        //         },
-        //     });
+                error: (err) => {
+                    this.loading = false;
+                    console.error(err);
+                },
+            });
     }
 
     get genderControl(): FormControl<string> {
@@ -131,6 +134,10 @@ export class UserProfile implements OnInit {
 
     get weightKgControl(): FormControl<number> {
         return this.profileForm.get('weightKg')! as FormControl<number>;
+    }
+
+    get bodyFatPctControl(): FormControl<number> {
+        return this.profileForm.get('bodyFatPct')! as FormControl<number>;
     }
 
     get distributionDaysControl(): FormControl<string> {

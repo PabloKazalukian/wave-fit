@@ -20,11 +20,11 @@
       > -->
       <!-- </app-input> -->
 
-      <app-input [label]="'Preferencia cardio'" [type]="'text'" [control]="cardioPreferenceControl">
-      </app-input>
+      <app-select [label]="'Preferencia cardio'" [options]="cardioOptions" [control]="cardioPreferenceControl">
+      </app-select>
 
-      <app-input [label]="'Intensidad'" [type]="'text'" [control]="intensityPreferenceControl">
-      </app-input>
+      <app-select [label]="'Intensidad'" [options]="intensityOptions" [control]="intensityPreferenceControl">
+      </app-select>
 
       <app-input [label]="'Ambiente entrenamiento'" [type]="'text'" [control]="workoutVibeControl">
       </app-input>

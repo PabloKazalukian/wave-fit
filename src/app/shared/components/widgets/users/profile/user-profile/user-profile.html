@@ -20,13 +20,21 @@
 
       <app-input-number [label]="'Peso kg'" [control]="weightKgControl"> </app-input-number>
 
-      <app-input [label]="'Sexo'" [type]="'text'" [control]="genderControl"> </app-input>
+      <app-input-number [label]="'Grasa corporal %'" [control]="bodyFatPctControl">
+      </app-input-number>
 
-      <app-input [label]="'Distribución'" [type]="'text'" [control]="distributionDaysControl">
-      </app-input>
+      <app-select [label]="'Sexo'" [options]="genderOptions" [control]="genderControl">
+      </app-select>
 
-      <app-input [label]="'Unidades'" [type]="'text'" [control]="unitsPreferenceControl">
-      </app-input>
+      <app-select
+        [label]="'Distribución'"
+        [options]="distributionOptions"
+        [control]="distributionDaysControl"
+      >
+      </app-select>
+
+      <app-select [label]="'Unidades'" [options]="unitsOptions" [control]="unitsPreferenceControl">
+      </app-select>
 
       <app-btn
         [text]="'Guardar perfil'"

@@ -3,7 +3,14 @@ import { UserProfileApiService } from './api/user-profile-api.service';
 import { UserProfileStateService } from './user-profile.state';
 import { AuthService } from '../auth/auth.service';
 import { catchError, map, Observable, of, tap } from 'rxjs';
-import { ProfileUser } from '../../../shared/utils/profile.types';
+import {
+    ProfileUser,
+    Schedule,
+    TrainingPreference,
+    UpdateProfileInput,
+    UpdateScheduleInput,
+    UpdateTrainingPreferenceInput,
+} from '../../../shared/utils/profile.types';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 
 @Injectable({
@@ -52,6 +59,71 @@ export class UserProfileDomainService {
             catchError((error) => {
                 console.error('Error fetching user profile context:', error);
                 this.state.setError(error.message || 'Error fetching profile');
+                this.state.setLoading(false);
+                return of(null);
+            }),
+        );
+    }
+
+    updateProfile(input: UpdateProfileInput): Observable<ProfileUser | null> {
+        this.state.setLoading(true);
+        const profile = this.state.getUserProfile();
+        const payload = { ...input, id: profile?._id || '' };
+        return this.api.updateUserProfile(payload).pipe(
+            handleGraphqlError(this.authSvc),
+            tap((result) => {
+                if (result) {
+                    const current = this.state.getUserProfile();
+                    if (current) {
+                        this.state.setUserProfile({ ...current, ...result });
+                    }
+                }
+                this.state.setLoading(false);
+            }),
+            catchError((error) => {
+                this.state.setError(error.message || 'Error updating profile');
+                this.state.setLoading(false);
+                return of(null);
+            }),
+        );
+    }
+
+    updateSchedule(input: UpdateScheduleInput): Observable<Schedule | null> {
+        this.state.setLoading(true);
+        return this.api.updateUserSchedule(input).pipe(
+            handleGraphqlError(this.authSvc),
+            tap((result) => {
+                if (result) {
+                    const current = this.state.getUserProfile();
+                    if (current) {
+                        this.state.setUserProfile({ ...current, schedule: result });
+                    }
+                }
+                this.state.setLoading(false);
+            }),
+            catchError((error) => {
+                this.state.setError(error.message || 'Error updating schedule');
+                this.state.setLoading(false);
+                return of(null);
+            }),
+        );
+    }
+
+    updateTrainingPreference(input: UpdateTrainingPreferenceInput): Observable<TrainingPreference | null> {
+        this.state.setLoading(true);
+        return this.api.updateUserTrainingPreference(input).pipe(
+            handleGraphqlError(this.authSvc),
+            tap((result) => {
+                if (result) {
+                    const current = this.state.getUserProfile();
+                    if (current) {
+                        this.state.setUserProfile({ ...current, trainingPreference: result });
+                    }
+                }
+                this.state.setLoading(false);
+            }),
+            catchError((error) => {
+                this.state.setError(error.message || 'Error updating training preference');
                 this.state.setLoading(false);
                 return of(null);
             }),

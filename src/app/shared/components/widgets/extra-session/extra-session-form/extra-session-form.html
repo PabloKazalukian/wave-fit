@@ -23,6 +23,7 @@
         [options]="categories"
         [control]="categoryControl"
         (clearValue)="onCategoryClear()"
+        [showClear]="true"
       ></app-select>
 
       @if (categoryControl.value) {
@@ -31,6 +32,7 @@
           [options]="disciplineOptions()"
           [control]="disciplineControl"
           (clearValue)="onDisciplineClear()"
+          [showClear]="true"
         ></app-select>
       }
 

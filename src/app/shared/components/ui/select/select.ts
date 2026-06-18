@@ -17,6 +17,7 @@ export class FormSelectComponent {
     placeholder = input<string>('');
     control = input<FormControl<string | null>>(new FormControl<string | null>(''));
     options = input<SelectType[]>([]);
+    showClear = input<boolean>(false);
     clearValue = output<string>();
 
     get showError(): boolean {

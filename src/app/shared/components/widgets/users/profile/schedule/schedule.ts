@@ -1,16 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControlsOf } from '../../../../../utils/form-types.util';
-import { FormInputComponent } from '../../../../ui/input/input';
 import { InputNumber } from '../../../../ui/input-number/input-number';
+import { FormSelectComponent } from '../../../../ui/select/select';
+import { MultiSelectComponent } from '../../../../ui/multi-select/multi-select';
+import { SelectType } from '../../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../../ui/btn/btn';
+import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
+import {
+    PreferredTime,
+    RestDayActivity,
+    UpdateScheduleInput,
+} from '../../../../../utils/profile.types';
 
 export interface ScheduleForm {
     daysPerWeek: number;
     preferredDays: number[];
     sessionDurationMin: number;
-    preferredTime: string;
-    restDayActivity: string;
+    preferredTime: PreferredTime;
+    restDayActivity: RestDayActivity;
 }
 
 type ScheduleFormType = FormControlsOf<ScheduleForm>;
@@ -18,11 +27,38 @@ type ScheduleFormType = FormControlsOf<ScheduleForm>;
 @Component({
     selector: 'app-schedule',
     standalone: true,
-    imports: [ReactiveFormsModule, FormInputComponent, InputNumber, BtnComponent],
+    imports: [ReactiveFormsModule, InputNumber, BtnComponent, FormSelectComponent, MultiSelectComponent],
     templateUrl: './schedule.html',
 })
 export class Schedule implements OnInit {
+    private destroyRef = inject(DestroyRef);
+    private userProfileService = inject(UserProfileService);
+
     scheduleForm!: FormGroup<ScheduleFormType>;
+
+    preferredDaysOptions: SelectType[] = [
+        { name: 'Lunes', value: 1 },
+        { name: 'Martes', value: 2 },
+        { name: 'Miércoles', value: 3 },
+        { name: 'Jueves', value: 4 },
+        { name: 'Viernes', value: 5 },
+        { name: 'Sábado', value: 6 },
+        { name: 'Domingo', value: 7 },
+    ];
+
+    preferredTimeOptions: SelectType[] = [
+        { name: 'Mañana', value: 'morning' },
+        { name: 'Mediodía', value: 'noon' },
+        { name: 'Tarde', value: 'afternoon' },
+        { name: 'Noche', value: 'evening' },
+    ];
+
+    restDayActivityOptions: SelectType[] = [
+        { name: 'Descanso total', value: 'full_rest' },
+        { name: 'Caminata ligera', value: 'light_walk' },
+        { name: 'Recuperación activa', value: 'active_recovery' },
+        { name: 'Yoga/Estiramientos', value: 'yoga_stretching' },
+    ];
 
     ngOnInit(): void {
         this.scheduleForm = this.initForm();
@@ -39,14 +75,17 @@ export class Schedule implements OnInit {
                 nonNullable: true,
                 validators: [Validators.required, Validators.min(15)],
             }),
-            preferredTime: new FormControl('', { nonNullable: true }),
-            restDayActivity: new FormControl('', { nonNullable: true }),
+            preferredTime: new FormControl('' as PreferredTime, { nonNullable: true }),
+            restDayActivity: new FormControl('' as RestDayActivity, { nonNullable: true }),
         });
     }
 
     onSubmit() {
         if (this.scheduleForm.invalid) return;
-        console.log(this.scheduleForm.getRawValue());
+        this.userProfileService
+            .updateSchedule(this.scheduleForm.getRawValue())
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
     }
 
     get daysPerWeekControl() {
@@ -54,7 +93,7 @@ export class Schedule implements OnInit {
     }
 
     get preferredDaysControl() {
-        return this.scheduleForm.get('preferredDays')! as FormControl<number[]>;
+        return this.scheduleForm.get('preferredDays')! as FormControl<(string | number)[]>;
     }
 
     get sessionDurationMinControl() {

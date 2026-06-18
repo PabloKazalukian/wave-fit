@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormControlsOf } from '../../../../../utils/form-types.util';
 import { FormInputComponent } from '../../../../ui/input/input';
+import { FormSelectComponent } from '../../../../ui/select/select';
+import { SelectType } from '../../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../../ui/btn/btn';
 
 export interface HealthConstraintForm {
@@ -17,11 +19,18 @@ type HealthConstraintFormType = FormControlsOf<HealthConstraintForm>;
 @Component({
     selector: 'app-health-constraints',
     standalone: true,
-    imports: [ReactiveFormsModule, FormInputComponent, BtnComponent],
+    imports: [ReactiveFormsModule, BtnComponent, FormSelectComponent],
     templateUrl: './health-constraints.html',
 })
 export class HealthConstraints implements OnInit {
     healthForm!: FormGroup<HealthConstraintFormType>;
+
+    mobilityLevelOptions: SelectType[] = [
+        { name: 'Limitada', value: 'limited' },
+        { name: 'Moderada', value: 'moderate' },
+        { name: 'Buena', value: 'good' },
+        { name: 'Excelente', value: 'excellent' },
+    ];
 
     ngOnInit(): void {
         this.healthForm = this.initForm();
