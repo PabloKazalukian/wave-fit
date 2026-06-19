@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormControlsOf } from '../../../../../utils/form-types.util';
 
@@ -8,21 +9,10 @@ import { FormInputComponent } from '../../../../ui/input/input';
 import { InputNumber } from '../../../../ui/input-number/input-number';
 import { FormSelectComponent } from '../../../../ui/select/select';
 import { SelectType } from '../../../../../interfaces/input.interface';
-import { ConfidenceLevel } from '../../../../../utils/profile.types';
+import { ConfidenceLevel, CreateStrengthMetricInput } from '../../../../../utils/profile.types';
+import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
 
-export interface StrengthMetricForm {
-    exerciseKey: string;
-
-    oneRmKg: number;
-
-    confidenceLevel: ConfidenceLevel;
-
-    measuredAt: string;
-
-    notes: string;
-}
-
-type StrengthMetricFormType = FormControlsOf<StrengthMetricForm>;
+type StrengthMetricFormType = FormControlsOf<CreateStrengthMetricInput>;
 
 @Component({
     selector: 'app-strength-metrics',
@@ -34,7 +24,12 @@ type StrengthMetricFormType = FormControlsOf<StrengthMetricForm>;
     templateUrl: './strength-metrics.html',
 })
 export class StrengthMetrics implements OnInit {
+    private destroyRef = inject(DestroyRef);
+    private userProfileService = inject(UserProfileService);
+
     strengthForm!: FormGroup<StrengthMetricFormType>;
+
+    strengthMetrics = this.userProfileService.userProfile;
 
     confidenceOptions: SelectType[] = [
         { name: 'Probado', value: 'tested' },
@@ -50,23 +45,24 @@ export class StrengthMetrics implements OnInit {
         return new FormGroup<StrengthMetricFormType>({
             exerciseKey: new FormControl('', {
                 nonNullable: true,
-
                 validators: [Validators.required],
             }),
 
             oneRmKg: new FormControl(0, {
                 nonNullable: true,
-
                 validators: [Validators.required, Validators.min(1)],
             }),
 
-            confidenceLevel: new FormControl('estimated', {
+            repsAtWeight: new FormControl(undefined as unknown as { weightKg: number; reps: number }, {
+                nonNullable: true,
+            }),
+
+            confidenceLevel: new FormControl('estimated' as ConfidenceLevel, {
                 nonNullable: true,
             }),
 
             measuredAt: new FormControl('', {
                 nonNullable: true,
-
                 validators: [Validators.required],
             }),
 
@@ -79,9 +75,12 @@ export class StrengthMetrics implements OnInit {
     onSubmit() {
         if (this.strengthForm.invalid) return;
 
-        const payload = this.strengthForm.getRawValue();
-
-        console.log(payload);
+        this.userProfileService
+            .createStrengthMetric(this.strengthForm.getRawValue())
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+                this.strengthForm.reset();
+            });
     }
 
     get exerciseKeyControl() {

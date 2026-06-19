@@ -11,7 +11,6 @@ import { UserProfileService } from '../../../../../../core/services/user/user-pr
 import {
     PreferredTime,
     RestDayActivity,
-    UpdateScheduleInput,
 } from '../../../../../utils/profile.types';
 
 export interface ScheduleForm {
@@ -62,6 +61,19 @@ export class Schedule implements OnInit {
 
     ngOnInit(): void {
         this.scheduleForm = this.initForm();
+
+        this.userProfileService.userProfile$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((profile) => {
+                if (!profile?.schedule) return;
+                this.scheduleForm.patchValue({
+                    daysPerWeek: profile.schedule.daysPerWeek,
+                    preferredDays: profile.schedule.preferredDays || [],
+                    sessionDurationMin: profile.schedule.sessionDurationMin,
+                    preferredTime: profile.schedule.preferredTime || undefined,
+                    restDayActivity: profile.schedule.restDayActivity || undefined,
+                });
+            });
     }
 
     initForm(): FormGroup<ScheduleFormType> {

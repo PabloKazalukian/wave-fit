@@ -1,20 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControlsOf } from '../../../../../utils/form-types.util';
-import { FormInputComponent } from '../../../../ui/input/input';
 import { FormSelectComponent } from '../../../../ui/select/select';
 import { SelectType } from '../../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../../ui/btn/btn';
+import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
+import {
+    Injury,
+    MobilityLevel,
+    UpdateHealthConstraintsInput,
+} from '../../../../../utils/profile.types';
+import { tap } from 'rxjs';
 
-export interface HealthConstraintForm {
-    injuries: string[];
-    movementRestrictions: string[];
-    conditions: string[];
-    mobilityLevel: string;
-    hasHealthcareSupervision: boolean;
-}
-
-type HealthConstraintFormType = FormControlsOf<HealthConstraintForm>;
+type HealthConstraintFormType = FormControlsOf<UpdateHealthConstraintsInput>;
 
 @Component({
     selector: 'app-health-constraints',
@@ -23,6 +22,9 @@ type HealthConstraintFormType = FormControlsOf<HealthConstraintForm>;
     templateUrl: './health-constraints.html',
 })
 export class HealthConstraints implements OnInit {
+    private destroyRef = inject(DestroyRef);
+    private userProfileService = inject(UserProfileService);
+
     healthForm!: FormGroup<HealthConstraintFormType>;
 
     mobilityLevelOptions: SelectType[] = [
@@ -34,6 +36,19 @@ export class HealthConstraints implements OnInit {
 
     ngOnInit(): void {
         this.healthForm = this.initForm();
+
+        this.userProfileService.userProfile$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((profile) => {
+                if (!profile?.healthConstraints) return;
+                this.healthForm.patchValue({
+                    injuries: profile.healthConstraints.injuries || [],
+                    movementRestrictions: profile.healthConstraints.movementRestrictions || [],
+                    conditions: profile.healthConstraints.conditions || [],
+                    mobilityLevel: profile.healthConstraints.mobilityLevel as MobilityLevel,
+                    hasHealthcareSupervision: profile.healthConstraints.hasHealthcareSupervision,
+                });
+            });
     }
 
     initForm(): FormGroup<HealthConstraintFormType> {
@@ -41,7 +56,7 @@ export class HealthConstraints implements OnInit {
             injuries: new FormControl([], { nonNullable: true }),
             movementRestrictions: new FormControl([], { nonNullable: true }),
             conditions: new FormControl([], { nonNullable: true }),
-            mobilityLevel: new FormControl('', {
+            mobilityLevel: new FormControl('' as MobilityLevel, {
                 nonNullable: true,
                 validators: [Validators.required],
             }),
@@ -51,11 +66,14 @@ export class HealthConstraints implements OnInit {
 
     onSubmit() {
         if (this.healthForm.invalid) return;
-        console.log(this.healthForm.getRawValue());
+        this.userProfileService
+            .updateHealthConstraints(this.healthForm.getRawValue())
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
     }
 
     get injuriesControl() {
-        return this.healthForm.get('injuries')! as FormControl<string[]>;
+        return this.healthForm.get('injuries')! as FormControl<Injury[]>;
     }
 
     get movementRestrictionsControl() {

@@ -13,6 +13,11 @@
     <span class="text-sm text-text2 truncate select-none whitespace-nowrap min-h-[20px]">
       {{ getSelectedLabel() }}
     </span>
+    @if (max()) {
+      <span class="text-xs text-text3 ml-auto mr-2">
+        {{ selectedCount() }}/{{ max() }}
+      </span>
+    }
     <!-- Chevron Icon (simple SVG) -->
     <svg
       class="w-4 h-4 transition-transform duration-200"

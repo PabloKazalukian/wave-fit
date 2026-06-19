@@ -194,8 +194,8 @@ export interface ProfileUser {
     goal?: Goal | null;
     healthConstraints?: HealthConstraint | null;
     schedule?: Schedule | null;
-    trainingPreference?: TrainingPreference | null;
-    resource?: Resource | null;
+    trainingPreferences?: TrainingPreference | null;
+    resources?: Resource | null;
     strengthMetrics: StrengthMetric[];
     weightLogs: WeightLog[];
 }

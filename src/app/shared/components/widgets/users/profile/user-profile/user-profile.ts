@@ -60,7 +60,22 @@ export class UserProfile implements OnInit {
 
         this.authService.me().subscribe();
 
-        // this.loadProfile();
+        this.profileUserService.userProfile$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((profile) => {
+                console.log(profile);
+
+                if (!profile) return;
+                this.profileForm.patchValue({
+                    gender: profile.gender,
+                    birthDate: profile.birthDate,
+                    heightCm: profile.heightCm,
+                    weightKg: profile.weightKg,
+                    bodyFatPct: profile.bodyFatPct || 0,
+                    distributionDays: profile.distributionDays,
+                    unitsPreference: profile.unitsPreference,
+                });
+            });
     }
 
     initForm(): FormGroup<UserProfileFormType> {

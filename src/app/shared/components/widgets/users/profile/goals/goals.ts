@@ -1,31 +1,42 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControlsOf } from '../../../../../utils/form-types.util';
 import { FormInputComponent } from '../../../../ui/input/input';
 import { InputNumber } from '../../../../ui/input-number/input-number';
 import { FormSelectComponent } from '../../../../ui/select/select';
 import { SelectType } from '../../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../../ui/btn/btn';
+import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
+import { PrimaryGoal, UpdateGoalsInput } from '../../../../../utils/profile.types';
 
-export interface GoalForm {
-    primaryGoal: string;
-    secondaryGoals: string[];
-    targetWeightKg: number;
-    timelineWeeks: number;
-    trainingExperience: string;
-    sportSpecificity: string;
-    isActive: boolean;
-}
+import { TrainingExperience } from '../../../../../utils/profile.types';
 
-type GoalFormType = FormControlsOf<GoalForm>;
+const TrainingExperienceEnum = {
+    beginner: 'Principiante',
+    intermediate: 'Intermedio',
+    advanced: 'Avanzado',
+    athlete: 'Atleta',
+};
+
+type GoalFormType = FormControlsOf<UpdateGoalsInput>;
 
 @Component({
     selector: 'app-goals',
     standalone: true,
-    imports: [ReactiveFormsModule, FormInputComponent, InputNumber, BtnComponent, FormSelectComponent],
+    imports: [
+        ReactiveFormsModule,
+        FormInputComponent,
+        InputNumber,
+        BtnComponent,
+        FormSelectComponent,
+    ],
     templateUrl: './goals.html',
 })
 export class Goals implements OnInit {
+    private destroyRef = inject(DestroyRef);
+    private userProfileService = inject(UserProfileService);
+
     goalForm!: FormGroup<GoalFormType>;
 
     primaryGoalOptions: SelectType[] = [
@@ -46,26 +57,44 @@ export class Goals implements OnInit {
 
     ngOnInit() {
         this.goalForm = this.initForm();
+
+        this.userProfileService.userProfile$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((profile) => {
+                if (!profile?.goal) return;
+                this.goalForm.patchValue({
+                    primaryGoal: profile.goal.primaryGoal,
+                    secondaryGoals: profile.goal.secondaryGoals || [],
+                    targetWeightKg: profile.goal.targetWeightKg || undefined,
+                    timelineWeeks: profile.goal.timelineWeeks || undefined,
+                    trainingExperience: profile.goal.trainingExperience,
+                    sportSpecificity: profile.goal.sportSpecificity || undefined,
+                });
+            });
     }
 
     initForm(): FormGroup<GoalFormType> {
         return new FormGroup<GoalFormType>({
-            primaryGoal: new FormControl('', {
+            primaryGoal: new FormControl('fat_loss' as PrimaryGoal, {
                 nonNullable: true,
                 validators: [Validators.required],
             }),
             secondaryGoals: new FormControl([], { nonNullable: true }),
-            targetWeightKg: new FormControl(0, { nonNullable: true }),
-            timelineWeeks: new FormControl(0, { nonNullable: true }),
-            trainingExperience: new FormControl('', { nonNullable: true }),
-            sportSpecificity: new FormControl('', { nonNullable: true }),
-            isActive: new FormControl(true, { nonNullable: true }),
+            targetWeightKg: new FormControl(undefined as unknown as number, { nonNullable: true }),
+            timelineWeeks: new FormControl(undefined as unknown as number, { nonNullable: true }),
+            trainingExperience: new FormControl('beginner', { nonNullable: true }),
+            sportSpecificity: new FormControl(undefined as unknown as string, {
+                nonNullable: true,
+            }),
         });
     }
 
     onSubmit() {
         if (this.goalForm.invalid) return;
-        console.log(this.goalForm.getRawValue());
+        this.userProfileService
+            .updateGoals(this.goalForm.getRawValue())
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe();
     }
 
     get primaryGoalControl() {
@@ -90,9 +119,5 @@ export class Goals implements OnInit {
 
     get sportSpecificityControl() {
         return this.goalForm.get('sportSpecificity')! as FormControl<string>;
-    }
-
-    get isActiveControl() {
-        return this.goalForm.get('isActive')! as FormControl<boolean>;
     }
 }

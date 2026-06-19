@@ -23,13 +23,14 @@ import { BtnComponent } from '../btn/btn';
 export class MultiSelectComponent {
     private elementRef = inject(ElementRef);
 
-    text = input<string>(''); // Placeholder
+    text = input<string>('');
     label = input<string>('');
     color = input<COLOR_VALUES>('primary');
     options = input<SelectType[]>([]);
     control = input<FormControl<(string | number)[] | null>>(
         new FormControl<(string | number)[] | null>([]),
     );
+    max = input<number>(0);
     btnText = input<string>('enviar');
     send = output<void>();
 
@@ -56,11 +57,10 @@ export class MultiSelectComponent {
         const index = currentValues.indexOf(optionValue);
 
         if (index > -1) {
-            // Remove
             const newValue = currentValues.filter((v) => v !== optionValue);
             this.control()?.setValue(newValue);
         } else {
-            // Add
+            if (this.max() > 0 && currentValues.length >= this.max()) return;
             this.control()?.setValue([...currentValues, optionValue]);
         }
         this.control()?.markAsTouched();
@@ -70,15 +70,17 @@ export class MultiSelectComponent {
         return (this.control()?.value || []).includes(optionValue);
     }
 
+    selectedCount = computed(() => (this.control()?.value || []).length);
+
     getSelectedLabel(): string {
-        const selectedCount = (this.control()?.value || []).length;
-        if (selectedCount === 0) return this.text();
-        if (selectedCount === 1) {
+        const count = this.selectedCount();
+        if (count === 0) return this.text();
+        if (count === 1) {
             const value = this.control()?.value?.[0];
             const option = this.options().find((opt) => opt.value === value);
-            return option ? option.name : `${selectedCount} seleccionado`;
+            return option ? option.name : `${count} seleccionado`;
         }
-        return `${selectedCount} seleccionados`;
+        return `${count} seleccionados`;
     }
 
     emitSend(): void {

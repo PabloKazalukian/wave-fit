@@ -1,11 +1,12 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormControlsOf } from '../../../../../utils/form-types.util';
 
 import { FormInputComponent } from '../../../../ui/input/input';
 import { FormSelectComponent } from '../../../../ui/select/select';
+import { MultiSelectComponent } from '../../../../ui/multi-select/multi-select';
 import { SelectType } from '../../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
@@ -18,8 +19,6 @@ import {
 
 export interface TrainingPerformanceForm {
     preferredStyles: TrainingStyle[];
-    dislikedExercises: string[];
-    favoriteExercises: string[];
     cardioPreference: CardioPreference;
     intensityPreference: IntensityPreference;
     workoutVibe: string;
@@ -30,7 +29,13 @@ type TrainingPerformanceFormType = FormControlsOf<TrainingPerformanceForm>;
 @Component({
     selector: 'app-training-performance',
     standalone: true,
-    imports: [ReactiveFormsModule, FormInputComponent, BtnComponent, FormSelectComponent],
+    imports: [
+        ReactiveFormsModule,
+        FormInputComponent,
+        BtnComponent,
+        FormSelectComponent,
+        MultiSelectComponent,
+    ],
     templateUrl: './training-performance.html',
 })
 export class TrainingPerformance implements OnInit {
@@ -38,6 +43,19 @@ export class TrainingPerformance implements OnInit {
     private userProfileService = inject(UserProfileService);
 
     trainingForm!: FormGroup<TrainingPerformanceFormType>;
+
+    preferredStylesOptions: SelectType[] = [
+        { name: 'Powerlifting', value: 'powerlifting' },
+        { name: 'Hipertrofia', value: 'hypertrophy' },
+        { name: 'HIIT', value: 'hiit' },
+        { name: 'Circuito', value: 'circuit' },
+        { name: 'Funcional', value: 'functional' },
+        { name: 'Pilates', value: 'pilates' },
+        { name: 'Yoga', value: 'yoga' },
+        { name: 'Calistenia', value: 'calisthenics' },
+        { name: 'Cardio', value: 'cardio' },
+        { name: 'CrossFit', value: 'crossfit' },
+    ];
 
     cardioOptions: SelectType[] = [
         { name: 'Ninguno', value: 'none' },
@@ -55,47 +73,53 @@ export class TrainingPerformance implements OnInit {
 
     ngOnInit(): void {
         this.trainingForm = this.initForm();
+
+        this.userProfileService.userProfile$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((profile) => {
+                if (!profile?.trainingPreferences) return;
+                this.trainingForm.patchValue({
+                    preferredStyles: profile.trainingPreferences.preferredStyles || [],
+                    cardioPreference: profile.trainingPreferences.cardioPreference || undefined,
+                    intensityPreference:
+                        profile.trainingPreferences.intensityPreference || undefined,
+                    workoutVibe: profile.trainingPreferences.workoutVibe || '',
+                });
+            });
     }
 
     initForm(): FormGroup<TrainingPerformanceFormType> {
         return new FormGroup<TrainingPerformanceFormType>({
             preferredStyles: new FormControl([] as TrainingStyle[], {
                 nonNullable: true,
-                validators: [Validators.required],
             }),
-            dislikedExercises: new FormControl([] as string[], { nonNullable: true }),
-            favoriteExercises: new FormControl([] as string[], { nonNullable: true }),
             cardioPreference: new FormControl('' as CardioPreference, {
                 nonNullable: true,
-                validators: [Validators.required],
             }),
             intensityPreference: new FormControl('' as IntensityPreference, {
                 nonNullable: true,
-                validators: [Validators.required],
             }),
             workoutVibe: new FormControl('', { nonNullable: true }),
         });
     }
 
     onSubmit() {
-        if (this.trainingForm.invalid) return;
+        const raw = this.trainingForm.getRawValue();
+        const payload: UpdateTrainingPreferenceInput = {
+            preferredStyles: raw.preferredStyles,
+        };
+        if (raw.cardioPreference) payload.cardioPreference = raw.cardioPreference;
+        if (raw.intensityPreference) payload.intensityPreference = raw.intensityPreference;
+        if (raw.workoutVibe) payload.workoutVibe = raw.workoutVibe;
 
         this.userProfileService
-            .updateTrainingPreference(this.trainingForm.getRawValue())
+            .updateTrainingPreference(payload)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
     }
 
     get preferredStylesControl() {
-        return this.trainingForm.get('preferredStyles')! as FormControl<string[]>;
-    }
-
-    get dislikedExercisesControl() {
-        return this.trainingForm.get('dislikedExercises')! as FormControl<string[]>;
-    }
-
-    get favoriteExercisesControl() {
-        return this.trainingForm.get('favoriteExercises')! as FormControl<string[]>;
+        return this.trainingForm.get('preferredStyles')! as FormControl<(string | number)[]>;
     }
 
     get cardioPreferenceControl() {

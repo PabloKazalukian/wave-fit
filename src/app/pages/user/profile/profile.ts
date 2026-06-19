@@ -20,8 +20,8 @@ import { CheckboxComponent } from '../../../shared/components/ui/checkbox/checkb
 export interface ProfileVisibilityForm {
     weight: boolean;
     strengthMetrics: boolean;
-    resource: boolean;
-    trainingPreference: boolean;
+    resources: boolean;
+    trainingPreferences: boolean;
     healthConstraints: boolean;
     schedule: boolean;
     goals: boolean;
@@ -68,8 +68,8 @@ export class Profile implements OnInit {
         goal: null,
         healthConstraints: null,
         schedule: null,
-        trainingPreference: null,
-        resource: null,
+        trainingPreferences: null,
+        resources: null,
         strengthMetrics: [],
         weightLogs: [],
     };
@@ -88,8 +88,8 @@ export class Profile implements OnInit {
             .subscribe((value) => {
                 if (!value.weight) this.profile.weightLogs = [];
                 if (!value.strengthMetrics) this.profile.strengthMetrics = [];
-                if (!value.resource) this.profile.resource = null;
-                if (!value.trainingPreference) this.profile.trainingPreference = null;
+                if (!value.resources) this.profile.resources = null;
+                if (!value.trainingPreferences) this.profile.trainingPreferences = null;
                 if (!value.healthConstraints) this.profile.healthConstraints = null;
                 if (!value.schedule) this.profile.schedule = null;
                 if (!value.goals) this.profile.goal = null;
@@ -102,8 +102,8 @@ export class Profile implements OnInit {
         return new FormGroup<ProfileVisibilityFormType>({
             weight: new FormControl(true, { nonNullable: true }),
             strengthMetrics: new FormControl(true, { nonNullable: true }),
-            resource: new FormControl(true, { nonNullable: true }),
-            trainingPreference: new FormControl(true, { nonNullable: true }),
+            resources: new FormControl(true, { nonNullable: true }),
+            trainingPreferences: new FormControl(true, { nonNullable: true }),
             healthConstraints: new FormControl(true, { nonNullable: true }),
             schedule: new FormControl(true, { nonNullable: true }),
             goals: new FormControl(true, { nonNullable: true }),
@@ -119,11 +119,11 @@ export class Profile implements OnInit {
     }
 
     get resourceControl(): FormControl<boolean> {
-        return this.visibilityForm.get('resource')! as FormControl<boolean>;
+        return this.visibilityForm.get('resources')! as FormControl<boolean>;
     }
 
     get trainingPreferenceControl(): FormControl<boolean> {
-        return this.visibilityForm.get('trainingPreference')! as FormControl<boolean>;
+        return this.visibilityForm.get('trainingPreferences')! as FormControl<boolean>;
     }
 
     get healthConstraintsControl(): FormControl<boolean> {

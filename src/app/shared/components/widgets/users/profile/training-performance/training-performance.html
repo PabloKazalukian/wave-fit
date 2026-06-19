@@ -3,27 +3,27 @@
     <h2>Preferencias de entrenamiento</h2>
 
     <form class="flex flex-wrap gap-5 mt-8" [formGroup]="trainingForm" (ngSubmit)="onSubmit()">
-      <!-- <app-input [label]="'Estilos preferidos'" [type]="'text'" [control]="preferredStylesControl">
-      </app-input> -->
-
-      <!-- <app-input
-        [label]="'Ejercicios favoritos'"
-        [type]="'text'"
-        [control]="favoriteExercisesControl"
+      <app-multi-select
+        [label]="'Estilos preferidos'"
+        [text]="'Selecciona estilos'"
+        [options]="preferredStylesOptions"
+        [control]="preferredStylesControl"
+        [max]="3"
       >
-      </app-input> -->
+      </app-multi-select>
 
-      <!-- <app-input
-        [label]="'Ejercicios descartados'"
-        [type]="'text'"
-        [control]="dislikedExercisesControl"
-      > -->
-      <!-- </app-input> -->
-
-      <app-select [label]="'Preferencia cardio'" [options]="cardioOptions" [control]="cardioPreferenceControl">
+      <app-select
+        [label]="'Preferencia cardio'"
+        [options]="cardioOptions"
+        [control]="cardioPreferenceControl"
+      >
       </app-select>
 
-      <app-select [label]="'Intensidad'" [options]="intensityOptions" [control]="intensityPreferenceControl">
+      <app-select
+        [label]="'Intensidad'"
+        [options]="intensityOptions"
+        [control]="intensityPreferenceControl"
+      >
       </app-select>
 
       <app-input [label]="'Ambiente entrenamiento'" [type]="'text'" [control]="workoutVibeControl">
@@ -34,7 +34,7 @@
         [color]="'primary3'"
         [variant]="'raised'"
         [buttonType]="'submit'"
-        [isDisabled]="trainingForm.invalid"
+        [isDisabled]="trainingForm.pristine"
       >
       </app-btn>
     </form>

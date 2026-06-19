@@ -9,18 +9,9 @@ import { UserProfileService } from '../../../../../../core/services/user/user-pr
 import { FormInputComponent } from '../../../../ui/input/input';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { InputNumber } from '../../../../ui/input-number/input-number';
+import { CreateWeightLogInput } from '../../../../../utils/profile.types';
 
-export interface WeightLogForm {
-    weightKg: number;
-
-    bodyFatPct: number;
-
-    loggedAt: string;
-
-    notes: string;
-}
-
-type WeightLogFormType = FormControlsOf<WeightLogForm>;
+type WeightLogFormType = FormControlsOf<CreateWeightLogInput>;
 
 @Component({
     selector: 'app-weight',
@@ -50,7 +41,7 @@ export class Weight implements OnInit {
                 validators: [Validators.required, Validators.min(20)],
             }),
 
-            bodyFatPct: new FormControl(0, {
+            bodyFatPct: new FormControl(undefined as unknown as number, {
                 nonNullable: true,
                 validators: [Validators.min(0), Validators.max(100)],
             }),
@@ -71,26 +62,21 @@ export class Weight implements OnInit {
 
         this.loading = true;
 
-        // this.profileUserService
-        //     .createWeightLog(this.weightForm.getRawValue())
-        //     .pipe(takeUntilDestroyed(this.destroyRef))
-        //     .subscribe({
+        this.profileUserService
+            .createWeightLog(this.weightForm.getRawValue())
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.loading = false;
+                    this.success = true;
+                    this.weightForm.reset();
+                },
 
-        //         next:()=>{
-
-        //             this.loading=false;
-        //             this.success=true;
-
-        //         },
-
-        //         error:(err)=>{
-
-        //             this.loading=false;
-        //             console.error(err);
-
-        //         }
-
-        //     });
+                error: (err) => {
+                    this.loading = false;
+                    console.error(err);
+                },
+            });
     }
 
     get weightKgControl(): FormControl<number> {
