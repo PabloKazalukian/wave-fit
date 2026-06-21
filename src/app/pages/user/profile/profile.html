@@ -1,29 +1,64 @@
 <section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
   <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
     <header>
-      <div class="flex items-center justify-between">
-        <h2>Perfil</h2>
-      </div>
+      <h1 class="text-5xl font-bold text-center text-primary">Wave-Fit - Perfil</h1>
     </header>
 
     <section class="flex flex-col gap-5 mt-6">
       <div>
-        <h2>Datos básicos</h2>
-        <p>Name: {{ user()?.name }}</p>
-        <p>Email: {{ user()?.email }}</p>
+        <h2 class="text-primary">Datos básicos</h2>
+        <p class="">
+          Name:
+          <span class="text-text2 bg-background3 rounded-lg px-2">
+            {{ user()?.name }}
+          </span>
+        </p>
+        <p class="">
+          Email:
+          <span class="text-text2 bg-background3 rounded-lg px-2">
+            {{ user()?.email }}
+          </span>
+        </p>
         <!-- <button (click)="editProfile()">Editar</button> -->
       </div>
     </section>
 
     <section class="flex flex-col gap-5 mt-6">
-      <div>
-        <h2>Configuración del perfil</h2>
-        <p>Peso: {{ profile.weightKg }}</p>
-        <p>Altura: {{ profile.heightCm }}</p>
-        <p>Fecha de nacimiento: {{ profile.birthDate }}</p>
-        <p>Sexo: {{ profile.gender }}</p>
-        <p>Nivel: {{ profile.goal?.trainingExperience }}</p>
-        <p>Objetivo: {{ profile.goal?.primaryGoal }}</p>
+      <div class="bg-background3 rounded-xl p-4">
+        <h2 class="text-primary">Configuración del perfil</h2>
+        <p>
+          Peso:
+          <span class="text-text2 rounded-lg px-2">{{ profile.weightKg || 'No establecido' }}</span>
+        </p>
+        <p>
+          Altura:
+          <span class="text-text2 rounded-lg px-2">
+            {{ profile.heightCm || 'No establecido' }}
+          </span>
+        </p>
+        <p>
+          Fecha de nacimiento:
+          <span class="text-text2 rounded-lg px-2">{{
+            profile.birthDate || 'No establecido'
+          }}</span>
+        </p>
+        <p>
+          Sexo:
+          <span class="text-text2 rounded-lg px-2">{{ profile.gender || 'No establecido' }}</span>
+        </p>
+        <p>
+          Nivel:
+          <span class="text-text2 rounded-lg px-2">{{
+            profile.goal?.trainingExperience ?? 'No establecido'
+          }}</span>
+        </p>
+        <p>
+          Objetivo:
+          <span class="text-text2 rounded-lg px-2">{{
+            profile.goal?.primaryGoal ?? 'No establecido'
+          }}</span>
+        </p>
+        <p></p>
         <!-- <button (click)="editProfile()">Editar</button> -->
       </div>
     </section>

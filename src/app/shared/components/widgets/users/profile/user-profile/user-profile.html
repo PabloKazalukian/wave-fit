@@ -1,19 +1,8 @@
 <section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
   <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
-    <header>
-      <h2>Perfil</h2>
-    </header>
-
-    <section class="mt-6">
-      <p>Nombre:{{ user()?.name }}</p>
-
-      <p>Email:{{ user()?.email }}</p>
-    </section>
-
+    <h2 class="text-2xl font-semibold text-primary">Configuración del perfil</h2>
     <form class="flex flex-wrap gap-5 mt-8" [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-      <h2>Configuración del perfil</h2>
-
-      <app-input [label]="'Fecha de nacimiento'" [type]="'text'" [control]="birthDateControl">
+      <app-input [label]="'Fecha de nacimiento'" [type]="'date'" [control]="birthDateControl">
       </app-input>
 
       <app-input-number [label]="'Altura cm'" [control]="heightCmControl"> </app-input-number>

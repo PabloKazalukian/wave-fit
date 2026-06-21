@@ -7,7 +7,7 @@
   <!-- Input con toggle -->
   <div class="relative flex items-center">
     <input
-      [type]="type === 'password' && hidePassword ? 'password' : 'text'"
+      [type]="type === 'password' && hidePassword ? 'password' : type"
       [formControl]="control"
       [placeholder]="placeholder"
       [ngClass]="{

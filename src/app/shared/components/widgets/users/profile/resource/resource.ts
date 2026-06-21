@@ -4,7 +4,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormControlsOf } from '../../../../../utils/form-types.util';
 
-import { FormInputComponent } from '../../../../ui/input/input';
 import { InputNumber } from '../../../../ui/input-number/input-number';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';

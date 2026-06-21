@@ -7,10 +7,14 @@
 
       <app-input-number [label]="'1RM Kg'" [control]="oneRmKgControl"> </app-input-number>
 
-      <app-select [label]="'Nivel confianza'" [options]="confidenceOptions" [control]="confidenceLevelControl">
+      <app-select
+        [label]="'Nivel confianza'"
+        [options]="confidenceOptions"
+        [control]="confidenceLevelControl"
+      >
       </app-select>
 
-      <app-input [label]="'Fecha medición'" [type]="'text'" [control]="measuredAtControl">
+      <app-input [label]="'Fecha medición'" [type]="'date'" [control]="measuredAtControl">
       </app-input>
 
       <app-input [label]="'Notas'" [type]="'text'" [control]="notesControl"> </app-input>

@@ -11,7 +11,6 @@ import {
     MobilityLevel,
     UpdateHealthConstraintsInput,
 } from '../../../../../utils/profile.types';
-import { tap } from 'rxjs';
 
 type HealthConstraintFormType = FormControlsOf<UpdateHealthConstraintsInput>;
 

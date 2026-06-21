@@ -12,7 +12,7 @@ import { NgClass } from '@angular/common';
 export class FormInputComponent {
     @Input() control!: FormControl<string | null>;
     @Input() label!: string;
-    @Input() type: 'text' | 'email' | 'password' = 'text';
+    @Input() type: 'text' | 'email' | 'password' | 'date' = 'text';
     @Input() placeholder = '';
     @Input() showTogglePassword = false;
 

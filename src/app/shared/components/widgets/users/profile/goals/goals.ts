@@ -10,15 +10,6 @@ import { BtnComponent } from '../../../../ui/btn/btn';
 import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
 import { PrimaryGoal, UpdateGoalsInput } from '../../../../../utils/profile.types';
 
-import { TrainingExperience } from '../../../../../utils/profile.types';
-
-const TrainingExperienceEnum = {
-    beginner: 'Principiante',
-    intermediate: 'Intermedio',
-    advanced: 'Avanzado',
-    athlete: 'Atleta',
-};
-
 type GoalFormType = FormControlsOf<UpdateGoalsInput>;
 
 @Component({
