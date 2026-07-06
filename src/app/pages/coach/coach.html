@@ -1,0 +1,76 @@
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  <!-- ─── Profile Card ─────────────────────────────────────────────────── -->
+  <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
+    <!-- Avatar + Name + Edit -->
+    <header class="flex flex-col mb-4">
+      <div class="flex flex-col items-center gap-4 w-full mb-8">
+        <app-data-section title="Configuración del perfil" [data]="profile" />
+
+        @if (profile.goal) {
+          <app-data-section title="Objetivo" [data]="profile.goal" />
+        }
+
+        @if (profile.healthConstraints) {
+          <app-data-section title="Restricciones de salud" [data]="profile.healthConstraints" />
+        }
+
+        @if (profile.schedule) {
+          <app-data-section title="Horario" [data]="profile.schedule" />
+        }
+
+        @if (profile.trainingPreferences) {
+          <app-data-section
+            title="Preferencias entrenamiento"
+            [data]="profile.trainingPreferences"
+          />
+        }
+
+        @if (profile.resources) {
+          <app-data-section title="Recursos" [data]="profile.resources" />
+        }
+
+        @if (profile.strengthMetrics && profile.strengthMetrics.length > 0) {
+          <app-data-section title="Métricas de fuerza" [data]="profile.strengthMetrics" />
+        }
+
+        @if (profile.weightLogs && profile.weightLogs.length > 0) {
+          <app-data-section title="Historial peso" [data]="profile.weightLogs" />
+        }
+      </div>
+
+      @if (missingFields().length === 0) {
+        <div class="flex flex-col gap-4 mt-6">
+          <div class="flex flex-col gap-2">
+            <label class="text-text2 font-semibold">Comentario adicional (opcional)</label>
+            <textarea
+              [(ngModel)]="comment"
+              placeholder="Ej: Tengo dolor en la rodilla, quiero evitar sentadillas pesadas..."
+              class="w-full bg-background3 border border-background4 rounded-xl p-3 text-text1 placeholder:text-text3 focus:outline-none focus:border-primary transition-colors resize-none"
+              rows="3"
+            ></textarea>
+          </div>
+          <app-btn
+            [text]="'Generar Plan'"
+            [color]="'primary'"
+            [variant]="'outline'"
+            [routerLink]="'/plans/create'"
+          >
+          </app-btn>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-4 mt-6">
+          <div class="bg-error/10 border border-error/20 rounded-xl p-4">
+            <h3 class="text-error font-semibold mb-2">Faltan datos requeridos:</h3>
+            <ul class="list-disc list-inside text-error/90">
+              @for (field of missingFields(); track field) {
+                <li>{{ field }}</li>
+              }
+            </ul>
+          </div>
+          
+          <app-form-user-profile></app-form-user-profile>
+        </div>
+      }
+    </header>
+  </section>
+</section>

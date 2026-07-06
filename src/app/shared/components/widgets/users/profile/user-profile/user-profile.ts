@@ -63,12 +63,12 @@ export class UserProfile implements OnInit {
         this.profileUserService.userProfile$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe((profile) => {
-                console.log(profile);
+                // console.log(profile);
 
                 if (!profile) return;
                 this.profileForm.patchValue({
                     gender: profile.gender,
-                    birthDate: profile.birthDate,
+                    birthDate: profile.birthDate ? profile.birthDate.split('T')[0] : '',
                     heightCm: profile.heightCm,
                     weightKg: profile.weightKg,
                     bodyFatPct: profile.bodyFatPct || 0,

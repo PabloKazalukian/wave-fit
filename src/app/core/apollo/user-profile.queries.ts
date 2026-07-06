@@ -1,7 +1,7 @@
 export const USER_PROFILE_FIELDS = `
     id
     userId
-    sex
+    gender
     birthDate
     heightCm
     weightKg

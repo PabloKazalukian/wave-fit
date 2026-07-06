@@ -22,6 +22,7 @@ import {
     CreateWeightLogInput,
 } from '../../../shared/utils/profile.types';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
+import { localDateToUtc } from '../../../shared/utils/date.utils';
 
 @Injectable({
     providedIn: 'root',
@@ -37,21 +38,21 @@ export class UserProfileDomainService {
             handleGraphqlError(this.authSvc),
             map((res) => {
                 console.log(res);
-                const ctx = res;
-                if (!ctx || !ctx) return null;
+                const ctx: any = res;
+                if (!ctx || !ctx.profile) return null;
 
                 const profileUser: ProfileUser = {
-                    _id: ctx._id,
-                    userId: ctx.userId,
-                    gender: ctx.gender,
-                    birthDate: ctx.birthDate,
-                    heightCm: ctx.heightCm,
-                    weightKg: ctx.weightKg,
-                    bodyFatPct: ctx.bodyFatPct,
+                    _id: ctx.profile.id,
+                    userId: ctx.profile.userId,
+                    gender: ctx.profile.gender,
+                    birthDate: ctx.profile.birthDate,
+                    heightCm: ctx.profile.heightCm,
+                    weightKg: ctx.profile.weightKg,
+                    bodyFatPct: ctx.profile.bodyFatPct,
                     distributionDays: 'Week-log', // Default as backend doesn't seem to store it
-                    unitsPreference: ctx.unitsPreference,
-                    createdAt: ctx.createdAt,
-                    updatedAt: ctx.updatedAt,
+                    unitsPreference: ctx.profile.unitsPreference,
+                    createdAt: ctx.profile.createdAt,
+                    updatedAt: ctx.profile.updatedAt,
                     goal: ctx.goal,
                     healthConstraints: ctx.healthConstraints,
                     schedule: ctx.schedule,
@@ -80,8 +81,18 @@ export class UserProfileDomainService {
     updateProfile(input: UpdateProfileInput): Observable<ProfileUser | null> {
         this.state.setLoading(true);
         const profile = this.state.getUserProfile();
-        const payload = { ...input, id: profile?._id || '' };
-        return this.api.updateUserProfile(payload).pipe(
+        const payload: any = { ...input };
+
+        if (payload.heightCm !== undefined) payload.heightCm = Number(payload.heightCm);
+        if (payload.weightKg !== undefined) payload.weightKg = Number(payload.weightKg);
+        if (payload.bodyFatPct !== undefined) payload.bodyFatPct = Number(payload.bodyFatPct);
+        if (payload.birthDate) payload.birthDate = localDateToUtc(payload.birthDate).toISOString();
+
+        const request$ = profile?._id 
+            ? this.api.updateUserProfile({ ...payload, id: profile._id })
+            : this.api.upsertUserProfile(payload);
+
+        return request$.pipe(
             handleGraphqlError(this.authSvc),
             tap((result) => {
                 if (result) {
@@ -102,7 +113,11 @@ export class UserProfileDomainService {
 
     updateSchedule(input: UpdateScheduleInput): Observable<Schedule | null> {
         this.state.setLoading(true);
-        return this.api.updateUserSchedule(input).pipe(
+        const payload: any = { ...input };
+        if (payload.daysPerWeek !== undefined) payload.daysPerWeek = Number(payload.daysPerWeek);
+        if (payload.sessionDurationMin !== undefined) payload.sessionDurationMin = Number(payload.sessionDurationMin);
+
+        return this.api.updateUserSchedule(payload).pipe(
             handleGraphqlError(this.authSvc),
             tap((result) => {
                 if (result) {
@@ -146,7 +161,11 @@ export class UserProfileDomainService {
 
     updateGoals(input: UpdateGoalsInput): Observable<Goal | null> {
         this.state.setLoading(true);
-        return this.api.updateUserGoals(input).pipe(
+        const payload: any = { ...input };
+        if (payload.targetWeightKg !== undefined) payload.targetWeightKg = Number(payload.targetWeightKg);
+        if (payload.timelineWeeks !== undefined) payload.timelineWeeks = Number(payload.timelineWeeks);
+
+        return this.api.updateUserGoals(payload).pipe(
             handleGraphqlError(this.authSvc),
             tap((result) => {
                 if (result) {
@@ -190,7 +209,11 @@ export class UserProfileDomainService {
 
     updateResource(input: UpdateResourceInput): Observable<Resource | null> {
         this.state.setLoading(true);
-        return this.api.updateUserResource(input).pipe(
+        const payload: any = { ...input };
+        if (payload.dumbbellMaxKg !== undefined) payload.dumbbellMaxKg = Number(payload.dumbbellMaxKg);
+        if (payload.gymDistanceKm !== undefined) payload.gymDistanceKm = Number(payload.gymDistanceKm);
+
+        return this.api.updateUserResource(payload).pipe(
             handleGraphqlError(this.authSvc),
             tap((result) => {
                 if (result) {
@@ -211,7 +234,16 @@ export class UserProfileDomainService {
 
     createStrengthMetric(input: CreateStrengthMetricInput): Observable<StrengthMetric | null> {
         this.state.setLoading(true);
-        return this.api.createUserStrengthMetric(input).pipe(
+        const payload: any = { ...input };
+        if (payload.oneRmKg !== undefined) payload.oneRmKg = Number(payload.oneRmKg);
+        if (payload.repsAtWeight) {
+            payload.repsAtWeight = { ...payload.repsAtWeight };
+            payload.repsAtWeight.weightKg = Number(payload.repsAtWeight.weightKg);
+            payload.repsAtWeight.reps = Number(payload.repsAtWeight.reps);
+        }
+        if (payload.measuredAt) payload.measuredAt = localDateToUtc(payload.measuredAt).toISOString();
+
+        return this.api.createUserStrengthMetric(payload).pipe(
             handleGraphqlError(this.authSvc),
             tap((result) => {
                 if (result) {
@@ -235,7 +267,12 @@ export class UserProfileDomainService {
 
     createWeightLog(input: CreateWeightLogInput): Observable<WeightLog | null> {
         this.state.setLoading(true);
-        return this.api.createWeightLog(input).pipe(
+        const payload: any = { ...input };
+        if (payload.weightKg !== undefined) payload.weightKg = Number(payload.weightKg);
+        if (payload.bodyFatPct !== undefined) payload.bodyFatPct = Number(payload.bodyFatPct);
+        if (payload.loggedAt) payload.loggedAt = localDateToUtc(payload.loggedAt).toISOString();
+
+        return this.api.createWeightLog(payload).pipe(
             handleGraphqlError(this.authSvc),
             tap((result) => {
                 if (result) {

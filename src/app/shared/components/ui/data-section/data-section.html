@@ -1,0 +1,60 @@
+<section class="bg-background3 rounded-xl p-4">
+  <button class="w-full flex justify-between items-center" (click)="toggle()">
+    <h2 class="text-primary">
+      {{ title }}
+    </h2>
+
+    <span class="transition-transform duration-300 text-xl" [class.rotate-180]="open">
+      {{ open ? '−' : '+' }}
+    </span>
+  </button>
+
+  @if (!data) {
+    <p class="text-text2 mt-3">No hay información</p>
+  } @else {
+    <div
+      class="overflow-hidden transition-all duration-300 px-4 scrollbar-thin delay-75"
+      [class.max-h-0]="!open"
+      [class.max-h-[1500px]]="open"
+      [class.py-3]="open"
+      [class.invisible]="!open"
+      [class.opacity-0]="!open"
+      [class.opacity-100]="open"
+      [attr.inert]="!open ? true : null"
+    >
+      @for (item of entries; track item[0]) {
+        <div>
+          <span class="text-primary"> {{ formatKey(item[0]) }}: </span>
+          <span class="text-primary"> {{ formatKey(item[0]) }}: </span>
+
+          @if (isArray(item[1])) {
+            @if (item[1].length) {
+              <ul class="ml-4 mt-2">
+                @for (value of item[1]; track $index) {
+                  <li class="text-text2">
+                    @if (isObject(value)) {
+                      {{ value }}
+                    } @else {
+                      {{ value }}
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <span class="text-text2"> No hay datos </span>
+            }
+          } @else if (isObject(item[1])) {
+            <pre class="text-text2 bg-background2 rounded-lg p-2 mt-2"
+              >{{ item[1] }}
+              </pre
+            >
+          } @else {
+            <span class="text-text2">
+              {{ item[1] || 'No establecido' }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>

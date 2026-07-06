@@ -1,0 +1,63 @@
+<form
+  class="flex flex-col gap-5 mt-4 bg-background2 border-2 border-background4 rounded-2xl p-5"
+  [formGroup]="profileForm"
+  (ngSubmit)="onSubmit()"
+>
+  <div class="flex flex-col sm:flex-row flex-wrap gap-5">
+    <app-select
+      class="flex-1 min-w-[150px]"
+      [label]="'Género'"
+      [options]="genderOptions"
+      [control]="genderControl"
+    ></app-select>
+    <app-input
+      class="flex-1 min-w-[200px]"
+      [label]="'Fecha de nacimiento'"
+      [type]="'date'"
+      [control]="birthDateControl"
+    ></app-input>
+    <app-input-number
+      class="flex-1 min-w-[150px]"
+      [label]="'Altura cm'"
+      [control]="heightCmControl"
+    ></app-input-number>
+    <app-input-number
+      class="flex-1 min-w-[150px]"
+      [label]="'Peso kg'"
+      [control]="weightKgControl"
+    ></app-input-number>
+  </div>
+
+  <div class="flex flex-col sm:flex-row flex-wrap gap-5">
+    <app-select
+      class="flex-1 min-w-[200px]"
+      [label]="'Objetivo Principal'"
+      [options]="primaryGoalOptions"
+      [control]="primaryGoalControl"
+    ></app-select>
+    <app-input-number
+      class="flex-1 min-w-[150px]"
+      [label]="'Días disponibles / semana'"
+      [control]="daysPerWeekControl"
+    ></app-input-number>
+    <app-select
+      class="flex-1 min-w-[200px]"
+      [label]="'Experiencia'"
+      [options]="trainingExperienceOptions"
+      [control]="trainingExperienceControl"
+    ></app-select>
+  </div>
+
+  <app-btn
+    [text]="loading ? 'Guardando...' : 'Completar datos'"
+    [color]="'primary3'"
+    [variant]="'raised'"
+    [buttonType]="'submit'"
+    [isDisabled]="profileForm.invalid || loading"
+  >
+  </app-btn>
+
+  @if (success) {
+    <p class="text-success text-sm font-semibold">Datos guardados exitosamente.</p>
+  }
+</form>

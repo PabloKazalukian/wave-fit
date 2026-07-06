@@ -1,0 +1,69 @@
+import { Component, DestroyRef, inject, computed } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { BtnComponent } from '../../shared/components/ui/btn/btn';
+import { AuthService } from '../../core/services/auth/auth.service';
+import { UserProfileService } from '../../core/services/user/user-profile.service';
+import { Router } from '@angular/router';
+import { ProfileUser } from '../../shared/utils/profile.types';
+import { DataSection } from '../../shared/components/ui/data-section/data-section';
+import { FormUserProfile } from '../../shared/components/widgets/coach/form-user-profile/form-user-profile';
+
+@Component({
+    selector: 'app-coach',
+    imports: [BtnComponent, DataSection, FormsModule, FormUserProfile],
+    templateUrl: './coach.html',
+    styles: ``,
+})
+export class Coach {
+    private destroyRef = inject(DestroyRef);
+    private authService = inject(AuthService);
+    private router = inject(Router);
+    private profileUserService = inject(UserProfileService);
+
+    user = this.authService.user;
+    userProfile = this.profileUserService.userProfile;
+
+    comment = '';
+
+    missingFields = computed(() => {
+        const p = this.userProfile();
+        console.log(p);
+        if (!p) return ['Cargando perfil...'];
+
+        const missing: string[] = [];
+        if (!p.birthDate) missing.push('Fecha de nacimiento');
+        if (!p.heightCm) missing.push('Altura');
+        if (!p.weightKg) missing.push('Peso');
+        if (!p.goal?.primaryGoal) missing.push('Objetivo');
+        if (
+            !p.schedule?.daysPerWeek &&
+            (!p.schedule?.preferredDays || p.schedule.preferredDays.length === 0)
+        )
+            missing.push('Días disponibles');
+        if (!p.goal?.trainingExperience) missing.push('Experiencia');
+
+        return missing;
+    });
+
+    profile: ProfileUser = {
+        _id: '',
+        userId: '',
+        gender: 'M',
+        birthDate: '',
+        heightCm: 0,
+        weightKg: 0,
+        distributionDays: 'Week-log',
+        unitsPreference: 'metric',
+        createdAt: '',
+        updatedAt: '',
+        goal: null,
+        healthConstraints: null,
+        schedule: null,
+        trainingPreferences: null,
+        resources: null,
+        strengthMetrics: [],
+        weightLogs: [],
+    };
+
+    ngOnInit(): void {}
+}

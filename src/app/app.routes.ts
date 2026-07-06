@@ -13,6 +13,11 @@ export const routes: Routes = [
         pathMatch: 'full',
     },
     {
+        path: 'coach',
+        loadComponent: () => import('./pages/coach/coach').then((m) => m.Coach),
+        canActivate: [authGuard],
+    },
+    {
         path: 'auth',
         loadChildren: () => import('./pages/auth/auth.routes').then((m) => m.AUTH_ROUTES),
     },
