@@ -57,6 +57,7 @@ Documentación de la arquitectura de servicios del frontend.
 | [ExercisesService.md](./ExercisesService.md)               | ExercisesService                              | API + Service |
 | [RoutinesService.md](./RoutinesService.md)                 | RoutinesService, RoutinesApiService           | API + Service |
 | [UserService.md](./UserService.md)                         | UserService                                   | API + Service |
+| [UserProfileService.md](./UserProfileService.md)           | UserProfileService, Domain, State             | Domain + API + State         |
 | [WorkoutStateService.md](./WorkoutStateService.md)         | WorkoutStateService                           | State         |
 | [PlanTrackingService.md](./PlanTrackingService.md)           | PlanTrackingService, Domain, State            | Domain + API + Storage + State |
 | [ExtraSessionService.md](./ExtraSessionService.md)             | ExtraSessionService                            | API + Storage |

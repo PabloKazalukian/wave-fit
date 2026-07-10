@@ -4,7 +4,6 @@ import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserProfileService } from '../../core/services/user/user-profile.service';
 import { Router } from '@angular/router';
-import { ProfileUser } from '../../shared/utils/profile.types';
 import { DataSection } from '../../shared/components/ui/data-section/data-section';
 import { FormUserProfile } from '../../shared/components/widgets/coach/form-user-profile/form-user-profile';
 
@@ -44,26 +43,6 @@ export class Coach {
 
         return missing;
     });
-
-    profile: ProfileUser = {
-        _id: '',
-        userId: '',
-        gender: 'M',
-        birthDate: '',
-        heightCm: 0,
-        weightKg: 0,
-        distributionDays: 'Week-log',
-        unitsPreference: 'metric',
-        createdAt: '',
-        updatedAt: '',
-        goal: null,
-        healthConstraints: null,
-        schedule: null,
-        trainingPreferences: null,
-        resources: null,
-        strengthMetrics: [],
-        weightLogs: [],
-    };
 
     ngOnInit(): void {}
 }

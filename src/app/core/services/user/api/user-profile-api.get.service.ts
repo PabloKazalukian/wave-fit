@@ -18,14 +18,15 @@ import {
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../auth/auth.service';
 import {
-    ProfileUser,
-    Goal,
-    HealthConstraint,
-    Schedule,
-    TrainingPreference,
-    Resource,
-    StrengthMetric,
-    WeightLog,
+    ProfileUserAPI,
+    GoalAPI,
+    HealthConstraintAPI,
+    ScheduleAPI,
+    TrainingPreferenceAPI,
+    ResourceAPI,
+    StrengthMetricAPI,
+    WeightLogAPI,
+    UserProfileContextAPI,
 } from '../../../../shared/utils/profile.types';
 
 @Injectable({
@@ -35,23 +36,31 @@ export class UserProfileApiGetService {
     private apollo = inject(Apollo);
     private authSvc = inject(AuthService);
 
-    getUserProfileContext(): Observable<ProfileUser | null> {
+    getUserProfileContext(): Observable<UserProfileContextAPI | null> {
         return this.apollo
-            .query<{ userProfileContext: ProfileUser }>({
+            .query<{ userProfileContext: UserProfileContextAPI }>({
                 query: gql`
                     ${USER_PROFILE_CONTEXT}
                 `,
                 fetchPolicy: 'no-cache',
+                errorPolicy: 'all',
             })
             .pipe(
-                map((res) => res.data?.userProfileContext || null),
+                map((res) => {
+                    const ctx = res.data?.userProfileContext;
+                    if (!ctx) return null;
+                    // Si el profile existe pero no tiene id válido (ej: Mongoose lean() sin virtual),
+                    // lo tratamos como null para no romper el mapeo.
+                    const profile = ctx.profile?.id ? ctx.profile : null;
+                    return { ...ctx, profile };
+                }),
                 handleGraphqlError(this.authSvc),
             );
     }
 
-    getAllUserProfiles(): Observable<ProfileUser[]> {
+    getAllUserProfiles(): Observable<ProfileUserAPI[]> {
         return this.apollo
-            .query<{ userProfiles: ProfileUser[] }>({
+            .query<{ userProfiles: ProfileUserAPI[] }>({
                 query: gql`
                     ${FIND_ALL_USER_PROFILES}
                 `,
@@ -63,9 +72,9 @@ export class UserProfileApiGetService {
             );
     }
 
-    getUserProfile(id: string): Observable<ProfileUser | null> {
+    getUserProfile(id: string): Observable<ProfileUserAPI | null> {
         return this.apollo
-            .query<{ userProfile: ProfileUser }, { id: string }>({
+            .query<{ userProfile: ProfileUserAPI }, { id: string }>({
                 query: gql`
                     ${FIND_USER_PROFILE}
                 `,
@@ -78,9 +87,9 @@ export class UserProfileApiGetService {
             );
     }
 
-    getMyProfile(): Observable<ProfileUser | null> {
+    getMyProfile(): Observable<ProfileUserAPI | null> {
         return this.apollo
-            .query<{ myProfile: ProfileUser }>({
+            .query<{ myProfile: ProfileUserAPI }>({
                 query: gql`
                     ${MY_PROFILE}
                 `,
@@ -92,9 +101,9 @@ export class UserProfileApiGetService {
             );
     }
 
-    getUserGoals(): Observable<Goal | null> {
+    getUserGoals(): Observable<GoalAPI | null> {
         return this.apollo
-            .query<{ userGoals: Goal }>({
+            .query<{ userGoals: GoalAPI }>({
                 query: gql`
                     ${USER_GOALS}
                 `,
@@ -106,9 +115,9 @@ export class UserProfileApiGetService {
             );
     }
 
-    getUserHealthConstraints(): Observable<HealthConstraint | null> {
+    getUserHealthConstraints(): Observable<HealthConstraintAPI | null> {
         return this.apollo
-            .query<{ userHealthConstraints: HealthConstraint }>({
+            .query<{ userHealthConstraints: HealthConstraintAPI }>({
                 query: gql`
                     ${USER_HEALTH_CONSTRAINTS}
                 `,
@@ -120,9 +129,9 @@ export class UserProfileApiGetService {
             );
     }
 
-    getUserSchedule(): Observable<Schedule | null> {
+    getUserSchedule(): Observable<ScheduleAPI | null> {
         return this.apollo
-            .query<{ userSchedule: Schedule }>({
+            .query<{ userSchedule: ScheduleAPI }>({
                 query: gql`
                     ${USER_SCHEDULE}
                 `,
@@ -134,9 +143,9 @@ export class UserProfileApiGetService {
             );
     }
 
-    getUserTrainingPreference(): Observable<TrainingPreference | null> {
+    getUserTrainingPreference(): Observable<TrainingPreferenceAPI | null> {
         return this.apollo
-            .query<{ userTrainingPreference: TrainingPreference }>({
+            .query<{ userTrainingPreference: TrainingPreferenceAPI }>({
                 query: gql`
                     ${USER_TRAINING_PREFERENCE}
                 `,
@@ -148,9 +157,9 @@ export class UserProfileApiGetService {
             );
     }
 
-    getUserResource(): Observable<Resource | null> {
+    getUserResource(): Observable<ResourceAPI | null> {
         return this.apollo
-            .query<{ userResource: Resource }>({
+            .query<{ userResource: ResourceAPI }>({
                 query: gql`
                     ${USER_RESOURCE}
                 `,
@@ -162,9 +171,9 @@ export class UserProfileApiGetService {
             );
     }
 
-    getUserStrengthMetrics(): Observable<StrengthMetric[]> {
+    getUserStrengthMetrics(): Observable<StrengthMetricAPI[]> {
         return this.apollo
-            .query<{ userStrengthMetrics: StrengthMetric[] }>({
+            .query<{ userStrengthMetrics: StrengthMetricAPI[] }>({
                 query: gql`
                     ${USER_STRENGTH_METRICS}
                 `,
@@ -176,9 +185,9 @@ export class UserProfileApiGetService {
             );
     }
 
-    getUserWeightLogs(): Observable<WeightLog[]> {
+    getUserWeightLogs(): Observable<WeightLogAPI[]> {
         return this.apollo
-            .query<{ userWeightLogs: WeightLog[] }>({
+            .query<{ userWeightLogs: WeightLogAPI[] }>({
                 query: gql`
                     ${USER_WEIGHT_LOGS}
                 `,

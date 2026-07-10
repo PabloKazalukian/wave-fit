@@ -55,7 +55,7 @@ export class Profile implements OnInit {
     user = this.authService.user;
     userProfile = this.profileUserService.userProfile;
     profile: ProfileUser = {
-        _id: '',
+        id: '',
         userId: '',
         gender: 'M',
         birthDate: '',
@@ -82,6 +82,14 @@ export class Profile implements OnInit {
 
     ngOnInit(): void {
         this.visibilityForm = this.initVisibilityForm();
+
+        this.profileUserService.userProfile$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((p) => {
+                if (p) {
+                    this.profile = { ...p };
+                }
+            });
 
         this.visibilityForm.valueChanges
             .pipe(takeUntilDestroyed(this.destroyRef))

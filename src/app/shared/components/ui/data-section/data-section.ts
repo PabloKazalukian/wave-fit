@@ -15,8 +15,14 @@ export class DataSection {
         this.open = !this.open;
     }
 
+    excludedKeys = new Set(['id', 'userId', 'updatedAt', 'createdAt']);
+
     get entries() {
-        return this.data ? Object.entries(this.data) : [];
+        return this.data
+            ? Object.entries(this.data).filter(
+                  ([key]) => !this.excludedKeys.has(key)
+              )
+            : [];
     }
 
     isObject(value: any) {

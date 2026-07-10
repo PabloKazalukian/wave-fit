@@ -4,37 +4,37 @@
     <!-- Avatar + Name + Edit -->
     <header class="flex flex-col mb-4">
       <div class="flex flex-col items-center gap-4 w-full mb-8">
-        <app-data-section title="Configuración del perfil" [data]="profile" />
+        <app-data-section title="Configuración del perfil" [data]="userProfile()" />
 
-        @if (profile.goal) {
-          <app-data-section title="Objetivo" [data]="profile.goal" />
+        @if (userProfile()?.goal) {
+          <app-data-section title="Objetivo" [data]="userProfile()!.goal!" />
         }
 
-        @if (profile.healthConstraints) {
-          <app-data-section title="Restricciones de salud" [data]="profile.healthConstraints" />
+        @if (userProfile()?.healthConstraints) {
+          <app-data-section title="Restricciones de salud" [data]="userProfile()!.healthConstraints!" />
         }
 
-        @if (profile.schedule) {
-          <app-data-section title="Horario" [data]="profile.schedule" />
+        @if (userProfile()?.schedule) {
+          <app-data-section title="Horario" [data]="userProfile()!.schedule!" />
         }
 
-        @if (profile.trainingPreferences) {
+        @if (userProfile()?.trainingPreferences) {
           <app-data-section
             title="Preferencias entrenamiento"
-            [data]="profile.trainingPreferences"
+            [data]="userProfile()!.trainingPreferences!"
           />
         }
 
-        @if (profile.resources) {
-          <app-data-section title="Recursos" [data]="profile.resources" />
+        @if (userProfile()?.resources) {
+          <app-data-section title="Recursos" [data]="userProfile()!.resources!" />
         }
 
-        @if (profile.strengthMetrics && profile.strengthMetrics.length > 0) {
-          <app-data-section title="Métricas de fuerza" [data]="profile.strengthMetrics" />
+        @if (userProfile()?.strengthMetrics?.length) {
+          <app-data-section title="Métricas de fuerza" [data]="userProfile()!.strengthMetrics!" />
         }
 
-        @if (profile.weightLogs && profile.weightLogs.length > 0) {
-          <app-data-section title="Historial peso" [data]="profile.weightLogs" />
+        @if (userProfile()?.weightLogs?.length) {
+          <app-data-section title="Historial peso" [data]="userProfile()!.weightLogs!" />
         }
       </div>
 

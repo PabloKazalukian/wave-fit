@@ -19,14 +19,14 @@ import {
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../auth/auth.service';
 import {
-    ProfileUser,
-    Goal,
-    HealthConstraint,
-    Schedule,
-    TrainingPreference,
-    Resource,
-    StrengthMetric,
-    WeightLog,
+    ProfileUserAPI,
+    GoalAPI,
+    HealthConstraintAPI,
+    ScheduleAPI,
+    TrainingPreferenceAPI,
+    ResourceAPI,
+    StrengthMetricAPI,
+    WeightLogAPI,
     UpdateProfileInput,
     UpdateGoalsInput,
     UpdateHealthConstraintsInput,
@@ -44,9 +44,9 @@ export class UserProfileApiSetService {
     private apollo = inject(Apollo);
     private authSvc = inject(AuthService);
 
-    createUserProfile(input: UpdateProfileInput): Observable<ProfileUser | null> {
+    createUserProfile(input: UpdateProfileInput): Observable<ProfileUserAPI | null> {
         return this.apollo
-            .mutate<{ createUserProfile: ProfileUser }, { input: UpdateProfileInput }>({
+            .mutate<{ createUserProfile: ProfileUserAPI }, { input: UpdateProfileInput }>({
                 mutation: gql`
                     ${CREATE_USER_PROFILE}
                 `,
@@ -60,10 +60,10 @@ export class UserProfileApiSetService {
 
     updateUserProfile(
         input: UpdateProfileInput & { id: string },
-    ): Observable<ProfileUser | null> {
+    ): Observable<ProfileUserAPI | null> {
         return this.apollo
             .mutate<
-                { updateUserProfile: ProfileUser },
+                { updateUserProfile: ProfileUserAPI },
                 { input: UpdateProfileInput & { id: string } }
             >({
                 mutation: gql`
@@ -77,9 +77,9 @@ export class UserProfileApiSetService {
             );
     }
 
-    upsertUserProfile(input: UpdateProfileInput): Observable<ProfileUser | null> {
+    upsertUserProfile(input: UpdateProfileInput): Observable<ProfileUserAPI | null> {
         return this.apollo
-            .mutate<{ upsertUserProfile: ProfileUser }, { input: UpdateProfileInput }>({
+            .mutate<{ upsertUserProfile: ProfileUserAPI }, { input: UpdateProfileInput }>({
                 mutation: gql`
                     ${UPSERT_USER_PROFILE}
                 `,
@@ -91,9 +91,9 @@ export class UserProfileApiSetService {
             );
     }
 
-    removeUserProfile(id: string): Observable<ProfileUser | null> {
+    removeUserProfile(id: string): Observable<ProfileUserAPI | null> {
         return this.apollo
-            .mutate<{ removeUserProfile: ProfileUser }, { id: string }>({
+            .mutate<{ removeUserProfile: ProfileUserAPI }, { id: string }>({
                 mutation: gql`
                     ${REMOVE_USER_PROFILE}
                 `,
@@ -105,9 +105,9 @@ export class UserProfileApiSetService {
             );
     }
 
-    updateUserGoals(input: UpdateGoalsInput): Observable<Goal | null> {
+    updateUserGoals(input: UpdateGoalsInput): Observable<GoalAPI | null> {
         return this.apollo
-            .mutate<{ updateUserGoals: Goal }, { input: UpdateGoalsInput }>({
+            .mutate<{ updateUserGoals: GoalAPI }, { input: UpdateGoalsInput }>({
                 mutation: gql`
                     ${UPDATE_USER_GOALS}
                 `,
@@ -121,10 +121,10 @@ export class UserProfileApiSetService {
 
     updateUserHealthConstraints(
         input: UpdateHealthConstraintsInput,
-    ): Observable<HealthConstraint | null> {
+    ): Observable<HealthConstraintAPI | null> {
         return this.apollo
             .mutate<
-                { updateUserHealthConstraints: HealthConstraint },
+                { updateUserHealthConstraints: HealthConstraintAPI },
                 { input: UpdateHealthConstraintsInput }
             >({
                 mutation: gql`
@@ -138,9 +138,9 @@ export class UserProfileApiSetService {
             );
     }
 
-    updateUserSchedule(input: UpdateScheduleInput): Observable<Schedule | null> {
+    updateUserSchedule(input: UpdateScheduleInput): Observable<ScheduleAPI | null> {
         return this.apollo
-            .mutate<{ updateUserSchedule: Schedule }, { input: UpdateScheduleInput }>({
+            .mutate<{ updateUserSchedule: ScheduleAPI }, { input: UpdateScheduleInput }>({
                 mutation: gql`
                     ${UPDATE_USER_SCHEDULE}
                 `,
@@ -154,10 +154,10 @@ export class UserProfileApiSetService {
 
     updateUserTrainingPreference(
         input: UpdateTrainingPreferenceInput,
-    ): Observable<TrainingPreference | null> {
+    ): Observable<TrainingPreferenceAPI | null> {
         return this.apollo
             .mutate<
-                { updateUserTrainingPreference: TrainingPreference },
+                { updateUserTrainingPreference: TrainingPreferenceAPI },
                 { input: UpdateTrainingPreferenceInput }
             >({
                 mutation: gql`
@@ -171,9 +171,9 @@ export class UserProfileApiSetService {
             );
     }
 
-    updateUserResource(input: UpdateResourceInput): Observable<Resource | null> {
+    updateUserResource(input: UpdateResourceInput): Observable<ResourceAPI | null> {
         return this.apollo
-            .mutate<{ updateUserResource: Resource }, { input: UpdateResourceInput }>({
+            .mutate<{ updateUserResource: ResourceAPI }, { input: UpdateResourceInput }>({
                 mutation: gql`
                     ${UPDATE_USER_RESOURCE}
                 `,
@@ -187,10 +187,10 @@ export class UserProfileApiSetService {
 
     createUserStrengthMetric(
         input: CreateStrengthMetricInput,
-    ): Observable<StrengthMetric | null> {
+    ): Observable<StrengthMetricAPI | null> {
         return this.apollo
             .mutate<
-                { createUserStrengthMetric: StrengthMetric },
+                { createUserStrengthMetric: StrengthMetricAPI },
                 { input: CreateStrengthMetricInput }
             >({
                 mutation: gql`
@@ -204,9 +204,9 @@ export class UserProfileApiSetService {
             );
     }
 
-    removeUserStrengthMetric(id: string): Observable<StrengthMetric | null> {
+    removeUserStrengthMetric(id: string): Observable<StrengthMetricAPI | null> {
         return this.apollo
-            .mutate<{ removeUserStrengthMetric: StrengthMetric }, { id: string }>({
+            .mutate<{ removeUserStrengthMetric: StrengthMetricAPI }, { id: string }>({
                 mutation: gql`
                     ${REMOVE_USER_STRENGTH_METRIC}
                 `,
@@ -218,9 +218,9 @@ export class UserProfileApiSetService {
             );
     }
 
-    createWeightLog(input: CreateWeightLogInput): Observable<WeightLog | null> {
+    createWeightLog(input: CreateWeightLogInput): Observable<WeightLogAPI | null> {
         return this.apollo
-            .mutate<{ createWeightLog: WeightLog }, { input: CreateWeightLogInput }>({
+            .mutate<{ createWeightLog: WeightLogAPI }, { input: CreateWeightLogInput }>({
                 mutation: gql`
                     ${CREATE_WEIGHT_LOG}
                 `,

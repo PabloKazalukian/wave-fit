@@ -87,9 +87,9 @@ export interface Injury {
     description?: string;
 }
 
-// ── Sub-schemas individuales ──
+// ── Sub-schemas individuales (API) ──
 
-export interface Goal {
+export interface GoalAPI {
     _id: string;
     userId: string;
     primaryGoal: PrimaryGoal;
@@ -103,7 +103,7 @@ export interface Goal {
     updatedAt: string;
 }
 
-export interface HealthConstraint {
+export interface HealthConstraintAPI {
     _id: string;
     userId: string;
     injuries: Injury[];
@@ -115,7 +115,7 @@ export interface HealthConstraint {
     updatedAt: string;
 }
 
-export interface Schedule {
+export interface ScheduleAPI {
     _id: string;
     userId: string;
     daysPerWeek: number;
@@ -127,7 +127,7 @@ export interface Schedule {
     updatedAt: string;
 }
 
-export interface TrainingPreference {
+export interface TrainingPreferenceAPI {
     _id: string;
     userId: string;
     preferredStyles: TrainingStyle[];
@@ -140,7 +140,7 @@ export interface TrainingPreference {
     updatedAt: string;
 }
 
-export interface Resource {
+export interface ResourceAPI {
     _id: string;
     userId: string;
     trainingEnvironments: TrainingEnvironment[];
@@ -151,7 +151,7 @@ export interface Resource {
     updatedAt: string;
 }
 
-export interface StrengthMetric {
+export interface StrengthMetricAPI {
     _id: string;
     userId: string;
     exerciseKey: string;
@@ -164,8 +164,96 @@ export interface StrengthMetric {
     updatedAt: string;
 }
 
-export interface WeightLog {
+export interface WeightLogAPI {
     _id: string;
+    userId: string;
+    weightKg: number;
+    bodyFatPct?: number;
+    loggedAt: string;
+    notes?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+// ── Sub-schemas individuales (Dominio) ──
+
+export interface Goal {
+    id: string;
+    userId: string;
+    primaryGoal: PrimaryGoal;
+    secondaryGoals: string[];
+    targetWeightKg?: number;
+    timelineWeeks?: number;
+    trainingExperience: TrainingExperience;
+    sportSpecificity?: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface HealthConstraint {
+    id: string;
+    userId: string;
+    injuries: Injury[];
+    movementRestrictions: string[];
+    conditions: string[];
+    mobilityLevel: MobilityLevel;
+    hasHealthcareSupervision: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface Schedule {
+    id: string;
+    userId: string;
+    daysPerWeek: number;
+    preferredDays: number[];
+    sessionDurationMin: number;
+    preferredTime?: PreferredTime;
+    restDayActivity: RestDayActivity;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface TrainingPreference {
+    id: string;
+    userId: string;
+    preferredStyles: TrainingStyle[];
+    dislikedExercises: string[];
+    favoriteExercises: string[];
+    cardioPreference: CardioPreference;
+    intensityPreference: IntensityPreference;
+    workoutVibe?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface Resource {
+    id: string;
+    userId: string;
+    trainingEnvironments: TrainingEnvironment[];
+    equipment: AvailableEquipment;
+    dumbbellMaxKg?: number;
+    gymDistanceKm?: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface StrengthMetric {
+    id: string;
+    userId: string;
+    exerciseKey: string;
+    oneRmKg: number;
+    repsAtWeight?: RepsAtWeight;
+    confidenceLevel: ConfidenceLevel;
+    measuredAt: string;
+    notes?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface WeightLog {
+    id: string;
     userId: string;
     weightKg: number;
     bodyFatPct?: number;
@@ -177,8 +265,41 @@ export interface WeightLog {
 
 // ── Profile base ──
 
+export interface ProfileUserAPI {
+    id: string;
+    userId: string;
+    gender: Gender;
+    birthDate: string;
+    heightCm: number;
+    weightKg: number;
+    bodyFatPct?: number;
+    distributionDays: DistributionDays;
+    unitsPreference: UnitsPreference;
+    createdAt: string;
+    updatedAt: string;
+
+    goal?: GoalAPI | null;
+    healthConstraints?: HealthConstraintAPI | null;
+    schedule?: ScheduleAPI | null;
+    trainingPreferences?: TrainingPreferenceAPI | null;
+    resources?: ResourceAPI | null;
+    strengthMetrics: StrengthMetricAPI[];
+    weightLogs: WeightLogAPI[];
+}
+
+export interface UserProfileContextAPI {
+    profile?: ProfileUserAPI | null;
+    goal?: GoalAPI | null;
+    healthConstraints?: HealthConstraintAPI | null;
+    schedule?: ScheduleAPI | null;
+    trainingPreferences?: TrainingPreferenceAPI | null;
+    resources?: ResourceAPI | null;
+    strengthMetrics?: StrengthMetricAPI[] | null;
+    weightLogs?: WeightLogAPI[] | null;
+}
+
 export interface ProfileUser {
-    _id: string;
+    id: string;
     userId: string;
     gender: Gender;
     birthDate: string;

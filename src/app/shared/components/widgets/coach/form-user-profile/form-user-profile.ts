@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, forkJoin, of } from 'rxjs';
+import { catchError, concatMap, forkJoin, of } from 'rxjs';
 
 import { UserProfileService } from '../../../../../core/services/user/user-profile.service';
 import { FormInputComponent } from '../../../ui/input/input';
@@ -151,7 +151,10 @@ export class FormUserProfile implements OnInit {
             .pipe(catchError(() => of(null)));
 
         forkJoin([updateProfile$, updateGoal$, updateSchedule$])
-            .pipe(takeUntilDestroyed(this.destroyRef))
+            .pipe(
+                concatMap(() => this.profileUserService.fetchUserProfile()),
+                takeUntilDestroyed(this.destroyRef),
+            )
             .subscribe({
                 next: () => {
                     this.loading = false;
