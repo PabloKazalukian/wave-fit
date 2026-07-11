@@ -9,7 +9,7 @@ export class DataSection {
     @Input() title = '';
     @Input() data: any;
 
-    open = true;
+    open = false;
 
     toggle() {
         this.open = !this.open;
@@ -19,9 +19,7 @@ export class DataSection {
 
     get entries() {
         return this.data
-            ? Object.entries(this.data).filter(
-                  ([key]) => !this.excludedKeys.has(key)
-              )
+            ? Object.entries(this.data).filter(([key]) => !this.excludedKeys.has(key))
             : [];
     }
 

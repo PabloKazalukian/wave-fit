@@ -6,10 +6,12 @@ import { UserProfileService } from '../../core/services/user/user-profile.servic
 import { Router } from '@angular/router';
 import { DataSection } from '../../shared/components/ui/data-section/data-section';
 import { FormUserProfile } from '../../shared/components/widgets/coach/form-user-profile/form-user-profile';
+import { Bot } from 'lucide-angular';
+import { InfoCard } from '../../shared/components/ui/info-card/info-card';
 
 @Component({
     selector: 'app-coach',
-    imports: [BtnComponent, DataSection, FormsModule, FormUserProfile],
+    imports: [BtnComponent, DataSection, FormsModule, FormUserProfile, InfoCard],
     templateUrl: './coach.html',
     styles: ``,
 })
@@ -23,6 +25,15 @@ export class Coach {
     userProfile = this.profileUserService.userProfile;
 
     comment = '';
+
+    feature = {
+        icon: Bot,
+        title: 'Wave-Fit: Tu Coach AI',
+        description: `• Genera un plan con IA adaptado a tus necesitades.
+         • Completa los datos basicos para poder genera un plan.
+         • Podras modificarlo en el proceso. 
+        `,
+    };
 
     missingFields = computed(() => {
         const p = this.userProfile();

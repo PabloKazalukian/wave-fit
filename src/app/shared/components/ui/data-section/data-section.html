@@ -1,4 +1,4 @@
-<section class="bg-background3 rounded-xl p-4">
+<section class="bg-background3 rounded-xl p-4 w-full">
   <button class="w-full flex justify-between items-center" (click)="toggle()">
     <h2 class="text-primary">
       {{ title }}
@@ -25,7 +25,6 @@
       @for (item of entries; track item[0]) {
         <div>
           <span class="text-primary"> {{ formatKey(item[0]) }}: </span>
-          <span class="text-primary"> {{ formatKey(item[0]) }}: </span>
 
           @if (isArray(item[1])) {
             @if (item[1].length) {
@@ -44,10 +43,11 @@
               <span class="text-text2"> No hay datos </span>
             }
           } @else if (isObject(item[1])) {
-            <pre class="text-text2 bg-background2 rounded-lg p-2 mt-2"
+            <!-- arreglar aqui -->
+            <!-- <pre class="text-text2 bg-background2 rounded-lg p-2 mt-2"
               >{{ item[1] }}
               </pre
-            >
+            > -->
           } @else {
             <span class="text-text2">
               {{ item[1] || 'No establecido' }}
