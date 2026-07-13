@@ -1,30 +1,42 @@
-import { Component, DestroyRef, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserProfileService } from '../../core/services/user/user-profile.service';
-import { Router } from '@angular/router';
 import { DataSection } from '../../shared/components/ui/data-section/data-section';
 import { FormUserProfile } from '../../shared/components/widgets/coach/form-user-profile/form-user-profile';
 import { Bot } from 'lucide-angular';
 import { InfoCard } from '../../shared/components/ui/info-card/info-card';
+import { CoachService } from '../../core/services/coach/coach.service';
+import { IconComponent } from '../../shared/components/ui/icon/icon';
+import { SpinnerComponent } from '../../shared/components/ui/icon/spinner';
 
 @Component({
     selector: 'app-coach',
-    imports: [BtnComponent, DataSection, FormsModule, FormUserProfile, InfoCard],
+    imports: [
+        BtnComponent,
+        DataSection,
+        FormsModule,
+        FormUserProfile,
+        InfoCard,
+        IconComponent,
+        SpinnerComponent,
+    ],
     templateUrl: './coach.html',
     styles: ``,
 })
 export class Coach {
-    private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
-    private router = inject(Router);
     private profileUserService = inject(UserProfileService);
+    private coachService = inject(CoachService);
 
     user = this.authService.user;
     userProfile = this.profileUserService.userProfile;
 
     comment = '';
+    loading = signal(false);
+    errorMessage = signal<string | null>(null);
+    planResult = signal<string | null>(null);
 
     feature = {
         icon: Bot,
@@ -37,7 +49,7 @@ export class Coach {
 
     missingFields = computed(() => {
         const p = this.userProfile();
-        console.log(p);
+        // console.log(p);
         if (!p) return ['Cargando perfil...'];
 
         const missing: string[] = [];
@@ -55,5 +67,25 @@ export class Coach {
         return missing;
     });
 
-    ngOnInit(): void {}
+    onSubmit() {
+        this.loading.set(true);
+        this.errorMessage.set(null);
+        this.planResult.set(null);
+
+        this.coachService.generatePlan().subscribe({
+            next: (data) => {
+                this.loading.set(false);
+                if (data?.aiSnapshot?.rawResponse) {
+                    this.planResult.set(JSON.stringify(data.aiSnapshot.rawResponse, null, 2));
+                }
+            },
+            error: (err) => {
+                this.loading.set(false);
+                const msg = Array.isArray(err)
+                    ? err.map((e: { message: string }) => e.message).join(', ')
+                    : err?.message || 'Error al generar el plan';
+                this.errorMessage.set(msg);
+            },
+        });
+    }
 }

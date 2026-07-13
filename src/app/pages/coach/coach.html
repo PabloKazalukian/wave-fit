@@ -1,5 +1,4 @@
 <section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
-  <!-- ─── Profile Card ─────────────────────────────────────────────────── -->
   <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
     <h1 class="text-5xl font-bold text-center text-primary mb-8">Wave-Fit <br /></h1>
 
@@ -16,7 +15,6 @@
     </p>
 
     <h4 class="text-text2 text-lg font-bold mb-2">Información personal</h4>
-    <!-- Avatar + Name + Edit -->
     <header class="flex flex-col mb-4">
       <div class="flex flex-col gap-4 w-full mb-8">
         <app-data-section title="Configuración del perfil" [data]="userProfile()" />
@@ -71,9 +69,29 @@
             [text]="'Generar Plan'"
             [color]="'primary'"
             [variant]="'outline'"
-            [routerLink]="'/plans/create'"
+            [buttonType]="'submit'"
+            [isDisabled]="loading()"
+            (click)="onSubmit()"
           >
+            <app-icon>
+              <div class="h-6 w-6">
+                @if (loading()) {
+                  <app-spinner></app-spinner>
+                }
+              </div>
+            </app-icon>
           </app-btn>
+
+          @if (errorMessage()) {
+            <p class="text-error text-sm mt-2">{{ errorMessage() }}</p>
+          }
+
+          @if (planResult()) {
+            <div class="mt-6 bg-background3 border border-background4 rounded-2xl p-4">
+              <h3 class="text-primary font-bold mb-2">Plan generado:</h3>
+              <pre class="text-text2 text-xs overflow-auto max-h-96 whitespace-pre-wrap">{{ planResult() }}</pre>
+            </div>
+          }
         </div>
       } @else {
         <div class="flex flex-col gap-4 mt-6">

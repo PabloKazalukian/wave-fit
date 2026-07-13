@@ -45,9 +45,9 @@ export class UserProfileDomainService {
         return this.api.getUserProfileContext().pipe(
             handleGraphqlError(this.authSvc),
             map((res) => {
-                console.log('getUserProfileContext raw response:', res);
+                // console.log('getUserProfileContext raw response:', res);
                 const profileUser = wrapperProfileContextToDomain(res);
-                console.log('Sanitized domain profileUser:', profileUser);
+                // console.log('Sanitized domain profileUser:', profileUser);
                 return profileUser;
             }),
         );

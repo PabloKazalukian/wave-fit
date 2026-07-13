@@ -43,7 +43,7 @@ export class UserProfileService {
         effect(() => {
             const user = this.user$();
             if (user) {
-                console.log('UserProfileService detected user:', user);
+                // console.log('UserProfileService detected user:', user);
                 this.initUserProfile();
             } else {
                 this.state.setUserProfile(null);
