@@ -1,32 +1,35 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
-import { BtnComponent } from '../../../ui/btn/btn';
-import { DialogComponent } from '../../../ui/dialog/dialog';
+import { Component, computed, input } from '@angular/core';
+import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
 
 @Component({
     selector: 'app-coach-show-workout',
-    imports: [CommonModule, BtnComponent, DialogComponent, ExerciseCategoryPipe],
-
+    imports: [CommonModule, ExerciseCategoryPipe],
     templateUrl: './coach-show-workout.html',
     styles: ``,
 })
 export class CoachShowWorkout {
-    // facade = inject(TrackingWorkoutFacade);
+    workout = input<WorkoutSessionVM | null>(null);
+    dayFocus = input<string | undefined>();
 
-    isDeleteDialogOpen = signal(false);
+    exercisesSelectedOrdered = computed(() => {
+        const w = this.workout();
+        if (!w || !w.exercises.length) return [];
 
-    openDeleteDialog() {
-        this.isDeleteDialogOpen.set(true);
-    }
-
-    closeDeleteDialog() {
-        this.isDeleteDialogOpen.set(false);
-    }
-
-    confirmDelete() {
-        // this.facade.removeWorkoutSession().subscribe(() => {
-        //     this.closeDeleteDialog();
-        // });
-    }
+        return Object.entries(
+            w.exercises
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .reduce(
+                    (acc, item) => {
+                        if (!acc[item.category]) {
+                            acc[item.category] = [];
+                        }
+                        acc[item.category].push(item);
+                        return acc;
+                    },
+                    {} as Record<string, ExercisePerformanceVM[]>,
+                ),
+        );
+    });
 }

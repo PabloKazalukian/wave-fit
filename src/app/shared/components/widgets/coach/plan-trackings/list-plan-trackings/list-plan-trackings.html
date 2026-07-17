@@ -2,21 +2,26 @@
   <h3 class="text-primary font-bold mb-4">Historial de planes con coachAI:</h3>
 
   @if (planResults()) {
-    <div class="text-text2 text-xs overflow-auto max-h-96 whitespace-pre-wrap">
+    <div class="flex flex-col gap-3 overflow-auto max-h-96">
       @for (plan of planResults()!; track plan.id) {
-        <div class="mb-2">
-          <p><strong>ID:</strong> {{ plan.id }}</p>
-          <p><strong>Título:</strong> {{ plan.title }}</p>
-          <p><strong>Enfoque:</strong> {{ plan.focus }}</p>
-          <p><strong>Días por semana:</strong> {{ plan.trainingDaysPerWeek }}</p>
-          <p><strong>Duración:</strong> {{ plan.durationWeeks }} semanas</p>
-          <p><strong>Estado:</strong> {{ plan.status }}</p>
-          <p><strong>Fecha creación:</strong> {{ plan.createdAt }}</p>
-          <hr class="my-2 border-background4" />
+        <div
+          class="flex items-center justify-between bg-background2 border border-background4 rounded-xl p-3"
+        >
+          <div class="flex flex-col">
+            <span class="text-text1 font-semibold text-sm">{{ plan.title }}</span>
+            <span class="text-text2 text-xs">{{ formatDate(plan.createdAt) }}</span>
+          </div>
+          <app-btn
+            [text]="'Ver completo'"
+            [color]="'accent'"
+            [variant]="'outline'"
+            [size]="'sm'"
+            (click)="viewPlan.emit(plan.id)"
+          />
         </div>
       }
     </div>
   } @else {
-    <p class="text-text2 text-xs overflow-auto max-h-96 whitespace-pre-wrap">No hay planes</p>
+    <p class="text-text2 text-xs">No hay planes</p>
   }
 </section>

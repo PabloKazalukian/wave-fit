@@ -4,28 +4,28 @@ export const GENERATE_PLAN = gql`
     mutation GeneratePlan {
         generatePlan {
             id
-            title
-            description
-            focus
-            status
+            userId
             startDate
             endDate
-            durationWeeks
-            trainingDaysPerWeek
-            overallAdherencePercent
-            totalSessionsCompleted
-            totalSessionsPlanned
-            version
-            tags
-            createdAt
-            updatedAt
-            aiSnapshot {
-                contextSentToAI
-                promptUsed
-                modelUsed
-                rawResponse
-                tokensUsed
-                generatedAt
+            planId
+            completed
+            active
+            days {
+                order
+                date
+                isRest
+                workoutSessionId
+                exercises {
+                    exerciseId
+                    series
+                    sets {
+                        reps
+                        weights
+                    }
+                    notes
+                }
+                extraSessionIds
+                status
             }
         }
     }
@@ -82,6 +82,7 @@ export const GET_TRAINING_PLAN = gql`
             aiSnapshot {
                 modelUsed
                 tokensUsed
+                rawResponse
             }
         }
     }

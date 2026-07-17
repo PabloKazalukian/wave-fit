@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { DateService } from '../../../../../core/services/date.service';
 import { DayWithState } from '../../tracking/tracking-week/navigator-week/navigator-week';
 import { LocalDate, TrackingVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
@@ -11,26 +11,22 @@ import { Loading } from '../../../ui/loading/loading';
     styles: ``,
 })
 export class CoachNavigatorWeek {
-    // trackingSvc = inject(PlanTrackingService);
     dateSvc = inject(DateService);
-    // state = inject(WorkoutStateService);
 
     tracking = input.required<TrackingVM>();
-    // readonly loading = this.trackingSvc.loadingWorkoutCreation;
+    daySelected = output<WorkoutSessionVM | null>();
 
     totalDays = 7;
     visibleDayCount = 4;
     currentDayIndex = signal<number>(0);
 
-    //Debe ser el seleccionado
     workoutDay = signal<WorkoutSessionVM | null>(null);
     loading = signal<{ date: LocalDate; state: boolean }>({
-        date: '', // LocalDate vacío inicial
+        date: '',
         state: false,
     });
     selectedDate = signal<LocalDate | null>(null);
 
-    // selectedDay = signal<LocalDate | null>(null);
     selectedDay = computed(() => {
         const selected = this.selectedDate();
         if (!selected) return null;
@@ -98,6 +94,6 @@ export class CoachNavigatorWeek {
             this.workoutDay.set(null);
         }
 
-        // this.setDate(day.date);
+        this.daySelected.emit(workout ?? null);
     }
 }

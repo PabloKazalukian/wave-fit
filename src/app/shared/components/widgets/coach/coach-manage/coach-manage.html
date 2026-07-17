@@ -1,1 +1,18 @@
-<p>coach-manage works!</p>
+@if (loading()) {
+  <div class="flex justify-center py-8">
+    <app-loading [color]="'primary'" [size]="'md'"></app-loading>
+  </div>
+} @else if (trackingVM()) {
+  <div class="flex flex-col gap-4">
+    <app-coach-navigator-week
+      [tracking]="trackingVM()!"
+      (daySelected)="onDaySelected($event)"
+    />
+    <app-coach-show-workout
+      [workout]="selectedWorkout()"
+      [dayFocus]="selectedWorkout()?.notes"
+    />
+  </div>
+} @else {
+  <p class="text-text2 text-center py-8">No se pudo cargar el plan</p>
+}

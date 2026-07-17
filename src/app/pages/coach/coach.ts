@@ -11,6 +11,7 @@ import { CoachService } from '../../core/services/coach/coach.service';
 import { IconComponent } from '../../shared/components/ui/icon/icon';
 import { SpinnerComponent } from '../../shared/components/ui/icon/spinner';
 import { ListPlanTrackings } from '../../shared/components/widgets/coach/plan-trackings/list-plan-trackings/list-plan-trackings';
+import { CoachManage } from '../../shared/components/widgets/coach/coach-manage/coach-manage';
 
 @Component({
     selector: 'app-coach',
@@ -23,6 +24,7 @@ import { ListPlanTrackings } from '../../shared/components/widgets/coach/plan-tr
         IconComponent,
         SpinnerComponent,
         ListPlanTrackings,
+        CoachManage,
     ],
     templateUrl: './coach.html',
     styles: ``,
@@ -39,6 +41,9 @@ export class Coach {
     loading = signal(false);
     errorMessage = signal<string | null>(null);
     planResult = signal<string | null>(null);
+
+    selectedPlanId = signal<string | null>(null);
+    manageMode = signal(false);
 
     feature = {
         icon: Bot,
@@ -67,6 +72,16 @@ export class Coach {
 
         return missing;
     });
+
+    onViewPlan(planId: string) {
+        this.selectedPlanId.set(planId);
+        this.manageMode.set(true);
+    }
+
+    onBackToList() {
+        this.manageMode.set(false);
+        this.selectedPlanId.set(null);
+    }
 
     onSubmit() {
         this.loading.set(true);
