@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../../../../../../core/services/auth/auth.service';
 import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
 import { CoachService } from '../../../../../../core/services/coach/coach.service';
-import { tap } from 'rxjs';
 
 interface TrainingPlan {
     createdAt: string;

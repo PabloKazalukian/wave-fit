@@ -60,63 +60,65 @@
         </div>
       </section>
 
-      @if (missingFields().length === 0) {
-        <div class="flex flex-col gap-4 mt-6">
-          <div class="flex flex-col gap-2">
-            <label class="text-text2 font-semibold">Comentario adicional (opcional)</label>
-            <textarea
-              [(ngModel)]="comment"
-              placeholder="Ej: Tengo dolor en la rodilla, quiero evitar sentadillas pesadas..."
-              class="w-full bg-background3 border border-background4 rounded-xl p-3 text-text1 placeholder:text-text1 focus:outline-none focus:border-primary transition-colors resize-none"
-              rows="3"
-            ></textarea>
-          </div>
-          <app-btn
-            [text]="'Generar un nuevo Plan'"
-            [color]="'primary'"
-            [variant]="'outline'"
-            [buttonType]="'submit'"
-            [isDisabled]="loading()"
-            [showIcon]="true"
-            [size]="'md'"
-            (click)="onSubmit()"
-          >
-            <app-icon>
-              <div class="h-6 w-6">
-                @if (loading()) {
-                  <app-spinner></app-spinner>
-                }
-              </div>
-            </app-icon>
-          </app-btn>
-
-          @if (errorMessage()) {
-            <p class="text-error text-sm mt-2">{{ errorMessage() }}</p>
-          }
-
-          @if (planResult()) {
-            <div class="mt-6 bg-background3 border border-background4 rounded-2xl p-4">
-              <h3 class="text-primary font-bold mb-2">Plan generado:</h3>
-              <pre class="text-text2 text-xs overflow-auto max-h-96 whitespace-pre-wrap">{{
-                planResult()
-              }}</pre>
+      <section>
+        @if (missingFields().length === 0) {
+          <div class="flex flex-col gap-4 mt-6">
+            <div class="flex flex-col gap-2">
+              <label class="text-text2 font-semibold">Comentario adicional (opcional)</label>
+              <textarea
+                [(ngModel)]="comment"
+                placeholder="Ej: Tengo dolor en la rodilla, quiero evitar sentadillas pesadas..."
+                class="w-full bg-background3 border border-background4 rounded-xl p-3 text-text1 placeholder:text-text1 focus:outline-none focus:border-primary transition-colors resize-none"
+                rows="3"
+              ></textarea>
             </div>
-          }
-        </div>
-      } @else {
-        <div class="flex flex-col gap-4 mt-6">
-          <div class="bg-error/10 border border-error/20 rounded-xl p-4">
-            <h3 class="text-error font-semibold mb-2">Faltan datos requeridos:</h3>
-            <ul class="list-disc list-inside text-error/90">
-              @for (field of missingFields(); track field) {
-                <li>{{ field }}</li>
-              }
-            </ul>
-          </div>
+            <app-btn
+              [text]="'Generar un nuevo Plan'"
+              [color]="'primary'"
+              [variant]="'outline'"
+              [buttonType]="'submit'"
+              [isDisabled]="loading()"
+              [showIcon]="true"
+              [size]="'md'"
+              (click)="onSubmit()"
+            >
+              <app-icon>
+                <div class="h-6 w-6">
+                  @if (loading()) {
+                    <app-spinner></app-spinner>
+                  }
+                </div>
+              </app-icon>
+            </app-btn>
 
-          <app-form-user-profile></app-form-user-profile>
-        </div>
-      }
+            @if (errorMessage()) {
+              <p class="text-error text-sm mt-2">{{ errorMessage() }}</p>
+            }
+
+            @if (planResult()) {
+              <div class="mt-6 bg-background3 border border-background4 rounded-2xl p-4">
+                <h3 class="text-primary font-bold mb-2">Plan generado:</h3>
+                <pre class="text-text2 text-xs overflow-auto max-h-96 whitespace-pre-wrap">{{
+                  planResult()
+                }}</pre>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="flex flex-col gap-4 mt-6">
+            <div class="bg-error/10 border border-error/20 rounded-xl p-4">
+              <h3 class="text-error font-semibold mb-2">Faltan datos requeridos:</h3>
+              <ul class="list-disc list-inside text-error/90">
+                @for (field of missingFields(); track field) {
+                  <li>{{ field }}</li>
+                }
+              </ul>
+            </div>
+
+            <app-form-user-profile></app-form-user-profile>
+          </div>
+        }
+      </section>
     </header>
   </section>
 </section>

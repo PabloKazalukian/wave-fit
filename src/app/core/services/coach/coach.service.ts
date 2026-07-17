@@ -4,7 +4,7 @@ import { AuthService } from '../auth/auth.service';
 import { map, Observable, tap } from 'rxjs';
 import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
-import { GENERATE_PLAN, GET_TRAINING_PLANS } from '../../apollo/coach.query';
+import { GENERATE_PLAN, GET_TRAINING_PLAN, GET_TRAINING_PLANS } from '../../apollo/coach.query';
 
 @Injectable({
     providedIn: 'root',
@@ -35,6 +35,16 @@ export class CoachService {
                 handleGraphqlError(this.authSvc),
                 tap({ next: (data) => console.log(data) }),
                 map(({ data }) => (data?.trainingPlans ? data.trainingPlans : null)),
+            );
+    }
+
+    getPlanTrackingById(id: string): Observable<any | undefined | null> {
+        return this.apollo
+            .query<{ trainingPlan: any }>({ query: GET_TRAINING_PLAN, variables: { id } })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                tap({ next: (data) => console.log(data) }),
+                map(({ data }) => (data?.trainingPlan ? data.trainingPlan : null)),
             );
     }
 }
