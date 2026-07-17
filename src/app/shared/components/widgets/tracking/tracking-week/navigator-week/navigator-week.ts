@@ -6,7 +6,7 @@ import { PlanTrackingService } from '../../../../../../core/services/trackings/p
 import { Loading } from '../../../../ui/loading/loading';
 import { LocalDate, StatusWorkoutSession } from '../../../../../interfaces/tracking.interface';
 
-interface DayWithState {
+export interface DayWithState {
     day: string;
     dayNumber: number;
     date: LocalDate;

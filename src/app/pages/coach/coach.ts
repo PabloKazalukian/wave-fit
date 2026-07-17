@@ -10,6 +10,7 @@ import { InfoCard } from '../../shared/components/ui/info-card/info-card';
 import { CoachService } from '../../core/services/coach/coach.service';
 import { IconComponent } from '../../shared/components/ui/icon/icon';
 import { SpinnerComponent } from '../../shared/components/ui/icon/spinner';
+import { ListPlanTrackings } from '../../shared/components/widgets/coach/plan-trackings/list-plan-trackings/list-plan-trackings';
 
 @Component({
     selector: 'app-coach',
@@ -21,6 +22,7 @@ import { SpinnerComponent } from '../../shared/components/ui/icon/spinner';
         InfoCard,
         IconComponent,
         SpinnerComponent,
+        ListPlanTrackings,
     ],
     templateUrl: './coach.html',
     styles: ``,
@@ -49,7 +51,6 @@ export class Coach {
 
     missingFields = computed(() => {
         const p = this.userProfile();
-        // console.log(p);
         if (!p) return ['Cargando perfil...'];
 
         const missing: string[] = [];

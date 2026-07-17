@@ -15,7 +15,6 @@ import { WorkoutCompleteList } from './workout-complete-list/workout-complete-li
 import { WorkoutEdition } from './workout-edition/workout-edition';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ExtraSessionContent } from '../../extra-session/extra-session-content/extra-session-content';
-import { ExerciseCreate } from '../../exercises/exercise-create/exercise-create';
 
 @Component({
     selector: 'app-tracking-workout',

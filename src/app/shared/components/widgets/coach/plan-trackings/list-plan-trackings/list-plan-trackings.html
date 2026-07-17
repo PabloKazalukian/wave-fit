@@ -1,0 +1,22 @@
+<section class="bg-background1 border border-background4 rounded-2xl p-4">
+  <h3 class="text-primary font-bold mb-4">Historial de planes con coachAI:</h3>
+
+  @if (planResults()) {
+    <div class="text-text2 text-xs overflow-auto max-h-96 whitespace-pre-wrap">
+      @for (plan of planResults()!; track plan.id) {
+        <div class="mb-2">
+          <p><strong>ID:</strong> {{ plan.id }}</p>
+          <p><strong>Título:</strong> {{ plan.title }}</p>
+          <p><strong>Enfoque:</strong> {{ plan.focus }}</p>
+          <p><strong>Días por semana:</strong> {{ plan.trainingDaysPerWeek }}</p>
+          <p><strong>Duración:</strong> {{ plan.durationWeeks }} semanas</p>
+          <p><strong>Estado:</strong> {{ plan.status }}</p>
+          <p><strong>Fecha creación:</strong> {{ plan.createdAt }}</p>
+          <hr class="my-2 border-background4" />
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="text-text2 text-xs overflow-auto max-h-96 whitespace-pre-wrap">No hay planes</p>
+  }
+</section>
