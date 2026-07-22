@@ -146,6 +146,7 @@
   } @else {
     <app-workout-routine-selector
       (routineSelected)="onRoutineSelected($event)"
+      (closed)="closeRoutineDialog()"
     ></app-workout-routine-selector>
   }
 </app-dialog>

@@ -22,6 +22,7 @@ export class CoachShowWorkout {
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .reduce(
                     (acc, item) => {
+                        console.log(item.category);
                         if (!acc[item.category]) {
                             acc[item.category] = [];
                         }
