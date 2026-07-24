@@ -1,12 +1,4 @@
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, effect, inject, input, OnInit, signal } from '@angular/core';
 import { CoachService } from '../../../../../core/services/coach/coach.service';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { DateService } from '../../../../../core/services/date.service';
@@ -20,41 +12,8 @@ import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
 import { CoachNavigatorWeek } from '../coach-navigator-week/coach-navigator-week';
 import { CoachShowWorkout } from '../coach-show-workout/coach-show-workout';
 import { Loading } from '../../../ui/loading/loading';
-
-interface PlanDay {
-    order: number;
-    isRest: boolean;
-    focus?: string;
-    exercises: {
-        name: string;
-        sets: number;
-        reps: string;
-        rpe?: number;
-        restSeconds?: number;
-        notes?: string;
-    }[];
-}
-
-interface PlanWeek {
-    weekNumber: number;
-    days: PlanDay[];
-}
-
-interface PlanRawResponse {
-    title?: string;
-    focus?: string;
-    durationWeeks?: number;
-    daysPerWeek?: number;
-    weeks: PlanWeek[];
-}
-
-interface PlanData {
-    id: string;
-    startDate?: string;
-    aiSnapshot?: {
-        rawResponse?: PlanRawResponse | string;
-    };
-}
+import { TrainingPlanDetail } from '../../../../interfaces/coach.interface';
+import { AiPlanResponse } from '../../../../interfaces/ai-plan.interface';
 
 @Component({
     selector: 'app-coach-manage',
@@ -70,7 +29,7 @@ export class CoachManage implements OnInit {
     private dateService = inject(DateService);
 
     loading = signal(true);
-    planData = signal<PlanData | null>(null);
+    planData = signal<TrainingPlanDetail | null>(null);
     trackingVM = signal<TrackingVM | null>(null);
     selectedDate = signal<LocalDate | null>(null);
     selectedWorkout = signal<WorkoutSessionVM | null>(null);
@@ -112,8 +71,10 @@ export class CoachManage implements OnInit {
         this.loading.set(true);
         this.coachService.getPlanTrackingById(id).subscribe({
             next: (data) => {
-                this.planData.set(data);
-                this.buildTrackingVM(data as PlanData);
+                if (data) {
+                    this.planData.set(data);
+                    this.buildTrackingVM(data);
+                }
                 this.loading.set(false);
             },
             error: () => {
@@ -122,13 +83,13 @@ export class CoachManage implements OnInit {
         });
     }
 
-    private buildTrackingVM(plan: PlanData) {
+    private buildTrackingVM(plan: TrainingPlanDetail) {
         if (!plan) return;
 
-        const rawResponse: PlanRawResponse | string | undefined = plan.aiSnapshot?.rawResponse;
+        const rawResponse: AiPlanResponse | string | undefined = plan.aiSnapshot?.rawResponse;
         if (!rawResponse) return;
 
-        const parsed: PlanRawResponse =
+        const parsed: AiPlanResponse =
             typeof rawResponse === 'string' ? JSON.parse(rawResponse) : rawResponse;
 
         const startDate = plan.startDate || this.dateService.todayLocalDate();
@@ -153,7 +114,8 @@ export class CoachManage implements OnInit {
                     const repsNumber = this.parseReps(ex.reps);
 
                     return {
-                        exerciseId: found?.id || `plan-${ex.name.toLowerCase().replace(/\s/g, '-')}`,
+                        exerciseId:
+                            found?.id || `plan-${ex.name.toLowerCase().replace(/\s/g, '-')}`,
                         name: ex.name,
                         series: ex.sets,
                         category: found?.category || this.guessCategory(ex.name),
@@ -221,7 +183,8 @@ export class CoachManage implements OnInit {
             return ExerciseCategory.BICEPS;
         if (lower.includes('tríceps') || lower.includes('triceps') || lower.includes('fondos'))
             return ExerciseCategory.TRICEPS;
-        if (lower.includes('hombro') || lower.includes('elevacion')) return ExerciseCategory.SHOULDERS;
+        if (lower.includes('hombro') || lower.includes('elevacion'))
+            return ExerciseCategory.SHOULDERS;
         if (lower.includes('plancha') || lower.includes('russian') || lower.includes('core'))
             return ExerciseCategory.CORE;
         return ExerciseCategory.CHEST;

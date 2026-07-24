@@ -5,49 +5,20 @@ export const GENERATE_PLAN = gql`
         generatePlan {
             id
             userId
-            startDate
-            endDate
-            planId
-            completed
-            active
-            days {
-                order
-                date
-                isRest
-                workoutSessionId
-                exercises {
-                    exerciseId
-                    series
-                    sets {
-                        reps
-                        weights
-                    }
-                    notes
-                }
-                extraSessionIds
-                status
-            }
-        }
-    }
-`;
-
-export const GENERATE_PLAN_2 = gql`
-    mutation GeneratePlan {
-        generatePlan {
-            id
+            goalId
             title
+            description
             focus
             status
             startDate
             endDate
             durationWeeks
             trainingDaysPerWeek
-            totalSessionsPlanned
-            aiSnapshot {
-                modelUsed
-                tokensUsed
-                generatedAt
-            }
+            tags
+            confirmed
+            version
+            createdAt
+            updatedAt
         }
     }
 `;
@@ -57,11 +28,22 @@ export const GET_TRAINING_PLANS = gql`
         trainingPlans {
             id
             title
-            focus
-            status
+            description
+            focus # hypertrophy | strength | endurance | fat_loss | recomp | maintenance | sport_specific
+            status # draft | active | completed | abandoned | archived
+            startDate
+            endDate
             durationWeeks
             trainingDaysPerWeek
+            overallAdherencePercent
+            totalSessionsCompleted
+            totalSessionsPlanned
+            confirmed
+            tags
+            version
+            goalId
             createdAt
+            updatedAt
         }
     }
 `;
@@ -110,6 +92,18 @@ export const REMOVE_TRAINING_PLAN = gql`
     mutation RemoveTrainingPlan($id: String!) {
         removeTrainingPlan(id: $id) {
             id
+        }
+    }
+`;
+
+export const CONFIRM_PLAN = gql`
+    mutation ConfirmPlan($id: String!) {
+        confirmPlan(id: $id) {
+            id
+            title
+            confirmed
+            status
+            updatedAt
         }
     }
 `;

@@ -3,16 +3,7 @@ import { AuthService } from '../../../../../../core/services/auth/auth.service';
 import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
 import { CoachService } from '../../../../../../core/services/coach/coach.service';
 import { BtnComponent } from '../../../../ui/btn/btn';
-
-interface TrainingPlan {
-    createdAt: string;
-    durationWeeks: number;
-    focus: string;
-    id: string;
-    status: string;
-    title: string;
-    trainingDaysPerWeek: number;
-}
+import { TrainingPlanListItem } from '../../../../../interfaces/coach.interface';
 
 @Component({
     selector: 'app-list-plan-trackings',
@@ -27,7 +18,7 @@ export class ListPlanTrackings {
 
     viewPlan = output<string>();
 
-    planResults = signal<TrainingPlan[] | null>(null);
+    planResults = signal<TrainingPlanListItem[] | null>(null);
 
     user = this.authService.user;
     userProfile = this.profileUserService.userProfile;
