@@ -1,7 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { LocalDate, TrackingVM, WorkoutSessionVM } from '../../../shared/interfaces/tracking.interface';
+import {
+    LocalDate,
+    TrackingVM,
+    WorkoutSessionVM,
+} from '../../../shared/interfaces/tracking.interface';
 import { DateService } from '../date.service';
 import { IndexedDbStorageService } from '../storage/indexed-db.service';
 

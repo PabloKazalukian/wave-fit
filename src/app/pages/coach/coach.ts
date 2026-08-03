@@ -1,5 +1,4 @@
 import { Component, inject, computed, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserProfileService } from '../../core/services/user/user-profile.service';
@@ -12,19 +11,23 @@ import { IconComponent } from '../../shared/components/ui/icon/icon';
 import { SpinnerComponent } from '../../shared/components/ui/icon/spinner';
 import { ListPlanTrackings } from '../../shared/components/widgets/coach/plan-trackings/list-plan-trackings/list-plan-trackings';
 import { CoachManage } from '../../shared/components/widgets/coach/coach-manage/coach-manage';
+import { CoachManageWithPlan } from '../../shared/components/widgets/coach/coach-manage-with-plan/coach-manage-with-plan';
+import { TrainingPlanDetail } from '../../shared/interfaces/coach.interface';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-coach',
     imports: [
         BtnComponent,
         DataSection,
-        FormsModule,
         FormUserProfile,
         InfoCard,
+        FormsModule,
         IconComponent,
         SpinnerComponent,
         ListPlanTrackings,
         CoachManage,
+        CoachManageWithPlan,
     ],
     templateUrl: './coach.html',
     styles: ``,
@@ -40,7 +43,7 @@ export class Coach {
     comment = '';
     loading = signal(false);
     errorMessage = signal<string | null>(null);
-    planResult = signal<string | null>(null);
+    planResult = signal<TrainingPlanDetail | null>(null);
 
     selectedPlanId = signal<string | null>(null);
     manageMode = signal(false);
@@ -83,16 +86,23 @@ export class Coach {
         this.selectedPlanId.set(null);
     }
 
+    onClearPlanResult() {
+        this.planResult.set(null);
+    }
+
     onSubmit() {
         this.loading.set(true);
         this.errorMessage.set(null);
         this.planResult.set(null);
 
-        this.coachService.generatePlan().subscribe({
+        this.coachService.generatePlan(this.comment).subscribe({
             next: (data) => {
                 this.loading.set(false);
-                if (data?.aiSnapshot?.rawResponse) {
-                    this.planResult.set(JSON.stringify(data.aiSnapshot.rawResponse, null, 2));
+                if (data) {
+                    if (data?.aiSnapshot?.rawResponse) {
+                        // this.planResult.set(JSON.stringify(data.aiSnapshot.rawResponse, null, 2));
+                        this.planResult.set(data);
+                    }
                 }
             },
             error: (err) => {

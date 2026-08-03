@@ -73,6 +73,7 @@ export class TrackingWeekFacade {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
+                    this.state.outOfDateRange.set(false);
                     this.showConfirmDialog.set(false);
                     this.router.navigate(['/my-week/success']);
                 },

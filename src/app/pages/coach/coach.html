@@ -84,36 +84,34 @@
                   rows="3"
                 ></textarea>
               </div>
-              <app-btn
-                [text]="'Generar un nuevo Plan'"
-                [color]="'primary'"
-                [variant]="'outline'"
-                [buttonType]="'submit'"
-                [isDisabled]="loading()"
-                [showIcon]="true"
-                [size]="'md'"
-                (click)="onSubmit()"
-              >
-                <app-icon>
-                  <div class="h-6 w-6">
-                    @if (loading()) {
-                      <app-spinner></app-spinner>
-                    }
-                  </div>
-                </app-icon>
-              </app-btn>
+              @if (planResult()) {
+                <app-coach-manage-with-plan
+                  [planData]="planResult()!"
+                  (deletePlan)="onClearPlanResult()"
+                />
+              } @else {
+                <app-btn
+                  [text]="'Generar un nuevo Plan'"
+                  [color]="'primary'"
+                  [variant]="'outline'"
+                  [buttonType]="'submit'"
+                  [isDisabled]="loading()"
+                  [showIcon]="true"
+                  [size]="'md'"
+                  (click)="onSubmit()"
+                >
+                  <app-icon>
+                    <div class="h-6 w-6">
+                      @if (loading()) {
+                        <app-spinner></app-spinner>
+                      }
+                    </div>
+                  </app-icon>
+                </app-btn>
+              }
 
               @if (errorMessage()) {
                 <p class="text-error text-sm mt-2">{{ errorMessage() }}</p>
-              }
-
-              @if (planResult()) {
-                <div class="mt-6 bg-background3 border border-background4 rounded-2xl p-4">
-                  <h3 class="text-primary font-bold mb-2">Plan generado:</h3>
-                  <pre class="text-text2 text-xs overflow-auto max-h-96 whitespace-pre-wrap">{{
-                    planResult()
-                  }}</pre>
-                </div>
               }
             </div>
           } @else {

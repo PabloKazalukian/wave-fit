@@ -17,10 +17,11 @@ export class CoachService {
 
     authSvc = inject(AuthService);
 
-    generatePlan(): Observable<TrainingPlanDetail | null> {
+    generatePlan(comment: string = ''): Observable<TrainingPlanDetail | null> {
         return this.apollo
             .mutate<{ generatePlan: TrainingPlanDetail }>({
                 mutation: GENERATE_PLAN,
+                variables: { comment },
             })
             .pipe(
                 tap({ next: (data) => console.log('GENERATE_PLAN', data) }),

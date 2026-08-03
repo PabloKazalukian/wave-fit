@@ -1,0 +1,52 @@
+<div class="flex flex-col gap-4">
+  @if (facade.trackingVM()) {
+    <app-coach-navigator-week
+      [tracking]="facade.trackingVM()!"
+      (daySelected)="onDaySelected($event)"
+    />
+    <app-coach-show-workout
+      [workout]="facade.selectedWorkout()"
+      [dayFocus]="facade.selectedWorkout()?.notes"
+    />
+  } @else {
+    <p class="text-text2 text-sm text-center py-4">Cargando plan...</p>
+  }
+
+  <div class="flex flex-col gap-2 mt-2">
+    <label for="modifications-textarea" class="text-text2 font-semibold"
+      >Modificaciones al plan (mínimo 10 palabras)</label
+    >
+    <textarea
+      id="modifications-textarea"
+      [(ngModel)]="modificationsComment"
+      placeholder="Ej: Quiero cambiar el press banca por press inclinado, y agregar mas series de pierna..."
+      class="w-full bg-background3 border border-background4 rounded-xl p-3 text-text1 placeholder:text-text1 focus:outline-none focus:border-primary transition-colors resize-none"
+      rows="3"
+    ></textarea>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3">
+    <app-btn
+      [text]="'Borrar'"
+      [color]="'error'"
+      [variant]="'outline'"
+      [size]="'md'"
+      (click)="deletePlan.emit()"
+    />
+    <app-btn
+      [text]="'Confirmar'"
+      [color]="'confirm'"
+      [variant]="'outline'"
+      [size]="'md'"
+      (click)="confirmPlan.emit()"
+    />
+    <app-btn
+      [text]="'Modificar'"
+      [color]="'secondary'"
+      [variant]="'outline'"
+      [size]="'md'"
+      [isDisabled]="!canModify"
+      (click)="modifyPlan.emit(modificationsComment)"
+    />
+  </div>
+</div>

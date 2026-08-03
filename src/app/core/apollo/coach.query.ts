@@ -1,8 +1,8 @@
 import { gql } from 'apollo-angular';
 
 export const GENERATE_PLAN = gql`
-    mutation GeneratePlan {
-        generatePlan {
+    mutation GeneratePlan($comment: String!) {
+        generatePlan(comment: $comment) {
             id
             userId
             goalId
@@ -16,6 +16,9 @@ export const GENERATE_PLAN = gql`
             trainingDaysPerWeek
             tags
             confirmed
+            aiSnapshot {
+                rawResponse
+            }
             version
             createdAt
             updatedAt
@@ -29,8 +32,8 @@ export const GET_TRAINING_PLANS = gql`
             id
             title
             description
-            focus # hypertrophy | strength | endurance | fat_loss | recomp | maintenance | sport_specific
-            status # draft | active | completed | abandoned | archived
+            focus
+            status
             startDate
             endDate
             durationWeeks

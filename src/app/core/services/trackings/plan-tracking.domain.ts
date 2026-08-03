@@ -72,7 +72,9 @@ export class PlanTrackingDomainService {
 
     private generateObjectId(): string {
         const timestamp = Math.floor(new Date().getTime() / 1000).toString(16);
-        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16));
+        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () =>
+            Math.floor(Math.random() * 16).toString(16),
+        );
         return (timestamp + randomHex).toLowerCase();
     }
 
@@ -279,13 +281,15 @@ export class PlanTrackingDomainService {
                 operationName: 'UpdateWeekLogDay',
                 variables: { input: payload },
                 status: 'pending' as const,
-                createdAt: Date.now()
+                createdAt: Date.now(),
             };
-            
-            return from(this.syncQueue.enqueue(pending).then(() => {
-                // Optimistic UI update can just return null and the service will update local cache
-                return null;
-            }));
+
+            return from(
+                this.syncQueue.enqueue(pending).then(() => {
+                    // Optimistic UI update can just return null and the service will update local cache
+                    return null;
+                }),
+            );
         }
     }
 

@@ -4,21 +4,24 @@ export type AiPlanFocus =
     | 'endurance'
     | 'fat_loss'
     | 'maintenance'
-    | 'recomp';
+    | 'recomp'
+    | 'sport_specific';
 
+// Estructura real que devuelve el backend (days en la raíz)
 export interface AiPlanExercise {
+    exerciseId: string;
     name: string;
-    sets: number;
-    reps: string;
-    rpe?: number;
-    restSeconds?: number;
-    notes?: string;
+    plannedSets: number;
+    plannedReps: string;
+    rpe?: number | null;
+    restSeconds?: number | null;
+    notes?: string | null;
 }
 
 export interface AiPlanDay {
     order: number;
     isRest: boolean;
-    focus: string;
+    focus: string | null;
     exercises: AiPlanExercise[];
 }
 
