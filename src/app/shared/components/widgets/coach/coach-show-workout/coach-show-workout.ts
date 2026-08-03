@@ -22,7 +22,6 @@ export class CoachShowWorkout {
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .reduce(
                     (acc, item) => {
-                        console.log(item.category);
                         if (!acc[item.category]) {
                             acc[item.category] = [];
                         }
@@ -33,4 +32,8 @@ export class CoachShowWorkout {
                 ),
         );
     });
+
+    hasWeight(exercise: ExercisePerformanceVM): boolean {
+        return exercise.usesWeight && exercise.sets.some((s) => (s.weights ?? 0) > 0);
+    }
 }

@@ -10,7 +10,11 @@ import {
     WorkoutSessionVM,
 } from '../../../../interfaces/tracking.interface';
 import { TrainingPlanDetail } from '../../../../interfaces/coach.interface';
-import { AiPlanDay, AiPlanExercise, AiPlanResponse, AiPlanWeek } from '../../../../interfaces/ai-plan.interface';
+import {
+    AiPlanDay,
+    AiPlanExercise,
+    AiPlanResponse,
+} from '../../../../interfaces/ai-plan.interface';
 
 @Injectable()
 export class CoachManageWithPlanFacade {
@@ -28,12 +32,8 @@ export class CoachManageWithPlanFacade {
      * Debe llamarse en ngOnInit del componente padre para precargar los ejercicios.
      */
     init(): void {
-        this.exercisesService
-            .getExercises()
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe();
+        this.exercisesService.getExercises().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
-
 
     readonly exercisesGrouped = computed(() => {
         const workout = this.selectedWorkout();
@@ -89,19 +89,18 @@ export class CoachManageWithPlanFacade {
     }
 
     private buildTrackingVM(plan: TrainingPlanDetail): void {
-        if (!plan?.aiSnapshot?.rawResponse) return;
-
         const rawResponse = plan.aiSnapshot.rawResponse;
         const parsed: AiPlanResponse =
             typeof rawResponse === 'string' ? JSON.parse(rawResponse) : rawResponse;
 
-        // El backend devuelve weeks con days dentro de cada semana
-        const planDays: AiPlanDay[] = (parsed.weeks ?? []).flatMap((w: AiPlanWeek) => w.days);
+        // El backend devuelve los 7 días directamente en la raíz
+        const planDays: AiPlanDay[] = parsed.days ?? [];
         if (!planDays.length) return;
 
-
-
-        const exercisesMap = new Map<string, { id: string; category: ExerciseCategory; usesWeight: boolean }>();
+        const exercisesMap = new Map<
+            string,
+            { id: string; category: ExerciseCategory; usesWeight: boolean }
+        >();
         for (const ex of this.exercisesService.exercises()) {
             if (!ex.id) continue;
             exercisesMap.set(ex.id, {
@@ -129,8 +128,7 @@ export class CoachManageWithPlanFacade {
                             exerciseId: ex.exerciseId,
                             name: ex.name,
                             series: sets,
-                            category:
-                                catalogEntry?.category ?? this.guessCategory(ex.name),
+                            category: catalogEntry?.category ?? this.guessCategory(ex.name),
                             sets: Array.from({ length: sets }, () => ({
                                 reps: repsNum,
                                 weights: 0,
@@ -166,6 +164,7 @@ export class CoachManageWithPlanFacade {
             completed: false,
         };
 
+        console.log('tracking', tracking);
         this.trackingVM.set(tracking);
 
         // Seleccionar el primer día de entrenamiento (no descanso)

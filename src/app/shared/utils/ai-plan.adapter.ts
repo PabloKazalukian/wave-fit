@@ -170,7 +170,8 @@ function aiWeekToTracking(week: AiPlanWeek, startDate: LocalDate, planTitle: str
 }
 
 export function adaptAiPlanToTrackings(plan: AiPlanResponse, startDate: LocalDate): TrackingVM[] {
-    return plan.weeks.map((week) => aiWeekToTracking(week, startDate, plan.title));
+    const week: AiPlanWeek = { weekNumber: 1, days: plan.days };
+    return [aiWeekToTracking(week, startDate, plan.title)];
 }
 
 export function adaptAiPlanWeekToTracking(
@@ -178,7 +179,6 @@ export function adaptAiPlanWeekToTracking(
     weekNumber: number,
     startDate: LocalDate,
 ): TrackingVM | null {
-    const week = plan.weeks.find((w) => w.weekNumber === weekNumber);
-    if (!week) return null;
+    const week: AiPlanWeek = { weekNumber, days: plan.days };
     return aiWeekToTracking(week, startDate, plan.title);
 }

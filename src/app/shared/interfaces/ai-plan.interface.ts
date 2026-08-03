@@ -35,5 +35,5 @@ export interface AiPlanResponse {
     focus: AiPlanFocus;
     durationWeeks: number;
     daysPerWeek: number;
-    weeks: AiPlanWeek[];
+    days: AiPlanDay[];
 }

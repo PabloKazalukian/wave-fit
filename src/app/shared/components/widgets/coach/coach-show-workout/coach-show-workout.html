@@ -41,20 +41,27 @@
                     <li class="border-r-2 pr-2 border-background4 text-center">1</li>
                     <li class="text-error2">No completado</li>
                   </ul>
+                } @else if (!hasWeight(exercise)) {
+                  <ul class="flex gap-2 bg-background3 p-2 rounded-lg">
+                    <li class="text-text1 font-medium">
+                      {{ exercise.series }}x{{ exercise.sets[0].reps }}reps
+                    </li>
+                  </ul>
+                } @else {
+                  <div class="flex flex-col gap-1">
+                    @for (item of exercise.sets; track $index) {
+                      <ul class="flex gap-2 bg-background3 p-2 rounded-lg">
+                        <li class="border-r-2 pr-2 border-background4 text-center">
+                          {{ $index + 1 }}
+                        </li>
+                        <li>{{ item.reps }}reps</li>
+                        @if (item.weights) {
+                          <li>x {{ item.weights }}kg</li>
+                        }
+                      </ul>
+                    }
+                  </div>
                 }
-                <div class="flex flex-col gap-1">
-                  @for (item of exercise.sets; track $index) {
-                    <ul class="flex gap-2 bg-background3 p-2 rounded-lg">
-                      <li class="border-r-2 pr-2 border-background4 text-center">
-                        {{ $index + 1 }}
-                      </li>
-                      <li>{{ item.reps }}reps</li>
-                      @if (item.weights) {
-                        <li>x {{ item.weights }}kg</li>
-                      }
-                    </ul>
-                  }
-                </div>
               </li>
             }
           </ul>
