@@ -1,17 +1,18 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, OnInit, output, signal } from '@angular/core';
 import { AuthService } from '../../../../../../core/services/auth/auth.service';
 import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
 import { CoachService } from '../../../../../../core/services/coach/coach.service';
 import { BtnComponent } from '../../../../ui/btn/btn';
+import { NumericPagination } from '../../../../ui/numeric-pagination/numeric-pagination';
 import { TrainingPlanListItem } from '../../../../../interfaces/coach.interface';
 
 @Component({
     selector: 'app-list-plan-trackings',
-    imports: [BtnComponent],
+    imports: [BtnComponent, NumericPagination],
     templateUrl: './list-plan-trackings.html',
     styles: ``,
 })
-export class ListPlanTrackings {
+export class ListPlanTrackings implements OnInit {
     private authService = inject(AuthService);
     private profileUserService = inject(UserProfileService);
     private coachService = inject(CoachService);
@@ -19,15 +20,27 @@ export class ListPlanTrackings {
     viewPlan = output<string>();
 
     planResults = signal<TrainingPlanListItem[] | null>(null);
+    totalItems = signal(0);
+    totalPages = signal(0);
+    currentPage = signal(1);
+    readonly pageSize = 5;
 
     user = this.authService.user;
     userProfile = this.profileUserService.userProfile;
 
     ngOnInit() {
-        this.coachService.getPlanTrackings().subscribe({
+        this.loadPage(1);
+    }
+
+    loadPage(page: number): void {
+        const offset = (page - 1) * this.pageSize;
+        this.coachService.getPlanTrackings(this.pageSize, offset).subscribe({
             next: (data) => {
                 if (data) {
-                    this.planResults.set(data);
+                    this.planResults.set(data.items);
+                    this.totalItems.set(data.total);
+                    this.totalPages.set(data.totalPages);
+                    this.currentPage.set(page);
                 }
             },
         });

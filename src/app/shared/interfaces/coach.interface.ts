@@ -5,9 +5,18 @@ export interface TrainingPlanListItem {
     title: string;
     focus: string;
     status: string;
-    durationWeeks: number;
-    trainingDaysPerWeek: number;
+    durationWeeks?: number;
+    trainingDaysPerWeek?: number;
+    confirmed?: boolean;
     createdAt: string;
+}
+
+export interface TrainingPlansPage {
+    items: TrainingPlanListItem[];
+    total: number;
+    limit: number;
+    offset: number;
+    totalPages: number;
 }
 
 export interface AiSnapshot {

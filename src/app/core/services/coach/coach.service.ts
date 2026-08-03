@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { GENERATE_PLAN, GET_TRAINING_PLAN, GET_TRAINING_PLANS } from '../../apollo/coach.query';
 import {
-    TrainingPlanListItem,
     TrainingPlanDetail,
+    TrainingPlansPage,
 } from '../../../shared/interfaces/coach.interface';
 
 @Injectable({
@@ -24,20 +24,19 @@ export class CoachService {
                 variables: { comment },
             })
             .pipe(
-                tap({ next: (data) => console.log('GENERATE_PLAN', data) }),
                 handleGraphqlError(this.authSvc),
                 map(({ data }) => (data?.generatePlan ? data.generatePlan : null)),
             );
     }
 
-    getPlanTrackings(): Observable<TrainingPlanListItem[] | null> {
+    getPlanTrackings(limit: number, offset: number): Observable<TrainingPlansPage | null> {
         return this.apollo
-            .query<{ trainingPlans: TrainingPlanListItem[] }>({
+            .query<{ trainingPlans: TrainingPlansPage }>({
                 query: GET_TRAINING_PLANS,
+                variables: { limit, offset },
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                tap({ next: (data) => console.log('GET_TRAINING_PLANS', data) }),
                 map(({ data }) => (data?.trainingPlans ? data.trainingPlans : null)),
             );
     }
@@ -50,7 +49,6 @@ export class CoachService {
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
-                tap({ next: (data) => console.log('GET_TRAINING_PLAN', data) }),
                 map(({ data }) => (data?.trainingPlan ? data.trainingPlan : null)),
             );
     }

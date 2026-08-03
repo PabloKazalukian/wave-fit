@@ -1,4 +1,4 @@
-<section class="bg-background1 border border-background4 rounded-2xl p-4">
+<section class="bg-background border border-background4 rounded-2xl p-4">
   <h3 class="text-primary font-bold mb-4">Historial de planes con coachAI:</h3>
 
   @if (planResults()) {
@@ -23,5 +23,15 @@
     </div>
   } @else {
     <p class="text-text2 text-xs">No hay planes</p>
+  }
+
+  @if (totalPages() > 1) {
+    <app-numeric-pagination
+      [currentPage]="currentPage()"
+      [totalPages]="totalPages()"
+      [total]="totalItems()"
+      [limit]="pageSize"
+      (pageChange)="loadPage($event)"
+    />
   }
 </section>

@@ -27,26 +27,20 @@ export const GENERATE_PLAN = gql`
 `;
 
 export const GET_TRAINING_PLANS = gql`
-    query GetTrainingPlans {
-        trainingPlans {
-            id
-            title
-            description
-            focus
-            status
-            startDate
-            endDate
-            durationWeeks
-            trainingDaysPerWeek
-            overallAdherencePercent
-            totalSessionsCompleted
-            totalSessionsPlanned
-            confirmed
-            tags
-            version
-            goalId
-            createdAt
-            updatedAt
+    query GetTrainingPlans($limit: Int!, $offset: Int!) {
+        trainingPlans(limit: $limit, offset: $offset) {
+            items {
+                id
+                title
+                focus
+                status
+                confirmed
+                createdAt
+            }
+            total
+            limit
+            offset
+            totalPages
         }
     }
 `;
