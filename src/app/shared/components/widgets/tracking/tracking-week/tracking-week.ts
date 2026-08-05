@@ -14,6 +14,7 @@ import { Dumbbell } from 'lucide-angular';
 import { InfoCard } from '../../../ui/info-card/info-card';
 import { ExtraSessionForm } from '../../extra-session/extra-session-form/extra-session-form';
 import { IconComponent } from '../../../ui/icon/icon';
+import { WeeklyStats } from './weekly-stats/weekly-stats';
 
 export type SelectType = FormControlsOf<SelectTypeInput>;
 
@@ -31,6 +32,7 @@ export type SelectType = FormControlsOf<SelectTypeInput>;
         InfoCard,
         ExtraSessionForm,
         IconComponent,
+        WeeklyStats,
     ],
     providers: [TrackingWeekFacade],
     templateUrl: './tracking-week.html',
