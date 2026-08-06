@@ -7,12 +7,12 @@ import { NumericPagination } from '../../../../ui/numeric-pagination/numeric-pag
 import { TrainingPlanListItem } from '../../../../../interfaces/coach.interface';
 
 @Component({
-    selector: 'app-list-plan-trackings',
+    selector: 'app-list-plan-training',
     imports: [BtnComponent, NumericPagination],
-    templateUrl: './list-plan-trackings.html',
+    templateUrl: './list-plan-training.html',
     styles: ``,
 })
-export class ListPlanTrackings implements OnInit {
+export class ListPlanTraining implements OnInit {
     private authService = inject(AuthService);
     private profileUserService = inject(UserProfileService);
     private coachService = inject(CoachService);

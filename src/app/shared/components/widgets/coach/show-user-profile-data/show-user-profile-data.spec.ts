@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ShowPlanTracking } from './show-plan-tracking';
+import { ShowUserProfileData } from './show-user-profile-data';
 
-describe('ShowPlanTracking', () => {
-  let component: ShowPlanTracking;
-  let fixture: ComponentFixture<ShowPlanTracking>;
+describe('ShowUserProfileData', () => {
+  let component: ShowUserProfileData;
+  let fixture: ComponentFixture<ShowUserProfileData>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ShowPlanTracking]
+      imports: [ShowUserProfileData]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ShowPlanTracking);
+    fixture = TestBed.createComponent(ShowUserProfileData);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

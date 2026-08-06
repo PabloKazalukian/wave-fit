@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
+import { TranslateLabelPipe } from '../../../pipes/translate-label.pipe';
 
 @Component({
     selector: 'app-data-section',
     standalone: true,
+    imports: [TranslateLabelPipe],
     templateUrl: './data-section.html',
 })
 export class DataSection {
@@ -17,10 +19,17 @@ export class DataSection {
 
     excludedKeys = new Set(['id', 'userId', 'updatedAt', 'createdAt']);
 
-    get entries() {
-        return this.data
-            ? Object.entries(this.data).filter(([key]) => !this.excludedKeys.has(key))
-            : [];
+    get entries(): [string, unknown][] {
+        return this.data ? Object.entries(this.data).filter(([key]) => !this.excludedKeys.has(key)) : [];
+    }
+
+    entriesOf(obj: unknown): [string, unknown][] {
+        if (typeof obj !== 'object' || obj === null) return [];
+        return Object.entries(obj).filter(([key]) => !this.excludedKeys.has(key));
+    }
+
+    arrayOf(value: unknown): unknown[] {
+        return Array.isArray(value) ? value : [];
     }
 
     isObject(value: any) {
@@ -29,9 +38,5 @@ export class DataSection {
 
     isArray(value: any) {
         return Array.isArray(value);
-    }
-
-    formatKey(key: string) {
-        return key.replace(/([A-Z])/g, ' $1').replace(/^./, (x) => x.toUpperCase());
     }
 }

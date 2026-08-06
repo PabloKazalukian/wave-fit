@@ -28,47 +28,10 @@
     } @else {
       <h4 class="text-text2 text-lg font-bold mb-2">Información personal</h4>
       <header class="flex flex-col mb-4">
-        <div class="flex flex-col gap-4 w-full mb-8">
-          <app-data-section title="Configuración del perfil" [data]="userProfile()" />
-
-          @if (userProfile()?.goal) {
-            <app-data-section title="Objetivo" [data]="userProfile()!.goal!" />
-          }
-
-          @if (userProfile()?.healthConstraints) {
-            <app-data-section
-              title="Restricciones de salud"
-              [data]="userProfile()!.healthConstraints!"
-            />
-          }
-
-          @if (userProfile()?.schedule) {
-            <app-data-section title="Horario" [data]="userProfile()!.schedule!" />
-          }
-
-          @if (userProfile()?.trainingPreferences) {
-            <app-data-section
-              title="Preferencias entrenamiento"
-              [data]="userProfile()!.trainingPreferences!"
-            />
-          }
-
-          @if (userProfile()?.resources) {
-            <app-data-section title="Recursos" [data]="userProfile()!.resources!" />
-          }
-
-          @if (userProfile()?.strengthMetrics?.length) {
-            <app-data-section title="Métricas de fuerza" [data]="userProfile()!.strengthMetrics!" />
-          }
-
-          @if (userProfile()?.weightLogs?.length) {
-            <app-data-section title="Historial peso" [data]="userProfile()!.weightLogs!" />
-          }
-        </div>
-
+        <app-show-user-profile-data></app-show-user-profile-data>
         <section>
           <div>
-            <app-list-plan-trackings (viewPlan)="onViewPlan($event)" />
+            <app-list-plan-training (viewPlan)="onViewPlan($event)" />
           </div>
         </section>
 

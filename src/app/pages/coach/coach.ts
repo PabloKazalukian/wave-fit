@@ -9,25 +9,26 @@ import { InfoCard } from '../../shared/components/ui/info-card/info-card';
 import { CoachService } from '../../core/services/coach/coach.service';
 import { IconComponent } from '../../shared/components/ui/icon/icon';
 import { SpinnerComponent } from '../../shared/components/ui/icon/spinner';
-import { ListPlanTrackings } from '../../shared/components/widgets/coach/plan-trackings/list-plan-trackings/list-plan-trackings';
+import { ListPlanTraining } from '../../shared/components/widgets/coach/plan-training/list-plan-training/list-plan-training';
 import { CoachManage } from '../../shared/components/widgets/coach/coach-manage/coach-manage';
 import { CoachManageWithPlan } from '../../shared/components/widgets/coach/coach-manage-with-plan/coach-manage-with-plan';
 import { TrainingPlanDetail } from '../../shared/interfaces/coach.interface';
 import { FormsModule } from '@angular/forms';
+import { ShowUserProfileData } from '../../shared/components/widgets/coach/show-user-profile-data/show-user-profile-data';
 
 @Component({
     selector: 'app-coach',
     imports: [
         BtnComponent,
-        DataSection,
         FormUserProfile,
         InfoCard,
         FormsModule,
         IconComponent,
         SpinnerComponent,
-        ListPlanTrackings,
+        ListPlanTraining,
         CoachManage,
         CoachManageWithPlan,
+        ShowUserProfileData,
     ],
     templateUrl: './coach.html',
     styles: ``,

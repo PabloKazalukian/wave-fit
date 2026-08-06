@@ -24,17 +24,39 @@
     >
       @for (item of entries; track item[0]) {
         <div>
-          <span class="text-primary"> {{ formatKey(item[0]) }}: </span>
+          <span class="text-primary"> {{ item[0] | translateLabel }}: </span>
 
           @if (isArray(item[1])) {
             @if (item[1].length) {
               <ul class="ml-4 mt-2">
-                @for (value of item[1]; track $index) {
+                @for (value of arrayOf(item[1]); track $index) {
                   <li class="text-text2">
                     @if (isObject(value)) {
-                      {{ value }}
+                      <ul class="ml-4 space-y-1">
+                        @for (entry of entriesOf(value); track entry[0]) {
+                          <li>
+                            <span class="text-primary">{{ entry[0] | translateLabel }}: </span>
+                            @if (isObject(entry[1])) {
+                              <ul class="ml-4">
+                                @for (n of entriesOf(entry[1]); track n[0]) {
+                                  <li>
+                                    <span class="text-primary">{{ n[0] | translateLabel }}: </span>
+                                    <span>
+                                      {{ n[1] | translateLabel: n[0] || 'No establecido' }}
+                                    </span>
+                                  </li>
+                                }
+                              </ul>
+                            } @else {
+                              <span>
+                                {{ entry[1] | translateLabel: entry[0] || 'No establecido' }}
+                              </span>
+                            }
+                          </li>
+                        }
+                      </ul>
                     } @else {
-                      {{ value }}
+                      {{ value | translateLabel: item[0] || 'No establecido' }}
                     }
                   </li>
                 }
@@ -43,14 +65,32 @@
               <span class="text-text2"> No hay datos </span>
             }
           } @else if (isObject(item[1])) {
-            <!-- arreglar aqui -->
-            <!-- <pre class="text-text2 bg-background2 rounded-lg p-2 mt-2"
-              >{{ item[1] }}
-              </pre
-            > -->
+            <ul class="ml-4 mt-2">
+              @for (entry of entriesOf(item[1]); track entry[0]) {
+                <li>
+                  <span class="text-primary">{{ entry[0] | translateLabel }}: </span>
+                  @if (isObject(entry[1])) {
+                    <ul class="ml-4">
+                      @for (n of entriesOf(entry[1]); track n[0]) {
+                        <li>
+                          <span class="text-primary">{{ n[0] | translateLabel }}: </span>
+                          <span>
+                            {{ n[1] | translateLabel: n[0] || 'No establecido' }}
+                          </span>
+                        </li>
+                      }
+                    </ul>
+                  } @else {
+                    <span>
+                      {{ entry[1] | translateLabel: entry[0] || 'No establecido' }}
+                    </span>
+                  }
+                </li>
+              }
+            </ul>
           } @else {
             <span class="text-text2">
-              {{ item[1] || 'No establecido' }}
+              {{ item[1] | translateLabel: item[0] || 'No establecido' }}
             </span>
           }
         </div>
