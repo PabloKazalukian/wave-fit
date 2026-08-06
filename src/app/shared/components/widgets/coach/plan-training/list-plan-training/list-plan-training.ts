@@ -34,7 +34,7 @@ export class ListPlanTraining implements OnInit {
 
     loadPage(page: number): void {
         const offset = (page - 1) * this.pageSize;
-        this.coachService.getPlanTrackings(this.pageSize, offset).subscribe({
+        this.coachService.getPlanTrainings(this.pageSize, offset).subscribe({
             next: (data) => {
                 if (data) {
                     this.planResults.set(data.items);

@@ -2,13 +2,13 @@ import { Component, inject, computed, signal } from '@angular/core';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserProfileService } from '../../core/services/user/user-profile.service';
-import { DataSection } from '../../shared/components/ui/data-section/data-section';
 import { FormUserProfile } from '../../shared/components/widgets/coach/form-user-profile/form-user-profile';
 import { Bot } from 'lucide-angular';
 import { InfoCard } from '../../shared/components/ui/info-card/info-card';
 import { CoachService } from '../../core/services/coach/coach.service';
 import { IconComponent } from '../../shared/components/ui/icon/icon';
 import { SpinnerComponent } from '../../shared/components/ui/icon/spinner';
+import { Notification } from '../../shared/components/ui/notification/notification';
 import { ListPlanTraining } from '../../shared/components/widgets/coach/plan-training/list-plan-training/list-plan-training';
 import { CoachManage } from '../../shared/components/widgets/coach/coach-manage/coach-manage';
 import { CoachManageWithPlan } from '../../shared/components/widgets/coach/coach-manage-with-plan/coach-manage-with-plan';
@@ -25,6 +25,7 @@ import { ShowUserProfileData } from '../../shared/components/widgets/coach/show-
         FormsModule,
         IconComponent,
         SpinnerComponent,
+        Notification,
         ListPlanTraining,
         CoachManage,
         CoachManageWithPlan,
@@ -43,7 +44,9 @@ export class Coach {
 
     comment = '';
     loading = signal(false);
+    deleting = signal(false);
     errorMessage = signal<string | null>(null);
+    deleteNotification = signal<'success' | 'error' | null>(null);
     planResult = signal<TrainingPlanDetail | null>(null);
 
     selectedPlanId = signal<string | null>(null);
@@ -85,6 +88,36 @@ export class Coach {
     onBackToList() {
         this.manageMode.set(false);
         this.selectedPlanId.set(null);
+    }
+
+    onDeletePlan() {
+        const planId = this.selectedPlanId();
+        if (!planId || this.deleting()) return;
+
+        const startedAt = Date.now();
+        const MIN_LOADING_MS = 2000;
+        const waitRemaining = () => Math.max(0, MIN_LOADING_MS - (Date.now() - startedAt));
+
+        this.deleting.set(true);
+        this.deleteNotification.set(null);
+
+        this.coachService.removePlantraningById(planId).subscribe({
+            next: () => {
+                setTimeout(() => {
+                    this.deleting.set(false);
+                    this.manageMode.set(false);
+                    this.selectedPlanId.set(null);
+                    this.deleteNotification.set('success');
+                }, waitRemaining());
+            },
+            error: (err) => {
+                console.log(err);
+                setTimeout(() => {
+                    this.deleting.set(false);
+                    this.deleteNotification.set('error');
+                }, waitRemaining());
+            },
+        });
     }
 
     onClearPlanResult() {

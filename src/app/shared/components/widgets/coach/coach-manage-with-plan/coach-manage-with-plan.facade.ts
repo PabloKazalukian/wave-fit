@@ -62,7 +62,7 @@ export class CoachManageWithPlanFacade {
         this.error.set(null);
 
         this.coachService
-            .getPlanTrackingById(planId)
+            .getPlanTrainingById(planId)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (data) => {

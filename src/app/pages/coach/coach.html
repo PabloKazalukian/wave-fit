@@ -1,4 +1,19 @@
 <section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  @if (deleteNotification()) {
+    <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-full max-w-sm">
+      <app-notification
+        [message]="
+          deleteNotification() === 'error'
+            ? 'No se pudo eliminar el plan. Inténtalo de nuevo.'
+            : 'Plan eliminado correctamente'
+        "
+        [type]="deleteNotification() === 'error' ? 'error' : 'success'"
+        [duration]="5000"
+        (closeOuput)="deleteNotification.set(null)"
+      ></app-notification>
+    </div>
+  }
+
   <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
     <h1 class="text-5xl font-bold text-center text-primary mb-8">Wave-Fit <br /></h1>
 
@@ -23,6 +38,23 @@
           [size]="'sm'"
           (click)="onBackToList()"
         />
+        <app-btn
+          [text]="deleting() ? 'Eliminando...' : 'Eliminar plan actual'"
+          [color]="'error'"
+          [variant]="'outline'"
+          [size]="'sm'"
+          [isDisabled]="deleting()"
+          [showIcon]="deleting()"
+          (click)="onDeletePlan()"
+        >
+          @if (deleting()) {
+            <app-icon>
+              <div class="h-5 w-5">
+                <app-spinner></app-spinner>
+              </div>
+            </app-icon>
+          }
+        </app-btn>
         <app-coach-manage [planId]="selectedPlanId()!" />
       </div>
     } @else {
