@@ -50,6 +50,13 @@ module.exports = {
   'shadow-confirm',
   'bg-backgroundError',
 
+  // Calendar training-history
+  'bg-secondary/10', 'bg-primary/10', 'bg-accent/10', 'bg-accent/15', 'bg-accent/25', 'bg-accent/40',
+  'border-secondary', 'border-primary', 'border-accent',
+  'text-secondary', 'text-primary', 'text-accent',
+  'bg-success', 'bg-text2/25', 'text-text3/30',
+  'hover:bg-accent/25', 'hover:scale-110',
+
 ],
   theme: {
     container: {

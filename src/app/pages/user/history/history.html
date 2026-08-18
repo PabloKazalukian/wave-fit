@@ -10,10 +10,11 @@
       Mi Historial
     </h1>
 
-    <div class="flex items-center gap-3">
+    <nav class="flex items-center gap-3" aria-label="Navegación de meses">
       <button
         class="p-2 rounded-full hover:bg-white/10 text-text2 transition-colors"
         (click)="prevMonth()"
+        [disabled]="loading()"
         aria-label="Mes anterior"
       >
         <lucide-icon [img]="ChevronLeftIcon" [strokeWidth]="2" size="20"></lucide-icon>
@@ -24,11 +25,12 @@
       <button
         class="p-2 rounded-full hover:bg-white/10 text-text2 transition-colors"
         (click)="nextMonth()"
+        [disabled]="loading()"
         aria-label="Mes siguiente"
       >
         <lucide-icon [img]="ChevronRightIcon" [strokeWidth]="2" size="20"></lucide-icon>
       </button>
-    </div>
+    </nav>
   </header>
 
   <section class="bg-background2 border-2 border-background4 rounded-2xl p-4">
@@ -43,27 +45,62 @@
       }
     </nav>
 
-    <!-- Calendar grid -->
-    <div class="grid grid-cols-7" role="grid" aria-label="Calendario">
-      @for (day of calendarDays(); track $index) {
-        <div [class]="getWrapperClasses(day)">
-          <div [class]="getDayClasses(day)">
-            {{ day || '' }}
+    <!-- Loading state -->
+    @if (loading()) {
+      <div class="flex items-center justify-center py-10">
+        <app-loading color="primary" size="md" />
+      </div>
+    } @else if (error()) {
+      <!-- Error state -->
+      <div class="flex flex-col items-center justify-center py-10 gap-4">
+        <p class="text-sm text-text2 text-center">Algo salió mal al cargar el historial.</p>
+        <button
+          class="px-4 py-2 text-sm font-medium rounded-lg border border-primary text-primary hover:bg-primary/10 transition-colors"
+          (click)="reloadMonth()"
+        >
+          Reintentar
+        </button>
+      </div>
+    } @else {
+      <!-- Calendar grid -->
+      <div class="grid grid-cols-7" role="grid" aria-label="Calendario">
+        @for (day of calendarGrid(); track day.date) {
+          <div [class]="getWrapperClasses(day)" [attr.aria-label]="getDayAriaLabel(day)">
+            <div [class]="getDayClasses(day)">
+              <span>{{ getDayNumber(day) }}</span>
+              @if (!isNone(day)) {
+                <span [class]="getStatusDotClass(day)"></span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Legend -->
+      <footer class="mt-4 pt-3 border-t border-background4">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full border-2 border-primary"></span>
+            <span class="text-xs text-text2">Hoy</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full border border-accent bg-accent/15"></span>
+            <span class="text-xs text-text2">Semana de entrenamiento</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-primary"></span>
+            <span class="text-xs text-text2">Completado</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-secondary"></span>
+            <span class="text-xs text-text2">Descanso</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-text2/40"></span>
+            <span class="text-xs text-text2">Pendiente</span>
           </div>
         </div>
-      }
-    </div>
-
-    <!-- Legend -->
-    <footer class="flex items-center gap-4 mt-4 pt-3 border-t border-background4">
-      <div class="flex items-center gap-2">
-        <span class="w-4 h-4 rounded-full border border-accent bg-accent/15"></span>
-        <span class="text-xs text-text2">Week-log</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="w-4 h-4 rounded-full border-2 border-primary"></span>
-        <span class="text-xs text-text2">Hoy</span>
-      </div>
-    </footer>
+      </footer>
+    }
   </section>
 </section>
