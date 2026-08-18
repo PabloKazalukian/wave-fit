@@ -161,6 +161,15 @@
               tabindex="0"
               >Mi perfil</a
             >
+            <a
+              routerLink="/user/history"
+              class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
+              [class.text-primary]="isActive('/user/history')"
+              (click)="closeDropdowns()"
+              (keydown.enter)="closeDropdowns()"
+              tabindex="0"
+              >Mi Historial</a
+            >
             <hr class="border-white/5 my-1" />
             <button
               class="w-full text-left px-4 py-2 text-error hover:bg-error/10 transition-colors"
@@ -284,6 +293,13 @@
                 [class.text-primary]="isActive('/user')"
                 (click)="toggleMobileMenu()"
                 >Mi perfil</a
+              >
+              <a
+                routerLink="/user/history"
+                class="text-text2 py-2"
+                [class.text-primary]="isActive('/user/history')"
+                (click)="toggleMobileMenu()"
+                >Mi Historial</a
               >
               <button class="text-error py-2 text-left" (click)="logout(); toggleMobileMenu()">
                 Cerrar sesión

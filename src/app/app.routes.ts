@@ -50,6 +50,11 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/user/profile/profile').then((m) => m.Profile),
             },
             {
+                path: 'history',
+                loadComponent: () =>
+                    import('./pages/user/history/history').then((m) => m.History),
+            },
+            {
                 path: 'trackings',
                 loadChildren: () =>
                     import('./pages/trackings/tracking.routes').then((m) => m.TRACKINGS_ROUTES),
