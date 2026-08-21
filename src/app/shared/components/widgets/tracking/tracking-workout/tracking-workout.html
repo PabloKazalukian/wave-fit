@@ -5,6 +5,7 @@
       {{ this.facade.workoutVM()?.date | date: 'dd/MM/yyyy' : 'UTC' }}
     </p>
   </header>
+  <app-workout-day-stats [workout]="this.facade.workoutVM()"></app-workout-day-stats>
   <section class="flex flex-col gap-2">
     @if (this.facade.loadings()) {
       <div class="bg-background3 rounded-lg p-3 mb-4 border border-primary">

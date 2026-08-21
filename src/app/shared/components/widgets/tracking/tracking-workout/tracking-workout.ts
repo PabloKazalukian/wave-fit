@@ -15,6 +15,7 @@ import { WorkoutCompleteList } from './workout-complete-list/workout-complete-li
 import { WorkoutEdition } from './workout-edition/workout-edition';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ExtraSessionContent } from '../../extra-session/extra-session-content/extra-session-content';
+import { WorkoutDayStats } from './workout-day-stats/workout-day-stats';
 
 @Component({
     selector: 'app-tracking-workout',
@@ -30,6 +31,7 @@ import { ExtraSessionContent } from '../../extra-session/extra-session-content/e
         WorkoutCompleteList,
         WorkoutEdition,
         ExtraSessionContent,
+        WorkoutDayStats,
     ],
     providers: [TrackingWorkoutFacade],
     standalone: true,

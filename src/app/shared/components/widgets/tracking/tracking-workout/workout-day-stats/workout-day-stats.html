@@ -1,0 +1,75 @@
+<section
+  class="bg-background rounded-2xl p-3 border border-background3 flex flex-col gap-2 mb-2"
+  aria-label="Estadísticas del día"
+>
+  @if (isLoading()) {
+    <div class="py-1">
+      <app-loading></app-loading>
+    </div>
+  } @else {
+    <header class="flex items-center gap-1">
+      <button
+        type="button"
+        (click)="prev()"
+        class="shrink-0 p-1 rounded-full text-text2 hover:text-primary hover:bg-background3 transition-colors"
+        aria-label="Anterior"
+      >
+        <lucide-icon [img]="ChevronLeftIcon" size="20"></lucide-icon>
+      </button>
+
+      <div class="flex-1 overflow-hidden">
+        <div
+          class="flex transition-transform duration-300 ease-out"
+          [style.transform]="'translateX(-' + currentSlide() * 100 + '%)'"
+        >
+          @for (section of sections(); track section.title) {
+            <div class="w-full min-w-0 shrink-0 flex flex-col gap-1.5 px-1">
+              <h3 class="flex items-center gap-2 text-sm font-semibold text-text2 truncate">
+                <lucide-icon
+                  [img]="section.icon"
+                  size="16"
+                  class="text-primary shrink-0"
+                ></lucide-icon>
+                {{ section.title }}
+              </h3>
+              <ul class="flex flex-col">
+                @for (row of section.rows; track row.label) {
+                  <li
+                    class="min-w-0 flex flex-col gap-0.5 py-0.5 text-xs sm:flex-row sm:items-start sm:justify-between sm:gap-3"
+                  >
+                    <span class="text-text2 break-words sm:shrink-0">{{ row.label }}</span>
+                    <span
+                      class="min-w-0 font-semibold text-primary break-words text-balance sm:text-right"
+                      >{{ row.value }}</span
+                    >
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      </div>
+
+      <button
+        type="button"
+        (click)="next()"
+        class="shrink-0 p-1 rounded-full text-text2 hover:text-primary hover:bg-background3 transition-colors"
+        aria-label="Siguiente"
+      >
+        <lucide-icon [img]="ChevronRightIcon" size="20"></lucide-icon>
+      </button>
+    </header>
+
+    <nav class="flex items-center justify-center gap-1.5" aria-label="Navegación de secciones">
+      @for (section of sections(); track section.title; let i = $index) {
+        <button
+          type="button"
+          (click)="goTo(i)"
+          class="h-1.5 rounded-full transition-all duration-300"
+          [ngClass]="currentSlide() === i ? 'w-5 bg-primary' : 'w-1.5 bg-background3'"
+          [attr.aria-label]="'Ir a ' + section.title"
+        ></button>
+      }
+    </nav>
+  }
+</section>
