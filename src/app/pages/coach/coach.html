@@ -68,7 +68,18 @@
         </section>
 
         <section>
-          @if (missingFields().length === 0) {
+          @if (profileLoading()) {
+            <section
+              class="flex flex-col items-center justify-center gap-3 mt-6"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              <div class="h-10 w-10">
+                <app-spinner></app-spinner>
+              </div>
+              <p class="text-text2 text-lg">Cargando tu perfil...</p>
+            </section>
+          } @else if (missingFields().length === 0) {
             <div class="flex flex-col gap-4 mt-6">
               <div class="flex flex-col gap-2">
                 <label class="text-text2 font-semibold">Comentario adicional (opcional)</label>

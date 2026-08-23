@@ -41,6 +41,7 @@ export class Coach {
 
     user = this.authService.user;
     userProfile = this.profileUserService.userProfile;
+    profileLoading = this.profileUserService.loading;
 
     comment = '';
     loading = signal(false);
@@ -63,7 +64,7 @@ export class Coach {
 
     missingFields = computed(() => {
         const p = this.userProfile();
-        if (!p) return ['Cargando perfil...'];
+        if (!p) return this.profileLoading() ? [] : ['Perfil no disponible'];
 
         const missing: string[] = [];
         if (!p.birthDate) missing.push('Fecha de nacimiento');
