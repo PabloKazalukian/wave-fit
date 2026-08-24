@@ -349,3 +349,24 @@ export const TOGGLE_FAVORITE_EXERCISE = `
         }
     }
 `;
+
+export const TOGGLE_FAVORITE_ROUTINE = `
+    mutation ToggleFavoriteRoutine($routineId: String!) {
+        toggleFavoriteRoutine(routineId: $routineId) {
+            _id
+            favoriteRoutines
+            favoriteExercises
+        }
+    }
+`;
+
+export const TOGGLE_FAVORITE_ROUTINE_DAY = `
+    mutation ToggleFavoriteRoutineDay($routineDayId: String!) {
+        toggleFavoriteRoutineDay(routineDayId: $routineDayId) {
+            _id
+            favoriteExercises
+            favoriteRoutines
+            favoriteRoutineDays
+        }
+    }
+`;

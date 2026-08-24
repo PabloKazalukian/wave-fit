@@ -8,58 +8,91 @@
     </div>
   } @else {
     <!-- Multi-select for filtering -->
-    <header class="z-[60]">
+    <header class="z-[60] flex items-center gap-2">
       <app-multi-select
+        class="flex-1 min-w-0"
         [text]="'Filtrar por categoría'"
         [options]="options"
         [control]="categoryControl"
         [btnText]="'Filtrar'"
       />
+      <button
+        type="button"
+        class="py-1 px-3 rounded-full border cursor-pointer transition-all duration-200 text-sm flex-shrink-0"
+        [ngClass]="
+          favoritesOnly()
+            ? 'border-2 border-primary font-bold text-primary bg-background1'
+            : 'border border-primary3 text-text2 bg-background2'
+        "
+        (click)="toggleFavoritesFilter()"
+        [attr.aria-pressed]="favoritesOnly()"
+      >
+        ★ Favoritos
+      </button>
     </header>
 
     <!-- Routines list -->
-    <article
-      class="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-surface scrollbar-track-transparent"
-    >
-      @if (filteredRoutines().length === 0) {
-        <div
-          class="p-8 text-center text-text2 bg-background3 rounded-xl border border-dashed border-surface"
-        >
-          <p>No se encontraron rutinas para las categorías seleccionadas.</p>
-        </div>
-      }
-
-      @for (routine of filteredRoutines(); track routine.id) {
-        <app-accordion-item
-          [title]="routine.title"
-          [subtitle]="routine.type?.join(', ') || ''"
-          [isSelected]="selectedRoutineId() === routine.id"
-          [open]="showRoutine()?.id === routine.id"
-          (toggle)="selectToShowRoutine(routine)"
-        >
-          <app-btn
-            [text]="selectedRoutineId() === routine.id ? 'Quitar' : 'Seleccionar'"
-            [variant]="'outline'"
-            [color]="selectedRoutineId() === routine.id ? 'error' : 'primary'"
-            (click)="selectRoutine(routine)"
-          />
-          <div class="flex flex-col gap-2 py-2">
-            @for (exercise of routine.exercises; track $index) {
-              <div
-                class="flex items-center justify-between p-2 rounded-lg bg-background4/50 border border-surface/30"
-              >
-                <span class="text-sm font-medium text-white">{{ exercise.name }}</span>
-                <span
-                  class="text-[0.6rem] px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-tighter"
-                >
-                  {{ exercise.category }}
-                </span>
+    @if (filteredRoutines().length === 0) {
+      <div
+        class="p-8 text-center text-text2 bg-background3 rounded-xl border border-dashed border-surface"
+      >
+        <p>No se encontraron rutinas para las categorías seleccionadas.</p>
+      </div>
+    } @else {
+      <ul
+        class="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-surface scrollbar-track-transparent"
+      >
+        @for (routine of filteredRoutines(); track routine.id) {
+          <li class="flex items-center gap-2 w-full">
+            <app-accordion-item
+              class="flex-1 min-w-0"
+              [title]="routine.title"
+              [subtitle]="routine.type?.join(', ') || ''"
+              [isSelected]="selectedRoutineId() === routine.id"
+              [open]="showRoutine()?.id === routine.id"
+              (toggle)="selectToShowRoutine(routine)"
+            >
+              <app-btn
+                [text]="selectedRoutineId() === routine.id ? 'Quitar' : 'Seleccionar'"
+                [variant]="'outline'"
+                [color]="selectedRoutineId() === routine.id ? 'error' : 'primary'"
+                (click)="selectRoutine(routine)"
+              />
+              <div class="flex flex-col gap-2 py-2">
+                @for (exercise of routine.exercises; track $index) {
+                  <div
+                    class="flex items-center justify-between p-2 rounded-lg bg-background4/50 border border-surface/30"
+                  >
+                    <span class="text-sm font-medium text-white">{{ exercise.name }}</span>
+                    <span
+                      class="text-[0.6rem] px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-tighter"
+                    >
+                      {{ exercise.category }}
+                    </span>
+                  </div>
+                }
               </div>
-            }
-          </div>
-        </app-accordion-item>
-      }
-    </article>
+            </app-accordion-item>
+
+            <button
+              type="button"
+              class="flex-shrink-0 text-xl leading-none transition-transform hover:scale-110 disabled:opacity-40 cursor-pointer"
+              [ngClass]="routine.isFavorite ? 'text-amber-400' : 'text-text2'"
+              [disabled]="isFavoritePending(routine.id)"
+              (click)="toggleFavorite($event, routine)"
+              [attr.aria-pressed]="routine.isFavorite"
+              [attr.aria-label]="
+                routine.isFavorite
+                  ? 'Quitar ' + routine.title + ' de favoritos'
+                  : 'Agregar ' + routine.title + ' a favoritos'
+              "
+            >
+              {{ routine.isFavorite ? '★' : '☆' }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
 
     <!-- Footer Actions -->
     <footer class="flex flex-col gap-2 mt-4 pt-4 border-t border-surface">

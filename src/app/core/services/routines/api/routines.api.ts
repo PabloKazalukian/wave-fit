@@ -30,6 +30,7 @@ export class RoutinesApiService {
                         routineDays {
                             id
                             title
+                            isFavorite
                             type
                             exercises {
                                 order
@@ -58,6 +59,7 @@ export class RoutinesApiService {
                         routineDay(id: $id) {
                             id
                             title
+                            isFavorite
                             type
                             exercises {
                                 order
@@ -104,6 +106,7 @@ export class RoutinesApiService {
                         routinesByCategory(input: { category: $category }) {
                             id
                             title
+                            isFavorite
                             type
                         }
                     }

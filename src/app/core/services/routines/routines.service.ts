@@ -88,6 +88,17 @@ export class RoutinesService {
         return this.loadingRoutines$.asObservable();
     }
 
+    setIsFavorite(routineDayId: string, isFavorite: boolean): void {
+        const current = this.routinesCache$.value;
+        if (!current) return;
+
+        const updated = current.map((r) =>
+            r.id === routineDayId ? { ...r, isFavorite } : r,
+        );
+        this.routinesCache$.next(updated);
+        this.idb.saveRoutines(updated);
+    }
+
     //aqui
     getRoutineById(id: string): Observable<RoutineDay | undefined> {
         if (this.routinesCache$.value && !this.loading) {
@@ -107,6 +118,7 @@ export class RoutinesService {
                             name
                             description
                             weekly_distribution
+                            isFavorite
                             routineDays {
                                 id
                             }

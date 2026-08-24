@@ -13,6 +13,7 @@ export function wrapperRoutineDayAPItoRoutineDay(data: RoutineDayAPI[]): Routine
         return {
             id: r.id,
             title: r.title,
+            isFavorite: r.isFavorite ?? false,
             type:
                 r.exercises?.reduce((acc, ex) => {
                     if (ex.exercise.category) {

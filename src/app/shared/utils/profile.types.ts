@@ -402,3 +402,16 @@ export interface ToggleFavoriteExerciseAPI {
     userId: string;
     favoriteExercises: string[];
 }
+
+export interface ToggleFavoriteRoutineAPI {
+    _id: string;
+    favoriteRoutines: string[];
+    favoriteExercises: string[];
+}
+
+export interface ToggleFavoriteRoutineDayAPI {
+    _id: string;
+    favoriteExercises: string[];
+    favoriteRoutines: string[];
+    favoriteRoutineDays: string[];
+}

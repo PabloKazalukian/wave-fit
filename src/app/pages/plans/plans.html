@@ -75,7 +75,23 @@
       </header>
 
       <div class="border-t border-background3 pt-6">
-        <p class="text-2xl mb-4">Rutinas semanales disponibles:</p>
+        <div class="flex items-center justify-between gap-4 mb-4">
+          <p class="text-2xl">Rutinas semanales disponibles:</p>
+          <button
+            type="button"
+            class="py-1 px-3 rounded-full border cursor-pointer transition-all duration-200 text-sm flex-shrink-0"
+            [ngClass]="
+              favoritesOnly()
+                ? 'border-2 border-primary font-bold text-primary bg-background1'
+                : 'border border-primary3 text-text2 bg-background2'
+            "
+            (click)="toggleFavoritesFilter()"
+            [attr.aria-pressed]="favoritesOnly()"
+            [@chipAnimation]
+          >
+            ★ Favoritos
+          </button>
+        </div>
         @if (this.filteredRoutinesPlans().length === 0) {
           <div class="flex flex-col gap-2 pb-4">
             <p>No se encontraron rutinas con los filtros seleccionados.</p>
@@ -90,28 +106,46 @@
             </div>
           </div>
         } @else {
-          <div class="flex flex-col gap-4">
+          <ul class="flex flex-col gap-4">
             @for (routine of this.filteredRoutinesPlans(); track routine.id) {
-              <app-btn
-                [routerLink]="`/routines/show/${routine.id}`"
-                [text]="routine.name"
-                [descriptionText]="
-                  routine.name +
-                  ' - ' +
-                  routine.description +
-                  ' - ' +
-                  routine.weekly_distribution +
-                  '/7 días'
-                "
-                [variant]="'outline'"
-                [showIcon]="true"
-                [size]="'md'"
-                [color]="'primary'"
-                class="w-full"
-                [dataTest]="'rutina-semanal-' + routine.id"
-              ></app-btn>
+              <li class="flex items-center gap-2 w-full">
+                <app-btn
+                  [routerLink]="`/routines/show/${routine.id}`"
+                  [text]="routine.name"
+                  [descriptionText]="
+                    routine.name +
+                    ' - ' +
+                    routine.description +
+                    ' - ' +
+                    routine.weekly_distribution +
+                    '/7 días'
+                  "
+                  [variant]="'outline'"
+                  [showIcon]="true"
+                  [size]="'md'"
+                  [color]="'primary'"
+                  class="flex-1 min-w-0"
+                  [dataTest]="'rutina-semanal-' + routine.id"
+                ></app-btn>
+
+                <button
+                  type="button"
+                  class="flex-shrink-0 text-xl leading-none transition-transform hover:scale-110 disabled:opacity-40 cursor-pointer"
+                  [ngClass]="routine.isFavorite ? 'text-amber-400' : 'text-text2'"
+                  [disabled]="isFavoritePending(routine.id)"
+                  (click)="toggleFavorite($event, routine)"
+                  [attr.aria-pressed]="routine.isFavorite"
+                  [attr.aria-label]="
+                    routine.isFavorite
+                      ? 'Quitar ' + routine.name + ' de favoritos'
+                      : 'Agregar ' + routine.name + ' a favoritos'
+                  "
+                >
+                  {{ routine.isFavorite ? '★' : '☆' }}
+                </button>
+              </li>
             }
-          </div>
+          </ul>
         }
       </div>
     </section>

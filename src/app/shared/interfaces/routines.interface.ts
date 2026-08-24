@@ -53,6 +53,7 @@ export interface RoutineDay {
     type?: ExerciseCategory[];
     exercises?: Exercise[];
     planId?: string;
+    isFavorite?: boolean;
     kind: KindType;
 }
 

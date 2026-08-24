@@ -23,6 +23,8 @@ import {
     CreateStrengthMetricInput,
     CreateWeightLogInput,
     ToggleFavoriteExerciseAPI,
+    ToggleFavoriteRoutineAPI,
+    ToggleFavoriteRoutineDayAPI,
 } from '../../../../shared/utils/profile.types';
 
 @Injectable({
@@ -138,5 +140,15 @@ export class UserProfileApiService {
 
     toggleFavoriteExercise(exerciseId: string): Observable<ToggleFavoriteExerciseAPI | null> {
         return this.set.toggleFavoriteExercise(exerciseId);
+    }
+
+    toggleFavoriteRoutine(routineId: string): Observable<ToggleFavoriteRoutineAPI | null> {
+        return this.set.toggleFavoriteRoutine(routineId);
+    }
+
+    toggleFavoriteRoutineDay(
+        routineDayId: string,
+    ): Observable<ToggleFavoriteRoutineDayAPI | null> {
+        return this.set.toggleFavoriteRoutineDay(routineDayId);
     }
 }

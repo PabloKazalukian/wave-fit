@@ -1,5 +1,6 @@
-import { Component, computed, effect, inject, output, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, output, signal } from '@angular/core';
 import { RoutinesService } from '../../../../../../core/services/routines/routines.service';
+import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
 import { RoutineDay } from '../../../../../interfaces/routines.interface';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { options } from '../../../../../interfaces/input.interface';
@@ -7,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { MultiSelectComponent } from '../../../../ui/multi-select/multi-select';
 import { AccordionItemComponent } from '../../../../ui/accordion-item/accordion-item';
 import { BtnComponent } from '../../../../ui/btn/btn';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../../ui/loading/loading';
 import { map } from 'rxjs';
 import { WorkoutStateService } from '../../../../../../core/services/workouts/workout.state';
@@ -28,6 +29,8 @@ import { WorkoutSessionVM } from '../../../../../interfaces/tracking.interface';
 })
 export class WorkoutRoutineSelector {
     private routinesSvc = inject(RoutinesService);
+    private userProfileSvc = inject(UserProfileService);
+    private destroyRef = inject(DestroyRef);
     private state = inject(WorkoutStateService);
 
     routineSelected = output<RoutineDay>();
@@ -78,17 +81,63 @@ export class WorkoutRoutineSelector {
         }
 
         const selected = this.selectedCategories();
+        const favoritesOnly = this.favoritesOnly();
         const all = this.routines() as RoutineDay[];
 
-        if (selected.length === 0) return all;
+        if (selected.length === 0 && !favoritesOnly) return all;
 
         return all.filter((routine) => {
             const routineTypes = routine.type || [];
-            return selected.every((selectedCat) =>
-                routineTypes.some((routineCat) => routineCat === selectedCat),
-            );
+            const matchesCategories =
+                selected.length === 0 ||
+                selected.every((selectedCat) =>
+                    routineTypes.some((routineCat) => routineCat === selectedCat),
+                );
+            const matchesFavorite = !favoritesOnly || routine.isFavorite;
+            return matchesCategories && matchesFavorite;
         });
     });
+
+    favoritesOnly = signal(false);
+    pendingFavoriteIds = signal<Set<string>>(new Set());
+
+    toggleFavoritesFilter() {
+        this.favoritesOnly.set(!this.favoritesOnly());
+    }
+
+    isFavoritePending(routineDayId: string): boolean {
+        return this.pendingFavoriteIds().has(routineDayId);
+    }
+
+    toggleFavorite(event: Event, routine: RoutineDay) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (this.isFavoritePending(routine.id)) return;
+
+        const newValue = !routine.isFavorite;
+        this.routinesSvc.setIsFavorite(routine.id, newValue);
+        this.setPending(routine.id, true);
+
+        this.userProfileSvc
+            .toggleFavoriteRoutineDay(routine.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                error: () => this.routinesSvc.setIsFavorite(routine.id, !newValue),
+                complete: () => this.setPending(routine.id, false),
+            });
+    }
+
+    private setPending(routineDayId: string, pending: boolean) {
+        this.pendingFavoriteIds.update((prev) => {
+            const next = new Set(prev);
+            if (pending) {
+                next.add(routineDayId);
+            } else {
+                next.delete(routineDayId);
+            }
+            return next;
+        });
+    }
 
     selectedRoutineId = signal<string | null>(null);
     showRoutine = signal<RoutineDay | null>(null);

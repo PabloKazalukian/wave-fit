@@ -7,12 +7,14 @@ export interface RoutinePlanAPI {
     description: string;
     weekly_distribution?: string;
     routineDays?: RoutineDayAPI[];
+    isFavorite?: boolean;
     createdBy?: string;
 }
 
 export interface RoutineDayAPI {
     id: string;
     title: string;
+    isFavorite?: boolean;
     exercises?: { exercise: Exercise; order: number }[];
     kind: KindType;
     category: ExerciseCategory[];

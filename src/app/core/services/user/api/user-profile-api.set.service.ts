@@ -16,6 +16,8 @@ import {
     REMOVE_USER_STRENGTH_METRIC,
     CREATE_WEIGHT_LOG,
     TOGGLE_FAVORITE_EXERCISE,
+    TOGGLE_FAVORITE_ROUTINE,
+    TOGGLE_FAVORITE_ROUTINE_DAY,
 } from '../../../apollo/user-profile.queries';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../auth/auth.service';
@@ -37,6 +39,8 @@ import {
     CreateStrengthMetricInput,
     CreateWeightLogInput,
     ToggleFavoriteExerciseAPI,
+    ToggleFavoriteRoutineAPI,
+    ToggleFavoriteRoutineDayAPI,
 } from '../../../../shared/utils/profile.types';
 
 @Injectable({
@@ -247,6 +251,39 @@ export class UserProfileApiSetService {
             })
             .pipe(
                 map((res) => res.data?.toggleFavoriteExercise || null),
+                handleGraphqlError(this.authSvc),
+            );
+    }
+
+    toggleFavoriteRoutine(routineId: string): Observable<ToggleFavoriteRoutineAPI | null> {
+        return this.apollo
+            .mutate<{ toggleFavoriteRoutine: ToggleFavoriteRoutineAPI }, { routineId: string }>({
+                mutation: gql`
+                    ${TOGGLE_FAVORITE_ROUTINE}
+                `,
+                variables: { routineId },
+            })
+            .pipe(
+                map((res) => res.data?.toggleFavoriteRoutine || null),
+                handleGraphqlError(this.authSvc),
+            );
+    }
+
+    toggleFavoriteRoutineDay(
+        routineDayId: string,
+    ): Observable<ToggleFavoriteRoutineDayAPI | null> {
+        return this.apollo
+            .mutate<
+                { toggleFavoriteRoutineDay: ToggleFavoriteRoutineDayAPI },
+                { routineDayId: string }
+            >({
+                mutation: gql`
+                    ${TOGGLE_FAVORITE_ROUTINE_DAY}
+                `,
+                variables: { routineDayId },
+            })
+            .pipe(
+                map((res) => res.data?.toggleFavoriteRoutineDay || null),
                 handleGraphqlError(this.authSvc),
             );
     }

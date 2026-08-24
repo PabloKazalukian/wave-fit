@@ -4,6 +4,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { FormControlsOf } from '../../shared/utils/form-types.util';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { RoutinesService } from '../../core/services/routines/routines.service';
+import { UserProfileService } from '../../core/services/user/user-profile.service';
 import { SelectType, SelectTypeInput } from '../../shared/interfaces/input.interface';
 import { Exercise } from '../../shared/interfaces/exercise.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -49,6 +50,7 @@ type selectFormType = FormControlsOf<SelectTypeInput>;
 export class Plans implements OnInit {
     private destroyRef = inject(DestroyRef);
     private readonly svcRoutines = inject(RoutinesService);
+    private readonly userProfileSvc = inject(UserProfileService);
 
     feature = {
         icon: BookOpen,
@@ -70,6 +72,8 @@ export class Plans implements OnInit {
     loading = signal<boolean>(true);
     routinesPlans = signal<RoutinePlanAPI[]>([]);
     exercises = signal<Exercise[]>([]);
+    favoritesOnly = signal(false);
+    pendingFavoriteIds = signal<Set<string>>(new Set());
 
     selectForm!: FormGroup<selectFormType>;
     showSelected = '';
@@ -94,15 +98,17 @@ export class Plans implements OnInit {
         const search = this.search().toLowerCase();
         const days = this.days();
         // const cats = this.selectedCategories() || [];
+        const favoritesOnly = this.favoritesOnly();
         const all = this.routinesPlans();
 
         return all.filter((plan) => {
             const matchesSearch = plan.name.toLowerCase().includes(search);
             const matchesDays = !days || plan.weekly_distribution === days;
+            const matchesFavorite = !favoritesOnly || plan.isFavorite;
 
             const matchesCategories = true;
 
-            return matchesSearch && matchesDays && matchesCategories;
+            return matchesSearch && matchesDays && matchesFavorite && matchesCategories;
         });
     });
 
@@ -126,6 +132,49 @@ export class Plans implements OnInit {
 
     clear() {
         this.daysControl.setValue('');
+    }
+
+    toggleFavoritesFilter() {
+        this.favoritesOnly.set(!this.favoritesOnly());
+    }
+
+    isFavoritePending(planId: string): boolean {
+        return this.pendingFavoriteIds().has(planId);
+    }
+
+    toggleFavorite(event: Event, plan: RoutinePlanAPI) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (this.isFavoritePending(plan.id)) return;
+
+        const newValue = !plan.isFavorite;
+        this.routinesPlans.update((list) =>
+            list.map((p) => (p.id === plan.id ? { ...p, isFavorite: newValue } : p)),
+        );
+        this.setPending(plan.id, true);
+
+        this.userProfileSvc
+            .toggleFavoriteRoutine(plan.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                error: () =>
+                    this.routinesPlans.update((list) =>
+                        list.map((p) => (p.id === plan.id ? { ...p, isFavorite: !newValue } : p)),
+                    ),
+                complete: () => this.setPending(plan.id, false),
+            });
+    }
+
+    private setPending(planId: string, pending: boolean) {
+        this.pendingFavoriteIds.update((prev) => {
+            const next = new Set(prev);
+            if (pending) {
+                next.add(planId);
+            } else {
+                next.delete(planId);
+            }
+            return next;
+        });
     }
 
     initForm(): FormGroup<selectFormType> {

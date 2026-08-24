@@ -20,6 +20,8 @@ import {
     CreateStrengthMetricInput,
     CreateWeightLogInput,
     ToggleFavoriteExerciseAPI,
+    ToggleFavoriteRoutineAPI,
+    ToggleFavoriteRoutineDayAPI,
 } from '../../../shared/utils/profile.types';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { localDateToUtc } from '../../../shared/utils/date.utils';
@@ -159,5 +161,15 @@ export class UserProfileDomainService {
 
     toggleFavoriteExercise(exerciseId: string): Observable<ToggleFavoriteExerciseAPI | null> {
         return this.api.toggleFavoriteExercise(exerciseId);
+    }
+
+    toggleFavoriteRoutine(routineId: string): Observable<ToggleFavoriteRoutineAPI | null> {
+        return this.api.toggleFavoriteRoutine(routineId);
+    }
+
+    toggleFavoriteRoutineDay(
+        routineDayId: string,
+    ): Observable<ToggleFavoriteRoutineDayAPI | null> {
+        return this.api.toggleFavoriteRoutineDay(routineDayId);
     }
 }
