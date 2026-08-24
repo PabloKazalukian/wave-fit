@@ -15,6 +15,7 @@ import {
     CREATE_USER_STRENGTH_METRIC,
     REMOVE_USER_STRENGTH_METRIC,
     CREATE_WEIGHT_LOG,
+    TOGGLE_FAVORITE_EXERCISE,
 } from '../../../apollo/user-profile.queries';
 import { handleGraphqlError } from '../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../auth/auth.service';
@@ -35,6 +36,7 @@ import {
     UpdateResourceInput,
     CreateStrengthMetricInput,
     CreateWeightLogInput,
+    ToggleFavoriteExerciseAPI,
 } from '../../../../shared/utils/profile.types';
 
 @Injectable({
@@ -228,6 +230,23 @@ export class UserProfileApiSetService {
             })
             .pipe(
                 map((res) => res.data?.createWeightLog || null),
+                handleGraphqlError(this.authSvc),
+            );
+    }
+
+    toggleFavoriteExercise(exerciseId: string): Observable<ToggleFavoriteExerciseAPI | null> {
+        return this.apollo
+            .mutate<
+                { toggleFavoriteExercise: ToggleFavoriteExerciseAPI },
+                { exerciseId: string }
+            >({
+                mutation: gql`
+                    ${TOGGLE_FAVORITE_EXERCISE}
+                `,
+                variables: { exerciseId },
+            })
+            .pipe(
+                map((res) => res.data?.toggleFavoriteExercise || null),
                 handleGraphqlError(this.authSvc),
             );
     }

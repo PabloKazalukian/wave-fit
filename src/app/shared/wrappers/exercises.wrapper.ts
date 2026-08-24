@@ -9,5 +9,6 @@ export function wrapperExerciseAPItoVM(exercises: Exercise[]): ExercisePerforman
         category: ex.category,
         sets: [],
         usesWeight: ex.usesWeight,
+        isFavorite: ex.isFavorite ?? false,
     }));
 }

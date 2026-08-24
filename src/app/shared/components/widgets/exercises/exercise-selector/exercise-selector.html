@@ -28,6 +28,20 @@
       >
         Todos
       </div>
+      <button
+        type="button"
+        class="py-1 px-2 rounded-full border cursor-pointer transition-all duration-200 text-xs"
+        [ngClass]="
+          favoritesOnly()
+            ? 'border-2 border-primary font-bold text-primary bg-background1'
+            : 'border border-primary3 text-text2 bg-background2'
+        "
+        (click)="toggleFavoritesFilter()"
+        [attr.aria-pressed]="favoritesOnly()"
+        [@chipAnimation]
+      >
+        ★ Favoritos
+      </button>
       @for (opt of options; track opt.value) {
         <button
           type="button"
@@ -59,6 +73,7 @@
             (click)="toggleExercise(exercise)"
             (keydown.enter)="toggleExercise(exercise)"
             (keydown.space)="toggleExercise(exercise)"
+            tabindex="0"
           >
             <input type="checkbox" class="hidden peer" [checked]="isSelected(exercise)" />
 
@@ -72,6 +87,22 @@
                 exercise.category | exerciseCategory
               }}</span>
             </div>
+
+            <button
+              type="button"
+              class="flex-shrink-0 text-lg leading-none transition-transform hover:scale-110 disabled:opacity-40 cursor-pointer"
+              [ngClass]="exercise.isFavorite ? 'text-amber-400' : 'text-text2'"
+              [disabled]="isFavoritePending(exercise.exerciseId)"
+              (click)="toggleFavorite($event, exercise)"
+              [attr.aria-pressed]="exercise.isFavorite"
+              [attr.aria-label]="
+                exercise.isFavorite
+                  ? 'Quitar ' + exercise.name + ' de favoritos'
+                  : 'Agregar ' + exercise.name + ' a favoritos'
+              "
+            >
+              {{ exercise.isFavorite ? '★' : '☆' }}
+            </button>
           </article>
         } @empty {
           <span class="p-4 text-center text-text2 text-sm italic">No se encontraron ejercicios</span>

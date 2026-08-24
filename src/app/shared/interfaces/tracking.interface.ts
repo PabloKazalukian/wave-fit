@@ -73,6 +73,7 @@ export interface ExercisePerformanceVM {
         weights?: number;
     }[];
     usesWeight: boolean;
+    isFavorite?: boolean;
     notes?: string;
 }
 

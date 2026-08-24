@@ -5,6 +5,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { wrapperExerciseAPItoVM } from '../../../../wrappers/exercises.wrapper';
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
+import { UserProfileService } from '../../../../../core/services/user/user-profile.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { options } from '../../../../interfaces/input.interface';
 import { CommonModule } from '@angular/common';
@@ -40,6 +41,7 @@ import { ExerciseCreate } from '../exercise-create/exercise-create';
 })
 export class ExerciseSelector {
     exercisesSvc = inject(ExercisesService);
+    userProfileSvc = inject(UserProfileService);
     state = inject(WorkoutStateService);
     destroyRef = inject(DestroyRef);
 
@@ -53,6 +55,8 @@ export class ExerciseSelector {
         { initialValue: this.categoryControl.value },
     );
     showCreateForm = signal(false);
+    favoritesOnly = signal(false);
+    pendingFavoriteIds = signal<Set<string>>(new Set());
 
     toggleCreateForm() {
         this.showCreateForm.set(!this.showCreateForm());
@@ -73,12 +77,14 @@ export class ExerciseSelector {
     filteredExercises = computed(() => {
         const search = this.search().toLowerCase();
         const category = this.category();
+        const favoritesOnly = this.favoritesOnly();
         const all = this.exercises();
 
         return all.filter((ex) => {
             const matchesSearch = ex.name.toLowerCase().includes(search);
             const matchesCategory = !category || ex.category === category;
-            return matchesSearch && matchesCategory;
+            const matchesFavorite = !favoritesOnly || ex.isFavorite;
+            return matchesSearch && matchesCategory && matchesFavorite;
         });
     });
 
@@ -113,6 +119,44 @@ export class ExerciseSelector {
         } else {
             this.categoryControl.setValue(category);
         }
+    }
+
+    toggleFavoritesFilter() {
+        this.favoritesOnly.set(!this.favoritesOnly());
+    }
+
+    isFavoritePending(exerciseId: string): boolean {
+        return this.pendingFavoriteIds().has(exerciseId);
+    }
+
+    toggleFavorite(event: Event, ex: ExercisePerformanceVM) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (this.isFavoritePending(ex.exerciseId)) return;
+
+        const newValue = !ex.isFavorite;
+        this.exercisesSvc.setIsFavorite(ex.exerciseId, newValue);
+        this.setPending(ex.exerciseId, true);
+
+        this.userProfileSvc
+            .toggleFavoriteExercise(ex.exerciseId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                error: () => this.exercisesSvc.setIsFavorite(ex.exerciseId, !newValue),
+                complete: () => this.setPending(ex.exerciseId, false),
+            });
+    }
+
+    private setPending(exerciseId: string, pending: boolean) {
+        this.pendingFavoriteIds.update((prev) => {
+            const next = new Set(prev);
+            if (pending) {
+                next.add(exerciseId);
+            } else {
+                next.delete(exerciseId);
+            }
+            return next;
+        });
     }
 
     isSelected(ex: ExercisePerformanceVM): boolean {

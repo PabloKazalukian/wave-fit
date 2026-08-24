@@ -21,6 +21,7 @@ import {
     WeightLog,
     CreateStrengthMetricInput,
     CreateWeightLogInput,
+    ToggleFavoriteExerciseAPI,
 } from '../../../shared/utils/profile.types';
 
 @Injectable({
@@ -273,5 +274,9 @@ export class UserProfileService {
                 },
             }),
         );
+    }
+
+    toggleFavoriteExercise(exerciseId: string): Observable<ToggleFavoriteExerciseAPI | null> {
+        return this.domain.toggleFavoriteExercise(exerciseId);
     }
 }

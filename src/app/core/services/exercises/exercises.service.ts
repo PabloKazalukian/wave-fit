@@ -61,6 +61,13 @@ export class ExercisesService {
         return (timestamp + randomHex).toLowerCase();
     }
 
+    setIsFavorite(exerciseId: string, isFavorite: boolean): void {
+        this.exercises.update((current) =>
+            current.map((ex) => (ex.id === exerciseId ? { ...ex, isFavorite } : ex)),
+        );
+        this.idb.saveExercises(this.exercises());
+    }
+
     createExercise(exercise: Exercise): Observable<Exercise> {
         // Generar un ObjectId válido de Mongoose en el frontend
         const newId = exercise.id || this.generateObjectId();

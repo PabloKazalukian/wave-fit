@@ -339,3 +339,13 @@ export const CREATE_WEIGHT_LOG = `
         }
     }
 `;
+
+export const TOGGLE_FAVORITE_EXERCISE = `
+    mutation ToggleFavoriteExercise($exerciseId: String!) {
+        toggleFavoriteExercise(exerciseId: $exerciseId) {
+            _id
+            userId
+            favoriteExercises
+        }
+    }
+`;

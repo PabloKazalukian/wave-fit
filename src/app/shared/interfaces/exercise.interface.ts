@@ -17,6 +17,7 @@ export interface Exercise {
     description?: string;
     category: ExerciseCategory;
     usesWeight: boolean;
+    isFavorite?: boolean;
 }
 
 export interface ExerciseForm {

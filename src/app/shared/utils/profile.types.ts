@@ -394,3 +394,11 @@ export type CreateWeightLogInput = {
     loggedAt?: string;
     notes?: string;
 };
+
+// ── Favoritos ──
+
+export interface ToggleFavoriteExerciseAPI {
+    _id: string;
+    userId: string;
+    favoriteExercises: string[];
+}
