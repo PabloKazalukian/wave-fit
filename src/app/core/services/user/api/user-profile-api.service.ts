@@ -100,6 +100,10 @@ export class UserProfileApiService {
         return this.set.removeUserProfile(id);
     }
 
+    resetMyProfile(): Observable<boolean | null> {
+        return this.set.resetMyProfile();
+    }
+
     updateUserGoals(input: UpdateGoalsInput): Observable<GoalAPI | null> {
         return this.set.updateUserGoals(input);
     }
@@ -146,9 +150,7 @@ export class UserProfileApiService {
         return this.set.toggleFavoriteRoutine(routineId);
     }
 
-    toggleFavoriteRoutineDay(
-        routineDayId: string,
-    ): Observable<ToggleFavoriteRoutineDayAPI | null> {
+    toggleFavoriteRoutineDay(routineDayId: string): Observable<ToggleFavoriteRoutineDayAPI | null> {
         return this.set.toggleFavoriteRoutineDay(routineDayId);
     }
 }

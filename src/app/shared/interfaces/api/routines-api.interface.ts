@@ -9,6 +9,8 @@ export interface RoutinePlanAPI {
     routineDays?: RoutineDayAPI[];
     isFavorite?: boolean;
     createdBy?: string;
+    isAiGenerated?: boolean | null;
+    generatedFromPlanId?: string | null;
 }
 
 export interface RoutineDayAPI {

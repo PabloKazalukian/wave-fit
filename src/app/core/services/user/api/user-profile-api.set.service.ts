@@ -7,6 +7,7 @@ import {
     UPDATE_USER_PROFILE,
     UPSERT_USER_PROFILE,
     REMOVE_USER_PROFILE,
+    RESET_MY_PROFILE,
     UPDATE_USER_GOALS,
     UPDATE_USER_HEALTH_CONSTRAINTS,
     UPDATE_USER_SCHEDULE,
@@ -107,6 +108,19 @@ export class UserProfileApiSetService {
             })
             .pipe(
                 map((res) => res.data?.removeUserProfile || null),
+                handleGraphqlError(this.authSvc),
+            );
+    }
+
+    resetMyProfile(): Observable<boolean | null> {
+        return this.apollo
+            .mutate<{ removeMyProfileData: boolean }>({
+                mutation: gql`
+                    ${RESET_MY_PROFILE}
+                `,
+            })
+            .pipe(
+                map((res) => res.data?.removeMyProfileData ?? null),
                 handleGraphqlError(this.authSvc),
             );
     }
@@ -240,10 +254,7 @@ export class UserProfileApiSetService {
 
     toggleFavoriteExercise(exerciseId: string): Observable<ToggleFavoriteExerciseAPI | null> {
         return this.apollo
-            .mutate<
-                { toggleFavoriteExercise: ToggleFavoriteExerciseAPI },
-                { exerciseId: string }
-            >({
+            .mutate<{ toggleFavoriteExercise: ToggleFavoriteExerciseAPI }, { exerciseId: string }>({
                 mutation: gql`
                     ${TOGGLE_FAVORITE_EXERCISE}
                 `,
@@ -269,9 +280,7 @@ export class UserProfileApiSetService {
             );
     }
 
-    toggleFavoriteRoutineDay(
-        routineDayId: string,
-    ): Observable<ToggleFavoriteRoutineDayAPI | null> {
+    toggleFavoriteRoutineDay(routineDayId: string): Observable<ToggleFavoriteRoutineDayAPI | null> {
         return this.apollo
             .mutate<
                 { toggleFavoriteRoutineDay: ToggleFavoriteRoutineDayAPI },

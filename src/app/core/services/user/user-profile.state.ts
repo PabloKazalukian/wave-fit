@@ -12,6 +12,7 @@ export class UserProfileStateService {
     readonly userProfile = toSignal(this.userProfile$, { initialValue: null });
 
     readonly loading = signal(false);
+    readonly savingSetup = signal(false);
     readonly error = signal<string | null>(null);
 
     getUserProfile(): ProfileUser | null {
@@ -24,6 +25,10 @@ export class UserProfileStateService {
 
     setLoading(isLoading: boolean): void {
         this.loading.set(isLoading);
+    }
+
+    setSaving(isSaving: boolean): void {
+        this.savingSetup.set(isSaving);
     }
 
     setError(error: string | null): void {

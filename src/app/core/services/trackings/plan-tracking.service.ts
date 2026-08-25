@@ -120,6 +120,29 @@ export class PlanTrackingService {
         return this.domain.createTracking(planId);
     }
 
+    /**
+     * Re-consulta la semana activa y actualiza state + storage.
+     * A diferencia de initTracking, ignora la caché y fuerza el fetch.
+     */
+    reloadTracking(): Observable<TrackingVM | null> {
+        const userId = this.authService.user()?.id ?? this.state.userId();
+        this.state.userId.set(userId);
+        this.state.setLoadingTracking(true);
+
+        return this.domain.initTracking().pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.state.setLoadingTracking(false)),
+            tap((activeTracking) => {
+                if (activeTracking) {
+                    this._persist(activeTracking);
+                } else {
+                    this.state.setTracking(null);
+                }
+            }),
+            map(() => this.state.getTrackingValue()),
+        );
+    }
+
     createWorkout(dateWorkout: LocalDate): Observable<WorkoutSessionVM | null | undefined> {
         return this.domain.createWorkout(dateWorkout).pipe(
             map((res) => {

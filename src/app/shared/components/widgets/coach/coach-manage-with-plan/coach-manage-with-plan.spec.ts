@@ -1,23 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { CoachManageWithPlan } from './coach-manage-with-plan';
 
 describe('CoachManageWithPlan', () => {
-  let component: CoachManageWithPlan;
-  let fixture: ComponentFixture<CoachManageWithPlan>;
+    let component: CoachManageWithPlan;
+    let fixture: ComponentFixture<CoachManageWithPlan>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [CoachManageWithPlan]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [CoachManageWithPlan],
+            providers: [provideRouter([])],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(CoachManageWithPlan);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(CoachManageWithPlan);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

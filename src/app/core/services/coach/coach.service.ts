@@ -4,12 +4,18 @@ import { map, Observable } from 'rxjs';
 import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import {
+    CONFIRM_PLAN,
     GENERATE_PLAN,
     GET_TRAINING_PLAN,
     GET_TRAINING_PLANS,
     REMOVE_TRAINING_PLAN,
 } from '../../apollo/coach.query';
-import { TrainingPlanDetail, TrainingPlansPage } from '../../../shared/interfaces/coach.interface';
+import {
+    TrainingPlanDetail,
+    TrainingPlansPage,
+    ConfirmPlanOutput,
+    PlanConfirmationAction,
+} from '../../../shared/interfaces/coach.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -65,6 +71,18 @@ export class CoachService {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) => (data?.removePlan ? data.removePlan : null)),
+            );
+    }
+
+    confirmPlan(id: string, action: PlanConfirmationAction): Observable<ConfirmPlanOutput | null> {
+        return this.apollo
+            .mutate<{ confirmPlan: ConfirmPlanOutput }>({
+                mutation: CONFIRM_PLAN,
+                variables: { id, action },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) => (data?.confirmPlan ? data.confirmPlan : null)),
             );
     }
 }

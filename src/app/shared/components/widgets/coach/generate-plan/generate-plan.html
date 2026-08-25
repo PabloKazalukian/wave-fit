@@ -1,0 +1,48 @@
+<div class="flex flex-col gap-4">
+  <header class="flex flex-col gap-1 text-center">
+    <h3 class="text-primary text-2xl font-bold">Generar nuevo plan con IA</h3>
+    <p class="text-text2 text-sm">
+      Contanos cómo querés entrenar y la IA creará tu plan semanal personalizado.
+    </p>
+  </header>
+
+  <div class="flex flex-col gap-2">
+    <label class="text-text2 font-semibold" for="comment-textarea"
+      >Comentario adicional (opcional)</label
+    >
+    <textarea
+      id="comment-textarea"
+      [(ngModel)]="comment"
+      placeholder="Ej: Tengo dolor en la rodilla, quiero evitar sentadillas pesadas..."
+      class="w-full bg-background3 border border-background4 rounded-xl p-3 text-text1 placeholder:text-text1 focus:outline-none focus:border-primary transition-colors resize-none"
+      rows="3"
+    ></textarea>
+  </div>
+
+  @if (planResult()) {
+    <app-coach-manage-with-plan [planData]="planResult()!" (deletePlan)="onClearPlanResult()" />
+  } @else {
+    <app-btn
+      [text]="'Generar un nuevo Plan'"
+      [color]="'primary'"
+      [variant]="'outline'"
+      [buttonType]="'submit'"
+      [isDisabled]="loading()"
+      [showIcon]="true"
+      [size]="'md'"
+      (click)="onSubmit()"
+    >
+      <app-icon>
+        <div class="h-6 w-6">
+          @if (loading()) {
+            <app-spinner></app-spinner>
+          }
+        </div>
+      </app-icon>
+    </app-btn>
+  }
+
+  @if (errorMessage()) {
+    <p class="text-error text-sm mt-2" role="alert">{{ errorMessage() }}</p>
+  }
+</div>

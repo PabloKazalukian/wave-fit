@@ -167,9 +167,11 @@ export class UserProfileDomainService {
         return this.api.toggleFavoriteRoutine(routineId);
     }
 
-    toggleFavoriteRoutineDay(
-        routineDayId: string,
-    ): Observable<ToggleFavoriteRoutineDayAPI | null> {
+    toggleFavoriteRoutineDay(routineDayId: string): Observable<ToggleFavoriteRoutineDayAPI | null> {
         return this.api.toggleFavoriteRoutineDay(routineDayId);
+    }
+
+    resetMyProfile(): Observable<boolean | null> {
+        return this.api.resetMyProfile();
     }
 }

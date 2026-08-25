@@ -94,13 +94,54 @@ export const REMOVE_TRAINING_PLAN = gql`
 `;
 
 export const CONFIRM_PLAN = gql`
-    mutation ConfirmPlan($id: String!) {
-        confirmPlan(id: $id) {
-            id
-            title
-            confirmed
-            status
-            updatedAt
+    mutation ConfirmPlan($id: String!, $action: PlanConfirmationAction!) {
+        confirmPlan(id: $id, action: $action) {
+            trainingPlan {
+                id
+                title
+                confirmed
+                status
+                confirmedAction
+                resultingWeekLogId
+                resultingRoutinePlanId
+            }
+            weekLog {
+                id
+                startDate
+                endDate
+                days {
+                    order
+                    date
+                    isRest
+                    workoutSessionId
+                    exercises {
+                        exerciseId
+                        series
+                    }
+                }
+            }
+            routinePlan {
+                id
+                name
+                description
+                weekly_distribution
+                isAiGenerated
+                generatedFromPlanId
+                createdBy
+                routineDays {
+                    id
+                    title
+                    type
+                    exercises {
+                        exercise {
+                            id
+                            name
+                            category
+                        }
+                        order
+                    }
+                }
+            }
         }
     }
 `;

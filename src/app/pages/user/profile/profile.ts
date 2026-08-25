@@ -16,6 +16,11 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControlsOf } from '../../../shared/utils/form-types.util';
 import { CheckboxComponent } from '../../../shared/components/ui/checkbox/checkbox';
+import { BtnComponent } from '../../../shared/components/ui/btn/btn';
+import { DialogComponent } from '../../../shared/components/ui/dialog/dialog';
+import { Notification } from '../../../shared/components/ui/notification/notification';
+import { SpinnerComponent } from '../../../shared/components/ui/icon/spinner';
+import { IconComponent } from '../../../shared/components/ui/icon/icon';
 
 export interface ProfileVisibilityForm {
     weight: boolean;
@@ -42,6 +47,11 @@ type ProfileVisibilityFormType = FormControlsOf<ProfileVisibilityForm>;
         Goals,
         ReactiveFormsModule,
         CheckboxComponent,
+        BtnComponent,
+        DialogComponent,
+        Notification,
+        SpinnerComponent,
+        IconComponent,
     ],
     templateUrl: './profile.html',
     styles: ``,
@@ -54,29 +64,37 @@ export class Profile implements OnInit {
 
     user = this.authService.user;
     userProfile = this.profileUserService.userProfile;
-    profile: ProfileUser = {
-        id: '',
-        userId: '',
-        gender: 'M',
-        birthDate: '',
-        heightCm: 0,
-        weightKg: 0,
-        distributionDays: 'Week-log',
-        unitsPreference: 'metric',
-        createdAt: '',
-        updatedAt: '',
-        goal: null,
-        healthConstraints: null,
-        schedule: null,
-        trainingPreferences: null,
-        resources: null,
-        strengthMetrics: [],
-        weightLogs: [],
-    };
+    profile: ProfileUser = Profile.emptyProfile();
     avatarUrl = this.authService.avatarUrl;
     showAvatarDialog = signal<boolean>(false);
     avatarFile: File | null = null;
     showProfileModal = signal<boolean>(false);
+
+    showResetDialog = signal<boolean>(false);
+    resetting = signal<boolean>(false);
+    resetNotification = signal<'success' | 'error' | null>(null);
+
+    private static emptyProfile(): ProfileUser {
+        return {
+            id: '',
+            userId: '',
+            gender: 'M',
+            birthDate: '',
+            heightCm: 0,
+            weightKg: 0,
+            distributionDays: 'Week-log',
+            unitsPreference: 'metric',
+            createdAt: '',
+            updatedAt: '',
+            goal: null,
+            healthConstraints: null,
+            schedule: null,
+            trainingPreferences: null,
+            resources: null,
+            strengthMetrics: [],
+            weightLogs: [],
+        };
+    }
 
     visibilityForm!: FormGroup<ProfileVisibilityFormType>;
 
@@ -154,5 +172,37 @@ export class Profile implements OnInit {
     }
     editProfile() {
         this.showProfileModal.set(true);
+    }
+
+    openResetDialog() {
+        this.resetNotification.set(null);
+        this.showResetDialog.set(true);
+    }
+
+    closeResetDialog() {
+        if (this.resetting()) return;
+        this.showResetDialog.set(false);
+    }
+
+    onConfirmReset() {
+        if (this.resetting()) return;
+
+        this.resetting.set(true);
+        this.profileUserService
+            .resetMyProfile()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (result) => {
+                    this.resetting.set(false);
+                    this.showResetDialog.set(false);
+                    this.profile = Profile.emptyProfile();
+                    this.resetNotification.set(result ? 'success' : 'error');
+                },
+                error: () => {
+                    this.resetting.set(false);
+                    this.showResetDialog.set(false);
+                    this.resetNotification.set('error');
+                },
+            });
     }
 }

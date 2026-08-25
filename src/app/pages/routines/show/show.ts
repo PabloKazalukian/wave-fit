@@ -17,6 +17,7 @@ import { NgClass } from '@angular/common';
 import { PlanTrackingService } from '../../../core/services/trackings/plan-tracking.service';
 import { DialogComponent } from '../../../shared/components/ui/dialog/dialog';
 import { Loading } from '../../../shared/components/ui/loading/loading';
+import { LucideAngularModule, Sparkles } from 'lucide-angular';
 import { delay, tap } from 'rxjs';
 
 @Component({
@@ -28,6 +29,7 @@ import { delay, tap } from 'rxjs';
         NgClass,
         DialogComponent,
         Loading,
+        LucideAngularModule,
     ],
     standalone: true,
     templateUrl: './show.html',
@@ -42,6 +44,8 @@ export class Show implements OnInit {
 
     userId = signal<string>('');
     routinePlan = signal<RoutinePlanCreate | null>(null);
+
+    Sparkles = Sparkles;
 
     muscleGroups = computed(() => {
         const plan = this.routinePlan();
@@ -92,6 +96,7 @@ export class Show implements OnInit {
                             name: rest.name as string,
                             description: rest.description as string,
                             weekly_distribution: rest.weekly_distribution as string,
+                            isAiGenerated: rest.isAiGenerated as boolean | null | undefined,
                             routineDays: routineDaysParsed,
                         };
                         this.routinePlan.set(routinePlanParsed);

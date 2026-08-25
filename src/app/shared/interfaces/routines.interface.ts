@@ -27,6 +27,7 @@ export interface RoutinePlanVM {
     weekly_distribution: string;
     routineDays: RoutineDayVM[];
     createdBy?: string;
+    isAiGenerated?: boolean | null;
 }
 
 export interface RoutinePlanCreate {
@@ -36,6 +37,7 @@ export interface RoutinePlanCreate {
     weekly_distribution?: string;
     routineDays: RoutineDayCreate[];
     createdBy?: string;
+    isAiGenerated?: boolean | null;
 }
 
 export interface RoutinePlanSend {

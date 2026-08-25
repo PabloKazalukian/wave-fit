@@ -38,7 +38,8 @@
       [color]="'confirm'"
       [variant]="'outline'"
       [size]="'md'"
-      (click)="confirmPlan.emit()"
+      [dataTest]="'confirmar-plan-ia'"
+      (click)="openConfirmDialog()"
     />
     <app-btn
       [text]="'Modificar'"
@@ -49,4 +50,88 @@
       (click)="modifyPlan.emit(modificationsComment)"
     />
   </div>
+
+  <app-dialog
+    [isOpen]="showConfirmDialog()"
+    [title]="'Confirmar plan generado con IA'"
+    [closeOnBackdrop]="true"
+    [locked]="true"
+    (closed)="closeConfirmDialog()"
+  >
+    @if (facade.confirmingAction()) {
+      <div class="flex flex-col items-center justify-center gap-3 py-6" aria-busy="true">
+        <div class="h-10 w-10">
+          <app-spinner></app-spinner>
+        </div>
+        <p class="text-text2 text-sm">Confirmando tu plan...</p>
+      </div>
+    } @else {
+      <div class="flex flex-col gap-4">
+        <p class="text-text2 text-sm md:text-base leading-relaxed">
+          @if (facade.hasActiveWeek()) {
+            Ya tenés una semana activa en curso. Elegí cómo querés conservar este plan:
+          } @else {
+            Elegí qué querés hacer con este plan generado con IA:
+          }
+        </p>
+
+        <ul class="flex flex-col gap-2">
+          @for (item of confirmationActions; track item.action) {
+            <li class="border border-background3 rounded-2xl">
+              <app-info-card
+                [title]="item.title"
+                [description]="item.description"
+                [icon]="item.icon"
+              ></app-info-card>
+            </li>
+          }
+        </ul>
+
+        @if (facade.confirmError()) {
+          <p class="text-error text-sm leading-relaxed" role="alert">
+            {{ facade.confirmError() }}
+          </p>
+        }
+
+        <div class="flex flex-col gap-2 mt-2">
+          @if (!facade.hasActiveWeek()) {
+            <app-btn
+              [variant]="'raised'"
+              [color]="'success'"
+              [size]="'md'"
+              [text]="'Empezar mi semana'"
+              [descriptionText]="'Crea tu semana activa con este plan'"
+              [showIcon]="true"
+              (click)="onConfirmAction('CREATE_WEEK_LOG')"
+            ></app-btn>
+          }
+          <app-btn
+            [variant]="'raised'"
+            [color]="facade.hasActiveWeek() ? 'success' : 'secondary'"
+            [size]="'md'"
+            [text]="'Guardar como rutina semanal'"
+            [descriptionText]="'Guarda el plan como plantilla privada'"
+            (click)="onConfirmAction('CREATE_ROUTINE_PLAN')"
+          ></app-btn>
+          @if (facade.hasActiveWeek()) {
+            <app-btn
+              [variant]="'outline'"
+              [color]="'primary'"
+              [size]="'md'"
+              [text]="'Adaptar mi semana actual'"
+              [descriptionText]="'Ajusta tu semana en curso con este plan'"
+              (click)="onConfirmAction('ADAPT_ACTIVE_WEEK')"
+            ></app-btn>
+          }
+          <app-btn
+            [variant]="'outline'"
+            [color]="'error'"
+            [size]="'md'"
+            [text]="'Cancelar'"
+            (click)="closeConfirmDialog()"
+          ></app-btn>
+        </div>
+      </div>
+    }
+  </app-dialog>
 </div>

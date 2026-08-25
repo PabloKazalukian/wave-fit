@@ -16,7 +16,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ExerciseCategory } from '../../shared/interfaces/exercise.interface';
-import { LucideAngularModule, BookOpen } from 'lucide-angular';
+import { LucideAngularModule, BookOpen, Sparkles } from 'lucide-angular';
 import { InfoCard } from '../../shared/components/ui/info-card/info-card';
 
 type selectFormType = FormControlsOf<SelectTypeInput>;
@@ -58,6 +58,8 @@ export class Plans implements OnInit {
         description:
             'Explorá los planes semanales disponibles y seleccioná el que mejor se adapte a vos para iniciar el seguimiento de tus entrenamientos. También podés crear tu propio plan desde cero.',
     };
+
+    Sparkles = Sparkles;
 
     options: SelectType[] = [
         { name: '1/7', value: '1' },

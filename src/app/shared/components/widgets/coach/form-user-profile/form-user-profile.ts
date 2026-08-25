@@ -1,25 +1,27 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, concatMap, forkJoin, of } from 'rxjs';
+import { finalize } from 'rxjs';
 
 import { UserProfileService } from '../../../../../core/services/user/user-profile.service';
 import { FormInputComponent } from '../../../ui/input/input';
 import { BtnComponent } from '../../../ui/btn/btn';
+import { IconComponent } from '../../../ui/icon/icon';
+import { SpinnerComponent } from '../../../ui/icon/spinner';
 import { InputNumber } from '../../../ui/input-number/input-number';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { SelectType } from '../../../../interfaces/input.interface';
 import { PrimaryGoal, TrainingExperience, Gender } from '../../../../utils/profile.types';
 
-type CoachProfileFormType = {
+interface CoachProfileFormType {
     gender: FormControl<Gender | ''>;
     birthDate: FormControl<string>;
     heightCm: FormControl<number>;
     weightKg: FormControl<number>;
     primaryGoal: FormControl<PrimaryGoal | ''>;
-    daysPerWeek: FormControl<number>;
+    daysPerWeek: FormControl<string>;
     trainingExperience: FormControl<TrainingExperience | ''>;
-};
+}
 
 @Component({
     selector: 'app-form-user-profile',
@@ -28,6 +30,8 @@ type CoachProfileFormType = {
         ReactiveFormsModule,
         FormInputComponent,
         BtnComponent,
+        IconComponent,
+        SpinnerComponent,
         InputNumber,
         FormSelectComponent,
     ],
@@ -40,8 +44,9 @@ export class FormUserProfile implements OnInit {
 
     profileForm!: FormGroup<CoachProfileFormType>;
 
-    loading = false;
-    success = false;
+    saving = signal(false);
+    success = signal(false);
+    errorMessage = signal<string | null>(null);
 
     genderOptions: SelectType[] = [
         { name: 'Masculino', value: 'M' },
@@ -57,6 +62,11 @@ export class FormUserProfile implements OnInit {
         { name: 'Mantenimiento', value: 'maintenance' },
         { name: 'Recomposición corporal', value: 'recomp' },
     ];
+
+    daysPerWeekOptions: SelectType[] = Array.from({ length: 7 }, (_, i) => ({
+        name: `${i + 1}`,
+        value: `${i + 1}`,
+    }));
 
     trainingExperienceOptions: SelectType[] = [
         { name: 'Principiante', value: 'beginner' },
@@ -78,7 +88,9 @@ export class FormUserProfile implements OnInit {
                     heightCm: profile.heightCm || 0,
                     weightKg: profile.weightKg || 0,
                     primaryGoal: profile.goal?.primaryGoal || '',
-                    daysPerWeek: profile.schedule?.daysPerWeek || 0,
+                    daysPerWeek: profile.schedule?.daysPerWeek
+                        ? String(profile.schedule.daysPerWeek)
+                        : '',
                     trainingExperience: profile.goal?.trainingExperience || '',
                 });
             });
@@ -106,9 +118,9 @@ export class FormUserProfile implements OnInit {
                 nonNullable: true,
                 validators: [Validators.required],
             }),
-            daysPerWeek: new FormControl(0, {
+            daysPerWeek: new FormControl('', {
                 nonNullable: true,
-                validators: [Validators.required, Validators.min(1), Validators.max(7)],
+                validators: [Validators.required],
             }),
             trainingExperience: new FormControl('' as TrainingExperience | '', {
                 nonNullable: true,
@@ -123,46 +135,50 @@ export class FormUserProfile implements OnInit {
             return;
         }
 
-        this.loading = true;
-        this.success = false;
+        if (this.saving()) return;
+
+        this.success.set(false);
+        this.errorMessage.set(null);
+        this.saving.set(true);
 
         const values = this.profileForm.getRawValue();
 
-        const updateProfile$ = this.profileUserService
-            .updateProfile({
-                gender: values.gender as Gender,
-                birthDate: values.birthDate,
-                heightCm: values.heightCm,
-                weightKg: values.weightKg,
+        this.profileUserService
+            .completeBasicSetup({
+                profile: {
+                    gender: values.gender as Gender,
+                    birthDate: values.birthDate,
+                    heightCm: values.heightCm,
+                    weightKg: values.weightKg,
+                },
+                goals: {
+                    primaryGoal: values.primaryGoal as PrimaryGoal,
+                    trainingExperience: values.trainingExperience as TrainingExperience,
+                },
+                schedule: {
+                    daysPerWeek: Number(values.daysPerWeek),
+                },
             })
-            .pipe(catchError(() => of(null)));
-
-        const updateGoal$ = this.profileUserService
-            .updateGoals({
-                primaryGoal: values.primaryGoal as PrimaryGoal,
-                trainingExperience: values.trainingExperience as TrainingExperience,
-            })
-            .pipe(catchError(() => of(null)));
-
-        const updateSchedule$ = this.profileUserService
-            .updateSchedule({
-                daysPerWeek: values.daysPerWeek,
-            })
-            .pipe(catchError(() => of(null)));
-
-        forkJoin([updateProfile$, updateGoal$, updateSchedule$])
             .pipe(
-                concatMap(() => this.profileUserService.fetchUserProfile()),
                 takeUntilDestroyed(this.destroyRef),
+                finalize(() => this.saving.set(false)),
             )
             .subscribe({
-                next: () => {
-                    this.loading = false;
-                    this.success = true;
+                next: ({ failedSteps }) => {
+                    this.saving.set(false);
+                    if (failedSteps.length > 0) {
+                        this.errorMessage.set(
+                            `Se guardaron tus datos parcialmente. Revisá estos campos e intentá de nuevo: ${failedSteps.join(', ')}.`,
+                        );
+                    } else {
+                        this.success.set(true);
+                    }
                 },
-                error: (err) => {
-                    this.loading = false;
-                    console.error(err);
+                error: () => {
+                    this.saving.set(false);
+                    this.errorMessage.set(
+                        'No se pudieron guardar los datos. Verificá tu conexión e intentá de nuevo.',
+                    );
                 },
             });
     }
@@ -182,8 +198,8 @@ export class FormUserProfile implements OnInit {
     get primaryGoalControl(): FormControl<PrimaryGoal | ''> {
         return this.profileForm.get('primaryGoal')! as FormControl<PrimaryGoal | ''>;
     }
-    get daysPerWeekControl(): FormControl<number> {
-        return this.profileForm.get('daysPerWeek')! as FormControl<number>;
+    get daysPerWeekControl(): FormControl<string> {
+        return this.profileForm.get('daysPerWeek')! as FormControl<string>;
     }
     get trainingExperienceControl(): FormControl<TrainingExperience | ''> {
         return this.profileForm.get('trainingExperience')! as FormControl<TrainingExperience | ''>;

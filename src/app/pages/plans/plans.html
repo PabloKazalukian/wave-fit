@@ -109,24 +109,35 @@
           <ul class="flex flex-col gap-4">
             @for (routine of this.filteredRoutinesPlans(); track routine.id) {
               <li class="flex items-center gap-2 w-full">
-                <app-btn
-                  [routerLink]="`/routines/show/${routine.id}`"
-                  [text]="routine.name"
-                  [descriptionText]="
-                    routine.name +
-                    ' - ' +
-                    routine.description +
-                    ' - ' +
-                    routine.weekly_distribution +
-                    '/7 días'
-                  "
-                  [variant]="'outline'"
-                  [showIcon]="true"
-                  [size]="'md'"
-                  [color]="'primary'"
-                  class="flex-1 min-w-0"
-                  [dataTest]="'rutina-semanal-' + routine.id"
-                ></app-btn>
+                <div class="relative flex-1 min-w-0 flex">
+                  <app-btn
+                    [routerLink]="`/routines/show/${routine.id}`"
+                    [text]="routine.name"
+                    [descriptionText]="
+                      routine.name +
+                      ' - ' +
+                      routine.description +
+                      ' - ' +
+                      routine.weekly_distribution +
+                      '/7 días'
+                    "
+                    [variant]="'outline'"
+                    [showIcon]="true"
+                    [size]="'md'"
+                    [color]="'primary'"
+                    class="flex-1 min-w-0"
+                    [dataTest]="'rutina-semanal-' + routine.id"
+                  ></app-btn>
+                  @if (routine.isAiGenerated) {
+                    <span
+                      class="absolute top-1 right-2 z-10 flex items-center gap-1 py-0.5 px-2 rounded-full bg-primary/15 border border-primary/40 text-primary text-[11px] font-semibold pointer-events-none"
+                      [attr.data-test]="'badge-ia-' + routine.id"
+                    >
+                      <lucide-icon [img]="Sparkles" size="12" [strokeWidth]="2.5"></lucide-icon>
+                      Generada con IA
+                    </span>
+                  }
+                </div>
 
                 <button
                   type="button"

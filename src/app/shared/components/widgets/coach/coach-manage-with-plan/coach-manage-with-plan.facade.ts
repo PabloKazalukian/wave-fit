@@ -1,15 +1,21 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { ExerciseCategory } from '../../../../interfaces/exercise.interface';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
 import { DateService } from '../../../../../core/services/date.service';
 import { CoachService } from '../../../../../core/services/coach/coach.service';
+import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
 import {
     ExercisePerformanceVM,
     TrackingVM,
     WorkoutSessionVM,
 } from '../../../../interfaces/tracking.interface';
-import { TrainingPlanDetail } from '../../../../interfaces/coach.interface';
+import {
+    ConfirmPlanOutput,
+    PlanConfirmationAction,
+    TrainingPlanDetail,
+} from '../../../../interfaces/coach.interface';
 import {
     AiPlanDay,
     AiPlanExercise,
@@ -21,12 +27,20 @@ export class CoachManageWithPlanFacade {
     private readonly dateService = inject(DateService);
     private readonly exercisesService = inject(ExercisesService);
     private readonly coachService = inject(CoachService);
+    private readonly planTrackingSvc = inject(PlanTrackingService);
+    private readonly router = inject(Router);
     private readonly destroyRef = inject(DestroyRef);
 
     readonly trackingVM = signal<TrackingVM | null>(null);
     readonly selectedWorkout = signal<WorkoutSessionVM | null>(null);
     readonly loading = signal(false);
     readonly error = signal<string | null>(null);
+
+    readonly planId = signal<string | null>(null);
+    readonly hasActiveWeek = computed(() => !!this.planTrackingSvc.tracking());
+
+    readonly confirmingAction = signal<PlanConfirmationAction | null>(null);
+    readonly confirmError = signal<string | null>(null);
 
     /**
      * Debe llamarse en ngOnInit del componente padre para precargar los ejercicios.
@@ -66,7 +80,10 @@ export class CoachManageWithPlanFacade {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (data) => {
-                    if (data) this.buildTrackingVM(data);
+                    if (data) {
+                        this.planId.set(data.id);
+                        this.buildTrackingVM(data);
+                    }
                     this.loading.set(false);
                 },
                 error: () => {
@@ -81,11 +98,106 @@ export class CoachManageWithPlanFacade {
      * Usado por CoachManageWithPlan (el plan recién generado viene como input).
      */
     buildFromPlan(plan: TrainingPlanDetail): void {
+        this.planId.set(plan.id);
         this.buildTrackingVM(plan);
     }
 
     onDaySelected(workout: WorkoutSessionVM | null): void {
         this.selectedWorkout.set(workout);
+    }
+
+    confirmPlan(action: PlanConfirmationAction): void {
+        const planId = this.planId();
+        if (!planId || this.confirmingAction()) return;
+
+        this.confirmingAction.set(action);
+        this.confirmError.set(null);
+
+        this.coachService
+            .confirmPlan(planId, action)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (output) => this.onConfirmSuccess(action, output),
+                error: (err) => {
+                    this.confirmError.set(this.mapConfirmError(err, action));
+                    this.confirmingAction.set(null);
+                },
+            });
+    }
+
+    private onConfirmSuccess(
+        action: PlanConfirmationAction,
+        output: ConfirmPlanOutput | null,
+    ): void {
+        this.confirmingAction.set(null);
+
+        if (action === 'CREATE_WEEK_LOG') {
+            // Refrescar la semana activa antes de navegar a Mi Semana
+            this.planTrackingSvc
+                .reloadTracking()
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe(() => this.router.navigate(['/my-week']));
+            return;
+        }
+
+        if (action === 'CREATE_ROUTINE_PLAN') {
+            const routinePlanId =
+                output?.routinePlan?.id ?? output?.trainingPlan.resultingRoutinePlanId ?? null;
+            if (routinePlanId) {
+                this.router.navigate(['/routines/show', routinePlanId]);
+            }
+            return;
+        }
+    }
+
+    private mapConfirmError(err: unknown, action: PlanConfirmationAction): string {
+        const { code, message } = this.extractError(err);
+        const lower = message.toLowerCase();
+
+        if (
+            code === 'NOT_IMPLEMENTED' ||
+            lower.includes('not implemented') ||
+            lower.includes('no implementad')
+        ) {
+            return 'Adaptar la semana activa todavía no está disponible. Mientras tanto podés guardar el plan como rutina semanal.';
+        }
+
+        if (code === 'CONFLICT' || lower.includes('conflict')) {
+            const activeWeekConflict =
+                action === 'CREATE_WEEK_LOG' &&
+                (lower.includes('semana') || lower.includes('week'));
+            if (activeWeekConflict) {
+                return 'Ya tenés una semana activa. Podés guardar el plan como rutina semanal o finalizar tu semana actual e intentarlo de nuevo.';
+            }
+            return 'Este plan ya fue confirmado anteriormente.';
+        }
+
+        if (
+            code === 'BAD_REQUEST' ||
+            code === 'BAD_USER_INPUT' ||
+            lower.includes('día de entrenamiento') ||
+            lower.includes('dias de entrenamiento')
+        ) {
+            return 'El plan no tiene días de entrenamiento suficientes para crear una rutina.';
+        }
+
+        if (!message || message === 'UNAUTHORIZED') return message || 'Error desconocido';
+        return message;
+    }
+
+    private extractError(err: unknown): { code: string; message: string } {
+        if (Array.isArray(err)) {
+            const first = (err[0] ?? {}) as {
+                message?: string;
+                extensions?: { code?: string };
+            };
+            return {
+                code: first.extensions?.code ?? '',
+                message: first.message ?? '',
+            };
+        }
+        const e = err as { code?: string; message?: string };
+        return { code: e?.code ?? '', message: e?.message ?? '' };
     }
 
     private buildTrackingVM(plan: TrainingPlanDetail): void {

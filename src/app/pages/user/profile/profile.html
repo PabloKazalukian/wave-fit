@@ -1,4 +1,19 @@
 <section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  @if (resetNotification()) {
+    <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-full max-w-sm">
+      <app-notification
+        [message]="
+          resetNotification() === 'error'
+            ? 'No se pudo borrar la configuración del perfil. Inténtalo de nuevo.'
+            : 'Configuración del perfil borrada correctamente'
+        "
+        [type]="resetNotification() === 'error' ? 'error' : 'success'"
+        [duration]="5000"
+        (closeOuput)="resetNotification.set(null)"
+      ></app-notification>
+    </div>
+  }
+
   <section class="profile-card bg-background2 border-2 border-background4 rounded-2xl p-5 mb-6">
     <header>
       <h1 class="text-5xl font-bold text-center text-primary">Wave-Fit - Perfil</h1>
@@ -60,7 +75,71 @@
         </p>
         <p></p>
         <!-- <button (click)="editProfile()">Editar</button> -->
+
+        <footer class="mt-4 pt-4 border-t border-background4">
+          <app-btn
+            [text]="resetting() ? 'Borrando...' : 'Borrar configuración de perfil'"
+            [descriptionText]="'Elimina todos los datos de configuración de tu perfil'"
+            [variant]="'raised'"
+            [color]="'error'"
+            [size]="'md'"
+            [showIcon]="true"
+            [isDisabled]="resetting()"
+            dataTest="borrar-configuracion-perfil"
+            (click)="openResetDialog()"
+          >
+            @if (resetting()) {
+              <app-icon>
+                <div class="h-5 w-5">
+                  <app-spinner></app-spinner>
+                </div>
+              </app-icon>
+            }
+          </app-btn>
+        </footer>
       </div>
+
+      <app-dialog
+        [isOpen]="showResetDialog()"
+        [title]="'Borrar configuración de perfil'"
+        [closeOnBackdrop]="true"
+        [locked]="true"
+        (closed)="closeResetDialog()"
+      >
+        @if (resetting()) {
+          <div class="flex flex-col items-center justify-center gap-3 py-6" aria-busy="true">
+            <div class="h-10 w-10">
+              <app-spinner></app-spinner>
+            </div>
+            <p class="text-text2 text-sm">Borrando tu configuración...</p>
+          </div>
+        } @else {
+          <div class="flex flex-col gap-4">
+            <p class="text-text2 text-sm md:text-base leading-relaxed">
+              ¿Estás seguro de que deseas borrar la configuración de tu perfil? Se eliminarán todos
+              tus datos: datos básicos, objetivo, horarios, recursos, restricciones de salud,
+              métricas de fuerza y registros de peso. Esta acción no se puede deshacer.
+            </p>
+
+            <div class="flex flex-col gap-2 mt-2">
+              <app-btn
+                [variant]="'raised'"
+                [color]="'error'"
+                [size]="'md'"
+                [text]="'Sí, borrar configuración'"
+                (click)="onConfirmReset()"
+              ></app-btn>
+              <app-btn
+                [variant]="'outline'"
+                [color]="'primary'"
+                [size]="'md'"
+                [text]="'Cancelar'"
+                (click)="closeResetDialog()"
+              ></app-btn>
+            </div>
+          </div>
+        }
+      </app-dialog>
     </section>
 
     <section class="mt-6">

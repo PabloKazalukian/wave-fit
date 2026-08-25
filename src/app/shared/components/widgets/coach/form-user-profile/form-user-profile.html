@@ -3,6 +3,13 @@
   [formGroup]="profileForm"
   (ngSubmit)="onSubmit()"
 >
+  <header>
+    <h3 class="text-primary text-xl font-bold">Configuración básica</h3>
+    <p class="text-text2 text-sm">
+      Completá estos datos mínimos para que la IA pueda generar tu plan.
+    </p>
+  </header>
+
   <div class="flex flex-col sm:flex-row flex-wrap gap-5">
     <app-select
       class="flex-1 min-w-[150px]"
@@ -35,11 +42,12 @@
       [options]="primaryGoalOptions"
       [control]="primaryGoalControl"
     ></app-select>
-    <app-input-number
+    <app-select
       class="flex-1 min-w-[150px]"
-      [label]="'Días disponibles / semana'"
+      [label]="'Días / semana:'"
+      [options]="daysPerWeekOptions"
       [control]="daysPerWeekControl"
-    ></app-input-number>
+    ></app-select>
     <app-select
       class="flex-1 min-w-[200px]"
       [label]="'Experiencia'"
@@ -49,15 +57,25 @@
   </div>
 
   <app-btn
-    [text]="loading ? 'Guardando...' : 'Completar datos'"
+    [text]="saving() ? 'Guardando configuración...' : 'Completar datos'"
     [color]="'primary3'"
     [variant]="'raised'"
     [buttonType]="'submit'"
-    [isDisabled]="profileForm.invalid || loading"
+    [isDisabled]="profileForm.invalid || saving()"
+    [showIcon]="true"
   >
+    <app-icon>
+      <div class="h-6 w-6">
+        @if (saving()) {
+          <app-spinner></app-spinner>
+        }
+      </div>
+    </app-icon>
   </app-btn>
 
-  @if (success) {
+  @if (errorMessage()) {
+    <p class="text-error text-sm font-semibold" role="alert">{{ errorMessage() }}</p>
+  } @else if (success()) {
     <p class="text-success text-sm font-semibold">Datos guardados exitosamente.</p>
   }
 </form>

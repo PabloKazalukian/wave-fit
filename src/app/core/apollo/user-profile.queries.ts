@@ -276,6 +276,12 @@ export const REMOVE_USER_PROFILE = `
     }
 `;
 
+export const RESET_MY_PROFILE = `
+    mutation ResetMyProfile {
+        removeMyProfileData
+    }
+`;
+
 export const UPDATE_USER_GOALS = `
     mutation UpdateUserGoals($input: UpdateGoalsInput!) {
         updateUserGoals(input: $input) {

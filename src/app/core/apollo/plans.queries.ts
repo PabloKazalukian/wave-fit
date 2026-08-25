@@ -33,6 +33,8 @@ export const GET_ROUTINE_PLAN = gql`
             name
             description
             weekly_distribution
+            isAiGenerated
+            generatedFromPlanId
             routineDays {
                 id
                 title

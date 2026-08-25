@@ -3,7 +3,7 @@ import { UserProfileDomainService } from './user-profile.domain';
 import { UserProfileStateService } from './user-profile.state';
 import { AuthService } from '../auth/auth.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { Observable, tap } from 'rxjs';
+import { catchError, concat, concatMap, finalize, map, Observable, of, tap, toArray } from 'rxjs';
 import {
     Goal,
     HealthConstraint,
@@ -40,6 +40,7 @@ export class UserProfileService {
     readonly userProfile = this.state.userProfile;
     readonly userProfile$ = this.state.userProfile$;
     readonly loading = this.state.loading;
+    readonly savingSetup = this.state.savingSetup;
     readonly error = this.state.error;
 
     constructor() {
@@ -67,14 +68,13 @@ export class UserProfileService {
                 tap({
                     next: (profileUser) => {
                         this.state.setUserProfile(profileUser);
-                        this.state.setLoading(false);
                     },
                     error: (error) => {
                         console.error('Error fetching user profile context:', error);
                         this.state.setError(error.message || 'Error fetching profile');
-                        this.state.setLoading(false);
                     },
                 }),
+                finalize(() => this.state.setLoading(false)),
             )
             .subscribe();
     }
@@ -85,15 +85,46 @@ export class UserProfileService {
         return this.domain.initUserProfile().pipe(
             tap({
                 next: (profileUser) => {
-                    console.log(profileUser);
                     this.state.setUserProfile(profileUser);
-                    this.state.setLoading(false);
                 },
                 error: (error) => {
                     this.state.setError(error.message || 'Error fetching profile');
-                    this.state.setLoading(false);
                 },
             }),
+            finalize(() => this.state.setLoading(false)),
+        );
+    }
+
+    /**
+     * Guardado secuencial del setup básico (perfil → objetivos → horario) y
+     * refetch del contexto completo como fuente de verdad final.
+     * Si un paso falla, se registra y continúa con los restantes.
+     */
+    completeBasicSetup(input: {
+        profile: UpdateProfileInput;
+        goals: UpdateGoalsInput;
+        schedule: UpdateScheduleInput;
+    }): Observable<{ profile: ProfileUser | null; failedSteps: string[] }> {
+        const failedSteps: string[] = [];
+
+        const step = <T>(name: string, source$: Observable<T>): Observable<T | null> =>
+            source$.pipe(
+                catchError(() => {
+                    failedSteps.push(name);
+                    return of(null);
+                }),
+            );
+
+        this.state.setSaving(true);
+        return concat(
+            step('perfil', this.updateProfile(input.profile)),
+            step('objetivos', this.updateGoals(input.goals)),
+            step('horario', this.updateSchedule(input.schedule)),
+        ).pipe(
+            toArray(),
+            concatMap(() => this.fetchUserProfile()),
+            map((profile) => ({ profile, failedSteps })),
+            finalize(() => this.state.setSaving(false)),
         );
     }
 
@@ -111,13 +142,12 @@ export class UserProfileService {
                             this.state.setUserProfile(result);
                         }
                     }
-                    this.state.setLoading(false);
                 },
                 error: (error) => {
                     this.state.setError(error.message || 'Error updating profile');
-                    this.state.setLoading(false);
                 },
             }),
+            finalize(() => this.state.setLoading(false)),
         );
     }
 
@@ -132,13 +162,12 @@ export class UserProfileService {
                             this.state.setUserProfile({ ...current, schedule: result });
                         }
                     }
-                    this.state.setLoading(false);
                 },
                 error: (error) => {
                     this.state.setError(error.message || 'Error updating schedule');
-                    this.state.setLoading(false);
                 },
             }),
+            finalize(() => this.state.setLoading(false)),
         );
     }
 
@@ -155,13 +184,12 @@ export class UserProfileService {
                             this.state.setUserProfile({ ...current, trainingPreferences: result });
                         }
                     }
-                    this.state.setLoading(false);
                 },
                 error: (error) => {
                     this.state.setError(error.message || 'Error updating training preference');
-                    this.state.setLoading(false);
                 },
             }),
+            finalize(() => this.state.setLoading(false)),
         );
     }
 
@@ -176,13 +204,12 @@ export class UserProfileService {
                             this.state.setUserProfile({ ...current, goal: result });
                         }
                     }
-                    this.state.setLoading(false);
                 },
                 error: (error) => {
                     this.state.setError(error.message || 'Error updating goals');
-                    this.state.setLoading(false);
                 },
             }),
+            finalize(() => this.state.setLoading(false)),
         );
     }
 
@@ -199,13 +226,12 @@ export class UserProfileService {
                             this.state.setUserProfile({ ...current, healthConstraints: result });
                         }
                     }
-                    this.state.setLoading(false);
                 },
                 error: (error) => {
                     this.state.setError(error.message || 'Error updating health constraints');
-                    this.state.setLoading(false);
                 },
             }),
+            finalize(() => this.state.setLoading(false)),
         );
     }
 
@@ -220,13 +246,12 @@ export class UserProfileService {
                             this.state.setUserProfile({ ...current, resources: result });
                         }
                     }
-                    this.state.setLoading(false);
                 },
                 error: (error) => {
                     this.state.setError(error.message || 'Error updating resource');
-                    this.state.setLoading(false);
                 },
             }),
+            finalize(() => this.state.setLoading(false)),
         );
     }
 
@@ -244,13 +269,12 @@ export class UserProfileService {
                             });
                         }
                     }
-                    this.state.setLoading(false);
                 },
                 error: (error) => {
                     this.state.setError(error.message || 'Error creating strength metric');
-                    this.state.setLoading(false);
                 },
             }),
+            finalize(() => this.state.setLoading(false)),
         );
     }
 
@@ -268,13 +292,12 @@ export class UserProfileService {
                             });
                         }
                     }
-                    this.state.setLoading(false);
                 },
                 error: (error) => {
                     this.state.setError(error.message || 'Error creating weight log');
-                    this.state.setLoading(false);
                 },
             }),
+            finalize(() => this.state.setLoading(false)),
         );
     }
 
@@ -286,9 +309,25 @@ export class UserProfileService {
         return this.domain.toggleFavoriteRoutine(routineId);
     }
 
-    toggleFavoriteRoutineDay(
-        routineDayId: string,
-    ): Observable<ToggleFavoriteRoutineDayAPI | null> {
+    toggleFavoriteRoutineDay(routineDayId: string): Observable<ToggleFavoriteRoutineDayAPI | null> {
         return this.domain.toggleFavoriteRoutineDay(routineDayId);
+    }
+
+    resetMyProfile(): Observable<boolean | null> {
+        this.state.setLoading(true);
+        return this.domain.resetMyProfile().pipe(
+            tap({
+                next: (result) => {
+                    if (result) {
+                        // El backend borra TODO el user-profile: limpiar el estado local
+                        this.state.setUserProfile(null);
+                    }
+                },
+                error: (error) => {
+                    this.state.setError(error.message || 'Error resetting profile');
+                },
+            }),
+            finalize(() => this.state.setLoading(false)),
+        );
     }
 }

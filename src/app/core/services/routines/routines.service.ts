@@ -1,6 +1,17 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { BehaviorSubject, delay, filter, map, Observable, of, switchMap, tap, from, firstValueFrom } from 'rxjs';
+import {
+    BehaviorSubject,
+    delay,
+    filter,
+    map,
+    Observable,
+    of,
+    switchMap,
+    tap,
+    from,
+    firstValueFrom,
+} from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../auth/auth.service';
 import {
@@ -37,25 +48,29 @@ export class RoutinesService {
     constructor() {
         this.syncQueue.registerHandler('CreateRoutineDay', async (mutation) => {
             const input = mutation.variables.createRoutineDayInput;
-            const res = await firstValueFrom(this.apollo.mutate<{ createRoutineDay: RoutineDayCreate }>({
-                mutation: gql`
-                    mutation createRoutineDay($createRoutineDayInput: CreateRoutineDayInput!) {
-                        createRoutineDay(createRoutineDayInput: $createRoutineDayInput) {
-                            id
-                            title
-                            type
+            const res = await firstValueFrom(
+                this.apollo.mutate<{ createRoutineDay: RoutineDayCreate }>({
+                    mutation: gql`
+                        mutation createRoutineDay($createRoutineDayInput: CreateRoutineDayInput!) {
+                            createRoutineDay(createRoutineDayInput: $createRoutineDayInput) {
+                                id
+                                title
+                                type
+                            }
                         }
-                    }
-                `,
-                variables: { createRoutineDayInput: input },
-            }));
+                    `,
+                    variables: { createRoutineDayInput: input },
+                }),
+            );
             return res.data?.createRoutineDay;
         });
     }
 
     private generateObjectId(): string {
         const timestamp = Math.floor(new Date().getTime() / 1000).toString(16);
-        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16));
+        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () =>
+            Math.floor(Math.random() * 16).toString(16),
+        );
         return (timestamp + randomHex).toLowerCase();
     }
 
@@ -92,9 +107,7 @@ export class RoutinesService {
         const current = this.routinesCache$.value;
         if (!current) return;
 
-        const updated = current.map((r) =>
-            r.id === routineDayId ? { ...r, isFavorite } : r,
-        );
+        const updated = current.map((r) => (r.id === routineDayId ? { ...r, isFavorite } : r));
         this.routinesCache$.next(updated);
         this.idb.saveRoutines(updated);
     }
@@ -119,6 +132,8 @@ export class RoutinesService {
                             description
                             weekly_distribution
                             isFavorite
+                            isAiGenerated
+                            createdBy
                             routineDays {
                                 id
                             }
@@ -142,6 +157,8 @@ export class RoutinesService {
                             name
                             description
                             weekly_distribution
+                            isAiGenerated
+                            createdBy
                         }
                     }
                 `,
@@ -190,7 +207,7 @@ export class RoutinesService {
                             const current = this.routinesCache$.value;
                             this.routinesCache$.next([...current, res as any]);
                         }
-                    })
+                    }),
                 );
         } else {
             const pending = {
@@ -198,17 +215,19 @@ export class RoutinesService {
                 operationName: 'CreateRoutineDay',
                 variables: { createRoutineDayInput: payload },
                 status: 'pending' as const,
-                createdAt: Date.now()
+                createdAt: Date.now(),
             };
-            
+
             const optimisticRes = { ...data, id: newId };
-            return from(this.syncQueue.enqueue(pending).then(() => {
-                if (this.routinesCache$.value) {
-                    const current = this.routinesCache$.value;
-                    this.routinesCache$.next([...current, optimisticRes as any]);
-                }
-                return optimisticRes;
-            }));
+            return from(
+                this.syncQueue.enqueue(pending).then(() => {
+                    if (this.routinesCache$.value) {
+                        const current = this.routinesCache$.value;
+                        this.routinesCache$.next([...current, optimisticRes as any]);
+                    }
+                    return optimisticRes;
+                }),
+            );
         }
     }
 

@@ -11,10 +11,8 @@ import { SpinnerComponent } from '../../shared/components/ui/icon/spinner';
 import { Notification } from '../../shared/components/ui/notification/notification';
 import { ListPlanTraining } from '../../shared/components/widgets/coach/plan-training/list-plan-training/list-plan-training';
 import { CoachManage } from '../../shared/components/widgets/coach/coach-manage/coach-manage';
-import { CoachManageWithPlan } from '../../shared/components/widgets/coach/coach-manage-with-plan/coach-manage-with-plan';
-import { TrainingPlanDetail } from '../../shared/interfaces/coach.interface';
-import { FormsModule } from '@angular/forms';
 import { ShowUserProfileData } from '../../shared/components/widgets/coach/show-user-profile-data/show-user-profile-data';
+import { CoachGeneratePlan } from '../../shared/components/widgets/coach/generate-plan/generate-plan';
 
 @Component({
     selector: 'app-coach',
@@ -22,14 +20,13 @@ import { ShowUserProfileData } from '../../shared/components/widgets/coach/show-
         BtnComponent,
         FormUserProfile,
         InfoCard,
-        FormsModule,
         IconComponent,
         SpinnerComponent,
         Notification,
         ListPlanTraining,
         CoachManage,
-        CoachManageWithPlan,
         ShowUserProfileData,
+        CoachGeneratePlan,
     ],
     templateUrl: './coach.html',
     styles: ``,
@@ -41,14 +38,9 @@ export class Coach {
 
     user = this.authService.user;
     userProfile = this.profileUserService.userProfile;
-    profileLoading = this.profileUserService.loading;
 
-    comment = '';
-    loading = signal(false);
     deleting = signal(false);
-    errorMessage = signal<string | null>(null);
     deleteNotification = signal<'success' | 'error' | null>(null);
-    planResult = signal<TrainingPlanDetail | null>(null);
 
     selectedPlanId = signal<string | null>(null);
     manageMode = signal(false);
@@ -58,13 +50,26 @@ export class Coach {
         title: 'Wave-Fit: Tu Coach AI',
         description: `• Genera un plan con IA adaptado a tus necesitades.
          • Completa los datos basicos para poder genera un plan.
-         • Podras modificarlo en el proceso. 
+         • Podras modificarlo en el proceso.
         `,
     };
 
+    /**
+     * Flujo principal de la página. Mientras `completeBasicSetup` guarda el
+     * setup (savingSetup=true), la vista se queda en 'setup' para que el
+     * formulario NO se destruya a mitad del guardado (la antigua carrera de
+     * destrucción). Al terminar, loading se limpia y pasa a 'loading' (cargando
+     * la configuración) o, directamente, a 'ready'.
+     */
+    coachStep = computed<'loading' | 'setup' | 'ready'>(() => {
+        if (this.profileUserService.savingSetup()) return 'setup';
+        if (this.profileUserService.loading()) return 'loading';
+        return this.missingFields().length === 0 ? 'ready' : 'setup';
+    });
+
     missingFields = computed(() => {
         const p = this.userProfile();
-        if (!p) return this.profileLoading() ? [] : ['Perfil no disponible'];
+        if (!p) return this.profileUserService.loading() ? [] : ['Perfil no disponible'];
 
         const missing: string[] = [];
         if (!p.birthDate) missing.push('Fecha de nacimiento');
@@ -117,35 +122,6 @@ export class Coach {
                     this.deleting.set(false);
                     this.deleteNotification.set('error');
                 }, waitRemaining());
-            },
-        });
-    }
-
-    onClearPlanResult() {
-        this.planResult.set(null);
-    }
-
-    onSubmit() {
-        this.loading.set(true);
-        this.errorMessage.set(null);
-        this.planResult.set(null);
-
-        this.coachService.generatePlan(this.comment).subscribe({
-            next: (data) => {
-                this.loading.set(false);
-                if (data) {
-                    if (data?.aiSnapshot?.rawResponse) {
-                        // this.planResult.set(JSON.stringify(data.aiSnapshot.rawResponse, null, 2));
-                        this.planResult.set(data);
-                    }
-                }
-            },
-            error: (err) => {
-                this.loading.set(false);
-                const msg = Array.isArray(err)
-                    ? err.map((e: { message: string }) => e.message).join(', ')
-                    : err?.message || 'Error al generar el plan';
-                this.errorMessage.set(msg);
             },
         });
     }

@@ -20,7 +20,7 @@ export class InputNumber {
 
     widthClass = computed(() => {
         const value = this.control().value ?? 0;
-        return value > 99 ? 'w-16' : 'w-12';
+        return value > 99 ? 'w-[5.5rem]' : 'w-[4.5rem]';
     });
 
     showError = computed(() => {
