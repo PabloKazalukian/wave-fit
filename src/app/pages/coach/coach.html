@@ -29,79 +29,83 @@
       Bienvenido a tu asistente de entrenamiento personalizado.
     </p>
 
-    @if (manageMode()) {
-      <div class="flex flex-col gap-4">
-        <app-btn
-          [text]="'Volver'"
-          [color]="'secondary'"
-          [variant]="'outline'"
-          [size]="'sm'"
-          (click)="onBackToList()"
-        />
-        <app-btn
-          [text]="deleting() ? 'Eliminando...' : 'Eliminar plan actual'"
-          [color]="'error'"
-          [variant]="'outline'"
-          [size]="'sm'"
-          [isDisabled]="deleting()"
-          [showIcon]="deleting()"
-          (click)="onDeletePlan()"
-        >
-          @if (deleting()) {
-            <app-icon>
-              <div class="h-5 w-5">
-                <app-spinner></app-spinner>
-              </div>
-            </app-icon>
-          }
-        </app-btn>
-        <app-coach-manage [planId]="selectedPlanId()!" />
-      </div>
-    } @else {
-      <h4 class="text-text2 text-lg font-bold mb-2">Información personal</h4>
-      <header class="flex flex-col mb-4">
-        <app-show-user-profile-data></app-show-user-profile-data>
-
-        @switch (coachStep()) {
-          @case ('loading') {
-            <section
-              class="flex flex-col items-center justify-center gap-3 mt-6"
-              aria-live="polite"
-              aria-busy="true"
-            >
-              <div class="h-10 w-10">
-                <app-spinner></app-spinner>
-              </div>
-              <p class="text-text2 text-lg">Cargando tu perfil...</p>
-            </section>
-          }
-          @case ('setup') {
-            <section class="flex flex-col gap-4 mt-6" aria-label="Configuración de datos básicos">
-              @if (missingFields().length > 0) {
-                <div class="bg-error/10 border border-error/20 rounded-xl p-4">
-                  <h3 class="text-error font-semibold mb-2">Faltan datos requeridos:</h3>
-                  <ul class="list-disc list-inside text-error/90">
-                    @for (field of missingFields(); track field) {
-                      <li>{{ field }}</li>
-                    }
-                  </ul>
+    <div [@fadeInOut]="manageMode()">
+      @if (manageMode()) {
+        <div class="flex flex-col gap-4">
+          <app-btn
+            [text]="'Volver'"
+            [color]="'secondary'"
+            [variant]="'outline'"
+            [size]="'sm'"
+            (click)="onBackToList()"
+          />
+          <app-btn
+            [text]="deleting() ? 'Eliminando...' : 'Eliminar plan actual'"
+            [color]="'error'"
+            [variant]="'outline'"
+            [size]="'sm'"
+            [isDisabled]="deleting()"
+            [showIcon]="deleting()"
+            (click)="onDeletePlan()"
+          >
+            @if (deleting()) {
+              <app-icon>
+                <div class="h-5 w-5">
+                  <app-spinner></app-spinner>
                 </div>
+              </app-icon>
+            }
+          </app-btn>
+          <app-coach-manage [planId]="selectedPlanId()!" />
+        </div>
+      } @else {
+        <h4 class="text-text2 text-lg font-bold mb-2">Información personal</h4>
+        <header class="flex flex-col mb-4">
+          <app-show-user-profile-data></app-show-user-profile-data>
+
+          <div [@fadeInOut]="coachStep()">
+            @switch (coachStep()) {
+              @case ('loading') {
+                <section
+                  class="flex flex-col items-center justify-center gap-3 mt-6"
+                  aria-live="polite"
+                  aria-busy="true"
+                >
+                  <div class="h-10 w-10">
+                    <app-spinner></app-spinner>
+                  </div>
+                  <p class="text-text2 text-lg">Cargando tu perfil...</p>
+                </section>
               }
+              @case ('setup') {
+                <section class="flex flex-col gap-4 mt-6" aria-label="Configuración de datos básicos">
+                  @if (missingFields().length > 0) {
+                    <div class="bg-error/10 border border-error/20 rounded-xl p-4">
+                      <h3 class="text-error font-semibold mb-2">Faltan datos requeridos:</h3>
+                      <ul class="list-disc list-inside text-error/90">
+                        @for (field of missingFields(); track field) {
+                          <li>{{ field }}</li>
+                        }
+                      </ul>
+                    </div>
+                  }
 
-              <app-form-user-profile></app-form-user-profile>
-            </section>
-          }
-          @case ('ready') {
-            <section class="flex flex-col gap-6 mt-2" aria-label="Generación de planes con IA">
-              <div>
-                <app-list-plan-training (viewPlan)="onViewPlan($event)" />
-              </div>
+                  <app-form-user-profile (completed)="onSetupCompleted()" />
+                </section>
+              }
+              @case ('ready') {
+                <section class="flex flex-col gap-6 mt-2" aria-label="Generación de planes con IA">
+                  <div>
+                    <app-list-plan-training (viewPlan)="onViewPlan($event)" />
+                  </div>
 
-              <app-coach-generate-plan></app-coach-generate-plan>
-            </section>
-          }
-        }
-      </header>
-    }
+                  <app-coach-generate-plan></app-coach-generate-plan>
+                </section>
+              }
+            }
+          </div>
+        </header>
+      }
+    </div>
   </section>
 </section>

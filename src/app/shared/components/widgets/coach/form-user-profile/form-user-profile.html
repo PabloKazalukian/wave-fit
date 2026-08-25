@@ -10,72 +10,78 @@
     </p>
   </header>
 
-  <div class="flex flex-col sm:flex-row flex-wrap gap-5">
-    <app-select
-      class="flex-1 min-w-[150px]"
-      [label]="'Género'"
-      [options]="genderOptions"
-      [control]="genderControl"
-    ></app-select>
-    <app-input
-      class="flex-1 min-w-[200px]"
-      [label]="'Fecha de nacimiento'"
-      [type]="'date'"
-      [control]="birthDateControl"
-    ></app-input>
-    <app-input-number
-      class="flex-1 min-w-[150px]"
-      [label]="'Altura cm'"
-      [control]="heightCmControl"
-    ></app-input-number>
-    <app-input-number
-      class="flex-1 min-w-[150px]"
-      [label]="'Peso kg'"
-      [control]="weightKgControl"
-    ></app-input-number>
-  </div>
-
-  <div class="flex flex-col sm:flex-row flex-wrap gap-5">
-    <app-select
-      class="flex-1 min-w-[200px]"
-      [label]="'Objetivo Principal'"
-      [options]="primaryGoalOptions"
-      [control]="primaryGoalControl"
-    ></app-select>
-    <app-select
-      class="flex-1 min-w-[150px]"
-      [label]="'Días / semana:'"
-      [options]="daysPerWeekOptions"
-      [control]="daysPerWeekControl"
-    ></app-select>
-    <app-select
-      class="flex-1 min-w-[200px]"
-      [label]="'Experiencia'"
-      [options]="trainingExperienceOptions"
-      [control]="trainingExperienceControl"
-    ></app-select>
-  </div>
-
-  <app-btn
-    [text]="saving() ? 'Guardando configuración...' : 'Completar datos'"
-    [color]="'primary3'"
-    [variant]="'raised'"
-    [buttonType]="'submit'"
-    [isDisabled]="profileForm.invalid || saving()"
-    [showIcon]="true"
-  >
-    <app-icon>
-      <div class="h-6 w-6">
-        @if (saving()) {
-          <app-spinner></app-spinner>
-        }
+  @if (saving()) {
+    <section
+      class="flex flex-col items-center justify-center gap-3 py-10"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div class="h-12 w-12">
+        <app-spinner></app-spinner>
       </div>
-    </app-icon>
-  </app-btn>
-
-  @if (errorMessage()) {
-    <p class="text-error text-sm font-semibold" role="alert">{{ errorMessage() }}</p>
+      <p class="text-text2 text-lg">Guardando configuración...</p>
+    </section>
   } @else if (success()) {
-    <p class="text-success text-sm font-semibold">Datos guardados exitosamente.</p>
+    <section class="flex flex-col items-center justify-center gap-3 py-10" aria-live="polite">
+      <p class="text-success text-lg font-semibold">Datos guardados exitosamente.</p>
+    </section>
+  } @else {
+    <div class="flex flex-col sm:flex-row flex-wrap gap-5">
+      <app-select
+        class="flex-1 min-w-[150px]"
+        [label]="'Género'"
+        [options]="genderOptions"
+        [control]="genderControl"
+      ></app-select>
+      <app-input
+        class="flex-1 min-w-[200px]"
+        [label]="'Fecha de nacimiento'"
+        [type]="'date'"
+        [control]="birthDateControl"
+      ></app-input>
+      <app-input-number
+        class="flex-1 min-w-[150px]"
+        [label]="'Altura cm'"
+        [control]="heightCmControl"
+      ></app-input-number>
+      <app-input-number
+        class="flex-1 min-w-[150px]"
+        [label]="'Peso kg'"
+        [control]="weightKgControl"
+      ></app-input-number>
+    </div>
+
+    <div class="flex flex-col sm:flex-row flex-wrap gap-5">
+      <app-select
+        class="flex-1 min-w-[200px]"
+        [label]="'Objetivo Principal'"
+        [options]="primaryGoalOptions"
+        [control]="primaryGoalControl"
+      ></app-select>
+      <app-select
+        class="flex-1 min-w-[150px]"
+        [label]="'Días / semana:'"
+        [options]="daysPerWeekOptions"
+        [control]="daysPerWeekControl"
+      ></app-select>
+      <app-select
+        class="flex-1 min-w-[200px]"
+        [label]="'Experiencia'"
+        [options]="trainingExperienceOptions"
+        [control]="trainingExperienceControl"
+      ></app-select>
+    </div>
+
+    <app-btn
+      [text]="'Completar datos'"
+      [color]="'primary3'"
+      [variant]="'raised'"
+      [buttonType]="'submit'"
+      [isDisabled]="profileForm.invalid"
+    ></app-btn>
+
+    @if (errorMessage()) {
+      <p class="text-error text-sm font-semibold" role="alert">{{ errorMessage() }}</p>
+    }
   }
 </form>

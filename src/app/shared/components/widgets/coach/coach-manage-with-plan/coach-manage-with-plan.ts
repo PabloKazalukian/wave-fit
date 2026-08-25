@@ -32,6 +32,9 @@ export class CoachManageWithPlan implements OnInit {
 
     planData = input.required<TrainingPlanDetail>();
 
+    /** True mientras el padre está eliminando el plan en el backend. */
+    deletingPlan = input<boolean>(false);
+
     deletePlan = output<void>();
     modifyPlan = output<string>();
 

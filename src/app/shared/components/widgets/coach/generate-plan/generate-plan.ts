@@ -19,6 +19,7 @@ export class CoachGeneratePlan {
 
     comment = '';
     loading = signal(false);
+    deleting = signal(false);
     errorMessage = signal<string | null>(null);
     planResult = signal<TrainingPlanDetail | null>(null);
 
@@ -40,18 +41,41 @@ export class CoachGeneratePlan {
             },
             error: (err) => {
                 this.loading.set(false);
-                const msg = Array.isArray(err)
-                    ? err
-                          .map((e: { message?: string }) => e.message || '')
-                          .filter(Boolean)
-                          .join(', ')
-                    : err?.message || 'Error al generar el plan';
-                this.errorMessage.set(msg);
+                this.errorMessage.set(this.extractErrorMessage(err, 'Error al generar el plan'));
             },
         });
     }
 
     onClearPlanResult(): void {
-        this.planResult.set(null);
+        const plan = this.planResult();
+        if (!plan || this.deleting()) return;
+
+        this.deleting.set(true);
+        this.errorMessage.set(null);
+
+        // El "Borrar" elimina en el backend el plan recién generado y solo
+        // entonces se limpia la vista; si falla, el plan queda visible.
+        this.coachService.removePlantraningById(plan.id).subscribe({
+            next: () => {
+                this.deleting.set(false);
+                this.planResult.set(null);
+            },
+            error: (err) => {
+                this.deleting.set(false);
+                this.errorMessage.set(this.extractErrorMessage(err, 'Error al borrar el plan'));
+            },
+        });
+    }
+
+    private extractErrorMessage(err: unknown, fallback: string): string {
+        if (Array.isArray(err)) {
+            return (
+                err
+                    .map((e: { message?: string }) => e.message || '')
+                    .filter(Boolean)
+                    .join(', ') || fallback
+            );
+        }
+        return (err as { message?: string })?.message || fallback;
     }
 }

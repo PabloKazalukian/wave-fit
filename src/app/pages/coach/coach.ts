@@ -13,6 +13,7 @@ import { ListPlanTraining } from '../../shared/components/widgets/coach/plan-tra
 import { CoachManage } from '../../shared/components/widgets/coach/coach-manage/coach-manage';
 import { ShowUserProfileData } from '../../shared/components/widgets/coach/show-user-profile-data/show-user-profile-data';
 import { CoachGeneratePlan } from '../../shared/components/widgets/coach/generate-plan/generate-plan';
+import { fadeInOut } from '../../shared/animations/animation';
 
 @Component({
     selector: 'app-coach',
@@ -30,6 +31,7 @@ import { CoachGeneratePlan } from '../../shared/components/widgets/coach/generat
     ],
     templateUrl: './coach.html',
     styles: ``,
+    animations: [fadeInOut],
 })
 export class Coach {
     private authService = inject(AuthService);
@@ -58,14 +60,24 @@ export class Coach {
      * Flujo principal de la página. Mientras `completeBasicSetup` guarda el
      * setup (savingSetup=true), la vista se queda en 'setup' para que el
      * formulario NO se destruya a mitad del guardado (la antigua carrera de
-     * destrucción). Al terminar, loading se limpia y pasa a 'loading' (cargando
-     * la configuración) o, directamente, a 'ready'.
+     * destrucción). Cuando el formulario guarda todo correctamente, se mantiene
+     * en 'setup' 3 segundos más (mostrando el éxito sin inputs) y recién ahí
+     * pasa a 'ready' (o a 'loading' si el refetch del perfil sigue en curso).
      */
     coachStep = computed<'loading' | 'setup' | 'ready'>(() => {
         if (this.profileUserService.savingSetup()) return 'setup';
+        if (this.setupCompletedHold()) return 'setup';
         if (this.profileUserService.loading()) return 'loading';
         return this.missingFields().length === 0 ? 'ready' : 'setup';
     });
+
+    /** Retiene el paso 'setup' durante la transición post-guardado exitoso. */
+    private setupCompletedHold = signal(false);
+
+    onSetupCompleted(): void {
+        this.setupCompletedHold.set(true);
+        setTimeout(() => this.setupCompletedHold.set(false), 3000);
+    }
 
     missingFields = computed(() => {
         const p = this.userProfile();

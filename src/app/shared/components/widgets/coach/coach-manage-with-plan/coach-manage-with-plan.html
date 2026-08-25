@@ -27,10 +27,11 @@
 
   <div class="grid grid-cols-2 gap-3">
     <app-btn
-      [text]="'Borrar'"
+      [text]="deletingPlan() ? 'Borrando...' : 'Borrar'"
       [color]="'error'"
       [variant]="'outline'"
       [size]="'md'"
+      [isDisabled]="deletingPlan()"
       (click)="deletePlan.emit()"
     />
     <app-btn

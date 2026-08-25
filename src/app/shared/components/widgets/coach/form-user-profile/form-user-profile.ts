@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -6,7 +6,6 @@ import { finalize } from 'rxjs';
 import { UserProfileService } from '../../../../../core/services/user/user-profile.service';
 import { FormInputComponent } from '../../../ui/input/input';
 import { BtnComponent } from '../../../ui/btn/btn';
-import { IconComponent } from '../../../ui/icon/icon';
 import { SpinnerComponent } from '../../../ui/icon/spinner';
 import { InputNumber } from '../../../ui/input-number/input-number';
 import { FormSelectComponent } from '../../../ui/select/select';
@@ -30,7 +29,6 @@ interface CoachProfileFormType {
         ReactiveFormsModule,
         FormInputComponent,
         BtnComponent,
-        IconComponent,
         SpinnerComponent,
         InputNumber,
         FormSelectComponent,
@@ -43,6 +41,9 @@ export class FormUserProfile implements OnInit {
     private profileUserService = inject(UserProfileService);
 
     profileForm!: FormGroup<CoachProfileFormType>;
+
+    /** Se emite cuando todos los pasos del setup se guardaron correctamente. */
+    readonly completed = output<void>();
 
     saving = signal(false);
     success = signal(false);
@@ -172,6 +173,7 @@ export class FormUserProfile implements OnInit {
                         );
                     } else {
                         this.success.set(true);
+                        this.completed.emit();
                     }
                 },
                 error: () => {

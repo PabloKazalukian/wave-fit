@@ -20,7 +20,11 @@
   </div>
 
   @if (planResult()) {
-    <app-coach-manage-with-plan [planData]="planResult()!" (deletePlan)="onClearPlanResult()" />
+    <app-coach-manage-with-plan
+      [planData]="planResult()!"
+      [deletingPlan]="deleting()"
+      (deletePlan)="onClearPlanResult()"
+    />
   } @else {
     <app-btn
       [text]="'Generar un nuevo Plan'"

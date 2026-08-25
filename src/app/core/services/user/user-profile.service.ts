@@ -327,6 +327,17 @@ export class UserProfileService {
                     this.state.setError(error.message || 'Error resetting profile');
                 },
             }),
+            // Tras borrar, recargar el perfil desde el backend para repoblar el
+            // estado con el contexto vacío y que todas las vistas (coach, form,
+            // perfil) reaccionen sin depender de caché colgada.
+            concatMap((result) =>
+                result
+                    ? this.fetchUserProfile().pipe(
+                          catchError(() => of(null)),
+                          map(() => result),
+                      )
+                    : of(result),
+            ),
             finalize(() => this.state.setLoading(false)),
         );
     }
