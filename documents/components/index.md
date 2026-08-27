@@ -33,6 +33,7 @@ Dumb Components → Facade → Domain Service → (API/Storage Services + State 
 | ---------------------------------------------------- | ------------- | ------------------------------------- |
 | [MyWeekComponent.md](./MyWeekComponent.md)           | /my-week      | Seguimiento semanal de entrenamientos |
 | [RoutinePlanComponent.md](./RoutinePlanComponent.md) | /plans/create | Creación de rutinas semanales         |
+| [CoachComponent.md](./CoachComponent.md)             | /coach        | Coach AI: generación y gestión de planes |
 
 ---
 
@@ -42,6 +43,7 @@ Dumb Components → Facade → Domain Service → (API/Storage Services + State 
 | --------------------- | ------------------------- | ---------------------------------------- |
 | `/auth/*`             | Login, Register, Callback | AuthService                              |
 | `/home`               | Dashboard                 | -                                        |
+| `/coach`              | Coach AI                  | CoachService, UserProfileService         |
 | `/exercises`          | Biblioteca de ejercicios  | ExercisesService                         |
 | `/plans`              | Lista de planes           | PlansService                             |
 | `/plans/create`       | Creación de plan          | PlansService, DayPlanStateService        |
@@ -68,6 +70,21 @@ MyWeek
               ├─→ WorkoutActionsMenu
               └─→ WorkoutInProgress
                     └─→ WorkoutEdition / WorkoutCompleteList
+```
+
+### Coach (/coach)
+
+```
+Coach
+  ├─→ show-user-profile-data (perfil, solo lectura)
+  ├─→ form-user-profile      (setup básico) → completed
+  ├─→ list-plan-training     (historial)    → viewPlan
+  │     └─→ numeric-pagination
+  ├─→ coach-generate-plan    (generador IA)
+  │     └─→ coach-manage-with-plan
+  │           └─→ CoachManageWithPlanFacade → CoachNavigatorWeek + CoachShowWorkout
+  └─→ coach-manage           (plan guardado por id)
+        └─→ CoachManageWithPlanFacade → CoachNavigatorWeek + CoachShowWorkout
 ```
 
 ### Plans (/plans/create)
@@ -110,6 +127,7 @@ Los facades coordinan la vista con los servicios de dominio.
 | TrackingWeekFacade      | Coordina vista semanal       |
 | TrackingWorkoutFacade   | Coordina workout del día     |
 | RoutineCreationFacade   | Coordina creación de rutinas |
+| CoachManageWithPlanFacade | Coordina vista de un plan IA (guardado o generado) y su confirmación |
 
 ---
 

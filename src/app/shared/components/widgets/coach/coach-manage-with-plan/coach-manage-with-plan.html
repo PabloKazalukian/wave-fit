@@ -1,5 +1,31 @@
 <div class="flex flex-col gap-4">
-  @if (facade.trackingVM()) {
+  <!-- Cabecera del plan activo con botón para Crear otro plan -->
+  <header class="flex items-center justify-between bg-background3 border border-background4 rounded-2xl p-3.5 gap-2">
+    <div class="flex flex-col min-w-0">
+      <span class="text-xs text-text2 uppercase tracking-wider font-semibold">Plan activo</span>
+      <h3 class="text-text1 font-bold text-base truncate">{{ planData().title }}</h3>
+      @if (planData().focus) {
+        <span class="text-xs text-primary truncate">{{ planData().focus }}</span>
+      }
+    </div>
+
+    <app-btn
+      [text]="'Crear otro plan'"
+      [color]="'secondary'"
+      [variant]="'outline'"
+      [size]="'sm'"
+      (click)="onCreateNewPlan()"
+    />
+  </header>
+
+  @if (modifying()) {
+    <div class="flex flex-col items-center justify-center gap-3 py-8" aria-busy="true">
+      <div class="h-8 w-8">
+        <app-spinner></app-spinner>
+      </div>
+      <p class="text-text2 text-sm">Modificando tu plan con IA...</p>
+    </div>
+  } @else if (facade.trackingVM()) {
     <app-coach-navigator-week
       [tracking]="facade.trackingVM()!"
       (daySelected)="onDaySelected($event)"
@@ -12,46 +38,55 @@
     <p class="text-text2 text-sm text-center py-4">Cargando plan...</p>
   }
 
-  <div class="flex flex-col gap-2 mt-2">
-    <label for="modifications-textarea" class="text-text2 font-semibold"
-      >Modificaciones al plan (mínimo 10 palabras)</label
-    >
+  <!-- Sección de modificaciones -->
+  <section class="flex flex-col gap-2 mt-2" aria-label="Modificar plan generado">
+    <label for="modifications-textarea" class="text-text2 font-semibold text-sm">
+      Modificaciones al plan (mínimo 10 palabras)
+    </label>
     <textarea
       id="modifications-textarea"
       [(ngModel)]="modificationsComment"
+      [disabled]="modifying() || deleting()"
       placeholder="Ej: Quiero cambiar el press banca por press inclinado, y agregar mas series de pierna..."
-      class="w-full bg-background3 border border-background4 rounded-xl p-3 text-text1 placeholder:text-text1 focus:outline-none focus:border-primary transition-colors resize-none"
+      class="w-full bg-background3 border border-background4 rounded-xl p-3 text-text1 placeholder:text-text1 focus:outline-none focus:border-primary transition-colors resize-none disabled:opacity-50"
       rows="3"
     ></textarea>
-  </div>
+  </section>
 
-  <div class="grid grid-cols-2 gap-3">
+  <!-- Botones de acción principales -->
+  <div class="grid grid-cols-3 gap-2 sm:gap-3">
     <app-btn
-      [text]="deletingPlan() ? 'Borrando...' : 'Borrar'"
+      [text]="deleting() ? 'Borrando...' : 'Borrar'"
       [color]="'error'"
       [variant]="'outline'"
       [size]="'md'"
-      [isDisabled]="deletingPlan()"
-      (click)="deletePlan.emit()"
+      [isDisabled]="deleting() || modifying()"
+      (click)="onDeletePlan()"
     />
     <app-btn
       [text]="'Confirmar'"
       [color]="'confirm'"
       [variant]="'outline'"
       [size]="'md'"
+      [isDisabled]="deleting() || modifying()"
       [dataTest]="'confirmar-plan-ia'"
       (click)="openConfirmDialog()"
     />
     <app-btn
-      [text]="'Modificar'"
+      [text]="modifying() ? 'Modificando...' : 'Modificar'"
       [color]="'secondary'"
       [variant]="'outline'"
       [size]="'md'"
-      [isDisabled]="!canModify"
-      (click)="modifyPlan.emit(modificationsComment)"
+      [isDisabled]="!canModify || modifying() || deleting()"
+      (click)="onModifyPlan()"
     />
   </div>
 
+  @if (errorMessage()) {
+    <p class="text-error text-sm mt-1 text-center" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <!-- Modal de confirmación -->
   <app-dialog
     [isOpen]="showConfirmDialog()"
     [title]="'Confirmar plan generado con IA'"

@@ -23,6 +23,7 @@ export class ListPlanTraining implements OnInit {
     totalItems = signal(0);
     totalPages = signal(0);
     currentPage = signal(1);
+    loading = signal(false);
     readonly pageSize = 5;
 
     user = this.authService.user;
@@ -33,9 +34,11 @@ export class ListPlanTraining implements OnInit {
     }
 
     loadPage(page: number): void {
+        this.loading.set(true);
         const offset = (page - 1) * this.pageSize;
         this.coachService.getPlanTrainings(this.pageSize, offset).subscribe({
             next: (data) => {
+                this.loading.set(false);
                 if (data) {
                     this.planResults.set(data.items);
                     this.totalItems.set(data.total);
@@ -43,7 +46,14 @@ export class ListPlanTraining implements OnInit {
                     this.currentPage.set(page);
                 }
             },
+            error: () => {
+                this.loading.set(false);
+            },
         });
+    }
+
+    reload(): void {
+        this.loadPage(this.currentPage());
     }
 
     formatDate(createdAt: string): string {

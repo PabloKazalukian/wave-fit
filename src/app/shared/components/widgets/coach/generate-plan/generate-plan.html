@@ -6,10 +6,83 @@
     </p>
   </header>
 
-  <div class="flex flex-col gap-2">
-    <label class="text-text2 font-semibold" for="comment-textarea"
-      >Comentario adicional (opcional)</label
+  <!-- Contador de uso diario -->
+  @if (usageLoading()) {
+    <div class="h-8 bg-background3 rounded-xl animate-pulse"></div>
+  } @else if (usageStatus()) {
+    <section
+      class="flex items-center justify-between gap-3 rounded-xl px-4 py-3 border"
+      [class]="
+        hasReachedLimit
+          ? 'bg-error/10 border-error/30'
+          : usageStatus()!.remaining <= 3
+            ? 'bg-warning/10 border-warning/30'
+            : 'bg-background3 border-background4'
+      "
+      aria-label="Límite diario de generaciones con IA"
     >
+      <div class="flex flex-col gap-0.5">
+        <p
+          class="text-sm font-semibold"
+          [class]="
+            hasReachedLimit
+              ? 'text-error'
+              : usageStatus()!.remaining <= 3
+                ? 'text-warning'
+                : 'text-text1'
+          "
+        >
+          @if (hasReachedLimit) {
+            Límite diario alcanzado
+          } @else {
+            Generaciones disponibles hoy
+          }
+        </p>
+        <p class="text-xs text-text2">Se reinicia: {{ resetAtFormatted }} UTC</p>
+      </div>
+
+      <!-- Barra de progreso + número -->
+      <div class="flex flex-col items-end gap-1 shrink-0">
+        <span
+          class="text-sm font-bold tabular-nums"
+          [class]="
+            hasReachedLimit
+              ? 'text-error'
+              : usageStatus()!.remaining <= 3
+                ? 'text-warning'
+                : 'text-primary'
+          "
+        >
+          {{ usageStatus()!.used }} / {{ usageStatus()!.limit }}
+        </span>
+        <div class="w-20 h-1.5 bg-background4 rounded-full overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-500"
+            [class]="
+              hasReachedLimit
+                ? 'bg-error'
+                : usageStatus()!.remaining <= 3
+                  ? 'bg-warning'
+                  : 'bg-primary'
+            "
+            [style.width.%]="(usageStatus()!.used / usageStatus()!.limit) * 100"
+          ></div>
+        </div>
+      </div>
+    </section>
+  }
+
+  @if (hasReachedLimit) {
+    <p class="text-error text-sm text-center font-medium" role="alert">
+      Alcanzaste el límite de {{ usageStatus()!.limit }} generaciones por día.<br />
+      Volvé mañana a las 00:00 UTC para generar un nuevo plan.
+    </p>
+  }
+
+  <div class="flex flex-col gap-2">
+    <label class="text-text2 font-semibold" for="comment-textarea">
+      Comentario adicional (opcional)
+    </label>
     <textarea
       id="comment-textarea"
       [(ngModel)]="comment"
@@ -19,32 +92,30 @@
     ></textarea>
   </div>
 
-  @if (planResult()) {
-    <app-coach-manage-with-plan
-      [planData]="planResult()!"
-      [deletingPlan]="deleting()"
-      (deletePlan)="onClearPlanResult()"
-    />
-  } @else {
-    <app-btn
-      [text]="'Generar un nuevo Plan'"
-      [color]="'primary'"
-      [variant]="'outline'"
-      [buttonType]="'submit'"
-      [isDisabled]="loading()"
-      [showIcon]="true"
-      [size]="'md'"
-      (click)="onSubmit()"
-    >
-      <app-icon>
-        <div class="h-6 w-6">
-          @if (loading()) {
-            <app-spinner></app-spinner>
-          }
-        </div>
-      </app-icon>
-    </app-btn>
-  }
+  <app-btn
+    [text]="
+      hasReachedLimit
+        ? 'Límite alcanzado'
+        : loading()
+          ? 'Generando...'
+          : 'Generar un nuevo Plan'
+    "
+    [color]="hasReachedLimit ? 'error' : 'primary'"
+    [variant]="'outline'"
+    [buttonType]="'submit'"
+    [isDisabled]="loading() || hasReachedLimit"
+    [showIcon]="true"
+    [size]="'md'"
+    (click)="onSubmit()"
+  >
+    <app-icon>
+      <div class="h-6 w-6">
+        @if (loading()) {
+          <app-spinner></app-spinner>
+        }
+      </div>
+    </app-icon>
+  </app-btn>
 
   @if (errorMessage()) {
     <p class="text-error text-sm mt-2" role="alert">{{ errorMessage() }}</p>

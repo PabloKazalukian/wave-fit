@@ -10,7 +10,9 @@ import {
     GET_TRAINING_PLANS,
     REMOVE_TRAINING_PLAN,
 } from '../../apollo/coach.query';
+import { GET_AI_USAGE_STATUS } from '../../apollo/ai-usage.query';
 import {
+    AiUsageStatus,
     TrainingPlanDetail,
     TrainingPlansPage,
     ConfirmPlanOutput,
@@ -83,6 +85,18 @@ export class CoachService {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) => (data?.confirmPlan ? data.confirmPlan : null)),
+            );
+    }
+
+    getAiUsageStatus(): Observable<AiUsageStatus | null> {
+        return this.apollo
+            .query<{ aiUsageStatus: AiUsageStatus }>({
+                query: GET_AI_USAGE_STATUS,
+                fetchPolicy: 'network-only',
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) => (data?.aiUsageStatus ? data.aiUsageStatus : null)),
             );
     }
 }

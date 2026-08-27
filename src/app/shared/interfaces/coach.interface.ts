@@ -1,6 +1,13 @@
 import { AiPlanResponse } from './ai-plan.interface';
 import { RoutinePlanAPI } from './api/routines-api.interface';
 
+export interface AiUsageStatus {
+    used: number;
+    limit: number;
+    remaining: number;
+    resetAt: string;
+}
+
 export type PlanConfirmationAction =
     | 'CREATE_WEEK_LOG'
     | 'CREATE_ROUTINE_PLAN'

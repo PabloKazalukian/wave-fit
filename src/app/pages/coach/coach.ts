@@ -1,33 +1,31 @@
-import { Component, inject, computed, signal } from '@angular/core';
-import { BtnComponent } from '../../shared/components/ui/btn/btn';
+import { Component, inject, computed, signal, viewChild } from '@angular/core';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserProfileService } from '../../core/services/user/user-profile.service';
 import { FormUserProfile } from '../../shared/components/widgets/coach/form-user-profile/form-user-profile';
 import { Bot } from 'lucide-angular';
 import { InfoCard } from '../../shared/components/ui/info-card/info-card';
 import { CoachService } from '../../core/services/coach/coach.service';
-import { IconComponent } from '../../shared/components/ui/icon/icon';
+import { CoachState } from '../../core/services/coach/coach.state';
 import { SpinnerComponent } from '../../shared/components/ui/icon/spinner';
 import { Notification } from '../../shared/components/ui/notification/notification';
 import { ListPlanTraining } from '../../shared/components/widgets/coach/plan-training/list-plan-training/list-plan-training';
-import { CoachManage } from '../../shared/components/widgets/coach/coach-manage/coach-manage';
 import { ShowUserProfileData } from '../../shared/components/widgets/coach/show-user-profile-data/show-user-profile-data';
 import { CoachGeneratePlan } from '../../shared/components/widgets/coach/generate-plan/generate-plan';
+import { CoachManageWithPlan } from '../../shared/components/widgets/coach/coach-manage-with-plan/coach-manage-with-plan';
 import { fadeInOut } from '../../shared/animations/animation';
+import { TrainingPlanDetail } from '../../shared/interfaces/coach.interface';
 
 @Component({
     selector: 'app-coach',
     imports: [
-        BtnComponent,
         FormUserProfile,
         InfoCard,
-        IconComponent,
         SpinnerComponent,
         Notification,
         ListPlanTraining,
-        CoachManage,
         ShowUserProfileData,
         CoachGeneratePlan,
+        CoachManageWithPlan,
     ],
     templateUrl: './coach.html',
     styles: ``,
@@ -37,32 +35,27 @@ export class Coach {
     private authService = inject(AuthService);
     private profileUserService = inject(UserProfileService);
     private coachService = inject(CoachService);
+    readonly coachState = inject(CoachState);
+
+    readonly listPlanTraining = viewChild(ListPlanTraining);
 
     user = this.authService.user;
     userProfile = this.profileUserService.userProfile;
 
-    deleting = signal(false);
-    deleteNotification = signal<'success' | 'error' | null>(null);
-
-    selectedPlanId = signal<string | null>(null);
-    manageMode = signal(false);
+    loadingPlan = signal(false);
+    notification = signal<{ type: 'success' | 'error'; message: string } | null>(null);
 
     feature = {
         icon: Bot,
         title: 'Wave-Fit: Tu Coach AI',
-        description: `• Genera un plan con IA adaptado a tus necesitades.
-         • Completa los datos basicos para poder genera un plan.
-         • Podras modificarlo en el proceso.
-        `,
+        description: `• Genera un plan con IA adaptado a tus necesidades.
+• Completa los datos básicos para poder generar un plan.
+• Podrás visualizarlo, modificarlo o confirmarlo en el proceso.`,
     };
 
     /**
      * Flujo principal de la página. Mientras `completeBasicSetup` guarda el
-     * setup (savingSetup=true), la vista se queda en 'setup' para que el
-     * formulario NO se destruya a mitad del guardado (la antigua carrera de
-     * destrucción). Cuando el formulario guarda todo correctamente, se mantiene
-     * en 'setup' 3 segundos más (mostrando el éxito sin inputs) y recién ahí
-     * pasa a 'ready' (o a 'loading' si el refetch del perfil sigue en curso).
+     * setup (savingSetup=true), la vista se queda en 'setup'.
      */
     coachStep = computed<'loading' | 'setup' | 'ready'>(() => {
         if (this.profileUserService.savingSetup()) return 'setup';
@@ -99,42 +92,59 @@ export class Coach {
     });
 
     onViewPlan(planId: string) {
-        this.selectedPlanId.set(planId);
-        this.manageMode.set(true);
+        if (this.loadingPlan()) return;
+        this.loadingPlan.set(true);
+
+        this.coachService.getPlanTrainingById(planId).subscribe({
+            next: (plan) => {
+                this.loadingPlan.set(false);
+                if (plan) {
+                    this.coachState.setPlan(plan, true);
+                } else {
+                    this.notification.set({
+                        type: 'error',
+                        message: 'No se pudo cargar el plan seleccionado.',
+                    });
+                }
+            },
+            error: () => {
+                this.loadingPlan.set(false);
+                this.notification.set({
+                    type: 'error',
+                    message: 'Error al obtener los detalles del plan.',
+                });
+            },
+        });
     }
 
-    onBackToList() {
-        this.manageMode.set(false);
-        this.selectedPlanId.set(null);
+    onNewPlan(): void {
+        this.coachState.clearPlan();
     }
 
-    onDeletePlan() {
-        const planId = this.selectedPlanId();
-        if (!planId || this.deleting()) return;
+    onPlanGenerated(plan: TrainingPlanDetail): void {
+        this.coachState.setPlan(plan, true);
+        this.listPlanTraining()?.reload();
+        this.notification.set({
+            type: 'success',
+            message: '¡Plan generado exitosamente con IA!',
+        });
+    }
 
-        const startedAt = Date.now();
-        const MIN_LOADING_MS = 2000;
-        const waitRemaining = () => Math.max(0, MIN_LOADING_MS - (Date.now() - startedAt));
+    onPlanModified(plan: TrainingPlanDetail): void {
+        this.coachState.setPlan(plan, true);
+        this.listPlanTraining()?.reload();
+        this.notification.set({
+            type: 'success',
+            message: '¡Plan modificado correctamente!',
+        });
+    }
 
-        this.deleting.set(true);
-        this.deleteNotification.set(null);
-
-        this.coachService.removePlantraningById(planId).subscribe({
-            next: () => {
-                setTimeout(() => {
-                    this.deleting.set(false);
-                    this.manageMode.set(false);
-                    this.selectedPlanId.set(null);
-                    this.deleteNotification.set('success');
-                }, waitRemaining());
-            },
-            error: (err) => {
-                console.log(err);
-                setTimeout(() => {
-                    this.deleting.set(false);
-                    this.deleteNotification.set('error');
-                }, waitRemaining());
-            },
+    onPlanDeleted(): void {
+        this.coachState.clearPlan();
+        this.listPlanTraining()?.reload();
+        this.notification.set({
+            type: 'success',
+            message: 'Plan eliminado correctamente.',
         });
     }
 }

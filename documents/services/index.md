@@ -61,6 +61,7 @@ Documentación de la arquitectura de servicios del frontend.
 | [WorkoutStateService.md](./WorkoutStateService.md)         | WorkoutStateService                           | State         |
 | [PlanTrackingService.md](./PlanTrackingService.md)           | PlanTrackingService, Domain, State            | Domain + API + Storage + State |
 | [ExtraSessionService.md](./ExtraSessionService.md)             | ExtraSessionService                            | API + Storage |
+| [CoachService.md](./CoachService.md)               | CoachService                             | API + Service |
 
 ---
 
@@ -86,6 +87,7 @@ Documentación de la arquitectura de servicios del frontend.
 | Servicio    | API | Service |
 | ----------- | --- | ------- |
 | Exercises   | ✅  | ✅      |
+| Coach       | ✅  | ✅      |
 | Routines    | ✅  | ✅      |
 | User        | ✅  | ✅      |
 | Auth        | ✅  | ✅      |

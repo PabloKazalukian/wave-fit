@@ -1,6 +1,14 @@
-import { Component, effect, inject, input, output, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    effect,
+    inject,
+    input,
+    output,
+    OnInit,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, CalendarPlus, Save, Wand2 } from 'lucide-angular';
+import { LucideAngularModule, CalendarPlus, Save, Wand2, PlusCircle, Trash2, Edit3, CheckCircle } from 'lucide-angular';
 import { CoachNavigatorWeek } from '../coach-navigator-week/coach-navigator-week';
 import { CoachShowWorkout } from '../coach-show-workout/coach-show-workout';
 import { BtnComponent } from '../../../ui/btn/btn';
@@ -10,6 +18,8 @@ import { SpinnerComponent } from '../../../ui/icon/spinner';
 import { TrainingPlanDetail, PlanConfirmationAction } from '../../../../interfaces/coach.interface';
 import { CoachManageWithPlanFacade } from './coach-manage-with-plan.facade';
 import { WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
+import { CoachService } from '../../../../../core/services/coach/coach.service';
+import { CoachState } from '../../../../../core/services/coach/coach.state';
 
 @Component({
     selector: 'app-coach-manage-with-plan',
@@ -29,16 +39,27 @@ import { WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 })
 export class CoachManageWithPlan implements OnInit {
     readonly facade = inject(CoachManageWithPlanFacade);
+    private coachService = inject(CoachService);
+    private coachState = inject(CoachState);
 
     planData = input.required<TrainingPlanDetail>();
 
-    /** True mientras el padre está eliminando el plan en el backend. */
-    deletingPlan = input<boolean>(false);
+    createNewPlan = output<void>();
+    planDeleted = output<void>();
+    planModified = output<TrainingPlanDetail>();
 
-    deletePlan = output<void>();
-    modifyPlan = output<string>();
+    deleting = signal(false);
+    modifying = signal(false);
+    errorMessage = signal<string | null>(null);
 
     showConfirmDialog = signal(false);
+
+    readonly icons = {
+        plus: PlusCircle,
+        trash: Trash2,
+        edit: Edit3,
+        check: CheckCircle,
+    };
 
     confirmationActions = [
         {
@@ -87,6 +108,55 @@ export class CoachManageWithPlan implements OnInit {
         this.facade.onDaySelected(workout);
     }
 
+    onCreateNewPlan(): void {
+        this.coachState.clearPlan();
+        this.createNewPlan.emit();
+    }
+
+    onDeletePlan(): void {
+        const plan = this.planData();
+        if (!plan || this.deleting()) return;
+
+        this.deleting.set(true);
+        this.errorMessage.set(null);
+
+        this.coachService.removePlantraningById(plan.id).subscribe({
+            next: () => {
+                this.deleting.set(false);
+                this.coachState.clearPlan();
+                this.planDeleted.emit();
+            },
+            error: (err) => {
+                this.deleting.set(false);
+                this.errorMessage.set(this.extractErrorMessage(err, 'Error al borrar el plan'));
+            },
+        });
+    }
+
+    onModifyPlan(): void {
+        if (!this.canModify || this.modifying()) return;
+
+        this.modifying.set(true);
+        this.errorMessage.set(null);
+
+        this.coachService.generatePlan(this.modificationsComment).subscribe({
+            next: (data) => {
+                this.modifying.set(false);
+                if (data?.aiSnapshot?.rawResponse) {
+                    this.coachState.setPlan(data);
+                    this.planModified.emit(data);
+                    this.modificationsComment = '';
+                } else {
+                    this.errorMessage.set('La IA no devolvió modificaciones válidas. Intentá de nuevo.');
+                }
+            },
+            error: (err) => {
+                this.modifying.set(false);
+                this.errorMessage.set(this.extractErrorMessage(err, 'Error al modificar el plan'));
+            },
+        });
+    }
+
     openConfirmDialog(): void {
         this.facade.confirmError.set(null);
         this.showConfirmDialog.set(true);
@@ -99,5 +169,17 @@ export class CoachManageWithPlan implements OnInit {
 
     onConfirmAction(action: PlanConfirmationAction): void {
         this.facade.confirmPlan(action);
+    }
+
+    private extractErrorMessage(err: unknown, fallback: string): string {
+        if (Array.isArray(err)) {
+            return (
+                err
+                    .map((e: { message?: string }) => e.message || '')
+                    .filter(Boolean)
+                    .join(', ') || fallback
+            );
+        }
+        return (err as { message?: string })?.message || fallback;
     }
 }
