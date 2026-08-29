@@ -26,11 +26,11 @@
     </header>
     <app-tracking-active></app-tracking-active>
 
-    <div class="mt-4 mb-8">
+    <div class="mb-8">
       <app-btn
         [text]="'Coach AI'"
-        [descriptionText]="'Generar tu plan semanal con IA'"
-        [variant]="'raised'"
+        [descriptionText]="'Generar tu plan semanal con AI'"
+        [variant]="'outline'"
         [size]="'md'"
         [showIcon]="true"
         [color]="'accent'"
@@ -48,17 +48,19 @@
   <section class="space-y-4 mb-8">
     @for (feature of features; track feature.title) {
       <article class="bg-background2 rounded-2xl p-4 border-2 border-background4">
-        <div class="flex items-center space-x-3 mb-2">
+        <div class="flex items-start space-x-3">
           <div
-            class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary3"
+            class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary3 shrink-0"
           >
             <lucide-icon [img]="feature.icon" [strokeWidth]="2" size="28"></lucide-icon>
           </div>
-          <h3 class="font-semibold text-lg text-primary">{{ feature.title }}</h3>
+          <div>
+            <h3 class="font-semibold text-lg text-primary mb-2">{{ feature.title }}</h3>
+            <p class="text-sm text-text2 leading-relaxed">
+              {{ feature.description }}
+            </p>
+          </div>
         </div>
-        <p class="text-sm text-text2 ml-13">
-          {{ feature.description }}
-        </p>
       </article>
     }
   </section>

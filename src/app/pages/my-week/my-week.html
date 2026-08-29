@@ -13,34 +13,35 @@
           <app-tracking-week [tracking]="this.tracking()"></app-tracking-week>
         </div>
       } @else {
-        <span class="text-text2 text-center text-sm">
+        <p class="text-text2 text-center text-sm">
           Organizá tus entrenamientos, seguí tu progreso y alcanzá tus objetivos de forma simple.
-        </span>
-        <article
-          class="flex flex-col justify-between items-center p-8 bg-accent/10 border-2 border-accent rounded-2xl w-full max-w-sm mx-auto text-center shadow-lg shadow-accent/5 mt-4"
-        >
-          <div>
-            <span class="text-accent text-xs font-bold uppercase tracking-widest"
-              >Nueva funcionalidad</span
-            >
-            <h3 class="text-2xl font-bold mb-2 text-white">Generá tu plan semanal con IA</h3>
-            <p class="text-text2 text-sm mb-6">
-              Coach AI arma tu plan personalizado: elegí tus días, tus objetivos y entrená con un
-              seguimiento a medida.
-            </p>
+        </p>
+        <article class="flex flex-col gap-6 justify-center items-center w-full px-4 mt-4">
+          <div
+            class="flex flex-col justify-between items-center p-8 bg-accent/10 border-2 border-accent rounded-2xl w-full max-w-sm text-center shadow-lg shadow-accent/5"
+          >
+            <div>
+              <span class="text-accent text-xs font-bold uppercase tracking-widest"
+                >Nueva funcionalidad</span
+              >
+              <h3 class="text-2xl font-bold mb-2 text-white">Generá tu plan semanal con IA</h3>
+              <p class="text-text2 text-sm mb-6">
+                Coach AI arma tu plan personalizado: elegí tus días, tus objetivos y entrená con un
+                seguimiento a medida.
+              </p>
+            </div>
+
+            <app-btn
+              [text]="'Coach AI'"
+              [descriptionText]="'Generar mi plan semanal'"
+              [variant]="'raised'"
+              [size]="'md'"
+              [showIcon]="true"
+              [color]="'accent'"
+              [routerLink]="'/coach'"
+            ></app-btn>
           </div>
 
-          <app-btn
-            [text]="'Coach AI'"
-            [descriptionText]="'Generar mi plan semanal'"
-            [variant]="'raised'"
-            [size]="'md'"
-            [showIcon]="true"
-            [color]="'accent'"
-            [routerLink]="'/coach'"
-          ></app-btn>
-        </article>
-        <article class="flex flex-col gap-6 justify-center items-center w-full px-4">
           <div
             class="flex flex-col justify-between items-center p-8 bg-primary/10 border-2 border-primary rounded-2xl w-full max-w-sm text-center shadow-lg shadow-primary/5"
           >
@@ -66,7 +67,7 @@
           </div>
 
           <div
-            class="flex flex-col items-center p-6 bg-transparent border border-white/10 rounded-xl w-full max-w-sm text-center"
+            class="flex flex-col items-center p-8 bg-transparent border border-white/10 rounded-2xl w-full max-w-sm text-center"
           >
             <h3 class="text-lg font-medium mb-1 text-white/80">¿Solo querés registrar hoy?</h3>
             <p class="text-text2 text-xs mb-4">Entrenamiento libre sin necesidad de un plan.</p>
