@@ -1,97 +1,70 @@
 # 🏃 WorkoutStateService
 
-Documentación del servicio de estado de workout.
+Documentación del servicio de estado del workout activo (día seleccionado en tracking).
 
 ---
 
 ## 🏗️ Arquitectura
 
-WorkoutStateService es un servicio de **State** puro:
+`WorkoutStateService` es de tipo **State + API** (Estado + delegación). Tiene estado reactivo propio (Signals) y una capa `api/`:
 
 ```
-workout-state.service.ts  # Estado reactivo con Signals
+src/app/core/services/workouts/
+├── workout.state.ts       # Estado reactivo (📄 el archivo se llama workout.state.ts, no workout-state.service.ts)
+└── api/
+    └── workout.api.ts     # WorkoutApi — mutation updateWorkoutSession
 ```
 
 ### ¿Por qué State?
 
-Este servicio solo maneja el estado local de la sesión de entrenamiento activa. No tiene lógica de negocio compleja ni necesita persistencia (delega a PlanTrackingService).
+Maneja el estado local de la sesión de entrenamiento activa (el día seleccionado y su workout). La persistencia/peticiones delega en `PlanTrackingService` y en la capa `api/`.
 
 ---
 
-## 📁 Archivo
+## 🧩 Signals
 
-```
-src/app/core/services/workouts/
-└── workout-state.service.ts
-```
-
----
-
-## API Pública
-
-### Signals
-
-| Signal           | Tipo                       | Descripción                             |
-| ---------------- | -------------------------- | --------------------------------------- |
-| `selectedDate`   | `Date \| null`             | Fecha del día seleccionado              |
-| `workoutSession` | `WorkoutSessionVM \| null` | Workout activo                          |
-| `outOfDateRange` | `boolean`                  | Indica si la fecha está fuera del rango |
-| `exercises`      | `computed`                 | Ejercicios del workout actual           |
+| Signal            | Tipo                         | Descripción                                   |
+| ----------------- | ---------------------------- | --------------------------------------------- |
+| `selectedDate`    | `signal<LocalDate \| null>`  | **LocalDate** `"yyyy-MM-dd"` del día activo   |
+| `workoutSession`  | `signal<WorkoutSessionVM \| null>` | Workout del día seleccionado            |
+| `outOfDateRange`  | `signal<boolean>`            | Si la fecha activa quedó fuera del rango      |
+| `exercises`       | `computed`                   | `workoutSession()?.exercises ?? []`           |
 
 ### Métodos
 
-| Método                       | Descripción                                               |
-| ---------------------------- | --------------------------------------------------------- |
-| `setDate(date)`              | Cambia la fecha y carga el workout                        |
-| `updateExercises(exercises)` | Actualiza ejercicios y sincroniza con PlanTrackingService |
+| Método                       | Descripción                                              |
+| ---------------------------- | -------------------------------------------------------- |
+| `setDate(date: LocalDate)`   | Actualiza fecha + carga workout (`loadWorkout`)          |
+| `updateExercises(exercises)` | Actualiza localmente y delega en `PlanTrackingService.setExercises(date, exercises)` |
+
+`loadWorkout(date)` (privado): setea `selectedDate` y suscribe a `PlanTrackingService.getWorkout(date)` → actualiza `workoutSession`.
 
 ---
 
-## Arquitectura de Datos
+## 🔄 Efecto del constructor
 
-```
-WorkoutStateService
-    │
-    ├── selectedDate (signal) → Fecha seleccionada por el usuario
-    │
-    ├── workoutSession (signal) → Workout del día seleccionado
-    │
-    ├── exercises (computed) → Ejercicios del workout actual
-    │
-    └── outOfDateRange (signal) → Si la fecha está fuera del tracking
-```
+Reacciona a `trackingPlanVM$` (vía `toSignal`):
+
+1. Si no hay tracking ni workouts, no hace nada.
+2. Si no hay `selectedDate`:
+   - Toma `todayLocalDate()` del `DateService`.
+   - Si hoy está dentro de `[startDate, endDate]` → `selectedDate = hoy`.
+   - Si no → `selectedDate = primer workout` y marca `outOfDateRange = true`.
+3. Si ya hay `selectedDate`, recarga el workout de esa fecha (`getWorkout(selectedDate)`).
+
+Usa `DateService` para comparar fechas (strings determinísticas) y `LocalDate`.
 
 ---
 
-## Flujo de Datos
+## 🏛️ WorkoutApi (`api/workout.api.ts`)
 
-### Inicialización (Constructor)
+| Método                           | Query/Mutation                 | Descripción                          |
+| -------------------------------- | ------------------------------ | ------------------------------------ |
+| `updateWorkoutSession(payload, weekLogId)` | `UPDATE_WORKOUT_SESSION` | Wrappe a API y de vuelta a VM |
 
-```
-1. Crea effect() que reacciona a cambios en tracking
-2. Detecta si hay un tracking activo
-3. Determina la fecha inicial:
-   - Si hoy está en rango: usa hoy
-   - Si no: usa la primera fecha del tracking
-4. Carga el workout correspondiente
-```
+Consumido por `PlanTrackingDomainService.updateWorkoutSession()`.
 
-### setDate(date)
-
-```
-1. Actualiza selectedDate signal
-2. Llama loadWorkout(date)
-3. Suscribe a PlanTrackingService.getWorkout(date)
-4. Actualiza workoutSession con el resultado
-```
-
-### updateExercises(exercises)
-
-```
-1. Obtiene la fecha seleccionada
-2. Llama PlanTrackingService.setExercises() para persistir
-3. Actualiza localmente workoutSession
-```
+Queries en `core/apollo/workout.queries.ts`: `CREATE_WORKOUT_SESSION`, `UPDATE_WORKOUT_SESSION` (`REMOVE_WORKOUT_SESSION` comentado).
 
 ---
 
@@ -102,11 +75,10 @@ WorkoutStateService                    PlanTrackingService
        │                                      │
        │── loadWorkout() ────────────────────→│── getWorkout(date)
        │                                      │
-       │── updateExercises() ───────────────→│── setExercises(date, exercises)
-       │                                      │
+       │── updateExercises() ───────────────→│── setExercises(date, exercises) [debounce 4s]
        │                                      │── PlanTrackingDomainService
        │                                      │── PlanTrackingApi
-       │                                      │── PlanTrackingStorage
+       │                                      │── WorkoutApi
 ```
 
 ---
@@ -114,28 +86,26 @@ WorkoutStateService                    PlanTrackingService
 ## Interfaces
 
 ```typescript
+type LocalDate = string; // "yyyy-MM-dd"
+
 interface WorkoutSessionVM {
     id?: string;
-    date: Date;
+    date: LocalDate;          // ✅ LocalDate, no Date
     exercises: ExercisePerformanceVM[];
+    extras?: string[];
     status: StatusWorkoutSession;
+    notes?: string;
+    planId?: string;
 }
 
-interface ExercisePerformanceVM {
-    exerciseId: string;
-    name: string;
-    series: number;
-    sets: { reps: number; weights?: number }[];
-    category: ExerciseCategory;
-}
-
-type StatusWorkoutSession = 'not_started' | 'complete' | 'rest';
+type StatusWorkoutSession = 'not_started' | 'complete' | 'rest' | 'edited';
 ```
 
 ---
 
 ## Notas
 
-- No tiene caché propio, siempre consulta a PlanTrackingService
-- El effect en el constructor sincroniza con el tracking global
-- Delega la persistencia a PlanTrackingService
+- **Archivo:** `workout.state.ts` (clase `WorkoutStateService`), NO `workout-state.service.ts`.
+- `selectedDate` es `LocalDate` (string), no `Date`.
+- Delega la persistencia a `PlanTrackingService` y las mutations a `WorkoutApi`.
+- `outOfDateRange` permite mostrar advertencias cuando el día activo queda fuera de la semana de tracking.

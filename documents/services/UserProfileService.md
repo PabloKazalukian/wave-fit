@@ -49,7 +49,9 @@ src/app/core/services/user/
 | Signal        | Tipo                  | Descripción                                   |
 | ------------- | --------------------- | --------------------------------------------- |
 | `userProfile` | `ProfileUser \| null` | Contiene el perfil del usuario autenticado    |
+| `userProfile$`| `Observable<ProfileUser \| null>` | BehaviorSubject del perfil            |
 | `loading`     | `boolean`             | Indica si hay operaciones de carga en curso   |
+| `savingSetup` | `boolean`             | Indica si el setup básico (Coach) se está guardando |
 | `error`       | `string \| null`      | Almacena el mensaje del último error ocurrido |
 
 ### Métodos (Service Facade)
@@ -57,13 +59,21 @@ src/app/core/services/user/
 | Método                     | Retorno                           | Descripción                                                 |
 | ────────────────────────── | --------------------------------- | ----------------------------------------------------------- |
 | `fetchUserProfile()`       | `Observable<ProfileUser \| null>` | Carga/refresca y actualiza el estado del perfil de usuario  |
+| `completeBasicSetup({profile, goals, schedule})` | `Observable<{ profile; failedSteps }>` | Guardado secuencial del setup básico del Coach con reintento parcial y refetch |
 | `updateProfile(input)`     | `Observable<ProfileUser \| null>` | Actualiza la información básica del perfil                  |
 | `updateSchedule(input)`    | `Observable<Schedule \| null>`    | Actualiza la planificación y días disponibles               |
 | `updateGoals(input)`       | `Observable<Goal \| null>`        | Modifica los objetivos principales y secundarios            |
-| `updateHealth(input)`      | `Observable<HealthConstraint \| null>` | Modifica las restricciones de salud y lesiones              |
+| `updateHealthConstraints(input)` | `Observable<HealthConstraint \| null>` | Modifica las restricciones de salud y lesiones        |
+| `updateTrainingPreference(input)` | `Observable<TrainingPreference \| null>` | Modifica las preferencias de entrenamiento        |
 | `updateResource(input)`    | `Observable<Resource \| null>`    | Modifica los equipamientos y entornos de entrenamiento       |
-| `createStrengthMetric(in)` | `Observable<StrengthMetric \| null>`| Añade una métrica de un ejercicio (1RM)                     |
+| `createStrengthMetric(input)` | `Observable<StrengthMetric \| null>`| Añade una métrica de un ejercicio (1RM)                     |
 | `createWeightLog(input)`   | `Observable<WeightLog \| null>`   | Añade un registro de peso e índice de grasa                 |
+| `toggleFavoriteExercise(exerciseId)` | `Observable<ToggleFavoriteExerciseAPI \| null>` | Marca/desmarca ejercicio favorito |
+| `toggleFavoriteRoutine(routineId)` | `Observable<ToggleFavoriteRoutineAPI \| null>` | Marca/desmarca rutina favorita |
+| `toggleFavoriteRoutineDay(routineDayId)` | `Observable<ToggleFavoriteRoutineDayAPI \| null>` | Marca/desmarca día de rutina favorito |
+| `resetMyProfile()`         | `Observable<boolean \| null>`     | Borra todo el user-profile y recarga el contexto vacío       |
+
+> ⚠️ El método `updateHealth(input)` se renombró a **`updateHealthConstraints(input)`**.
 
 ---
 

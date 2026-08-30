@@ -1,24 +1,22 @@
 # 🏃 ExtraSessionService
 
-Documentación del servicio de sesiones extras (running, yoga, cycling, etc.).
+Documentación del servicio de sesiones extras (cardio, fuerza, deporte, mente-cuerpo).
 
 ---
 
 ## 🏗️ Arquitectura
 
-ExtraSessionService sigue el patrón **API + Storage** (media complejidad):
+`ExtraSessionService` sigue el patrón **State + API** (media complejidad). **NO hay Storage** (nada de localStorage/IndexedDB); el estado es reactivo en memoria (Signals + BehaviorSubject + FormGroup).
 
 ```
-extra-session.service.ts  # Service principal
-extra-session.api.ts   # GraphQL queries/mutations
+extra-session.service.ts     # Service principal (state reactivo + delegación)
+api/extra-session.api.ts     # GraphQL
 ```
 
-### ¿Por qué API + Storage?
+### Flujo
 
-Las sesiones extras son relativamente simples:
-- No hay lógica de negocio compleja
-- Se cachean en localStorage
-- No requieren estado reactivo complejo
+- `create()` / `remove()` delegan en **`PlanTrackingService.updateExtraSession/removeExtraSession`** (que persisten en el week-log del día).
+- `update()` llama a `ExtraSessionApi.update` y actualiza el cache reactivo local.
 
 ---
 
@@ -35,82 +33,76 @@ src/app/core/services/extra-session/
 
 ---
 
-## API Pública
+## 🧩 Estado y Signals
 
-### Métodos
+| Item                    | Tipo                                     | Descripción                                   |
+| ----------------------- | ---------------------------------------- | --------------------------------------------- |
+| `catalog$`              | `Observable<ExtraSessionDisciplineConfig[]>` | Catálogo de disciplinas (cargado una vez) |
+| `activeWorkoutSessions$`| `Observable<ExtraSession[]>`             | Sesiones extra del workout activo             |
+| `extraSessionIds`       | `computed<string[]>`                     | `state.workoutSession()?.extras` (desde `WorkoutStateService`) |
+| `extraSessions`         | `signal<ExtraSession[]>`                 | Sesiones cargadas por ids                     |
+| `extraSessions$`        | `toSignal` reactivo a `extraSessionIds`  | Refetchea `getByIds(ids)` al cambiar          |
+| `currentWorkoutSessionId` | `signal<string \| null>`               | Workout activo (en desuso)                    |
+| `extraSessionForm`      | `FormGroup`                              | Formulario tipado con validadores             |
 
-| Método                         | Descripción                                   |
-| ----------------------------- | ------------------------------------------ |
-| `getExtraSessions(weekStart)`  | Obtiene sesiones extras de una semana         |
-| `addExtraSession(session)`   | Añade una sesión extra                  |
-| `updateExtraSession(id, session)` | Actualiza una sesión extra        |
-| `deleteExtraSession(id)`    | Elimina una sesión extra               |
-
----
-
-## Arquitectura de Datos
-
-```
-ExtraSessionService
-    │
-    ├── ExtraSessionApi (GraphQL)
-    │       │
-    │       ├── getExtraSessions
-    │       ├── createExtraSession
-    │       ├── updateExtraSession
-    │       └── deleteExtraSession
-    │
-    └── ExtraSessionStorage (localStorage)
-            │
-            ├── getCached()
-            └── cache()
-```
+**Efecto del constructor:** al cambiar `extraSessionIds`, carga las sesiones con `api.getByIds(ids)`.
 
 ---
 
-## Interfaces
+## Métodos (Service)
+
+| Método                       | Descripción                                                        |
+| ---------------------------- | ------------------------------------------------------------------ |
+| `loadCatalog()`              | Carga el catálogo de disciplinas (`getCatalog`, `cache-first`), solo si está vacío |
+| `loadByWorkoutSession(ids)`  | Carga sesiones extra por ids y las setea en el estado reactivo      |
+| `create(input)`              | Delega en `PlanTrackingService.updateExtraSession(selectedDate, input)` |
+| `update(input)`              | `ExtraSessionApi.update` + actualiza cache local (`activeWorkoutSessions$`, `extraSessions`) |
+| `remove(id)`                 | Delega en `PlanTrackingService.removeExtraSession(selectedDate, id)` |
+
+> **`create`/`remove` requieren `state.selectedDate()`** (WorkoutStateService); si no hay fecha devuelven `of(null)`.
+
+---
+
+## 🌐 API — `extra-session.api.ts`
+
+| Método                     | Query/Mutation                 | Notas                      |
+| -------------------------- | ------------------------------ | -------------------------- |
+| `getCatalog()`             | `GET_EXTRA_SESSION_CATALOG`    | `cache-first`              |
+| `getByWorkoutSession(id)`  | `GET_EXTRA_SESSIONS_BY_WORKOUT`| `network-only`             |
+| `getByIds(ids)`            | `GET_EXTRA_SESSIONS_BY_IDS`    | `network-only`             |
+| `update(input)`            | `UPDATE_EXTRA_SESSION`         |                            |
+| `remove(id)`               | `REMOVE_EXTRA_SESSION`         |                            |
+
+> `CREATE_EXTRA_SESSION` está **comentado** en `core/apollo/extra-session.queries.ts` (la creación real pasa por el week-log).
+
+---
+
+## 💡 Modelo de Datos (`shared/interfaces/extra-session.interface.ts`)
 
 ```typescript
+enum ExtraSessionCategory { CARDIO = 'CARDIO', STRENGTH = 'STRENGTH', SPORT = 'SPORT', MIND_BODY = 'MIND_BODY' }
+
+interface ExtraSessionDisciplineConfig { key: string; label: string; category: ExtraSessionCategory; met: number; }
+
 interface ExtraSession {
-    id: string;
-    userId: string;
-    type: ExtraSessionType;
-    date: Date;
-    duration: number;
-    notes?: string;
+    id: string; userId: string; workoutSessionId: string;
+    category: ExtraSessionCategory; discipline: string;
+    date: string | Date; duration: number; intensityLevel: number;
+    calories?: number; notes?: string;
 }
 
-type ExtraSessionType = 'running' | 'yoga' | 'cycling' | 'swimming' | 'other';
+interface CreateExtraSessionForm {
+    date: string; discipline: string; duration: number;
+    intensityLevel: number; calories?: number; notes?: string;
+}
 ```
 
----
-
-## Tipos de Sesiones Soportadas
-
-| Tipo       | Descripción              |
-| ---------- | ---------------------- |
-| `running`  | Correr/Carrera          |
-| `yoga`     | Yoga                   |
-| `cycling`  | Ciclismo                |
-| `swimming` | Natación               |
-| `other`   | Otra actividad          |
-
----
-
-## Relación con PlanTrackingService
-
-```
-ExtraSessionService
-        │
-        └── PlanTrackingService.getExtraSessions()
-        
-Eltracking semanal incluye sesiones extras
-```
+> La sesión extra pertenece a un **`workoutSessionId`** de un week-log. El catálogo de disciplinas trae un `met` (para estimar calorías).
 
 ---
 
 ## Notas
 
-- Se usa principalmente para actividades fuera del gym
-- Se muestra en My Week junto con workouts regulares
-- No requiere estado reactivo complejo
+- **No persiste localmente** (fue corregido: antes se documentaba como "API + Storage", no es correcto).
+- Depende de `WorkoutStateService` (fecha activa) y `PlanTrackingService` (crear/eliminar en el week-log).
+- `ExtraActivityVM` quedó deprecada; se usa `ExtraSession`.

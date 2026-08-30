@@ -9,11 +9,16 @@ Este documento detalla el funcionamiento del sistema de autenticación de Wave-f
 ### Servicios
 
 ```
-auth/
-├── auth.service.ts           # Servicio principal de autenticación
-├── token.storage.ts           # Almacenamiento de token de sesión
-└── credentials.service.ts    # Manejo de credenciales guardadas
+src/app/core/
+├── auth/
+│   ├── auth.initializer.ts    # APP_INITIALIZER (restaura sesión al recargar)
+│   └── token.storage.ts       # Almacenamiento del usuario en IndexedDB (Dexie)
+└── services/auth/
+    ├── auth.service.ts        # Servicio principal de autenticación
+    └── credentials.service.ts # "Recordarme" en el login (encriptado)
 ```
+
+> **Ubicación de TokenStorage:** está en `src/app/core/auth/token.storage.ts`, NO en `services/auth/`.
 
 ---
 
@@ -24,71 +29,73 @@ Gestiona la autenticación del usuario (Google OAuth y email/password).
 ### Estado
 
 - `user`: Signal con los datos del usuario actual
-- `isAuthenticated`: Computed signal que indica si hay sesión activa
+- `avatarUrl`: Computed → `user()?.avatar?.url`
+- `isAuthenticated`: Computed signal (`user() !== null`)
+- `isAuthenticated$`: BehaviorSubject observable
 - `user$`: Observable del ID del usuario
 
 ### Métodos
 
 | Método                                | Descripción                                                       |
 | ------------------------------------- | ----------------------------------------------------------------- |
-| `login(identifier, password)`         | Login con email/password                                          |
-| `me()`                                | Obtiene usuario actual desde cookie (para recuperación de sesión) |
-| `logout()`                            | Cierra sesión y limpia estado                                     |
-| `register(name, email, password)`     | Registro de nuevo usuario                                         |
-| `isEmailAvailable(email)`             | Verifica si el email está disponible                              |
-| `loginWithGoogle(code, codeVerifier)` | Login con OAuth2 de Google                                        |
-| `hasSession()`                        | Verifica si hay sesión activa                                     |
-| `clearSession()`                      | Limpia sesión local                                               |
+| `initializeUserFromStorage()`         | Hidrata `user` desde IndexedDB (async)                            |
+| `login(identifier, password)`         | Login con email/password → llama `me()`                           |
+| `me()`                                | Obtiene usuario actual (cookie). Timeout **2000ms**. Tolera fallos de red/timeout (mantiene sesión offline salvo error de auth explícito) |
+| `logout()`                            | Mutation `logout` + `clearSession()` + redirige a `/auth/login` |
+| `register(name, email, password)`     | Registro de nuevo usuario                                          |
+| `isEmailAvailable(email)`             | Verifica si el email está disponible                               |
+| `updateAvatar(base64Image)`           | Actualiza avatar y persiste en IndexedDB                           |
+| `loginWithGoogle(code, codeVerifier)` | Login con OAuth2 de Google                                         |
+| `hasSession()`                        | Verifica si hay sesión activa (`user() !== null`)                  |
+| `clearSession()`                      | Limpia IndexedDB y el estado (async)                               |
+
+**GQL inline:** las consultas de auth (`Login`, `Me`, `Logout`, `CreateUser`, `IsEmailAvailable`, `LoginWithGoogle`, `UpdateAvatar`) se definen **inline con `gql`** en `auth.service.ts` (no viven en `core/apollo/`).
 
 ---
 
 ## TokenStorage
 
-Maneja el almacenamiento local de datos del usuario (no del token JWT, ese va en cookie).
+Almacena el **usuario** del frontend (no el JWT, ese va en cookie) de forma **asíncrona en IndexedDB (Dexie)** vía `IndexedDbStorageService`, tabla `authUser` con clave `'current'`.
 
-### Métodos
+> ⚠️ Ya NO usa `localStorage` síncrono; todos los métodos devuelven `Promise`.
 
-| Método          | Descripción                     |
-| --------------- | ------------------------------- |
-| `getUser()`     | Obtiene usuario de localStorage |
-| `setUser(user)` | Guarda usuario en localStorage  |
-| `clear()`       | Limpia todos los datos          |
+| Método          | Descripción                                            |
+| --------------- | ------------------------------------------------------ |
+| `getUser()`     | `Promise<User \| null>` desde IndexedDB (tabla authUser) |
+| `setUser(user)` | Guarda usuario en IndexedDB (o `clear()` si es null)   |
+| `clear()`       | Elimina la entrada `'current'`                          |
 
 ---
 
 ## CredentialsService
 
-Maneja el almacenamiento de credenciales para "recordarme" en el login.
-
-### Métodos
+Maneja el almacenamiento de credenciales para "recordarme" en el login. **Sí usa `localStorage`** (a diferencia de TokenStorage).
 
 | Método                         | Descripción                                                 |
 | ------------------------------ | ----------------------------------------------------------- |
-| `getCredentials()`             | Obtiene credenciales guardadas (identificador y contraseña) |
-| `saveCredentials(credentials)` | Guarda credenciales encriptadas                             |
+| `getCredentials()`             | Retorna `{ identifier, password, remember }` (desencripta)  |
+| `saveCredentials(credentials)` | Guarda credenciales encriptadas con `encrypt()`             |
 | `removeCredentials()`          | Elimina credenciales guardadas                              |
 
 ### Seguridad
 
-Las credenciales se almacenan **encriptadas** en localStorage usando `encrypt/decrypt` de `encryption.util`.
-
-> **Nota:** Esta es una práctica de UX para recordar credenciales. El JWT real se maneja mediante cookies HttpOnly.
+Las credenciales se almacenan **encriptadas** en localStorage usando `encrypt/decrypt` de `encryption.util`. Es solo una práctica de UX para recordarlas; el JWT real se maneja con cookies HttpOnly.
 
 ---
 
 ## Seguridad de Tokens
 
-A diferencia de versiones anteriores, el JWT (JSON Web Token) **no se almacena en `localStorage`**. En su lugar:
+El JWT **no se almacena en `localStorage`**. En su lugar:
 
 1. El servidor emite una cookie llamada `token`
-2. La cookie tiene el flag `HttpOnly`, lo que impide que cualquier script de JavaScript acceda al token
-3. En producción, la cookie tiene el flag `Secure` (solo HTTPS) y `SameSite: None` para permitir peticiones cross-origin seguras
+2. La cookie tiene el flag `HttpOnly` (inaccesible desde JS)
+3. En producción: `Secure` (solo HTTPS) y `SameSite: None` (cross-origin seguro)
 
 ### Backend (NestJS)
 
-- **`GqlAuthGuard`**: Protege los resolvers. Valida la sesión extrayendo el JWT directamente de las cookies
-- **`JwtStrategy`**: Configurada para extraer el token desde `request.cookies['token']`
-- **`AuthModule`**: Centraliza la configuración de JWT y las estrategias de validación
+- **`GqlAuthGuard`**: protege resolvers; extrae el JWT de las cookies
+- **`JwtStrategy`**: extrae el token desde `request.cookies['token']`
+- **`AuthModule`**: centraliza la configuración de JWT
 
 ---
 
@@ -96,11 +103,9 @@ A diferencia de versiones anteriores, el JWT (JSON Web Token) **no se almacena e
 
 ### 1. Sin Interceptores de Token
 
-Se ha eliminado el `authLink`. Ya no es necesario adjuntar manualmente el encabezado `Authorization: Bearer ...` en cada petición.
+Se eliminó el `authLink`; no hace falta adjuntar `Authorization: Bearer ...`.
 
 ### 2. Credenciales en Peticiones (`withCredentials`)
-
-Para que el navegador envíe automáticamente las cookies en las peticiones de GraphQL:
 
 ```typescript
 const http = httpLink.create({
@@ -111,41 +116,36 @@ const http = httpLink.create({
 
 ### 3. Manejo de Errores (`errorLink`)
 
-Detecta errores de tipo `UNAUTHENTICATED`. Si el servidor retorna un 401, el `errorLink` ejecuta `authService.logout()` para limpiar el estado.
+En `src/main.ts`, el `errorLink` detecta `UNAUTHENTICATED`/`UNAUTHORIZED`/401 y ejecuta `authService.logout()` + redirección.
 
 ---
 
 ## Flujo de Login con Google
 
-1. **Obtención de Código**: El frontend gestiona el flujo OAuth2 con Google y obtiene un `code`
-2. **Mutación `loginWithGoogle`**: Se envía a la API con `codeVerifier` para PKCE
-3. **Respuesta del Servidor**:
-    - La API valida el código con Google
-    - Genera un JWT local
-    - Envía el JWT en una cabecera `Set-Cookie`
-    - Retorna el objeto `user`
-4. **Estado Local**: `AuthService` guarda los datos del usuario en `TokenStorage`
+1. **Obtención de Código**: el frontend gestiona OAuth2 (PKCE) y obtiene un `code`
+2. **Mutación `loginWithGoogle`** con `codeVerifier`
+3. La API valida, genera JWT local, lo envía vía `Set-Cookie` y retorna `user`
+4. `AuthService` guarda el usuario en `TokenStorage` (IndexedDB)
 
 ---
 
 ## Flujo de Login con Email/Password
 
 1. Usuario ingresa credenciales y marca "Recordarme"
-2. `AuthService.login()` envía mutación al backend
-3. Backend valida y establece cookie HttpOnly
-4. `CredentialsService.saveCredentials()` encripta y guarda si "Recordarme" está activado
-5. En próximas visitas, las credenciales se recuperan automáticamente
+2. `AuthService.login()` → `switchMap` → `me()`
+3. **`CredentialsService.saveCredentials()`** se llama desde el **componente `login.ts`** (no dentro de `AuthService.login()`)
+4. En próximas visitas, las credenciales se recuperan y precargan el formulario
 
 ---
 
 ## Persistencia con F5 (`AuthInitializer`)
 
-Al recargar la página, el `APP_INITIALIZER` intenta recuperar la sesión:
+`provideAuthInitializer()` (en `src/main.ts` / `app.config`) ejecuta al arrancar:
 
-1. Ejecuta la query `me()`. El navegador envía la cookie `token` automáticamente
-2. Si la cookie es válida, el backend retorna los datos del usuario
-3. `AuthService.me()` actualiza `user` signal y `TokenStorage`
-4. Si falla, se limpian los datos locales
+1. Omite las rutas `/auth/login` y `/auth/register`
+2. **`initializeUserFromStorage()`** hidrata desde IndexedDB (offline-first)
+3. Si hay sesión, intenta `me()` con `timeout(3000)`; si falla (red/timeout) mantiene el estado offline
+4. `me()` tiene `timeout(2000)` interno
 
 ---
 
@@ -154,20 +154,22 @@ Al recargar la página, el `APP_INITIALIZER` intenta recuperar la sesión:
 | Aspecto        | Detalle                                                               |
 | -------------- | --------------------------------------------------------------------- |
 | **Seguridad**  | Cookies HttpOnly mitigan riesgos de XSS                               |
-| **Desarrollo** | En desarrollo, cookies usan `SameSite: Lax` para facilitar peticiones |
-| **Timeout**    | `me()` tiene timeout de 5 segundos                                    |
-| **UI State**   | Se mantiene con signals y computed para reactividad                   |
+| **Persistencia** | Usuario en IndexedDB (Dexie); credenciales "recordarme" en localStorage encriptadas |
+| **Offline**    | Hydrate desde IndexedDB + tolerancia a errores de red/timeout en `me()` |
+| **Timeout**    | `me()` **2000ms**; auth.initializer **3000ms**                        |
+| **UI State**   | Signals + computed para reactividad                                   |
 
 ---
 
 ## Archivos Relacionados
 
 ```
-src/app/core/services/auth/
-├── auth.service.ts           # Autenticación principal
-├── token.storage.ts          # Almacenamiento de sesión
-└── credentials.service.ts    # Credenciales recordadas
+src/app/core/auth/
+├── auth.initializer.ts      # APP_INITIALIZER
+├── token.storage.ts         # Usuario en IndexedDB (async)
+└── token.storage.spec.ts
 
-src/app/core/services/user/
-└── user.service.ts           # Consulta de usuarios
+src/app/core/services/auth/
+├── auth.service.ts          # Autenticación principal
+└── credentials.service.ts   # Credenciales recordadas (localStorage encriptado)
 ```

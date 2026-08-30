@@ -6,15 +6,13 @@ Documentación del servicio de ejercicios.
 
 ## 🏗️ Arquitectura
 
-Exercises utiliza una arquitectura simple **Service + API** integrada en un solo archivo:
+Exercises utiliza una arquitectura **Service + API** integrada en un solo archivo, pero ahora con **soporte offline** (IndexedDB + SyncQueue):
 
 ```
-exercises.service.ts  # Service + Apollo + Cache en Signal
+exercises.service.ts  # Service + Apollo + Cache en Signal + offline
 ```
 
-### ¿Por qué no separar?
-
-Los ejercicios no requieren lógica compleja ni estado compartido entre componentes, por lo que se mantiene todo en un solo servicio.
+**Dependencias:** `AuthService` (errores), `NetworkStatusService`, `IndexedDbStorageService` (persistencia), `SyncQueueService` (cola offline).
 
 ---
 
@@ -25,88 +23,64 @@ src/app/core/services/exercises/
 └── exercises.service.ts
 ```
 
+Queries en `src/app/core/apollo/exercises.queries.ts`.
+
 ---
 
 ## API Pública
 
 ### Signals
 
-- `exercises`: Signal que contiene la lista de ejercicios en caché
+- `exercises`: `signal<Exercise[]>` con la lista en caché (y también en IndexedDB)
 
 ### Métodos
 
 | Método                     | Descripción                                                            |
 | -------------------------- | ---------------------------------------------------------------------- |
-| `getExercises()`           | Obtiene todos los ejercicios. Usa caché local si disponible.           |
-| `createExercise(exercise)` | Crea un nuevo ejercicio en el backend y actualiza el caché.            |
-| `wrapperExerciseAPItoVM()` | Transforma ejercicios a formato para tracking (ExercisePerformanceVM). |
+| `getExercises(force = false)` | Obtiene todos los ejercicios. Usa caché si disponible; `force=true` fuerza fetch (`network-only`) y persiste a IndexedDB |
+| `createExercise(exercise)` | Crea un nuevo ejercicio. **Online** → API; **offline** → encola `CreateExercise` en SyncQueue y genera un ObjectId local |
+| `setIsFavorite(exerciseId, isFavorite)` | Actualiza el flag de favorito en caché + IndexedDB |
+| `wrapperExerciseAPItoVM()` | Transforma ejercicios a formato para tracking (ExercisePerformanceVM) |
+
+**Constructor:** registra el handler de sync `'CreateExercise'` (replica la mutation al reconectar).
 
 ---
 
-## Flujo de Datos
+## Flujo offline
 
-### getExercises()
+`createExercise` detecta `NetworkStatusService.isOnline()`:
 
-```
-1. Verifica si exercises() tiene datos
-2. Si hay caché: retorna of(exercises())
-3. Si no: hace query GraphQL
-4. Actualiza exercises signal con el resultado
-5. Retorna los datos
-```
-
-### createExercise()
-
-```
-1. Mutación GraphQL CREATE_EXERCISE
-2. Recibe el ejercicio creado
-3. Agrega al caché: exercises.set([...exercises(), newExercise])
-4. Retorna el nuevo ejercicio
-```
+- **Online:** mutación `CREATE_EXERCISE` y actualiza caché/IndexedDB.
+- **Offline:** genera `ObjectId` local, encola op `'CreateExercise'` en `SyncQueueService.enqueue(...)` y hace update optimista del caché local (incluida la cache GraphQL de IndexedDB).
 
 ---
 
-## Queries GraphQL
+## Queries GraphQL (`exercises.queries.ts`)
 
 ```graphql
-query {
-    exercises {
-        id
-        name
-        category
-        muscle
-        equipment
-    }
+query GetExercises {
+    exercises { id name category usesWeight isFavorite }
 }
 
-mutation createRoutineDay($input: CreateExerciseInput!) {
-    createExercise(input: $input) {
-        id
-        name
-        category
-    }
+mutation CreateExercise($input: CreateExerciseInput!) {
+    createExercise(input: $input) { id name category usesWeight }
 }
 ```
 
+> ⚠️ Los campos reales son `usesWeight` e `isFavorite` (ya NO `muscle`/`equipment`).
+
 ---
 
-## Interfaces
+## Interfaces (`shared/interfaces/exercise.interface.ts`)
 
 ```typescript
 interface Exercise {
-    id: string;
+    id?: string;
     name: string;
     category: ExerciseCategory;
-    muscle?: string[];
-    equipment?: string;
-    description?: string;
-}
-
-interface ExercisePerformanceVM {
-    exerciseId: string;
-    name: string;
-    series: number;
-    sets: { reps: number; weights?: number }[];
-    category: ExerciseCategory;
+    usesWeight: boolean;
+    isFavorite?: boolean;
 }
 ```
+
+> ⚠️ Antes se documentaba `muscle?`/`equipment?`; el modelo real usa `usesWeight`/`isFavorite`.

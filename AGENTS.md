@@ -130,10 +130,12 @@ Reglas:
 |-------------|--------|-----------|
 | **Alta** | Domain + (API \| Storage) + State | PlanTracking |
 | **Media** | Domain + API + State | UserProfile |
-| **Media** | API + Storage + State | Plans, ExtraSession |
-| **Baja** | API + Service (juntos) | Exercises, Routines, Auth, Coach |
-| **Estado** | State + API | Workouts |
+| **Media** | API + Storage + State | Plans, TrackingList |
+| **Media** | API + State | ExtraSession, DayPlan, Workouts |
+| **Baja** | API + Service (juntos) | Exercises, Routines, Auth, Coach, TrainingHistory |
 | **Infra** | Soporte (offline, red, utilidades) | Network, Sync, Storage, Date, Warmup |
+
+> ⚠️ `ExtraSession` **NO tiene Storage** (usa WorkoutState); `DayPlan` es puro State; `UserService` **no existe** (reemplazado por UserProfile).
 
 ### Estructura de Services
 ```
@@ -151,9 +153,11 @@ core/services/
 │   ├── day-plan-state.service.ts
 │   ├── api/plans.api.ts
 │   └── storage/plans.storage.ts
-├── extra-session/          # Media: API + Storage (estado en WorkoutState)
+├── extra-session/          # Media: API + State (estado en WorkoutState)
 │   ├── extra-session.service.ts
 │   └── api/extra-session.api.ts
+├── training-history/       # Baja: API + Service
+│   └── training-history.service.ts
 ├── user/                   # UserProfile: Domain + API + State
 │   ├── user-profile.service.ts
 │   ├── user-profile.domain.ts
@@ -203,6 +207,7 @@ core/services/
 /routines/show/:id       -> Ver rutina (protegido)
 /user                    -> Perfil usuario (protegido)
 /user/profile            -> Editar perfil (protegido)
+/user/history            -> Historial / calendario (protegido)
 /user/trackings          -> Lista + stats + show/:id (protegido)
 ```
 
@@ -233,11 +238,11 @@ npm run format   # Prettier
 | Auth y Apollo | `documents/services/AuthenticationAndApollo.md` |
 | ExercisesService | `documents/services/ExercisesService.md` |
 | RoutinesService | `documents/services/RoutinesService.md` |
-| UserService | `documents/services/UserService.md` |
 | UserProfileService | `documents/services/UserProfileService.md` |
 | PlanTrackingService | `documents/services/PlanTrackingService.md` |
 | ExtraSessionService | `documents/services/ExtraSessionService.md` |
 | WorkoutStateService | `documents/services/WorkoutStateService.md` |
+| TrainingHistoryService / /user/history | `documents/components/TrainingHistoryComponent.md` |
 | Guía de estilo / UI (colores por acción, spacing, tipografía, botones) | `documents/design/UI-Conventions.md` |
 
 > **Importante:** Antes de modificar código de tracking o rutinas, leer el documento de componentes correspondiente.

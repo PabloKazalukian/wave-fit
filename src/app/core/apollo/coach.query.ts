@@ -67,14 +67,14 @@ export const GET_TRAINING_PLAN = gql`
     }
 `;
 
-export const CREATE_TRAINING_PLAN = gql`
-    mutation CreateTrainingPlan($input: CreateTrainingPlanInput!) {
-        createTrainingPlan(createTrainingPlanInput: $input) {
-            id
-            title
-        }
-    }
-`;
+// export const CREATE_TRAINING_PLAN = gql`
+//     mutation CreateTrainingPlan($input: CreateTrainingPlanInput!) {
+//         createTrainingPlan(createTrainingPlanInput: $input) {
+//             id
+//             title
+//         }
+//     }
+// `;
 
 export const UPDATE_TRAINING_PLAN = gql`
     mutation UpdateTrainingPlan($input: UpdateTrainingPlanInput!) {

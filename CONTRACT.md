@@ -2,6 +2,8 @@
 
 ## 1. Interfaces - Template (Creación de Rutinas)
 
+> Archivo: `shared/interfaces/exercise.interface.ts`, `shared/interfaces/routines.interface.ts`
+
 ```typescript
 interface Exercise {
   id?: string;
@@ -9,14 +11,38 @@ interface Exercise {
   description?: string;
   category: ExerciseCategory;
   usesWeight: boolean;
+  isFavorite?: boolean;   // favorito (toggle/local)
 }
+
+type DayIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+type KindType = 'REST' | 'WORKOUT';
+enum KindEnum { rest = 'REST', workout = 'WORKOUT' }
 
 interface RoutineDay {
   id: string;
   title: string;
   type?: ExerciseCategory[];
   exercises?: Exercise[];
-  kind: 'WORKOUT' | 'REST';
+  planId?: string;
+  isFavorite?: boolean;   // favorito
+  kind: KindType;
+}
+
+interface RoutineDayVM {
+  id?: string;
+  kind?: KindType;
+  title?: string;
+  type?: ExerciseCategory[];
+  expanded: boolean;      // día expandido (UI)
+  day: DayIndex;
+  exercises?: Exercise[];
+}
+
+interface RoutineDayCreateSend {
+  title: string;
+  type?: ExerciseCategory[] | string[];
+  exercises?: ExerciseSend[];   // { exercise, order }
+  planId?: string;
 }
 
 interface RoutinePlan {
@@ -25,8 +51,29 @@ interface RoutinePlan {
   description: string;
   weekly_distribution: string;
   routineDays: RoutineDay[];
+  createdBy?: string;
+}
+
+interface RoutinePlanVM {
+  id?: string;
+  name: string;
+  description: string;
+  weekly_distribution: string;
+  routineDays: RoutineDayVM[];
+  createdBy?: string;
+  isAiGenerated?: boolean | null;
+}
+
+interface RoutinePlanSend {
+  name: string;
+  description: string;
+  weekly_distribution: string;
+  routineDays: string[] | null[];   // ids de días
+  createdBy?: string;
 }
 ```
+
+> ⚠️ `RoutinePlanSend.routineDays` es un array de **ids** (`string[] | null[]`), NO de objetos. El wrapper `wrapperRoutinePlanVMtoRoutinePlan` solo mapea `id`/`name`/`description`/`weekly_distribution`/`createdBy`.
 
 ---
 

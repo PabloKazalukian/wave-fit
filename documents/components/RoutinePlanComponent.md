@@ -1,163 +1,129 @@
 # 📝 Formulario Rutina Semanal — Plans
 
-Documentación técnica del componente `Plans` (lista) y `Create` (creación) para el flujo de creación de una rutina semanal.
+Documentación técnica del componente **Plans** (lista) y **Create** (creación) para el flujo de creación de una rutina semanal.
 
 ---
 
-## 🎨 Componentes — Jerarquía y Flujo
+## 🎨 Componentes — Jerarquía y Flujo (actual)
 
 ### Árbol de Componentes
 
 ```
-Plans (Página Lista)
-  │
+Plans (Página Lista) — src/app/pages/plans/
   └─→ Create (Página Creación)
-        │
         └─→ WeeklyRoutinePlannerComponent
-              │
-              ├─→ DaysRoutineProgressComponent (muestra progreso)
-              │
-              ├─→ DayOfRoutineComponent (muestra día individual)
-              │
-              └─→ WeekDayCellComponent (celda de día)
-                    │
-                    └─→ RoutineListBoxComponent
-                          │
-                          ├─→ RoutineExercisesComponent (acordeón de ejercicios)
-                          │
-                          └─→ RoutineExerciseFormComponent
-                                │
-                                └─→ ExerciseCreateComponent
+              ├─→ DaysRoutineProgressComponent   (progreso semanal)
+              ├─→ DayOfRoutineComponent          (cabecera: días + tipo REST/WORKOUT)
+              └─→ WeekDayCellComponent           (celda del día)
+                    └─→ RoutineFormComponent     (formulario de rutina + ejercicios)
+                          └─→ (facade: routine-form.facade.ts)
 ```
+
+> **Diferencias vs versiones anteriores:** ya **no existen** `RoutineListBoxComponent`, `RoutineExercisesComponent`, `RoutineExerciseFormComponent`, `ExerciseCreateComponent` ni `WeekDayCell→RoutineListBox`. Todo el form y selección de ejercicios vive ahora en **`RoutineFormComponent`** (con `RoutineFormFacade`). La jerarquía es plana dentro de `weekly-routine-planner` (progress + day-of-routine + week-day-cell conviven, no anidados).
 
 ---
 
 ## 🏗️ Arquitectura de Servicios
 
-Plans utiliza la arquitectura **API + Storage + State** (sin Domain, no requiere lógica compleja):
+Plans usa **API + Storage + State**, con **soporte offline** (IndexedDB + SyncQueue):
 
 ```
 PlansService (Service principal)
     │
-    ├── PlansApiService (GraphQL API)
+    ├── PlansApiService        (GraphQL — plans/api/plans.api.ts)
+    ├── PlansStorageService    (localStorage — plans/storage/plans.storage.ts)
+    ├── IndexedDbStorageService (persistencia extra del plan)
+    ├── NetworkStatusService / SyncQueueService (offline)
     │
-    └── PlansStorageService (localStorage)
+    └── DayPlanStateService    (Estado de UI)
 
-DayPlanStateService (Estado de UI)
-    │
-    ├── Signals para estado local (día seleccionado, etc.)
-    └── Computed signals para derivadas
+RoutineFormFacade              (coordina el form con RoutinesService/ExercisesService)
 ```
 
-### Capas y Responsabilidades
+### PlansService (`plans.service.ts`)
 
-| Capa        | Archivo                                  | Responsabilidad                                                       |
-| ----------- | ---------------------------------------- | --------------------------------------------------------------------- |
-| **Service** | `plans.service.ts`                       | Lógica principal, orquestación de API/Storage, estado BehaviorSubject |
-| **API**     | `plans/api/plans-api.service.ts`         | Llamadas GraphQL al backend                                           |
-| **Storage** | `plans/storage/plans-storage.service.ts` | Persistencia en localStorage                                          |
-| **State**   | `day-plan-state.service.ts`              | Estado de UI (día expandido, categoría seleccionada)                  |
+- `routinePlanVM$` — Observable del plan activo (BehaviorSubject)
+- `userId = signal('')`
+- `initPlanForUser(userId)` — carga de Storage o crea plan vacío (7 días REST/expanded=0)
+- `initRoutineDays()` — genera 7 `RoutineDayVM`
+- `setRoutinePlan(plan)` — actualiza + persiste Storage (+ IndexedDB si tiene id)
+- `setKindRoutineDay(dayIndex, kind)` — REST/WORKOUT
+- `removeDayRoutine(dayToRemove)` — limpia el día
+- `setDayRoutine(dayIndex, routine)` — asigna rutina al día
+- `setDayRoutines(routineDays)` — reemplaza todos los días
+- `setExpandedDay(dayIndex)` — día expandido
+- `setWeeklyDistribution(distribution)`
+- `createRoutinePlan(planInput)` — inyecta `createdBy`
+- `getRoutinePlan()` / `getRoutinePlanById(id)` / `currentValue()`
+- `submitPlan(current)` — online → API; offline → encola `CreateRoutinePlan` en SyncQueue + `generateObjectId()`
+- `validateTitleUnique(title)` — valida nombre único
+- `removePlan()` / `clearPlan()`
+- `wrapperRoutinePlanVMtoRoutinePlan()` — VM → API
 
-### PlansService
+**Constructor:** registra el handler de sync `'CreateRoutinePlan'`.
 
-- `routinePlanVM$`: Observable del plan de rutina actual
-- `initPlanForUser(userId)`: Inicializa plan desde Storage o crea nuevo
-- `setRoutinePlan(plan)`: Actualiza plan y persiste en Storage
-- `setExpandedDay(dayIndex)`: Controla qué día está expandido
-- `setDayRoutine(dayIndex, routine)`: Asigna rutina a un día
-- `submitPlan(current)`: Envía plan al backend vía PlansApiService
-- `wrapperRoutinePlanVMtoRoutinePlan()`: Transforma VM a formato API
+### DayPlanStateService (`day-plan-state.service.ts`)
 
-### DayPlanStateService
+Estado de UI para la creación:
 
-Estado de UI para la creación de rutinas:
+- `dayPlan` — Signal de los días
+- `computedDayPlan()` — día seleccionado
+- `setDay`, `setExpanded`, `changeExpanded`, `setKind`, etc. (selección de día, expansión, tipo)
 
-- `routinePlan`: Signal del plan actual (desde PlansService)
-- `indexDay`: Signal del índice del día seleccionado
-- `routineDays`: Signal de rutinas disponibles
-- `routinaDay`: Computed del día seleccionado
-- `selectedCategory`: Computed de la categoría del día
-- `routinesByCategory`: Computed de rutinas filtradas por categoría
-- `expandedDays`: Computed de días expandidos
-- `setDay(day)`: Selecciona un día
-- `setKind(kind)`: Cambia entre REST/WORKOUT
+> Coordina la vista con `PlansService`.
 
-### PlansStorageService
+### PlansApiService / PlansStorageService
 
-Persistencia en localStorage:
-
-- `getPlanStorage(id)`: Recupera plan del usuario
-- `setPlanStorage(plan, id)`: Guarda plan del usuario
-- `removePlanStorage(id)`: Elimina plan del usuario
+- **API:** `plans/api/plans.api.ts` — `createPlan`, `getRoutinePlanById`, `validateTitleUnique`
+- **Storage:** `plans/storage/plans.storage.ts` — `getPlanStorage`, `setPlanStorage`, `removePlanStorage` (localStorage)
 
 ---
 
-### 🔄 Flujo de Datos Completo
+## 🔄 Flujo de Datos Completo
 
 #### Escenario: Usuario Crea Plan Semanal
 
 ```
-1. Usuario entra a /routines/create
-   → RoutinePlanForm.ngOnInit()
-   → Facade.initFacade()
-```
-
-```
-2. Facade obtiene userId
-   → PlansService.initPlanForUser(userId)
+1. Usuario entra a /plans/create
+   → Facade.initFacade() → PlansService.initPlanForUser(userId)
    → DayPlanStateService.initDayPlan(userId)
-   → Carga desde Storage o crea vacío
 ```
 
 ```
-3. Usuario llena nombre/descripción/distribución
-   → FormGroup.valueChanges
-   → PlansService.setRoutinePlan()
-   → PlansStorageService.setPlanStorage()
+2. Usuario llena nombre/descripción/distribución
+   → PlansService.setRoutinePlan() / setWeeklyDistribution()
+   → PlansStorageService.setPlanStorage() (+ IndexedDB si tiene id)
 ```
 
 ```
-4. Usuario selecciona día 1
-   → DayPlanStateService.setDay(1)
-   → DayPlanStateService.expandedDays actualiza
+3. Usuario selecciona día
+   → DayOfRoutine/WeekDayCell → setExpandedDay() / setDay()
 ```
 
 ```
-5. Usuario selecciona "WORKOUT" en día 1
-   → WeekDayCellComponent emite evento
-   → DayPlanStateService.setKind('WORKOUT')
-   → Muestra RoutineListBoxComponent
+4. Usuario cambia tipo del día (REST/WORKOUT)
+   → DayOfRoutine → setKindRoutineDay(dayIndex, kind)
 ```
 
 ```
-6. Usuario selecciona categoría "CHEST"
-   → RoutineListBoxComponent busca rutina existente
-   → DayPlanStateService.routinesByCategory filtra
-   → Si existe: muestra acordeón con ejercicios
-   → Si no: muestra "No hay rutina"
+5. En un día WORKOUT, WeekDayCell → RoutineFormComponent
+   → RoutineFormFacade selecciona rutina/ejercicios
+   → RoutinesService.getRoutinesByCategory() filtra
+   → Si falta ejercicio: se crea desde exercises
 ```
 
 ```
-7. Usuario crea nueva rutina
-   → RoutineExerciseFormComponent se muestra
-   → Usuario llena form y selecciona ejercicios
-   → Si falta ejercicio: ExerciseCreateComponent
-```
-
-```
-8. Usuario guarda rutina
-   → RoutinesServices.createRoutine(routine)
+6. Usuario guarda rutina del día
+   → RoutinesService.createRoutine()
    → PlansService.setDayRoutine(dayIndex, routine)
-   → Busca día en PlansService
-   → Actualiza routineDays[index]
-   → Sincroniza con PlansStorageService
+   → Sincroniza con Storage/IndexedDB
 ```
 
 ```
-9. Usuario hace submit
-   → RoutinePlanForm.onSubmit()
+7. Usuario hace submit
    → PlansService.submitPlan()
-   → PlansApiService.createPlan()
+   → Online: PlansApiService.createPlan() + clearPlan()
+   → Offline: encola 'CreateRoutinePlan' + clearPlan()
 ```
 
 ---
@@ -166,15 +132,24 @@ Persistencia en localStorage:
 
 ```
 src/app/core/services/plans/
-├── plans.service.ts                  # Lógica principal
-├── day-plan-state.service.ts         # Estado de UI
+├── plans.service.ts              # Lógica principal (+ offline)
+├── day-plan-state.service.ts     # Estado de UI
 ├── api/
-│   └── plans-api.service.ts          # GraphQL API
+│   └── plans.api.ts              # GraphQL API (clase PlansApiService)
 └── storage/
-    └── plans-storage.service.ts       # localStorage
+    └── plans.storage.ts          # localStorage (clase PlansStorageService)
 
 src/app/core/services/routines/
-├── routines.service.ts               # Servicio de rutinas
-└── api/
-    └── routines-api.service.ts       # GraphQL API
+├── routines.service.ts           # Servicio de rutinas (+ offline)
+└── api/routines.api.ts
+
+src/app/shared/components/widgets/plans/
+├── weekly-routine-planner/
+│   ├── weekly-routine-planner.ts
+│   └── routine-days-progress/days-routine-progress.ts
+├── day-of-routine/day-of-routine.ts
+├── week-day-cell/week-day-cell.ts
+└── routine-form/
+    ├── routine-form.ts
+    └── routine-form.facade.ts
 ```
