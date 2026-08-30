@@ -29,10 +29,8 @@ src/environments/environment.ts
 !.vscode/extensions.json
 .history/*
 
-AGENTS.md
-CONTRACT.md
-documents/workflows
-documents/workflows/*
+documents/plans
+documents/plans/*
 
 # Miscellaneous
 /.angular/cache
