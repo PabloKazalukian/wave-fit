@@ -122,6 +122,7 @@ export class Coach {
     }
 
     onPlanGenerated(plan: TrainingPlanDetail): void {
+        console.log(plan);
         this.coachState.setPlan(plan, true);
         this.listPlanTraining()?.reload();
         this.notification.set({

@@ -28,6 +28,7 @@ export class CoachState {
     loadCachedPlan(userId?: string): void {
         const uid = userId ?? this.authService.user()?.id;
         const cached = this.storage.getGeneratedPlan(uid);
+        console.log(cached);
         if (cached) {
             this.activePlan.set(cached);
         }

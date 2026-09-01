@@ -233,7 +233,7 @@ export function emptyDay(
     return Array.from({ length: totalDays }, (_, i) => {
         const order = i + 1;
         const existing = workoutDays.find((d) => d.order === order);
-        return existing ?? { order, status: 'skipped', extraSessionIds: [] };
+        return existing ?? { order, status: 'skipped' };
     });
 }
 

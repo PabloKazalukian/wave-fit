@@ -58,6 +58,29 @@ export const GET_TRAINING_PLAN = gql`
             durationWeeks
             trainingDaysPerWeek
             tags
+            version
+            aiSnapshot {
+                modelUsed
+                tokensUsed
+                rawResponse
+            }
+        }
+    }
+`;
+
+export const MODIFY_PLAN = gql`
+    mutation ModifyPlan($id: String!, $comment: String!) {
+        modifyPlan(id: $id, comment: $comment) {
+            id
+            title
+            focus
+            status
+            confirmed
+            version
+            durationWeeks
+            trainingDaysPerWeek
+            startDate
+            endDate
             aiSnapshot {
                 modelUsed
                 tokensUsed

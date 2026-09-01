@@ -54,6 +54,7 @@ export interface TrainingPlanDetail {
     confirmedAction?: PlanConfirmationAction | null;
     resultingWeekLogId?: string | null;
     resultingRoutinePlanId?: string | null;
+    version?: number;
 }
 
 export interface ConfirmedTrainingPlan {

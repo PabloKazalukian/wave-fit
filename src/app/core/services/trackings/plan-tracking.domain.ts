@@ -310,7 +310,10 @@ export class PlanTrackingDomainService {
 
         this.state.setLoading(true);
 
-        const workoutDays = wrapperWorkoutSessionVMtoUpdateWeekLogDayInput(current.workouts);
+        const validWorkouts = current.workouts.filter((w) => w.id);
+        const workoutDays = wrapperWorkoutSessionVMtoUpdateWeekLogDayInput(validWorkouts);
+        console.log('validWorkouts', validWorkouts);
+        console.log('workoutDays', workoutDays);
 
         const totalDays = 7;
         const days = emptyDay(workoutDays, totalDays);
