@@ -29,9 +29,6 @@ src/environments/environment.ts
 !.vscode/extensions.json
 .history/*
 
-documents/plans
-documents/plans/*
-
 # Miscellaneous
 /.angular/cache
 .sass-cache/
