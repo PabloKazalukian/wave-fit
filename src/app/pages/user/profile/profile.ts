@@ -1,7 +1,7 @@
 import { Component, inject, signal, DestroyRef, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { Router } from '@angular/router';
-import { ProfileUser } from '../../../shared/utils/profile.types';
+import { DistributionDays, ProfileUser } from '../../../shared/utils/profile.types';
 import { UserProfileService } from '../../../core/services/user/user-profile.service';
 import { UserProfile } from '../../../shared/components/widgets/users/profile/user-profile/user-profile';
 import { Weight } from '../../../shared/components/widgets/users/profile/weight/weight';
@@ -82,7 +82,7 @@ export class Profile implements OnInit {
             birthDate: '',
             heightCm: 0,
             weightKg: 0,
-            distributionDays: 'Week-log',
+            distributionDays: DistributionDays.WEEK,
             unitsPreference: 'metric',
             createdAt: '',
             updatedAt: '',

@@ -5,8 +5,7 @@ import {
     StatusWorkoutSessionEnum,
     WorkoutSessionVM,
 } from '../../../../interfaces/tracking.interface';
-import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
+import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 
@@ -14,18 +13,17 @@ import { Observable, of } from 'rxjs';
 export class TrackingWorkoutFacade {
     destroyRef = inject(DestroyRef);
     exerciseSvc = inject(ExercisesService);
-    trackingSvc = inject(PlanTrackingService);
 
-    state = inject(WorkoutStateService);
+    store = inject(WORKOUT_STORE);
 
-    loadings = computed(() => this.trackingSvc.loadingWorkoutCreation().state === true);
+    loadings = computed(() => this.store.loadingWorkoutCreation().state === true);
 
-    readonly workoutDate = this.state.selectedDate;
-    readonly workoutVM = this.state.workoutSession;
-    readonly loadingStatusWorkout = this.trackingSvc.loadingStatusWorkout;
+    readonly workoutDate = this.store.selectedDate;
+    readonly workoutVM = this.store.workoutSession;
+    readonly loadingStatusWorkout = this.store.loadingStatusWorkout;
 
     exercises = signal<ExercisePerformanceVM[]>([]);
-    exercisesSelected = this.state.exercises;
+    exercisesSelected = this.store.exercises;
 
     exercisesSelectedOrdered = computed(() => {
         return Object.entries(
@@ -46,7 +44,7 @@ export class TrackingWorkoutFacade {
     });
 
     exercisesTracking = signal<ExercisePerformanceVM[]>([]);
-    loading = this.trackingSvc.loadingWorkoutCreation;
+    loading = this.store.loadingWorkoutCreation;
 
     validateWorkout(): boolean {
         if (
@@ -60,7 +58,7 @@ export class TrackingWorkoutFacade {
     }
 
     startRoutineTracking() {
-        this.trackingSvc
+        this.store
             .createWorkout(this.workoutDate()!)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
@@ -76,7 +74,7 @@ export class TrackingWorkoutFacade {
 
     private _setWorkoutStatus(status: StatusWorkoutSessionEnum) {
         if (!this.workoutDate()) return;
-        this.trackingSvc
+        this.store
             .setRestDay(this.workoutDate()!, this.workoutVM()!, status)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
@@ -84,33 +82,31 @@ export class TrackingWorkoutFacade {
 
     setRemoveAllExercises() {
         if (!this.workoutDate()) return;
-        this.trackingSvc.setRemoveAllExercises(this.workoutDate()!);
+        this.store.setRemoveAllExercises(this.workoutDate()!);
     }
 
     setEditedStatus() {
         const date = this.workoutDate();
         if (!date) return;
-        this.trackingSvc.updateWorkoutStatus(date, 'edited');
+        this.store.updateWorkoutStatus(date, 'edited');
     }
 
     setCompleteStatus() {
         const date = this.workoutDate();
         if (!date) return;
-        this.trackingSvc.updateWorkoutStatus(date, 'complete');
+        this.store.updateWorkoutStatus(date, 'complete');
     }
 
     updateWorkoutSession(workout: WorkoutSessionVM) {
         const date = this.workoutDate();
         if (!date) return;
-        this.trackingSvc.updateWorkoutSession(date, workout);
+        this.store.updateWorkoutSession(date, workout);
     }
 
     removeWorkoutSession(): Observable<boolean> {
         const date = this.workoutDate();
         const workoutId = this.workoutVM()?.id;
-        console.log('date', date);
-        console.log('workoutId', this.workoutVM());
         if (!date || !workoutId) return of(false);
-        return this.trackingSvc.removeWorkoutSession(date, workoutId);
+        return this.store.removeWorkoutSession(date, workoutId);
     }
 }

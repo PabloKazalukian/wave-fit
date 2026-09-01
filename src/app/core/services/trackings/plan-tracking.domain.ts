@@ -315,6 +315,8 @@ export class PlanTrackingDomainService {
         const totalDays = 7;
         const days = emptyDay(workoutDays, totalDays);
 
+        // console.log(this.transformUpdateWeekLogInput(days, current, complete));
+
         return this.api
             .updateTracking(this.transformUpdateWeekLogInput(days, current, complete))
             .pipe(

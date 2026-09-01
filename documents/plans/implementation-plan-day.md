@@ -578,3 +578,53 @@ Hoy `WorkoutStateService` depende **solo** de `PlanTrackingService` (`trackingPl
 - Rama actual: `feat/day-log`.
 - Este documento es la **planificación**; las tareas T1–T21 se ejecutarán en iteraciones posteriores.
 - **Rev v2 (corrección):** se incorporó el **contrato real del backend** (operaciones `DayLog`, `ActiveTracking`, `CreateDayLog`, `UpdateDayLog`, `UpdateDayLogStatus`, `UpdateWorkoutSession` para WS global, assign/remove day-log, histórico `DayLogs`/`DayLog`/`RemoveDayLog`, y variantes renombradas de week). Ver §5. El day-log usa **modelo flat** (no anida `days[]`).
+
+---
+
+## 10. Estado de Sesión (cierre 2026-09-01)
+
+### Fase 1 — Base de datos / tipos ✅ COMPLETA
+- `shared/interfaces/day-log.interface.ts` (`DayLogVM` **flat**: `workoutSessionId`, `exercises`, `extraSessionIds`, `status`, `active`, `date`, `notes`...).
+- `shared/interfaces/api/day-log-api.interface.ts`.
+- `shared/utils/profile.types.ts`: enum `DistributionDays { WEEK='week_log', DAY='day_log' }`, tipo `LogMode = 'week'|'day'`, `distributionToLogMode()` (alineado al backend, §6.1).
+- `shared/wrappers/day-log.wrapper.ts` (incluye `patchDayLog`).
+- Wrapper/pipe de perfil actualizados a `week_log|day_log` (T2).
+
+### Fase 2 — Capa GraphQL ✅ COMPLETA
+- `core/apollo/day-log.queries.ts` (T4): `ACTIVE_TRACKING`, `CREATE_DAY_LOG`, `UPDATE_DAY_LOG`, `UPDATE_WORKOUT_SESSION`, `UPDATE_DAY_LOG_STATUS`, `ASSIGN_ROUTINE_TO_DAY_LOG`, `REMOVE_WORKOUT_SESSION_FROM_DAY_LOG`, `REMOVE_EXTRA_SESSION_FROM_DAY_LOG`, `DAY_LOGS`, `DAY_LOG`, `REMOVE_DAY_LOG`.
+- Renombres week alineados en `tracking.queries.ts` + `plan-tranking.api.ts` (`UpdateWeekDay`, `UpdateWeekDayWorkoutStatus`, `AssignRoutineToWeekDay`, `RemoveWorkoutSessionFromWeekDay`, `RemoveExtraSessionFromWeekDay`).
+- `USER_PROFILE_FIELDS` expone `distributionDays` (T5b ✅).
+
+### Fase 3 — Servicios `PlanDay` ✅ COMPLETA
+- `plan-day.state.ts`, `plan-day/storage/plan-day.storage.ts`, `plan-day/api/plan-day.api.ts` (devuelve **VMs** vía wrapper; T3 contract), `plan-day.domain.ts` (F3 sync + `initActiveLog`), `plan-day.service.ts` (fachada effect + debounce 4s en `setExercises`).
+- IndexedDB tabla `dayLogs` (v4) + `saveDayLog()` (T6).
+- `core/services/trackings/active-tracking.api.ts` (**T9b**): `ActiveTrackingApi` común; `activeTracking` = única consulta de arranque (fuente de verdad).
+
+### Fase 4 — UI (Opción B elegida) ✅ PARCIAL
+**F4a ✅**: `activation-selector.ts`+`.html` (select week/day, default desde `UserProfileService`, emite `modeChange`); `my-week.ts/.html` mode-aware (no-active: selector + cards por modo; day=2 cards, "Iniciar día" → `startDay()`); página `my-day` + rutas `/my-day` y `/my-day/success` + placeholder → luego `TrackingDayComponent`.
+
+**F4b ✅ — Opción B (WorkoutStore por token)**:
+- `core/services/workouts/workout-store.interface.ts`: interfaz `WorkoutStore` + `InjectionToken WORKOUT_STORE`. Acciones retornan `Observable<unknown>` (los widgets solo suscriben; semana devuelve `TrackingVM`, día `WorkoutSessionVM`).
+- `workout.state.ts`: `WorkoutStateService implements WorkoutStore` (week store; `loading`, `loadingWorkoutCreation`, `loadingStatusWorkout` + acciones delegando a `PlanTrackingService`; cast `status as StatusWorkoutSessionEnum`).
+- `core/services/workouts/day-workout.store.ts`: `DayWorkoutStore` (day store backed por `PlanDayService`; mapeo: `setRestDay(date,ws,status)`→`setRestDay(date,isRest)`; `updateWorkoutStatus`→COMPLETE→`'complete'`, REST→`'skipped'`, resto→`'pending'`; `removeWorkoutSession`→`removeWorkoutSession(id)`→boolean).
+- Widgets refactorizados a inyectar el token: `tracking-workout.facade.ts`, `workout-in-progress.facade.ts`, `workout-actions-menu.ts`, `workout-routine-selector.ts`, `exercise-selector.ts`, `extra-session-form.ts`; `workout-edition.ts` (`facade.store`).
+- Wiring: `tracking-week.ts` → `providers: [TrackingWeekFacade, { provide: WORKOUT_STORE, useExisting: WorkoutStateService }]`; `tracking-day.ts` → `{ provide: WORKOUT_STORE, useClass: DayWorkoutStore }`.
+- `TrackingDayComponent` + `tracking-day.facade.ts` + `tracking-day.html` (InfoCard, header fecha, "Finalizar día", confirm dialog, `TrackingWorkoutComponent`, "Agregar actividad extra" dialog).
+- `/my-day`: `my-day.ts` enlaza `TrackingDayComponent`; `my-day.html` renderiza el widget si `dayLog()` existe (skeleton en `loading()`), CTA "Iniciar día" → `createDayLog()` en caso contrario. `dateService` removido (lógica movida al widget).
+
+> Relacionado con §6.7: se adoptó **Opción B** en lugar de Opción A.
+
+### Fuera de alcance / pendiente
+- **T11 (sesiones extra day-log, creación):** SIN mutation de creación en el contrato backend (solo `RemoveExtraSessionFromDayLog`, rename). `ExtraSessionService` es root y week-couplado (`inject(WorkoutStateService)` + `PlanTrackingService`), y un service root NO puede resolver un token per-modo → **el flujo de crear sesiones extra del day-log queda fuera de alcance**. Solo display vía `ExtraSessionContent` dentro de `TrackingWorkoutComponent`. Documentado como follow-up.
+- **T16 (wiring de borrado day-log)**: parcial — `removeWorkoutSession` mapeado; falta verificar "Eliminar entrenamiento" (WorkoutActionsMenu) end-to-end y `removeExtraSession`.
+- **T14/T17/T18/T19/T21**: skeleton/offline/tests/docs aún pendientes.
+
+### Verificación (green)
+- `npx tsc --noEmit` ✅
+- `npx eslint` (archivos refactorizados + day component) ✅
+- `npx ng build` ✅ (AOT templates + DI) — solo warning pre-existente de bundle budget (no error).
+
+### Decisiones abiertas / riesgos
+- Sesiones extra del day-log (creación) → requiere mutation backend + desacoplar `ExtraSessionService` (T11 follow-up).
+- Garantizar que los widgets week-only (`TrackingWeekFacade`, `NavigatorWeek`, `TrackingActive`, `WeeklyStats`) sigan usando `WorkoutStateService`/`PlanTrackingService` directamente (NO se tocaron).
+- Sí /my-day con tracking activo: `/my-week` sigue siendo base si NO hay tracking activo (select). Revisar antes de cada cambio si perjudica algún punto del flujo.

@@ -6,8 +6,7 @@ import { DialogComponent } from '../../../../ui/dialog/dialog';
 import { RoutineDay } from '../../../../../interfaces/routines.interface';
 import { Loading } from '../../../../ui/loading/loading';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { WorkoutStateService } from '../../../../../../core/services/workouts/workout.state';
-import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
+import { WORKOUT_STORE } from '../../../../../../core/services/workouts/workout-store.interface';
 import { DateService } from '../../../../../../core/services/date.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { BtnComponent } from '../../../../ui/btn/btn';
@@ -41,8 +40,7 @@ export class WorkoutActionsMenu {
     facade = inject(TrackingWorkoutFacade);
     destroyRef = inject(DestroyRef);
     private elementRef = inject(ElementRef);
-    private workoutState = inject(WorkoutStateService);
-    private trackingSvc = inject(PlanTrackingService);
+    private store = inject(WORKOUT_STORE);
     private dateSvc = inject(DateService);
 
     @HostListener('document:click', ['$event'])
@@ -93,7 +91,7 @@ export class WorkoutActionsMenu {
         if (exerciseIds.length === 0) return;
 
         this.isLoading.set(true);
-        this.trackingSvc
+        this.store
             .createRoutineFromWorkout(name, exerciseIds)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
@@ -114,14 +112,14 @@ export class WorkoutActionsMenu {
     }
 
     onRoutineSelected(routine: RoutineDay) {
-        const date = this.workoutState.selectedDate();
+        const date = this.store.selectedDate();
         if (!date) return;
 
         this.isLoading.set(true);
 
         const dateString = this.dateSvc.formatDate(date);
 
-        this.trackingSvc
+        this.store
             .createWorkoutWithRoutine(routine.id, dateString)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({

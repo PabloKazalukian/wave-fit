@@ -11,7 +11,7 @@ import { BtnComponent } from '../../../../ui/btn/btn';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../../ui/loading/loading';
 import { map } from 'rxjs';
-import { WorkoutStateService } from '../../../../../../core/services/workouts/workout.state';
+import { WORKOUT_STORE } from '../../../../../../core/services/workouts/workout-store.interface';
 import { WorkoutSessionVM } from '../../../../../interfaces/tracking.interface';
 
 @Component({
@@ -31,23 +31,25 @@ export class WorkoutRoutineSelector {
     private routinesSvc = inject(RoutinesService);
     private userProfileSvc = inject(UserProfileService);
     private destroyRef = inject(DestroyRef);
-    private state = inject(WorkoutStateService);
+    private store = inject(WORKOUT_STORE);
 
     routineSelected = output<RoutineDay>();
     closed = output<void>();
 
-    workout = signal<WorkoutSessionVM | null>(this.state.workoutSession());
+    workout = signal<WorkoutSessionVM | null>(this.store.workoutSession());
 
     private initialized = false;
 
     constructor() {
         effect(() => {
-            const currentWorkout = this.state.workoutSession();
+            const currentWorkout = this.store.workoutSession();
 
             if (!this.initialized) {
                 this.initialized = true;
                 return;
             }
+
+            if (!currentWorkout) return;
 
             this.resetState();
         });

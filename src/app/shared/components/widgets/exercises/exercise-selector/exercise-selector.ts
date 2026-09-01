@@ -4,7 +4,7 @@ import { ExercisesService } from '../../../../../core/services/exercises/exercis
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { startWith } from 'rxjs';
 import { wrapperExerciseAPItoVM } from '../../../../wrappers/exercises.wrapper';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
+import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 import { UserProfileService } from '../../../../../core/services/user/user-profile.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { options } from '../../../../interfaces/input.interface';
@@ -42,7 +42,7 @@ import { ExerciseCreate } from '../exercise-create/exercise-create';
 export class ExerciseSelector {
     exercisesSvc = inject(ExercisesService);
     userProfileSvc = inject(UserProfileService);
-    state = inject(WorkoutStateService);
+    store = inject(WORKOUT_STORE);
     destroyRef = inject(DestroyRef);
 
     searchControl = new FormControl('', { nonNullable: true });
@@ -100,16 +100,16 @@ export class ExerciseSelector {
         });
     }
 
-    readonly exercisesSelected = this.state.exercises;
+    readonly exercisesSelected = this.store.exercises;
 
     toggleExercise(ex: ExercisePerformanceVM) {
         const exists = this.exercisesSelected()?.some((e) => e.exerciseId === ex.exerciseId);
         if (exists) {
-            this.state.updateExercises(
+            this.store.updateExercises(
                 this.exercisesSelected()?.filter((e) => e.exerciseId !== ex.exerciseId) || [],
             );
         } else {
-            this.state.updateExercises([...(this.exercisesSelected() || []), ex]);
+            this.store.updateExercises([...(this.exercisesSelected() || []), ex]);
         }
     }
 

@@ -38,6 +38,11 @@ export const routes: Routes = [
         canActivate: [authGuard],
     },
     {
+        path: 'my-day',
+        loadChildren: () => import('./pages/my-day/my-day.routes').then((m) => m.MY_DAY_ROUTES),
+        canActivate: [authGuard],
+    },
+    {
         path: 'user',
         canActivate: [authGuard],
         children: [

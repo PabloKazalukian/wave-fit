@@ -124,7 +124,7 @@ export class WorkoutEdition implements OnInit {
         const id = this.exerciseFormArray.at(index).get('exerciseId')?.value;
         const currentExercises = this.facade.exercisesSelected();
         const updated = currentExercises.filter((e) => e.exerciseId !== id);
-        this.facade.state.updateExercises(updated);
+        this.facade.store.updateExercises(updated);
     }
 
     openDialog(): void {

@@ -87,6 +87,8 @@ export class PlanTrackingApi {
     }
 
     updateTracking(payload: UpdateWeekLogInput): Observable<TrackingVMS | null> {
+        console.log('payload:', payload);
+        console.log('query:', UPDATE_WEEK_LOG);
         return this.apollo
             .mutate<{ updateWeekLog: TrackingAPI }>({
                 mutation: UPDATE_WEEK_LOG,
@@ -108,7 +110,7 @@ export class PlanTrackingApi {
     updateTrackingDay(payload: UpdateWeekLogDayUnifiedInput): Observable<WeekLogDayVM | null> {
         console.log(payload);
         return this.apollo
-            .mutate<{ updateDay: WeekLogDayAPI }>({
+            .mutate<{ updateWeekDay: WeekLogDayAPI }>({
                 mutation: UPDATE_WEEK_LOG_DAY,
                 variables: { input: payload },
                 fetchPolicy: 'no-cache',
@@ -116,9 +118,9 @@ export class PlanTrackingApi {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.updateDay
+                    data?.updateWeekDay
                         ? trackingWrappers.wrapperWeekLogDayApiToVM(
-                              data.updateDay,
+                              data.updateWeekDay,
                               this.exerciseSvc.exercises(),
                           )
                         : null,
@@ -148,16 +150,16 @@ export class PlanTrackingApi {
 
     assignRoutineToDay(routineDayId: string, date: string): Observable<WeekLogDayVM | null> {
         return this.apollo
-            .mutate<{ assignRoutineToDay: WeekLogDayAPI }>({
+            .mutate<{ assignRoutineToWeekDay: WeekLogDayAPI }>({
                 mutation: ASSIGN_ROUTINE_TO_DAY,
                 variables: { routineDayId, date }, // date es LocalDate string
             })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.assignRoutineToDay
+                    data?.assignRoutineToWeekDay
                         ? trackingWrappers.wrapperWeekLogDayApiToVM(
-                              data.assignRoutineToDay,
+                              data.assignRoutineToWeekDay,
                               this.exerciseSvc.exercises(),
                           )
                         : null,
@@ -208,14 +210,14 @@ export class PlanTrackingApi {
     removeExtraSession(date: string, extraSessionId: string): Observable<WeekLogDayVM | null> {
         return this.apollo
             .mutate<{
-                removeExtraSessionFromDay: WeekLogDayAPI;
+                removeExtraSessionFromWeekDay: WeekLogDayAPI;
             }>({ mutation: REMOVE_EXTRA_SESSION_FROM_DAY, variables: { date, extraSessionId } })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.removeExtraSessionFromDay
+                    data?.removeExtraSessionFromWeekDay
                         ? trackingWrappers.wrapperWeekLogDayApiToVM(
-                              data.removeExtraSessionFromDay,
+                              data.removeExtraSessionFromWeekDay,
                               this.exerciseSvc.exercises(),
                           )
                         : null,
@@ -226,14 +228,14 @@ export class PlanTrackingApi {
     removeWorkoutSession(date: string, workoutSessionId: string): Observable<WeekLogDayVM | null> {
         return this.apollo
             .mutate<{
-                removeWorkoutSessionFromDay: WeekLogDayAPI;
+                removeWorkoutSessionFromWeekDay: WeekLogDayAPI;
             }>({ mutation: REMOVE_WORKOUT_SESSION_FROM_DAY, variables: { date, workoutSessionId } })
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.removeWorkoutSessionFromDay
+                    data?.removeWorkoutSessionFromWeekDay
                         ? trackingWrappers.wrapperWeekLogDayApiToVM(
-                              data.removeWorkoutSessionFromDay,
+                              data.removeWorkoutSessionFromWeekDay,
                               this.exerciseSvc.exercises(),
                           )
                         : null,
@@ -257,7 +259,7 @@ export class PlanTrackingApi {
 
     updateDayWorkoutStatus(date: string, isRest: boolean): Observable<WeekLogDayVM | null> {
         return this.apollo
-            .mutate<{ updateDayWorkoutStatus: WeekLogDayAPI }>({
+            .mutate<{ updateWeekDayWorkoutStatus: WeekLogDayAPI }>({
                 mutation: UPDATE_DAY_WORKOUT_STATUS,
                 variables: { input: { date, isRest } },
                 fetchPolicy: 'no-cache',
@@ -265,9 +267,9 @@ export class PlanTrackingApi {
             .pipe(
                 handleGraphqlError(this.authSvc),
                 map(({ data }) =>
-                    data?.updateDayWorkoutStatus
+                    data?.updateWeekDayWorkoutStatus
                         ? trackingWrappers.wrapperWeekLogDayApiToVM(
-                              data.updateDayWorkoutStatus,
+                              data.updateWeekDayWorkoutStatus,
                               this.exerciseSvc.exercises(),
                           )
                         : null,

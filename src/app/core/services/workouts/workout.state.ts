@@ -2,22 +2,29 @@ import { computed, DestroyRef, effect, inject, Injectable, signal } from '@angul
 import {
     ExercisePerformanceVM,
     LocalDate,
+    StatusWorkoutSession,
+    StatusWorkoutSessionEnum,
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
 import { PlanTrackingService } from '../trackings/plan-tracking.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs';
 import { DateService } from '../date.service';
+import { WorkoutStore } from './workout-store.interface';
 
 @Injectable({
     providedIn: 'root',
 })
-export class WorkoutStateService {
+export class WorkoutStateService implements WorkoutStore {
     destroyRef = inject(DestroyRef);
 
     private trackingSvc = inject(PlanTrackingService);
     private dateSvc = inject(DateService);
     private tracking = toSignal(this.trackingSvc.trackingPlanVM$, { initialValue: null });
+
+    readonly loadingWorkoutCreation = this.trackingSvc.loadingWorkoutCreation;
+    readonly loadingStatusWorkout = this.trackingSvc.loadingStatusWorkout;
+    readonly loading = this.trackingSvc.loading;
 
     /** LocalDate "yyyy-MM-dd" del día actualmente seleccionado */
     selectedDate = signal<LocalDate | null>(null);
@@ -72,6 +79,42 @@ export class WorkoutStateService {
         if (currentWorkout) {
             this.workoutSession.set({ ...currentWorkout, exercises });
         }
+    }
+
+    createWorkout(date: LocalDate) {
+        return this.trackingSvc.createWorkout(date);
+    }
+
+    setRestDay(
+        date: LocalDate,
+        workout: WorkoutSessionVM,
+        status: StatusWorkoutSession,
+    ) {
+        return this.trackingSvc.setRestDay(date, workout, status as StatusWorkoutSessionEnum);
+    }
+
+    setRemoveAllExercises(date: LocalDate): void {
+        this.trackingSvc.setRemoveAllExercises(date);
+    }
+
+    updateWorkoutStatus(date: LocalDate, status: StatusWorkoutSession): void {
+        this.trackingSvc.updateWorkoutStatus(date, status);
+    }
+
+    updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): void {
+        this.trackingSvc.updateWorkoutSession(date, workout);
+    }
+
+    removeWorkoutSession(date: LocalDate, id: string) {
+        return this.trackingSvc.removeWorkoutSession(date, id);
+    }
+
+    createWorkoutWithRoutine(routineDayId: string, date: LocalDate) {
+        return this.trackingSvc.createWorkoutWithRoutine(routineDayId, date);
+    }
+
+    createRoutineFromWorkout(title: string, exerciseIds: string[]) {
+        return this.trackingSvc.createRoutineFromWorkout(title, exerciseIds);
     }
 
     private loadWorkout(date: LocalDate) {
