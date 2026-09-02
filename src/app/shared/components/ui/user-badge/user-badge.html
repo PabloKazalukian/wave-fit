@@ -1,0 +1,7 @@
+<button
+  class="flex items-center gap-2 bg-background1 pl-4 border border-primary/35 rounded-2xl rounded-r-3xl text-primary font-semibold tracking-wide shadow-md transition-colors cursor-pointer"
+  (click)="clicked.emit($event)"
+>
+  <span class="max-w-[80px] truncate">{{ name() }}</span>
+  <app-user-avatar [url]="url()" [name]="name()" size="md" />
+</button>

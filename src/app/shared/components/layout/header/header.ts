@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { BtnComponent } from '../../ui/btn/btn';
 import { WaveLogoComponent } from '../../ui/logos/wave-logo/wave-logo';
+import { AvatarComponent } from '../../ui/avatar/avatar';
+import { UserBadge } from '../../ui/user-badge/user-badge';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
@@ -12,7 +14,7 @@ import { SyncQueueService } from '../../../../core/services/sync/sync-queue.serv
 
 @Component({
     selector: 'app-header',
-    imports: [BtnComponent, WaveLogoComponent, CommonModule, RouterModule],
+    imports: [BtnComponent, WaveLogoComponent, CommonModule, RouterModule, UserBadge],
     standalone: true,
     templateUrl: './header.html',
     styleUrl: './header.css',
@@ -38,6 +40,7 @@ export class Header implements OnInit {
     show = true;
     isMobileMenuOpen = signal(false);
     isRoutinesDropdownOpen = signal(false);
+    isCoachDropdownOpen = signal(false);
     isUserDropdownOpen = signal(false);
 
     private readonly authSvc = inject(AuthService);
@@ -48,8 +51,9 @@ export class Header implements OnInit {
 
     user = this.authSvc.user;
     userName = computed(() => this.user()?.name || 'Usuario');
+    avatarUrl = computed(() => this.user()?.avatar?.url ?? null);
     currentUrl = signal(this.router.url);
-    
+
     isOnline = this.networkSvc.isOnline;
     pendingMutations = this.syncQueue.pendingCount;
 
@@ -81,6 +85,14 @@ export class Header implements OnInit {
     toggleRoutinesDropdown(event: Event) {
         event.stopPropagation();
         this.isRoutinesDropdownOpen.update((val) => !val);
+        this.isCoachDropdownOpen.set(false);
+        this.isUserDropdownOpen.set(false);
+    }
+
+    toggleCoachDropdown(event: Event) {
+        event.stopPropagation();
+        this.isCoachDropdownOpen.update((val) => !val);
+        this.isRoutinesDropdownOpen.set(false);
         this.isUserDropdownOpen.set(false);
     }
 
@@ -88,10 +100,12 @@ export class Header implements OnInit {
         event.stopPropagation();
         this.isUserDropdownOpen.update((val) => !val);
         this.isRoutinesDropdownOpen.set(false);
+        this.isCoachDropdownOpen.set(false);
     }
 
     closeDropdowns() {
         this.isRoutinesDropdownOpen.set(false);
+        this.isCoachDropdownOpen.set(false);
         this.isUserDropdownOpen.set(false);
     }
 

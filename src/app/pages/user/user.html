@@ -5,27 +5,13 @@
     <header class="flex flex-col mb-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
-          <!-- Avatar placeholder -->
-          <div
-            class="avatar-circle group relative w-16 h-16 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center overflow-hidden flex-shrink-0"
-          >
-            @if (avatarUrl()) {
-              <img
-                [src]="avatarUrl()"
-                alt="User avatar"
-                class="absolute inset-0 w-full h-full object-cover z-10"
-                (error)="img.style.display = 'none'"
-                #img
-              />
-            } @else {
-              <span class="text-3xl font-bold text-primary select-none capitalize">
-                {{ (user()?.name | slice: 0 : 1) || '?' }}
-              </span>
-            }
+          <!-- Avatar -->
+          <div class="group relative flex-shrink-0">
+            <app-user-avatar [url]="avatarUrl()" [name]="user()?.name" size="lg" />
 
             <!-- Overlay -->
             <button
-              class="absolute inset-0 z-20 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+              class="absolute inset-0 z-20 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center rounded-full"
               (click)="openAvatarUpload()"
             >
               <lucide-icon [img]="UserPlusIcon" size="24" class="text-white"></lucide-icon>

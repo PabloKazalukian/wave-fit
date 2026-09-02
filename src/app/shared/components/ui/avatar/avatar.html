@@ -1,0 +1,16 @@
+<div
+  class="bg-primary/20 flex items-center justify-center overflow-hidden flex-shrink-0"
+  [ngClass]="containerClasses()"
+>
+  @if (url()) {
+    <img
+      [src]="url()"
+      alt="Avatar"
+      class="w-full h-full object-cover"
+      (error)="img.style.display = 'none'"
+      #img
+    />
+  } @else {
+    <span class="font-bold text-primary select-none capitalize">{{ initial() }}</span>
+  }
+</div>

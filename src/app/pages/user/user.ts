@@ -17,6 +17,7 @@ import {
 import { TrackingListState } from '../../core/services/trackings/tracking-list.state';
 import { WeeklyTrackings } from '../../shared/components/widgets/users/weekly-trackings/weekly-trackings';
 import { Avatar } from '../../shared/components/ui/dialog/avatar/avatar';
+import { AvatarComponent as UserAvatar } from '../../shared/components/ui/avatar/avatar';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
 
 @Component({
@@ -26,6 +27,7 @@ import { BtnComponent } from '../../shared/components/ui/btn/btn';
         LucideAngularModule,
         WeeklyTrackings,
         Avatar,
+        UserAvatar,
         BtnComponent,
     ],
     standalone: true,
