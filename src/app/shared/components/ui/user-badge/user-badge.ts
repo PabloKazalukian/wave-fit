@@ -11,5 +11,6 @@ export class UserBadge {
     url = input<string | null | undefined>(null);
     name = input<string | undefined>('');
     dropdownOpen = input<boolean>(false);
+    rounded = input<string>('rounded-full');
     clicked = output<Event>();
 }

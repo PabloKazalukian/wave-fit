@@ -12,6 +12,7 @@ export class AvatarComponent {
     name = input<string | undefined>('');
     size = input<'sm' | 'md' | 'lg'>('md');
     fill = input<boolean>(false);
+    rounded = input<string>('rounded-full');
 
     initial = computed(() => {
         const n = this.name();
@@ -23,9 +24,9 @@ export class AvatarComponent {
             return 'h-full min-w-9 w-auto rounded-none border-l border-primary/40';
         }
         const sizeMap = {
-            sm: 'w-8 h-8 text-sm rounded-full border-2 border-primary/40',
-            md: 'w-12 h-12 text-lg rounded-full border-2 border-primary/40',
-            lg: 'w-16 h-16 text-3xl rounded-full border-2 border-primary/40',
+            sm: `w-8 h-8 text-sm ${this.rounded()} border-2 border-primary/40`,
+            md: `w-12 h-12 text-lg ${this.rounded()} border-2 border-primary/40`,
+            lg: `w-16 h-16 text-3xl ${this.rounded()} border-2 border-primary/40`,
         };
         return sizeMap[this.size()];
     });

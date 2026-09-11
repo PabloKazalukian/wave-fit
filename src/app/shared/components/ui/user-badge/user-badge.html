@@ -3,5 +3,5 @@
   (click)="clicked.emit($event)"
 >
   <span class="max-w-[80px] truncate">{{ name() }}</span>
-  <app-user-avatar [url]="url()" [name]="name()" size="md" />
+  <app-user-avatar [url]="url()" [name]="name()" size="md" [rounded]="rounded()" />
 </button>
