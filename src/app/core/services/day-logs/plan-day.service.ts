@@ -10,6 +10,7 @@ import {
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
 import { DayLogVM } from '../../../shared/interfaces/day-log.interface';
+import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session.interface';
 import { RoutineDayAPI } from '../../../shared/interfaces/api/routines-api.interface';
 import { PlanDayDomainService } from './plan-day.domain';
 import { PlanDayStateService } from './plan-day.state';
@@ -26,7 +27,7 @@ export class PlanDayService {
     private storage = inject(PlanDayStorage);
     private authService = inject(AuthService);
 
-    readonly dayLog = this.state.dayLog;
+    // readonly dayLog = this.state.dayLog;
     readonly dayLog$ = this.state.dayLog$;
     readonly loading = this.state.loading;
     readonly loadingDayLog = this.state.loadingDayLog;
@@ -49,8 +50,13 @@ export class PlanDayService {
 
         this.exercisesUpdate$
             .pipe(debounceTime(4000), takeUntilDestroyed(this.destroyRef))
-            .subscribe(({ exercises }) => {
-                this.domain.updateExercises(exercises).subscribe();
+            .subscribe({
+                next: ({ exercises }) => {
+                    this.domain.updateExercises(exercises).subscribe({
+                        error: (err) =>
+                            console.error('Error al persistir los ejercicios del día:', err),
+                    });
+                },
             });
     }
 
@@ -135,6 +141,14 @@ export class PlanDayService {
 
     removeExtraSession(extraSessionId: string): Observable<DayLogVM | null> {
         return this.domain.removeExtraSession(extraSessionId).pipe(
+            tap((res) => {
+                if (res) this._persist(res);
+            }),
+        );
+    }
+
+    updateExtraSession(extraSession: CreateExtraSessionForm): Observable<DayLogVM | null> {
+        return this.domain.updateExtraSession(extraSession).pipe(
             tap((res) => {
                 if (res) this._persist(res);
             }),

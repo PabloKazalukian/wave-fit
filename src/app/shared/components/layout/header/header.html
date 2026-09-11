@@ -60,10 +60,10 @@
         ></app-btn>
 
         <app-btn
-          [routerLink]="'/my-week'"
-          [text]="'Mi Semana'"
-          [color]="isActive('/my-week') ? 'primary' : 'text'"
-          [variant]="isActive('/my-week') ? 'outline' : 'ghost'"
+          [routerLink]="activeTrackingRoute()"
+          [text]="activeTrackingLabel()"
+          [color]="isActive(activeTrackingRoute()) ? 'primary' : 'text'"
+          [variant]="isActive(activeTrackingRoute()) ? 'outline' : 'ghost'"
         ></app-btn>
 
         <!-- Planes Dropdown -->
@@ -248,9 +248,9 @@
             (click)="toggleMobileMenu()"
           ></app-btn>
           <app-btn
-            [routerLink]="'/my-week'"
-            [text]="'Mi Semana'"
-            [color]="isActive('/my-week') ? 'primary' : 'text'"
+            [routerLink]="activeTrackingRoute()"
+            [text]="activeTrackingLabel()"
+            [color]="isActive(activeTrackingRoute()) ? 'primary' : 'text'"
             [variant]="'ghost'"
             (click)="toggleMobileMenu()"
           ></app-btn>

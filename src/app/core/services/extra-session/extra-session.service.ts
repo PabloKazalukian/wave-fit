@@ -6,11 +6,13 @@ import {
     ExtraSessionDisciplineConfig,
     UpdateExtraSessionInput,
 } from '../../../shared/interfaces/extra-session.interface';
-import { BehaviorSubject, Observable, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, map, Observable, of, switchMap, tap } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FormControlsOf } from '../../../shared/utils/form-types.util';
 import { PlanTrackingService } from '../trackings/plan-tracking.service';
-import { WorkoutStateService } from '../workouts/workout.state';
+import { ActiveTrackingService } from '../trackings/active-tracking.service';
+import { PlanDayService } from '../day-logs/plan-day.service';
+import { WORKOUT_STORE } from '../workouts/workout-store.interface';
 import { TrackingVM } from '../../../shared/interfaces/tracking.interface';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
@@ -32,7 +34,9 @@ export class ExtraSessionService {
 
     private api = inject(ExtraSessionApi);
     private trackingService = inject(PlanTrackingService);
-    private state = inject(WorkoutStateService);
+    private planDaySvc = inject(PlanDayService);
+    private store = inject(WORKOUT_STORE);
+    private activeSvc = inject(ActiveTrackingService);
 
     // State
     private catalogSubject = new BehaviorSubject<ExtraSessionDisciplineConfig[]>([]);
@@ -41,7 +45,7 @@ export class ExtraSessionService {
     private activeWorkoutSessionsSubject = new BehaviorSubject<ExtraSession[]>([]);
     public activeWorkoutSessions$ = this.activeWorkoutSessionsSubject.asObservable();
     extraSessionIds = computed(() => {
-        return this.state.workoutSession()?.extras || [];
+        return this.store.workoutSession()?.extras || [];
     });
 
     extraSessions = signal<ExtraSession[]>([]);
@@ -110,8 +114,14 @@ export class ExtraSessionService {
     }
 
     create(input: CreateExtraSessionForm): Observable<TrackingVM | null | undefined> {
-        if (!this.state.selectedDate()) return of(null);
-        return this.trackingService.updateExtraSession(this.state.selectedDate()!, input);
+        const date = this.store.selectedDate();
+        if (!date) return of(null);
+
+        if (this.activeSvc.isDayLogActive()) {
+            return this.planDaySvc.updateExtraSession(input).pipe(map(() => null));
+        }
+
+        return this.trackingService.updateExtraSession(date, input);
     }
 
     update(input: UpdateExtraSessionInput): Observable<ExtraSession | null | undefined> {
@@ -128,7 +138,15 @@ export class ExtraSessionService {
     }
 
     remove(id: string): Observable<TrackingVM | null | undefined> {
-        if (!this.state.selectedDate()) return of(null);
-        return this.trackingService.removeExtraSession(this.state.selectedDate()!, id);
+        const date = this.store.selectedDate();
+        if (!date) return of(null);
+
+        if (this.activeSvc.isDayLogActive()) {
+            return this.planDaySvc.removeExtraSession(id) as unknown as Observable<
+                TrackingVM | null | undefined
+            >;
+        }
+
+        return this.trackingService.removeExtraSession(date, id);
     }
 }

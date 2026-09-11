@@ -18,7 +18,9 @@ import { RoutineDayAPI } from '../../../shared/interfaces/api/routines-api.inter
  * Adapta `PlanDayService` (modelo flat: un unico workout global) al contrato
  * que los widgets day-level esperan, de modo que se reutilizan sin cambios.
  */
-@Injectable()
+@Injectable({
+    providedIn: 'root',
+})
 export class DayWorkoutStore implements WorkoutStore {
     private planDaySvc = inject(PlanDayService);
 
@@ -47,7 +49,9 @@ export class DayWorkoutStore implements WorkoutStore {
     }
 
     createWorkout(date: LocalDate): Observable<unknown> {
-        return this.planDaySvc.setRestDay(date, false).pipe(map((dayLog) => this.toWorkout(dayLog)));
+        return this.planDaySvc
+            .setRestDay(date, false)
+            .pipe(map((dayLog) => this.toWorkout(dayLog)));
     }
 
     setRestDay(
@@ -56,7 +60,9 @@ export class DayWorkoutStore implements WorkoutStore {
         status: StatusWorkoutSession,
     ): Observable<unknown> {
         const isRest = status === StatusWorkoutSessionEnum.REST;
-        return this.planDaySvc.setRestDay(date, isRest).pipe(map((dayLog) => this.toWorkout(dayLog)));
+        return this.planDaySvc
+            .setRestDay(date, isRest)
+            .pipe(map((dayLog) => this.toWorkout(dayLog)));
     }
 
     setRemoveAllExercises(date: LocalDate): void {
@@ -82,16 +88,16 @@ export class DayWorkoutStore implements WorkoutStore {
         return this.planDaySvc.removeWorkoutSession(id).pipe(map((res) => !!res));
     }
 
-    createWorkoutWithRoutine(
-        routineDayId: string,
-        date: LocalDate,
-    ): Observable<unknown> {
+    createWorkoutWithRoutine(routineDayId: string, date: LocalDate): Observable<unknown> {
         return this.planDaySvc
             .createWorkoutWithRoutine(routineDayId, date)
             .pipe(map((dayLog) => this.toWorkout(dayLog)));
     }
 
-    createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<RoutineDayAPI | null> {
+    createRoutineFromWorkout(
+        title: string,
+        exerciseIds: string[],
+    ): Observable<RoutineDayAPI | null> {
         return this.planDaySvc.createRoutineFromWorkout(title, exerciseIds);
     }
 

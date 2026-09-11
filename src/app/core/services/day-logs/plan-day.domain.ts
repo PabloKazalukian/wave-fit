@@ -1,5 +1,16 @@
 import { inject, Injectable } from '@angular/core';
-import { finalize, firstValueFrom, from, map, Observable, of, tap } from 'rxjs';
+import {
+    concatMap,
+    finalize,
+    first,
+    firstValueFrom,
+    from,
+    map,
+    Observable,
+    of,
+    switchMap,
+    tap,
+} from 'rxjs';
 import {
     ExercisePerformanceVM,
     LocalDate,
@@ -7,23 +18,24 @@ import {
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
 import { DayLogSummaryVM, DayLogVM } from '../../../shared/interfaces/day-log.interface';
+import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session.interface';
 import { DateService } from '../date.service';
 import { NetworkStatusService } from '../network/network-status.service';
 import { SyncQueueService } from '../sync/sync-queue.service';
 import { RoutinesService } from '../routines/routines.service';
 import { RoutineDayAPI } from '../../../shared/interfaces/api/routines-api.interface';
 import { PlanDayApi } from './plan-day/api/plan-day.api';
-import { ActiveTrackingApi } from '../trackings/active-tracking.api';
+import { ActiveTrackingService } from '../trackings/active-tracking.service';
 import { PlanDayStateService } from './plan-day.state';
 import { PlanDayStorage } from './plan-day/storage/plan-day.storage';
-import { CreateDayLogInput } from '../../../shared/interfaces/api/day-log-api.interface';
+import { CreateDayLogInput, UpdateDayLogInput } from '../../../shared/interfaces/api/day-log-api.interface';
 
 @Injectable({
     providedIn: 'root',
 })
 export class PlanDayDomainService {
     private api = inject(PlanDayApi);
-    private activeTrackingApi = inject(ActiveTrackingApi);
+    private activeTrackingSvc = inject(ActiveTrackingService);
     private state = inject(PlanDayStateService);
     private storage = inject(PlanDayStorage);
     private dateService = inject(DateService);
@@ -48,18 +60,17 @@ export class PlanDayDomainService {
     }
 
     /**
-     * Fuente de verdad: consulta activeTracking. Si type === 'DAY_LOG' carga el day-log activo.
+     * Fuente de verdad: ActiveTrackingService. Si type === 'DAY_LOG' carga el day-log activo.
      */
     initActiveLog(): Observable<{ hasActive: boolean; type: 'WEEK_LOG' | 'DAY_LOG' }> {
-        return this.activeTrackingApi.getActiveTracking().pipe(
+        return this.activeTrackingSvc.activeTracking$.pipe(
+            first((active) => !!active),
             tap((active) => {
                 if (active.hasActive && active.type === 'DAY_LOG') {
                     this.state.setLoadingDayLog(true);
                     this.api
                         .getActiveDayLog()
-                        .pipe(
-                            finalize(() => this.state.setLoadingDayLog(false)),
-                        )
+                        .pipe(finalize(() => this.state.setLoadingDayLog(false)))
                         .subscribe((dayLog) => {
                             if (dayLog) {
                                 this.state.setDayLog(dayLog);
@@ -68,7 +79,7 @@ export class PlanDayDomainService {
                                 this.state.setDayLog(null);
                             }
                         });
-                } else if (!active.hasActive) {
+                } else {
                     this.state.setDayLog(null);
                 }
             }),
@@ -101,7 +112,11 @@ export class PlanDayDomainService {
         return this.api.findDayLogById(id);
     }
 
-    createDayLog(planId?: string, date?: LocalDate, routineDayId?: string): Observable<DayLogVM | null> {
+    createDayLog(
+        planId?: string,
+        date?: LocalDate,
+        routineDayId?: string,
+    ): Observable<DayLogVM | null> {
         const timezone = this.dateService.getUserTimezone();
         const payload: CreateDayLogInput = {
             date: date ?? this.dateService.todayLocalDate(timezone),
@@ -121,17 +136,22 @@ export class PlanDayDomainService {
         );
     }
 
-    createWorkoutWithRoutine(
-        routineDayId: string,
-        date: LocalDate,
-    ): Observable<DayLogVM | null> {
+    createWorkoutWithRoutine(routineDayId: string, date: LocalDate): Observable<DayLogVM | null> {
         const dayLog = this.state.getDayLogValue();
         if (!dayLog) return of(null);
 
         return this.api.assignRoutineToDayLog(routineDayId, date).pipe(
+            concatMap((res) => {
+                // La mutation day-log no devuelve los exercises del workout (solo
+                // id/routineDayId/workoutSessionId). Re-fetch del day-log activo para
+                // traer el WS completo (con exercises) y reflejarlo en la UI.
+                if (!res?.workoutSessionId) return of(null);
+                return this.api.getActiveDayLog();
+            }),
             tap((res) => {
                 if (res) {
                     this.state.setDayLog(res);
+                    this.storage.setDayLogStorage(res, res.userId);
                 }
             }),
             map(() => this.state.getDayLogValue()),
@@ -140,42 +160,93 @@ export class PlanDayDomainService {
 
     updateExercises(exercises: ExercisePerformanceVM[]): Observable<DayLogVM | null> {
         const dayLog = this.state.getDayLogValue();
-        if (!dayLog || !dayLog.workoutSessionId) return of(null);
+        if (!dayLog) return of(null);
 
-        const workout: WorkoutSessionVM = {
-            id: dayLog.workoutSessionId,
-            date: dayLog.date,
-            exercises,
-            status: StatusWorkoutSessionEnum.COMPLETE,
-        };
+        // Materializar el WorkoutSession si el day-log aún no tiene uno
+        // (ej: día creado sin rutina). updateDayLogStatus con isRest=false crea el WS
+        // en el servidor y devuelve el dayLog con workoutSessionId asignado.
+        const ensureWorkoutSession: Observable<DayLogVM | null> = dayLog.workoutSessionId
+            ? of(dayLog)
+            : this.networkSvc.isOnline()
+              ? this.setRestDay(dayLog.date, false).pipe(
+                    tap((res) => {
+                        if (res?.workoutSessionId) {
+                            this.state.updateDayLog((d) => ({ ...d, exercises }));
+                        }
+                    }),
+                )
+              : of(null);
 
-        if (this.networkSvc.isOnline()) {
-            return this.api.updateWorkoutSession(workout).pipe(
-                tap((res) => {
-                    if (res) {
-                        this.state.updateDayLog((d) => ({ ...d, exercises: res.exercises }));
-                    }
-                }),
-                map(() => this.state.getDayLogValue()),
-            );
-        } else {
-            const pending = {
-                id: this.generateObjectId(),
-                operationName: 'UpdateDayLog',
-                variables: { workout },
-                status: 'pending' as const,
-                createdAt: Date.now(),
-            };
+        return ensureWorkoutSession.pipe(
+            switchMap((current) => {
+                if (!current?.workoutSessionId) return of(null);
 
-            return from(
-                this.syncQueue.enqueue(pending).then(() => this.state.getDayLogValue()),
-            );
-        }
+                const workout: WorkoutSessionVM = {
+                    id: current.workoutSessionId,
+                    date: current.date,
+                    exercises,
+                    status: this.workoutStatusFromDay(current),
+                };
+
+                if (this.networkSvc.isOnline()) {
+                    return this.api.updateWorkoutSession(workout).pipe(
+                        tap((res) => {
+                            if (res) {
+                                this.state.updateDayLog((d) => ({
+                                    ...d,
+                                    exercises: res.exercises,
+                                }));
+                            }
+                        }),
+                        map(() => this.state.getDayLogValue()),
+                    );
+                } else {
+                    const pending = {
+                        id: this.generateObjectId(),
+                        operationName: 'UpdateDayLog',
+                        variables: { workout },
+                        status: 'pending' as const,
+                        createdAt: Date.now(),
+                    };
+
+                    return from(
+                        this.syncQueue.enqueue(pending).then(() => this.state.getDayLogValue()),
+                    );
+                }
+            }),
+        );
     }
 
-    updateExtraSession(): Observable<DayLogVM | null> {
-        // El día (day-log) no tiene mutation unificada de sesión extra en el contrato actual.
-        return of(null);
+    private workoutStatusFromDay(dayLog: DayLogVM): StatusWorkoutSessionEnum {
+        if (dayLog.status === 'complete') return StatusWorkoutSessionEnum.COMPLETE;
+        if (dayLog.status === 'skipped') return StatusWorkoutSessionEnum.REST;
+        return StatusWorkoutSessionEnum.NOT_STARTED;
+    }
+
+    updateExtraSession(extraSession: CreateExtraSessionForm): Observable<DayLogVM | null> {
+        const dayLog = this.state.getDayLogValue();
+        if (!dayLog) return of(null);
+
+        const payload: UpdateDayLogInput = {
+            id: dayLog.id,
+            extraSession: {
+                date: extraSession.date,
+                discipline: extraSession.discipline,
+                duration: extraSession.duration,
+                intensityLevel: extraSession.intensityLevel,
+                calories: extraSession.calories,
+                notes: extraSession.notes,
+            },
+        };
+
+        return this.api.updateDayLog(payload).pipe(
+            tap((res) => {
+                if (res) {
+                    this.state.setDayLog(res);
+                }
+            }),
+            map(() => this.state.getDayLogValue()),
+        );
     }
 
     removeExtraSession(extraSessionId: string): Observable<DayLogVM | null> {
@@ -232,7 +303,10 @@ export class PlanDayDomainService {
         );
     }
 
-    createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<RoutineDayAPI | null> {
+    createRoutineFromWorkout(
+        title: string,
+        exerciseIds: string[],
+    ): Observable<RoutineDayAPI | null> {
         return this.api.createRoutineByWorkout(title, exerciseIds).pipe(
             tap(() => {
                 this.routineService.updateAllRoutines().subscribe();

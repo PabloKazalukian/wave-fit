@@ -128,7 +128,8 @@ export class WorkoutActionsMenu {
 
                     this.closeRoutineDialog();
                 },
-                error: () => {
+                error: (err) => {
+                    console.error('[WORKOUT_ACTIONS] createWorkoutWithRoutine error:', err);
                     this.isLoading.set(false);
                     this.closeRoutineDialog();
                 },

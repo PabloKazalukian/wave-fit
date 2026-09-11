@@ -52,12 +52,7 @@ export const ACTIVE_DAY_LOG = gql`
         activeDayLog {
             hasActiveDay
             day {
-                id
-                date
-                completed
-                active
-                status
-                workoutSessionId
+                ${DAY_LOG_FIELDS}
             }
         }
     }
@@ -95,6 +90,7 @@ export const UPDATE_DAY_LOG = gql`
             active
             completed
             notes
+            extraSessionIds
         }
     }
 `;
@@ -118,6 +114,12 @@ export const ASSIGN_ROUTINE_TO_DAY_LOG = gql`
             workoutSessionId
             exercises {
                 exerciseId
+                series
+                sets {
+                    reps
+                    weights
+                }
+                notes
             }
         }
     }
@@ -157,14 +159,7 @@ export const DAY_LOGS = gql`
 export const FIND_DAY_LOG_BY_ID = gql`
     query DayLog($id: String!) {
         dayLogFindOne(id: $id) {
-            id
-            date
-            exercises {
-                exerciseId
-            }
-            status
-            active
-            completed
+            ${DAY_LOG_FIELDS}
         }
     }
 `;

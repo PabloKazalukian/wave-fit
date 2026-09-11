@@ -26,10 +26,7 @@ export function apiDateToLocalDate(isoString: string): string {
     return formatInTimeZone(new Date(isoString), timezone, 'yyyy-MM-dd');
 }
 
-export function wrapperDayLogApiToVM(
-    payload: DayLogAPI,
-    allExercises: Exercise[],
-): DayLogVM {
+export function wrapperDayLogApiToVM(payload: DayLogAPI, allExercises: Exercise[]): DayLogVM {
     return {
         id: payload.id,
         userId: payload.userId ?? '',
@@ -61,10 +58,7 @@ export function wrapperDayLogSummaryApiToVM(payload: DayLogSummaryAPI): DayLogSu
  * actual. Devuelve un nuevo objeto sin mutar el original. Si no hay base devuelve
  * el parcial tipado como DayLogVM.
  */
-export function patchDayLog(
-    current: DayLogVM | null,
-    partial: Partial<DayLogVM>,
-): DayLogVM | null {
+export function patchDayLog(current: DayLogVM | null, partial: Partial<DayLogVM>): DayLogVM | null {
     if (!current) {
         if (partial.id) {
             return { ...patchDayLogEmpty(), ...partial };
@@ -88,7 +82,7 @@ function patchDayLogEmpty(): DayLogVM {
     };
 }
 
-/** UpdateDayLog → { id active completed notes } */
+/** UpdateDayLog → { id active completed notes extraSessionIds } */
 export function wrapperUpdateDayLogApiToVM(payload: UpdateDayLogResultAPI | null): Partial<DayLogVM> {
     if (!payload) return {};
     return {
@@ -96,6 +90,7 @@ export function wrapperUpdateDayLogApiToVM(payload: UpdateDayLogResultAPI | null
         active: payload.active,
         completed: payload.completed,
         notes: payload.notes,
+        ...(payload.extraSessionIds ? { extraSessionIds: payload.extraSessionIds } : {}),
     };
 }
 
@@ -162,7 +157,9 @@ export function wrapperActiveTrackingApiToVM(
     };
 }
 
-export function wrapperActiveWeekApiToVM(payload: ActiveWeekAPI | null | undefined): ActiveWeekVM | null {
+export function wrapperActiveWeekApiToVM(
+    payload: ActiveWeekAPI | null | undefined,
+): ActiveWeekVM | null {
     if (!payload) return null;
     return {
         id: payload.id,
@@ -173,7 +170,9 @@ export function wrapperActiveWeekApiToVM(payload: ActiveWeekAPI | null | undefin
     };
 }
 
-export function wrapperActiveDayApiToVM(payload: ActiveDayAPI | null | undefined): ActiveDayVM | null {
+export function wrapperActiveDayApiToVM(
+    payload: ActiveDayAPI | null | undefined,
+): ActiveDayVM | null {
     if (!payload) return null;
     return {
         id: payload.id,

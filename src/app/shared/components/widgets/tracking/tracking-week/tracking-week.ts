@@ -15,8 +15,6 @@ import { InfoCard } from '../../../ui/info-card/info-card';
 import { ExtraSessionForm } from '../../extra-session/extra-session-form/extra-session-form';
 import { IconComponent } from '../../../ui/icon/icon';
 import { WeeklyStats } from './weekly-stats/weekly-stats';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
-import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 
 export type SelectType = FormControlsOf<SelectTypeInput>;
 
@@ -36,10 +34,7 @@ export type SelectType = FormControlsOf<SelectTypeInput>;
         IconComponent,
         WeeklyStats,
     ],
-    providers: [
-        TrackingWeekFacade,
-        { provide: WORKOUT_STORE, useExisting: WorkoutStateService },
-    ],
+    providers: [TrackingWeekFacade],
     templateUrl: './tracking-week.html',
 })
 export class TrackingWeekComponent {

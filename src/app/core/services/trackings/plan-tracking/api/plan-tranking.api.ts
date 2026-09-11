@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
-import { map, Observable, switchMap } from 'rxjs';
+import { map, Observable, switchMap, tap } from 'rxjs';
 import {
     TrackingVM,
     TrackingVMS,
@@ -53,6 +53,9 @@ export class PlanTrackingApi {
                         fetchPolicy: 'no-cache',
                     })
                     .pipe(
+                        tap(({ data }) =>
+                            console.log('[PLAN_DAY_API] getActiveDayLog raw:', { data }),
+                        ),
                         handleGraphqlError(this.authSvc),
                         map(({ data }) =>
                             data?.activeWeekLog.hasActiveWeek
@@ -127,26 +130,6 @@ export class PlanTrackingApi {
                 ),
             );
     }
-
-    // syncTrackingDays(weekLogId: string): Observable<TrackingVM | null> {
-    //     return this.apollo
-    //         .mutate<{ syncWeekLogDays: TrackingAPI }>({
-    //             mutation: SYNC_WEEK_LOG_DAYS,
-    //             variables: { weekLogId },
-    //             fetchPolicy: 'no-cache',
-    //         })
-    //         .pipe(
-    //             handleGraphqlError(this.authSvc),
-    //             map(({ data }) =>
-    //                 data?.syncWeekLogDays
-    //                     ? trackingWrappers.wrapperTrackingApiToVM(
-    //                           data.syncWeekLogDays,
-    //                           this.exerciseSvc.exercises(),
-    //                       )
-    //                     : null,
-    //             ),
-    //         );
-    // }
 
     assignRoutineToDay(routineDayId: string, date: string): Observable<WeekLogDayVM | null> {
         return this.apollo

@@ -9,8 +9,6 @@ import { InfoCard } from '../../../ui/info-card/info-card';
 import { ExtraSessionForm } from '../../extra-session/extra-session-form/extra-session-form';
 import { IconComponent } from '../../../ui/icon/icon';
 import { Dumbbell } from 'lucide-angular';
-import { DayWorkoutStore } from '../../../../../core/services/workouts/day-workout.store';
-import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 import { TrackingDayFacade } from './tracking-day.facade';
 import { DateService } from '../../../../../core/services/date.service';
 
@@ -27,7 +25,7 @@ import { DateService } from '../../../../../core/services/date.service';
         ExtraSessionForm,
         IconComponent,
     ],
-    providers: [TrackingDayFacade, { provide: WORKOUT_STORE, useClass: DayWorkoutStore }],
+    providers: [TrackingDayFacade],
     templateUrl: './tracking-day.html',
 })
 export class TrackingDayComponent {

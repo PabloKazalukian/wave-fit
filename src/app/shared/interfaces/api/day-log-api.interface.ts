@@ -1,4 +1,4 @@
-import { ExercisePerformanceAPI, LocalDate } from './tracking-api.interface';
+import { CreateExtraSessionWithoutWsInput, ExercisePerformanceAPI, LocalDate } from './tracking-api.interface';
 
 export type DayStatusAPI = 'pending' | 'complete' | 'skipped';
 
@@ -11,11 +11,12 @@ export interface CreateDayLogInput {
     notes?: string;
 }
 
-/** Payload para cerrar/completar un DayLog. */
+/** Payload para cerrar/completar un DayLog o actualizarlo (unificado, un solo día). */
 export interface UpdateDayLogInput {
     id: string;
     completed?: boolean;
     notes?: string;
+    extraSession?: CreateExtraSessionWithoutWsInput;
 }
 
 /** Respuesta completa de API para un DayLog (CreateDayLog / DayLog). Fechas ISO de Mongo. */
@@ -72,12 +73,13 @@ export interface ActiveDayAPI {
 
 //──────────── Retornos parciales de mutations day-log ────────────
 
-/** Retorno de UpdateDayLog: { id active completed notes } */
+/** Retorno de UpdateDayLog: { id active completed notes extraSessionIds } */
 export interface UpdateDayLogResultAPI {
     id: string;
     active?: boolean;
     completed?: boolean;
     notes?: string;
+    extraSessionIds?: string[];
 }
 
 /** Retorno de UpdateDayLogStatus: { id status workoutSessionId active } */

@@ -103,7 +103,9 @@
         [title]="'Agregar actividad extra'"
         [closeOnBackdrop]="true"
       >
-        <app-extra-session-form (closed)="facade.showExtraSessionDialog.set(false)"></app-extra-session-form>
+        <app-extra-session-form
+          (closed)="facade.showExtraSessionDialog.set(false)"
+        ></app-extra-session-form>
       </app-dialog>
     </article>
   </aside>
