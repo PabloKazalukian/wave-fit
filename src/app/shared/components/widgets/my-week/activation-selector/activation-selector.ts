@@ -1,32 +1,39 @@
-import { Component, inject, input, OnInit, output } from '@angular/core';
-import {
-    distributionToLogMode,
-    LogMode,
-} from '../../../../utils/profile.types';
+import { Component, DestroyRef, effect, inject, output } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { distributionToLogMode, LogMode } from '../../../../utils/profile.types';
 import { UserProfileService } from '../../../../../core/services/user/user-profile.service';
+import { SelectType } from '../../../../interfaces/input.interface';
+import { FormSelectComponent } from '../../../ui/select/select';
 
 @Component({
     selector: 'app-activation-selector',
-    imports: [],
+    imports: [FormSelectComponent],
     templateUrl: './activation-selector.html',
 })
-export class ActivationSelector implements OnInit {
+export class ActivationSelector {
     userProfileSvc = inject(UserProfileService);
+    destroyRef = inject(DestroyRef);
 
-    mode = input<LogMode>('week');
     modeChange = output<LogMode>();
 
-    defaultMode: LogMode = 'week';
+    modeControl = new FormControl<string | null>('week');
 
-    ngOnInit() {
-        const distribution = this.userProfileSvc.userProfile()?.distributionDays;
-        if (distribution) {
-            this.defaultMode = distributionToLogMode(distribution);
-            this.modeChange.emit(this.defaultMode);
-        }
-    }
+    options: SelectType[] = [
+        { name: 'Semana', value: 'week' },
+        { name: 'Día', value: 'day' },
+    ];
 
-    onModeChange(value: string) {
-        this.modeChange.emit(value as LogMode);
+    constructor() {
+        effect(() => {
+            const distribution = this.userProfileSvc.userProfile()?.distributionDays;
+            const next = distribution ? distributionToLogMode(distribution) : 'week';
+            this.modeControl.setValue(next, { emitEvent: false });
+            this.modeChange.emit(next);
+        });
+
+        this.modeControl.valueChanges
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((mode) => this.modeChange.emit((mode ?? 'week') as LogMode));
     }
 }

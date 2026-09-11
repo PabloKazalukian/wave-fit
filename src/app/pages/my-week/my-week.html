@@ -16,10 +16,7 @@
           <app-tracking-week [tracking]="this.tracking()"></app-tracking-week>
         </div>
       } @else {
-        <app-activation-selector
-          [mode]="this.mode()"
-          (modeChange)="setMode($event)"
-        ></app-activation-selector>
+        <app-activation-selector (modeChange)="setMode($event)"></app-activation-selector>
 
         <article class="flex flex-col gap-6 justify-center items-center w-full px-4 mt-4">
           @if (this.mode() === 'week') {

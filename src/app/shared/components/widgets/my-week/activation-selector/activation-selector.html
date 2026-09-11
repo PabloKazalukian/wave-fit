@@ -1,22 +1,14 @@
 <section class="mt-4 mx-1 w-full" aria-label="Modo de registro de entrenamiento">
-  <div
-    class="flex flex-col gap-2 bg-background1/60 border border-white/10 rounded-2xl px-4 py-4"
-  >
+  <div class="flex flex-col gap-2 bg-background1/60 border border-white/10 rounded-2xl px-4 py-4">
     <p class="text-text2 text-xs">¿Qué querés registrar esta vez?</p>
-    <div class="flex items-center justify-between gap-4">
-      <label class="text-sm font-medium text-white" for="log-mode-select">
-        Tipo de registro
-      </label>
-      <select
-        id="log-mode-select"
-        class="bg-background2 text-white text-sm border border-white/10 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/50"
-        [value]="mode()"
-        (change)="onModeChange($any($event.target).value)"
-        aria-label="Modo de registro"
-      >
-        <option [value]="'week'">Semana</option>
-        <option [value]="'day'">Día</option>
-      </select>
+    <div class="flex items-center justify-between gap-4 w-full">
+      <p class="text-sm font-medium text-white">Tipo de registro</p>
+      <app-select
+        [text]="'Seleccionar'"
+        [options]="options"
+        [control]="modeControl"
+        [color]="'accent'"
+      ></app-select>
     </div>
   </div>
 </section>
