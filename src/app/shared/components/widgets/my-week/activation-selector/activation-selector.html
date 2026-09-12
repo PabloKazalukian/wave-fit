@@ -1,0 +1,14 @@
+<section class="mt-4 mx-1 w-full" aria-label="Modo de registro de entrenamiento">
+  <div class="flex flex-col gap-2 bg-background1/60 border border-white/10 rounded-2xl px-4 py-4">
+    <p class="text-text2 text-xs">¿Qué querés registrar esta vez?</p>
+    <div class="flex items-center justify-between gap-4 w-full">
+      <p class="text-sm font-medium text-white">Tipo de registro</p>
+      <app-select
+        [text]="'Seleccionar'"
+        [options]="options"
+        [control]="modeControl"
+        [color]="'accent'"
+      ></app-select>
+    </div>
+  </div>
+</section>

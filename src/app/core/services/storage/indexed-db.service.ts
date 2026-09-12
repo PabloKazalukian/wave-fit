@@ -33,6 +33,7 @@ export class WaveFitDB extends Dexie {
     routines!: Table<any, string>;
     plans!: Table<any, string>;
     tracking!: Table<any, string>;
+    dayLogs!: Table<any, string>;
 
     constructor() {
         super('WaveFitDB');
@@ -48,6 +49,10 @@ export class WaveFitDB extends Dexie {
             routines: 'id',
             plans: 'id',
             tracking: 'id',
+        });
+
+        this.version(4).stores({
+            dayLogs: 'id',
         });
     }
 }
@@ -101,6 +106,15 @@ export class IndexedDbStorageService {
             await this.db.tracking.put(tracking);
         } catch (error) {
             console.error('Error saving tracking to IndexedDB', error);
+        }
+    }
+
+    async saveDayLog(dayLog: any): Promise<void> {
+        try {
+            if (!dayLog.id) return;
+            await this.db.dayLogs.put(dayLog);
+        } catch (error) {
+            console.error('Error saving dayLog to IndexedDB', error);
         }
     }
 }

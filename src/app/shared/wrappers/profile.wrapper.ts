@@ -16,6 +16,7 @@ import {
     ProfileUser,
     ProfileUserAPI,
     UserProfileContextAPI,
+    DistributionDays,
 } from '../utils/profile.types';
 
 export function wrapperGoalToDomain(api: GoalAPI | null | undefined): Goal | null {
@@ -165,7 +166,7 @@ export function wrapperProfileContextToDomain(
         heightCm: profile?.heightCm || 0,
         weightKg: profile?.weightKg || 0,
         bodyFatPct: profile?.bodyFatPct,
-        distributionDays: profile?.distributionDays || 'Week-log',
+        distributionDays: profile?.distributionDays || DistributionDays.WEEK,
         unitsPreference: profile?.unitsPreference || 'metric',
         createdAt: profile?.createdAt || '',
         updatedAt: profile?.updatedAt || '',

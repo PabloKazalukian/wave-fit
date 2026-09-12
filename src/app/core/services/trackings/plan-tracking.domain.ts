@@ -1,7 +1,7 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingStorage } from './plan-tracking/storage/plan-tracking.storage';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { finalize, map, Observable, of, tap, from, firstValueFrom } from 'rxjs';
+import { finalize, first, firstValueFrom, from, map, Observable, of, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     LocalDate,
@@ -31,6 +31,7 @@ import { WorkoutApi } from '../workouts/api/workout.api';
 import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session.interface';
 import { RoutinesService } from '../routines/routines.service';
 import { RoutineDayAPI } from '../../../shared/interfaces/api/routines-api.interface';
+import { ActiveTrackingService } from './active-tracking.service';
 import { NetworkStatusService } from '../network/network-status.service';
 import { SyncQueueService } from '../sync/sync-queue.service';
 
@@ -49,6 +50,7 @@ export class PlanTrackingDomainService {
     private authService = inject(AuthService);
     private networkSvc = inject(NetworkStatusService);
     private syncQueue = inject(SyncQueueService);
+    private activeTrackingSvc = inject(ActiveTrackingService);
 
     user$ = toSignal(this.authService.user$);
 
@@ -79,7 +81,15 @@ export class PlanTrackingDomainService {
     }
 
     initTracking(): Observable<TrackingVM | null | undefined> {
-        return this.api.getTrackingByUser();
+        return this.activeTrackingSvc.activeTracking$.pipe(
+            first((active) => !!active),
+            switchMap((active) => {
+                if (active.hasActive && active.type === 'WEEK_LOG') {
+                    return this.api.getTrackingByUser();
+                }
+                return of(null);
+            }),
+        );
     }
 
     findAllTrackingByUser(limit = 5, offset = 0): Observable<TrackingVM[] | null> {
@@ -105,6 +115,13 @@ export class PlanTrackingDomainService {
             tap((res) => {
                 if (res !== undefined && res !== null) {
                     this.state.setTracking(res);
+                    this.activeTrackingSvc.markWeekActive({
+                        id: res.id,
+                        startDate: res.startDate,
+                        endDate: res.endDate,
+                        completed: res.completed,
+                        active: true,
+                    });
                 }
             }),
             map(() => this.state.getTrackingValue()),
@@ -318,6 +335,8 @@ export class PlanTrackingDomainService {
         const totalDays = 7;
         const days = emptyDay(workoutDays, totalDays);
 
+        // console.log(this.transformUpdateWeekLogInput(days, current, complete));
+
         return this.api
             .updateTracking(this.transformUpdateWeekLogInput(days, current, complete))
             .pipe(
@@ -326,6 +345,7 @@ export class PlanTrackingDomainService {
                     if (res) {
                         this.storage.removeTrackingStorage(this.state.userId());
                         this.state.setTracking(null);
+                        this.activeTrackingSvc.clear();
                     }
                 }),
                 finalize(() => this.state.setLoading(false)),
@@ -372,6 +392,7 @@ export class PlanTrackingDomainService {
                     if (current?.id === id) {
                         this.storage.removeTrackingStorage(this.state.userId());
                         this.state.setTracking(null);
+                        this.activeTrackingSvc.clear();
                     }
                 }
             }),

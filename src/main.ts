@@ -12,6 +12,8 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { environment } from './environments/environments';
 import { provideAuthInitializer } from './app/core/auth/auth.initializer';
 import { AuthService } from './app/core/services/auth/auth.service';
+import { WORKOUT_STORE } from './app/core/services/workouts/workout-store.interface';
+import { workoutStoreByMode } from './app/core/services/workouts/workout-store.mode';
 
 if (environment.production) {
     enableProdMode();
@@ -31,6 +33,7 @@ bootstrapApplication(AppComponent, {
         provideRouter(routes, withInMemoryScrolling({ anchorScrolling: 'enabled' })),
         provideHttpClient(),
         provideAuthInitializer(),
+        { provide: WORKOUT_STORE, useFactory: workoutStoreByMode },
         provideApollo(() => {
             const httpLink = inject(HttpLink);
             const injector = inject(Injector);

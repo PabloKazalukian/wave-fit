@@ -38,6 +38,11 @@ export const routes: Routes = [
         canActivate: [authGuard],
     },
     {
+        path: 'my-day',
+        loadChildren: () => import('./pages/my-day/my-day.routes').then((m) => m.MY_DAY_ROUTES),
+        canActivate: [authGuard],
+    },
+    {
         path: 'user',
         canActivate: [authGuard],
         children: [
@@ -53,6 +58,11 @@ export const routes: Routes = [
                 path: 'history',
                 loadComponent: () =>
                     import('./pages/user/history/history').then((m) => m.History),
+            },
+            {
+                path: 'tracking/day/:id',
+                loadComponent: () =>
+                    import('./pages/tracking-day/show/show').then((m) => m.Show),
             },
             {
                 path: 'trackings',

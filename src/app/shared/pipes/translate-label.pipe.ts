@@ -61,6 +61,8 @@ export class TranslateLabelPipe implements PipeTransform {
         imperial: 'Imperial',
         'Week-log': 'Semanal',
         'Day-log': 'Diario',
+        week_log: 'Semanal',
+        day_log: 'Diario',
         fat_loss: 'Pérdida de grasa',
         muscle_gain: 'Ganar músculo',
         strength: 'Fuerza',

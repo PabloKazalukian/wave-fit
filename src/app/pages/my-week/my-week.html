@@ -2,8 +2,11 @@
   <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-2">
     <h1 class="text-5xl font-bold text-center">Wave-Fit <br /></h1>
     <p class="text-center text-lg">Lleva tu progreso fitness en tu mano.</p>
+    <p class="text-text2 text-center text-sm">
+      Organizá tus entrenamientos, seguí tu progreso y alcanzá tus objetivos de forma simple.
+    </p>
 
-    @if (this.loading()) {
+    @if (this.loading() || this.activeLoading()) {
       <article class="mt-4 mx-1">
         <app-tracking-week-skeleton></app-tracking-week-skeleton>
       </article>
@@ -13,74 +16,142 @@
           <app-tracking-week [tracking]="this.tracking()"></app-tracking-week>
         </div>
       } @else {
-        <p class="text-text2 text-center text-sm">
-          Organizá tus entrenamientos, seguí tu progreso y alcanzá tus objetivos de forma simple.
-        </p>
+        <app-activation-selector (modeChange)="setMode($event)"></app-activation-selector>
+
         <article class="flex flex-col gap-6 justify-center items-center w-full px-4 mt-4">
-          <div
-            class="flex flex-col justify-between items-center p-8 bg-accent/10 border-2 border-accent rounded-2xl w-full max-w-sm text-center shadow-lg shadow-accent/5"
-          >
-            <div>
-              <span class="text-accent text-xs font-bold uppercase tracking-widest"
-                >Nueva funcionalidad</span
-              >
-              <h3 class="text-2xl font-bold mb-2 text-white">Generá tu plan semanal con IA</h3>
-              <p class="text-text2 text-sm mb-6">
-                Coach AI arma tu plan personalizado: elegí tus días, tus objetivos y entrená con un
-                seguimiento a medida.
-              </p>
+          @if (this.mode() === 'week') {
+            <div
+              class="flex flex-col justify-between items-center p-8 bg-accent/10 border-2 border-accent rounded-2xl w-full max-w-sm text-center shadow-lg shadow-accent/5"
+            >
+              <div>
+                <span class="text-accent text-xs font-bold uppercase tracking-widest"
+                  >Nueva funcionalidad</span
+                >
+                <h3 class="text-2xl font-bold mb-2 text-white">Generá tu plan semanal con IA</h3>
+                <p class="text-text2 text-sm mb-6">
+                  Coach AI arma tu plan personalizado: elegí tus días, tus objetivos y entrená con
+                  un seguimiento a medida.
+                </p>
+              </div>
+
+              <app-btn
+                [text]="'Coach AI'"
+                [descriptionText]="'Generar mi plan semanal'"
+                [variant]="'raised'"
+                [size]="'md'"
+                [showIcon]="true"
+                [color]="'accent'"
+                [routerLink]="'/coach'"
+              ></app-btn>
             </div>
 
-            <app-btn
-              [text]="'Coach AI'"
-              [descriptionText]="'Generar mi plan semanal'"
-              [variant]="'raised'"
-              [size]="'md'"
-              [showIcon]="true"
-              [color]="'accent'"
-              [routerLink]="'/coach'"
-            ></app-btn>
-          </div>
+            <div
+              class="flex flex-col justify-between items-center p-8 bg-primary/10 border-2 border-primary rounded-2xl w-full max-w-sm text-center shadow-lg shadow-primary/5"
+            >
+              <div>
+                <span class="text-primary text-xs font-bold uppercase tracking-widest"
+                  >Recomendado</span
+                >
+                <h3 class="text-2xl font-bold mb-2 text-white">Explorar planes</h3>
+                <p class="text-text2 text-sm mb-6">
+                  Elegí un plan según tus objetivos y comenzá tu semana de entrenamiento.
+                </p>
+              </div>
 
-          <div
-            class="flex flex-col justify-between items-center p-8 bg-primary/10 border-2 border-primary rounded-2xl w-full max-w-sm text-center shadow-lg shadow-primary/5"
-          >
-            <div>
-              <span class="text-primary text-xs font-bold uppercase tracking-widest"
-                >Recomendado</span
-              >
-              <h3 class="text-2xl font-bold mb-2 text-white">Explorar planes</h3>
-              <p class="text-text2 text-sm mb-6">
-                Elegí un plan según tus objetivos y comenzá tu semana de entrenamiento.
-              </p>
+              <app-btn
+                [text]="'Explorar planes'"
+                [descriptionText]="'Creá tu propia rutina semanal'"
+                [variant]="'raised'"
+                [size]="'md'"
+                [showIcon]="true"
+                [color]="'primary'"
+                [routerLink]="'/plans'"
+              ></app-btn>
             </div>
 
-            <app-btn
-              [text]="'Explorar planes'"
-              [descriptionText]="'Creá tu propia rutina semanal'"
-              [variant]="'raised'"
-              [size]="'md'"
-              [showIcon]="true"
-              [color]="'primary'"
-              [routerLink]="'/plans'"
-            ></app-btn>
-          </div>
+            <div
+              class="flex flex-col items-center p-8 bg-transparent border border-white/10 rounded-2xl w-full max-w-sm text-center"
+            >
+              <h3 class="text-lg font-medium mb-1 text-white/80">¿Solo querés registrar hoy?</h3>
+              <p class="text-text2 text-xs mb-4">Entrenamiento libre sin necesidad de un plan.</p>
 
-          <div
-            class="flex flex-col items-center p-8 bg-transparent border border-white/10 rounded-2xl w-full max-w-sm text-center"
-          >
-            <h3 class="text-lg font-medium mb-1 text-white/80">¿Solo querés registrar hoy?</h3>
-            <p class="text-text2 text-xs mb-4">Entrenamiento libre sin necesidad de un plan.</p>
+              <app-btn
+                [text]="'Comenzar entrenamiento'"
+                [variant]="'outline'"
+                size="sm"
+                [showIcon]="true"
+                [color]="'accent'"
+                [isDisabled]="starting()"
+                (click)="createTracking()"
+              >
+                <app-icon>
+                  <div class="h-6 w-6">
+                    @if (starting()) {
+                      <app-spinner></app-spinner>
+                    }
+                  </div>
+                </app-icon>
+              </app-btn>
+            </div>
+          } @else {
+            <div
+              class="flex flex-col justify-between items-center p-8 bg-accent/10 border-2 border-accent rounded-2xl w-full max-w-sm text-center shadow-lg shadow-accent/5"
+            >
+              <div>
+                <span class="text-accent text-xs font-bold uppercase tracking-widest"
+                  >Nueva funcionalidad</span
+                >
+                <h3 class="text-2xl font-bold mb-2 text-white">Generá tu entrenamiento con IA</h3>
+                <p class="text-text2 text-sm mb-6">
+                  Coach AI arma tu plan para el día: elegí tus objetivos y entrená con un
+                  seguimiento a medida.
+                </p>
+              </div>
 
-            <app-btn
-              [text]="'Comenzar entrenamiento'"
-              [variant]="'outline'"
-              size="sm"
-              [showIcon]="true"
-              [color]="'accent'"
-              (click)="createTracking()"
-            ></app-btn>
-          </div>
+              <app-btn
+                [text]="'Coach AI'"
+                [descriptionText]="'Generar mi entrenamiento del día'"
+                [variant]="'raised'"
+                [size]="'md'"
+                [showIcon]="true"
+                [color]="'accent'"
+                [routerLink]="'/coach'"
+              ></app-btn>
+            </div>
+
+            <div
+              class="flex flex-col justify-between items-center p-8 bg-primary/10 border-2 border-primary rounded-2xl w-full max-w-sm text-center shadow-lg shadow-primary/5"
+            >
+              <div>
+                <span class="text-primary text-xs font-bold uppercase tracking-widest"
+                  >Recomendado</span
+                >
+                <h3 class="text-2xl font-bold mb-2 text-white">Iniciar día de entrenamiento</h3>
+                <p class="text-text2 text-sm mb-6">
+                  Empezá tu entrenamiento de hoy sin necesidad de un plan semanal.
+                </p>
+              </div>
+
+              <app-btn
+                [text]="'Iniciar día de entrenamiento'"
+                [descriptionText]="'Crear mi día de hoy'"
+                [variant]="'raised'"
+                [size]="'md'"
+                [showIcon]="true"
+                [color]="'primary'"
+                [isDisabled]="starting()"
+                (click)="startDay()"
+              >
+                <app-icon>
+                  <div class="h-6 w-6">
+                    @if (starting()) {
+                      <app-spinner></app-spinner>
+                    }
+                  </div>
+                </app-icon>
+              </app-btn>
+            </div>
+          }
         </article>
       }
     }

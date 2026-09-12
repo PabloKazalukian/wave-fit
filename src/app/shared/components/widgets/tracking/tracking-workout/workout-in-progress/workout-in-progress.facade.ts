@@ -3,9 +3,8 @@ import {
     ExercisePerformanceVM,
     StatusWorkoutSessionEnum,
 } from '../../../../../interfaces/tracking.interface';
-import { WorkoutStateService } from '../../../../../../core/services/workouts/workout.state';
+import { WORKOUT_STORE } from '../../../../../../core/services/workouts/workout-store.interface';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
-import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
 
 interface SetData {
     reps: number;
@@ -14,21 +13,20 @@ interface SetData {
 
 @Injectable()
 export class WorkoutInProgressFacade {
-    private state = inject(WorkoutStateService);
-    trackingSvc = inject(PlanTrackingService);
+    private store = inject(WORKOUT_STORE);
 
     // Signals para manejo interno del acordeón y sets
     private openAccordionIndex = signal<string[]>([]);
     private exerciseSetsData = signal<Map<string, SetData[]>>(new Map());
 
-    readonly loading = this.trackingSvc.loadingWorkoutCreation();
-    readonly loadingStatusWorkout = this.trackingSvc.loadingStatusWorkout;
-    readonly workoutDate = this.state.selectedDate;
-    readonly workoutVM = this.state.workoutSession;
+    readonly loading = this.store.loadingWorkoutCreation();
+    readonly loadingStatusWorkout = this.store.loadingStatusWorkout;
+    readonly workoutDate = this.store.selectedDate;
+    readonly workoutVM = this.store.workoutSession;
 
-    loadings = computed(() => this.trackingSvc.loadingWorkoutCreation().state === true);
+    loadings = computed(() => this.store.loadingWorkoutCreation().state === true);
     // Computed desde el service - única fuente de verdad
-    exercises = computed(() => this.state.exercises());
+    exercises = computed(() => this.store.exercises());
 
     constructor() {
         // Sincronizar sets data cuando cambien los exercises del service
@@ -87,13 +85,13 @@ export class WorkoutInProgressFacade {
         const workout = this.workoutVM();
         if (!date || !workout) return;
 
-        this.trackingSvc.setRestDay(date, workout, status).subscribe();
+        this.store.setRestDay(date, workout, status).subscribe();
     }
 
     reorderExercises(previousIndex: number, currentIndex: number): void {
         const updated = [...this.exercises()];
         moveItemInArray(updated, previousIndex, currentIndex);
-        this.state.updateExercises(updated);
+        this.store.updateExercises(updated);
     }
 
     // ===== Reps Operations =====
@@ -166,7 +164,7 @@ export class WorkoutInProgressFacade {
         const updatedExercises = this.exercises().filter((ex) => ex.exerciseId !== exerciseId);
 
         // Actualizar en el service
-        this.state.updateExercises(updatedExercises);
+        this.store.updateExercises(updatedExercises);
 
         // Limpiar datos locales
         const currentMap = new Map(this.exerciseSetsData());
@@ -217,6 +215,6 @@ export class WorkoutInProgressFacade {
         );
 
         // Persistir en el service
-        this.state.updateExercises(updatedExercises);
+        this.store.updateExercises(updatedExercises);
     }
 }

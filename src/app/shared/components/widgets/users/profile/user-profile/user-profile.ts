@@ -8,7 +8,7 @@ import { FormInputComponent } from '../../../../ui/input/input';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { FormControlsOf } from '../../../../../utils/form-types.util';
 import { InputNumber } from '../../../../ui/input-number/input-number';
-import { UpdateProfileInput } from '../../../../../utils/profile.types';
+import { DistributionDays, UpdateProfileInput } from '../../../../../utils/profile.types';
 import { FormSelectComponent } from '../../../../ui/select/select';
 import { SelectType } from '../../../../../interfaces/input.interface';
 
@@ -46,8 +46,8 @@ export class UserProfile implements OnInit {
     ];
 
     distributionOptions: SelectType[] = [
-        { name: 'Semanal', value: 'Week-log' },
-        { name: 'Diario', value: 'Day-log' },
+        { name: 'Semanal', value: DistributionDays.WEEK },
+        { name: 'Diario', value: DistributionDays.DAY },
     ];
 
     unitsOptions: SelectType[] = [
@@ -104,7 +104,7 @@ export class UserProfile implements OnInit {
                 nonNullable: true,
             }),
 
-            distributionDays: new FormControl('Week-log', {
+            distributionDays: new FormControl(DistributionDays.WEEK, {
                 nonNullable: true,
             }),
 

@@ -15,7 +15,7 @@ export enum ExtraSessionCategory {
 export interface ExtraSession {
     id: string;
     userId: string;
-    workoutSessionId: string;
+    workoutSessionId?: string;
     category: ExtraSessionCategory;
     discipline: string;
     date: string | Date;

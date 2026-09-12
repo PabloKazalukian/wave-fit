@@ -101,8 +101,8 @@ export const CREATE_WORKOUT_SESSION = gql`
 `;
 
 export const REMOVE_WORKOUT_SESSION_FROM_DAY = gql`
-    mutation RemoveWorkoutSessionFromDay($workoutSessionId: String!) {
-        removeWorkoutSessionFromDay(workoutSessionId: $workoutSessionId) {
+    mutation RemoveWorkoutSessionFromWeekDay($workoutSessionId: String!) {
+        removeWorkoutSessionFromWeekDay(workoutSessionId: $workoutSessionId) {
             ${WEEK_LOG_DAY_FIELDS}
         }
     }
@@ -148,8 +148,8 @@ export const UPDATE_WEEK_LOG_WORKOUT_SESSION = gql`
 `;
 
 export const UPDATE_WEEK_LOG_DAY = gql`
-    mutation UpdateDay($input: UpdateWeekLogDayUnifiedInput!) {
-        updateDay(input: $input) {
+    mutation UpdateWeekDay($input: UpdateWeekLogDayUnifiedInput!) {
+        updateWeekDay(input: $input) {
             ${WEEK_LOG_DAY_FIELDS}
         }
     }
@@ -172,15 +172,15 @@ export const SYNC_WEEK_LOG_DAYS = gql`
 `;
 
 export const ASSIGN_ROUTINE_TO_DAYS = gql`
-    mutation AssignRoutineToDay($routineDayId: String!, $date: String!) {
-        assignRoutineToDay(routineDayId: $routineDayId, date: $date) {
+    mutation AssignRoutineToWeekDay($routineDayId: String!, $date: String!) {
+        assignRoutineToWeekDay(routineDayId: $routineDayId, date: $date) {
             ${WEEK_LOG_DAY_FIELDS}
         }
     }
 `;
 export const ASSIGN_ROUTINE_TO_DAY = gql`
-    mutation AssignRoutineToDay($routineDayId: String!, $date: String!) {
-        assignRoutineToDay(routineDayId: $routineDayId, date: $date) {
+    mutation AssignRoutineToWeekDay($routineDayId: String!, $date: String!) {
+        assignRoutineToWeekDay(routineDayId: $routineDayId, date: $date) {
             ${WEEK_LOG_DAY_FIELDS}
         }
     }
@@ -203,8 +203,8 @@ export const FIND_BY_ID = gql`
 `;
 
 export const REMOVE_EXTRA_SESSION_FROM_DAY = gql`
-    mutation RemoveExtraSessionFromDay($date: String!, $extraSessionId: String!) {
-        removeExtraSessionFromDay(date: $date, extraSessionId: $extraSessionId) {
+    mutation RemoveExtraSessionFromWeekDay($date: String!, $extraSessionId: String!) {
+        removeExtraSessionFromWeekDay(date: $date, extraSessionId: $extraSessionId) {
             ${WEEK_LOG_DAY_FIELDS}
         }
     }
@@ -228,8 +228,8 @@ export const CREATE_ROUTINE_BY_WORKOUT = gql`
 `;
 
 export const UPDATE_DAY_WORKOUT_STATUS = gql`
-    mutation UpdateDayWorkoutStatus($input: UpdateDayWorkoutStatusInput!) {
-        updateDayWorkoutStatus(input: $input) {
+    mutation UpdateWeekDayWorkoutStatus($input: UpdateDayWorkoutStatusInput!) {
+        updateWeekDayWorkoutStatus(input: $input) {
             ${WEEK_LOG_DAY_FIELDS}
         }
     }

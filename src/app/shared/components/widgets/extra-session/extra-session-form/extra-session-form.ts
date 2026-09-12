@@ -5,7 +5,7 @@ import {
     ExtraSessionFormType,
     ExtraSessionService,
 } from '../../../../../core/services/extra-session/extra-session.service';
-import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
+import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { SelectType } from '../../../../../shared/interfaces/input.interface';
 import {
@@ -29,7 +29,7 @@ export class ExtraSessionForm implements OnInit {
     closed = output<void>();
 
     service = inject(ExtraSessionService);
-    private workoutState = inject(WorkoutStateService);
+    private store = inject(WORKOUT_STORE);
 
     loading = signal<boolean>(false);
 
@@ -52,7 +52,7 @@ export class ExtraSessionForm implements OnInit {
 
     constructor() {
         effect(() => {
-            const workoutSession = this.workoutState.workoutSession();
+            const workoutSession = this.store.workoutSession();
             if (workoutSession?.extras?.length) {
                 this.service.loadByWorkoutSession(workoutSession.extras);
             }
@@ -99,7 +99,7 @@ export class ExtraSessionForm implements OnInit {
         this.loading.set(true);
         this.service
             .create({
-                date: this.workoutState.selectedDate()!, // ✅ LocalDate del timezone del usuario
+                date: this.store.selectedDate()!, // ✅ LocalDate del timezone del usuario
                 discipline: this.disciplineControl.value,
                 duration: this.durationControl.value,
                 intensityLevel: this.intensityLevelControl.value,

@@ -1,6 +1,16 @@
 export type Gender = 'M' | 'F' | 'other';
 export type UnitsPreference = 'metric' | 'imperial';
-export type DistributionDays = 'Week-log' | 'Day-log';
+
+export enum DistributionDays {
+    WEEK = 'week_log',
+    DAY = 'day_log',
+}
+
+export type LogMode = 'week' | 'day';
+
+export function distributionToLogMode(v: DistributionDays): LogMode {
+    return v === DistributionDays.DAY ? 'day' : 'week';
+}
 
 export type PrimaryGoal =
     | 'fat_loss'

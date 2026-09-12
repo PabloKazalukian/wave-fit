@@ -11,6 +11,7 @@ import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NetworkStatusService } from '../../../../core/services/network/network-status.service';
 import { SyncQueueService } from '../../../../core/services/sync/sync-queue.service';
+import { ActiveTrackingService } from '../../../../core/services/trackings/active-tracking.service';
 
 @Component({
     selector: 'app-header',
@@ -48,12 +49,28 @@ export class Header implements OnInit {
     private readonly destroyRef = inject(DestroyRef);
     private readonly networkSvc = inject(NetworkStatusService);
     private readonly syncQueue = inject(SyncQueueService);
+    private readonly activeTrackingSvc = inject(ActiveTrackingService);
 
     user = this.authSvc.user;
     userName = computed(() => this.user()?.name || 'Usuario');
     avatarUrl = computed(() => this.user()?.avatar?.url ?? null);
     currentUrl = signal(this.router.url);
 
+    activeTrackingLabel = computed(() => {
+        if (!this.activeTrackingSvc.ready()) {
+            return 'Mi';
+        }
+
+        return this.activeTrackingSvc.isDayLogActive() ? 'Mi Día' : 'Mi Semana';
+    });
+    activeTrackingRoute = computed(() => {
+        if (!this.activeTrackingSvc.ready()) {
+            return '/my-week';
+        }
+
+        return this.activeTrackingSvc.isDayLogActive() ? '/my-day' : '/my-week';
+    });
+    
     isOnline = this.networkSvc.isOnline;
     pendingMutations = this.syncQueue.pendingCount;
 

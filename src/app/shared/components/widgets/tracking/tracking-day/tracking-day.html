@@ -1,0 +1,113 @@
+<section class="w-full bg-background2 rounded-2xl p-4 flex flex-col gap-4">
+  <aside class="mb-4 border border-background3 rounded-2xl">
+    <app-info-card
+      [title]="feature.title"
+      [description]="feature.description"
+      [icon]="feature.icon"
+    ></app-info-card>
+  </aside>
+
+  <header class="flex flex-col gap-2">
+    <h2 class="text-primary text-5xl font-bold text-center">Mi Día</h2>
+    <h4 class="text-text2 text-lg font-bold">Fecha del día</h4>
+    <div
+      class="bg-background rounded-2xl p-4 flex items-center justify-center gap-4 mb-2 border border-background3"
+    >
+      <span class="text-sm font-medium">
+        {{ this.dayLog()?.date ? this.dateSvc.toDisplayString(this.dayLog()!.date) : '--' }}
+      </span>
+    </div>
+  </header>
+
+  <section class="w-full">
+    <app-btn
+      [text]="'Finalizar día'"
+      [descriptionText]="'Completa tu día de entrenamiento'"
+      [size]="'md'"
+      [showIcon]="true"
+      [variant]="'raised'"
+      [color]="'confirm3'"
+      [isDisabled]="facade.loading()"
+      (click)="facade.completeDay()"
+    >
+    </app-btn>
+  </section>
+
+  <app-dialog
+    [isOpen]="facade.showConfirmDialog()"
+    [title]="'Confirmar acción'"
+    [closeOnBackdrop]="true"
+    [locked]="true"
+    (closed)="facade.showConfirmDialog.set(false)"
+  >
+    @if (facade.loading()) {
+      <div class="flex items-center justify-center -ml-24">
+        <app-loading></app-loading>
+      </div>
+    } @else {
+      <div class="flex flex-col gap-4">
+        <p class="text-text2 text-sm md:text-lg leading-relaxed">
+          ¿Estás seguro de que deseas finalizar tu día de entrenamiento? Esta acción dará por
+          terminado tu seguimiento de hoy.
+        </p>
+
+        <div class="flex flex-col gap-2 mt-2">
+          <app-btn
+            [variant]="'raised'"
+            [text]="'Confirmar'"
+            [color]="'success'"
+            (click)="facade.onConfirm()"
+          ></app-btn>
+          <app-btn
+            [variant]="'outline'"
+            [text]="'Cancelar'"
+            [color]="'error'"
+            (click)="facade.showConfirmDialog.set(false)"
+          ></app-btn>
+        </div>
+      </div>
+    }
+  </app-dialog>
+
+  <aside class="mb-6">
+    <div>
+      <app-tracking-workout></app-tracking-workout>
+    </div>
+    <article class="mt-4">
+      <app-btn
+        [text]="'Agregar actividad extra'"
+        [variant]="'strokedColor'"
+        [color]="'accent3'"
+        [size]="'md'"
+        (click)="facade.showExtraSessionDialog.set(true)"
+        [showIcon]="true"
+      >
+        <app-icon>
+          <div class="h-6 w-6">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </div>
+        </app-icon>
+      </app-btn>
+
+      <app-dialog
+        [isOpen]="facade.showExtraSessionDialog()"
+        (closed)="facade.showExtraSessionDialog.set(false)"
+        [title]="'Agregar actividad extra'"
+        [closeOnBackdrop]="true"
+      >
+        <app-extra-session-form
+          (closed)="facade.showExtraSessionDialog.set(false)"
+        ></app-extra-session-form>
+      </app-dialog>
+    </article>
+  </aside>
+</section>
