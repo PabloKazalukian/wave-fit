@@ -51,7 +51,7 @@
       </button>
 
       <!-- Desktop Navigation -->
-      <div class="hidden md:flex items-center gap-2">
+      <div class="hidden md:flex items-center">
         <app-btn
           [routerLink]="'/home'"
           [text]="'Home'"
@@ -73,13 +73,7 @@
             [color]="isActive('/plans') ? 'primary' : 'text'"
             [variant]="isActive('/plans') ? 'outline' : 'ghost'"
             (click)="toggleRoutinesDropdown($event)"
-          >
-            <span
-              class="ml-1 text-[10px] transition-transform duration-300"
-              [class.rotate-180]="isRoutinesDropdownOpen()"
-              >▼</span
-            >
-          </app-btn>
+          ></app-btn>
 
           @if (isRoutinesDropdownOpen()) {
             <div
@@ -89,13 +83,6 @@
               (keydown.enter)="$event.stopPropagation()"
               tabindex="0"
             >
-              <a
-                routerLink="/coach"
-                class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
-                [class.text-primary]="currentUrl() === '/coach'"
-                (click)="closeDropdowns()"
-                >Coach AI</a
-              >
               <a
                 routerLink="/plans"
                 class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
@@ -109,6 +96,34 @@
                 [class.text-primary]="currentUrl() === '/plans/create'"
                 (click)="closeDropdowns()"
                 >Crear un plan semanal</a
+              >
+            </div>
+          }
+        </div>
+
+        <!-- Coach Dropdown -->
+        <div class="relative">
+          <app-btn
+            [text]="'Coach'"
+            [color]="isActive('/coach') ? 'primary' : 'text'"
+            [variant]="isActive('/coach') ? 'outline' : 'ghost'"
+            (click)="toggleCoachDropdown($event)"
+          ></app-btn>
+
+          @if (isCoachDropdownOpen()) {
+            <div
+              class="absolute top-full left-0 mt-2 w-48 bg-background3 border border-white/10 rounded-xl shadow-xl overflow-hidden py-2"
+              [@dropdownAnimation]
+              (click)="$event.stopPropagation()"
+              (keydown.enter)="$event.stopPropagation()"
+              tabindex="0"
+            >
+              <a
+                routerLink="/coach"
+                class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"
+                [class.text-primary]="currentUrl() === '/coach'"
+                (click)="closeDropdowns()"
+                >Coach AI</a
               >
             </div>
           }
@@ -130,28 +145,23 @@
 
       <!-- User Profile Dropdown -->
       <div class="hidden md:flex relative">
-        <app-btn
-          [text]="userName()"
-          [color]="'primary'"
-          [variant]="'outline'"
-          (click)="toggleUserDropdown($event)"
-          class="max-w-40 text-ellipsis overflow-hidden"
-        >
-          <span
-            class="ml-1 text-[10px] transition-transform duration-300"
-            [class.rotate-180]="isUserDropdownOpen()"
-            >▼</span
-          >
-        </app-btn>
+        <app-user-badge
+          [url]="avatarUrl()"
+          [name]="userName()"
+          [dropdownOpen]="isUserDropdownOpen()"
+          (clicked)="toggleUserDropdown($event)"
+        ></app-user-badge>
 
         @if (isUserDropdownOpen()) {
           <div
-            class="absolute top-full right-0 mt-2 w-48 bg-background3 border border-white/10 rounded-xl shadow-xl overflow-hidden py-2"
+            class="absolute top-full right-0 mt-2 w-48 bg-background3 border border-white/10 rounded-xl shadow-xl overflow-hidden pb-2"
             [@dropdownAnimation]
             (click)="$event.stopPropagation()"
             (keydown.enter)="$event.stopPropagation()"
             tabindex="0"
           >
+            <span class="block bg-background2 px-4 py-2 text-text2 truncate">{{ userName() }}</span>
+            <hr class="border-white/5" />
             <a
               routerLink="/user"
               class="block px-4 py-2 text-text2 hover:bg-white/5 transition-colors"

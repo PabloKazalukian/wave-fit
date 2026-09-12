@@ -72,6 +72,7 @@ export class CoachGeneratePlan implements OnInit {
         this.coachService.generatePlan(this.comment).subscribe({
             next: (data) => {
                 this.loading.set(false);
+                console.log(data);
                 if (data?.aiSnapshot?.rawResponse) {
                     this.coachState.setPlan(data);
                     this.planGenerated.emit(data);

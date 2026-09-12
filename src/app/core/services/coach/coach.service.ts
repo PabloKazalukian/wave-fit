@@ -8,6 +8,7 @@ import {
     GENERATE_PLAN,
     GET_TRAINING_PLAN,
     GET_TRAINING_PLANS,
+    MODIFY_PLAN,
     REMOVE_TRAINING_PLAN,
 } from '../../apollo/coach.query';
 import { GET_AI_USAGE_STATUS } from '../../apollo/ai-usage.query';
@@ -39,8 +40,19 @@ export class CoachService {
             );
     }
 
-    getPlanTrainings(limit: number, offset: number): Observable<TrainingPlansPage | null> {
+    modifyPlan(id: string, comment: string): Observable<TrainingPlanDetail | null> {
         return this.apollo
+            .mutate<{ modifyPlan: TrainingPlanDetail }>({
+                mutation: MODIFY_PLAN,
+                variables: { id, comment },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) => (data?.modifyPlan ? data.modifyPlan : null)),
+            );
+    }
+
+    getPlanTrainings(limit: number, offset: number): Observable<TrainingPlansPage | null> {        return this.apollo
             .query<{ trainingPlans: TrainingPlansPage }>({
                 query: GET_TRAINING_PLANS,
                 variables: { limit, offset },

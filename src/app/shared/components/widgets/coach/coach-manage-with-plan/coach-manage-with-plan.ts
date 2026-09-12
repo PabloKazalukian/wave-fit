@@ -15,7 +15,7 @@ import { BtnComponent } from '../../../ui/btn/btn';
 import { DialogComponent } from '../../../ui/dialog/dialog';
 import { InfoCard } from '../../../ui/info-card/info-card';
 import { SpinnerComponent } from '../../../ui/icon/spinner';
-import { TrainingPlanDetail, PlanConfirmationAction } from '../../../../interfaces/coach.interface';
+import { TrainingPlanDetail, PlanConfirmationAction, AiUsageStatus } from '../../../../interfaces/coach.interface';
 import { CoachManageWithPlanFacade } from './coach-manage-with-plan.facade';
 import { WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 import { CoachService } from '../../../../../core/services/coach/coach.service';
@@ -52,6 +52,9 @@ export class CoachManageWithPlan implements OnInit {
     modifying = signal(false);
     errorMessage = signal<string | null>(null);
 
+    usageStatus = signal<AiUsageStatus | null>(null);
+    usageLoading = signal(false);
+
     showConfirmDialog = signal(false);
 
     readonly icons = {
@@ -87,10 +90,6 @@ export class CoachManageWithPlan implements OnInit {
 
     modificationsComment = '';
 
-    get canModify(): boolean {
-        return this.modificationsComment.trim().split(/\s+/).filter(Boolean).length >= 10;
-    }
-
     constructor() {
         effect(() => {
             const plan = this.planData();
@@ -102,6 +101,30 @@ export class CoachManageWithPlan implements OnInit {
 
     ngOnInit(): void {
         this.facade.init();
+        this.loadUsageStatus();
+    }
+
+    loadUsageStatus(): void {
+        this.usageLoading.set(true);
+        this.coachService.getAiUsageStatus().subscribe({
+            next: (status) => {
+                this.usageStatus.set(status);
+                this.usageLoading.set(false);
+            },
+            error: () => {
+                this.usageLoading.set(false);
+            },
+        });
+    }
+
+    get hasReachedLimit(): boolean {
+        const status = this.usageStatus();
+        return status ? status.remaining <= 0 : false;
+    }
+
+    get nearLimit(): boolean {
+        const status = this.usageStatus();
+        return status ? status.remaining <= 1 : false;
     }
 
     onDaySelected(workout: WorkoutSessionVM | null): void {
@@ -134,25 +157,56 @@ export class CoachManageWithPlan implements OnInit {
     }
 
     onModifyPlan(): void {
-        if (!this.canModify || this.modifying()) return;
+        const plan = this.planData();
+        if (!plan || !this.modificationsComment.trim() || this.modifying() || this.hasReachedLimit)
+            return;
 
         this.modifying.set(true);
         this.errorMessage.set(null);
 
-        this.coachService.generatePlan(this.modificationsComment).subscribe({
-            next: (data) => {
-                this.modifying.set(false);
-                if (data?.aiSnapshot?.rawResponse) {
-                    this.coachState.setPlan(data);
-                    this.planModified.emit(data);
-                    this.modificationsComment = '';
-                } else {
-                    this.errorMessage.set('La IA no devolvió modificaciones válidas. Intentá de nuevo.');
+        this.coachService.getPlanTrainingById(plan.id).subscribe({
+            next: (fresh) => {
+                if (!fresh) {
+                    this.modifying.set(false);
+                    this.errorMessage.set('No se pudo verificar el plan. Intentá de nuevo.');
+                    return;
                 }
+                if (plan.version !== undefined && fresh.version !== plan.version) {
+                    this.modifying.set(false);
+                    this.errorMessage.set(
+                        'Este plan fue modificado en otra sesión. Recargalo e intentá de nuevo.',
+                    );
+                    return;
+                }
+
+                this.coachService.modifyPlan(plan.id, this.modificationsComment).subscribe({
+                    next: (data) => {
+                        this.modifying.set(false);
+                        if (data?.aiSnapshot?.rawResponse) {
+                            this.coachState.setPlan(data);
+                            this.planModified.emit(data);
+                            this.modificationsComment = '';
+                            this.loadUsageStatus();
+                        } else {
+                            this.errorMessage.set(
+                                'La IA no devolvió modificaciones válidas. Intentá de nuevo.',
+                            );
+                        }
+                    },
+                    error: (err) => {
+                        this.modifying.set(false);
+                        this.errorMessage.set(
+                            this.extractErrorMessage(err, 'Error al modificar el plan'),
+                        );
+                        this.loadUsageStatus();
+                    },
+                });
             },
             error: (err) => {
                 this.modifying.set(false);
-                this.errorMessage.set(this.extractErrorMessage(err, 'Error al modificar el plan'));
+                this.errorMessage.set(
+                    this.extractErrorMessage(err, 'Error al verificar el plan antes de modificar'),
+                );
             },
         });
     }

@@ -15,15 +15,6 @@
 }
 
 /* Avatar subtle glow */
-.avatar-circle {
-  transition: box-shadow 0.2s ease;
-}
-
-.avatar-circle:hover {
-  box-shadow: 0 0 18px rgba(var(--color-primary-rgb, 80, 200, 120), 0.3);
-}
-
-/* Edit button */
 .edit-btn {
   transition:
     border-color 0.2s ease,

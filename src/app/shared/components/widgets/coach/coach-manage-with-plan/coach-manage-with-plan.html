@@ -1,9 +1,16 @@
 <div class="flex flex-col gap-4">
   <!-- Cabecera del plan activo con botón para Crear otro plan -->
-  <header class="flex items-center justify-between bg-background3 border border-background4 rounded-2xl p-3.5 gap-2">
+  <header
+    class="flex items-center justify-between bg-background3 border border-background4 rounded-2xl p-3.5 gap-2"
+  >
     <div class="flex flex-col min-w-0">
       <span class="text-xs text-text2 uppercase tracking-wider font-semibold">Plan activo</span>
-      <h3 class="text-text1 font-bold text-base truncate">{{ planData().title }}</h3>
+      <h3 class="text-text1 font-bold text-base truncate">
+        {{ planData().title }}
+        @if (planData().version) {
+          <span class="text-text2 font-medium text-xs">· versión {{ planData().version }}</span>
+        }
+      </h3>
       @if (planData().focus) {
         <span class="text-xs text-primary truncate">{{ planData().focus }}</span>
       }
@@ -40,8 +47,20 @@
 
   <!-- Sección de modificaciones -->
   <section class="flex flex-col gap-2 mt-2" aria-label="Modificar plan generado">
+    @if (hasReachedLimit) {
+      <p class="text-error bg-error/10 border border-error/20 rounded-xl p-3 text-sm" role="alert">
+        Alcanzaste el límite diario de generaciones con IA. Volvé a intentar mañana.
+      </p>
+    } @else if (nearLimit) {
+      <p
+        class="text-warning bg-warning/10 border border-warning/20 rounded-xl p-3 text-sm"
+        role="status"
+      >
+        Te queda {{ usageStatus()!.remaining }} generación con IA hoy.
+      </p>
+    }
     <label for="modifications-textarea" class="text-text2 font-semibold text-sm">
-      Modificaciones al plan (mínimo 10 palabras)
+      Modificaciones al plan
     </label>
     <textarea
       id="modifications-textarea"
@@ -77,7 +96,7 @@
       [color]="'secondary'"
       [variant]="'outline'"
       [size]="'md'"
-      [isDisabled]="!canModify || modifying() || deleting()"
+      [isDisabled]="!modificationsComment.trim() || modifying() || deleting()"
       (click)="onModifyPlan()"
     />
   </div>
