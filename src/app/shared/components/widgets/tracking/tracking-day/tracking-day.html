@@ -27,6 +27,7 @@
       [showIcon]="true"
       [variant]="'raised'"
       [color]="'confirm3'"
+      [isDisabled]="facade.loading()"
       (click)="facade.completeDay()"
     >
     </app-btn>

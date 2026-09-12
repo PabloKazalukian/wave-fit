@@ -6,7 +6,7 @@
       Organizá tus entrenamientos, seguí tu progreso y alcanzá tus objetivos de forma simple.
     </p>
 
-    @if (this.loading()) {
+    @if (this.loading() || this.activeLoading()) {
       <article class="mt-4 mx-1">
         <app-tracking-week-skeleton></app-tracking-week-skeleton>
       </article>
@@ -81,8 +81,17 @@
                 size="sm"
                 [showIcon]="true"
                 [color]="'accent'"
+                [isDisabled]="starting()"
                 (click)="createTracking()"
-              ></app-btn>
+              >
+                <app-icon>
+                  <div class="h-6 w-6">
+                    @if (starting()) {
+                      <app-spinner></app-spinner>
+                    }
+                  </div>
+                </app-icon>
+              </app-btn>
             </div>
           } @else {
             <div
@@ -130,8 +139,17 @@
                 [size]="'md'"
                 [showIcon]="true"
                 [color]="'primary'"
+                [isDisabled]="starting()"
                 (click)="startDay()"
-              ></app-btn>
+              >
+                <app-icon>
+                  <div class="h-6 w-6">
+                    @if (starting()) {
+                      <app-spinner></app-spinner>
+                    }
+                  </div>
+                </app-icon>
+              </app-btn>
             </div>
           }
         </article>

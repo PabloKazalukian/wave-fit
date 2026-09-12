@@ -61,27 +61,30 @@ export class PlanDayDomainService {
 
     /**
      * Fuente de verdad: ActiveTrackingService. Si type === 'DAY_LOG' carga el day-log activo.
+     * El loading del día se mantiene hasta que el fetching del day-log termina, para que la UI
+     * no haga flash entre el skeleton y el CTA de "Iniciar día".
      */
     initActiveLog(): Observable<{ hasActive: boolean; type: 'WEEK_LOG' | 'DAY_LOG' }> {
         return this.activeTrackingSvc.activeTracking$.pipe(
             first((active) => !!active),
-            tap((active) => {
+            switchMap((active) => {
                 if (active.hasActive && active.type === 'DAY_LOG') {
                     this.state.setLoadingDayLog(true);
-                    this.api
-                        .getActiveDayLog()
-                        .pipe(finalize(() => this.state.setLoadingDayLog(false)))
-                        .subscribe((dayLog) => {
+                    return this.api.getActiveDayLog().pipe(
+                        tap((dayLog) => {
                             if (dayLog) {
                                 this.state.setDayLog(dayLog);
                                 this.storage.setDayLogStorage(dayLog, dayLog.userId);
                             } else {
                                 this.state.setDayLog(null);
                             }
-                        });
-                } else {
-                    this.state.setDayLog(null);
+                        }),
+                        finalize(() => this.state.setLoadingDayLog(false)),
+                        map(() => active),
+                    );
                 }
+                this.state.setDayLog(null);
+                return of(active);
             }),
             map((active) => ({
                 hasActive: active.hasActive,
@@ -130,6 +133,13 @@ export class PlanDayDomainService {
                 if (res) {
                     this.state.setDayLog(res);
                     this.storage.setDayLogStorage(res, res.userId);
+                    this.activeTrackingSvc.markDayActive({
+                        id: res.id,
+                        date: res.date,
+                        completed: res.completed,
+                        active: res.active,
+                        status: res.status,
+                    });
                 }
             }),
             map(() => this.state.getDayLogValue()),
@@ -297,6 +307,7 @@ export class PlanDayDomainService {
                 if (res) {
                     this.storage.removeDayLogStorage(current.userId);
                     this.state.setDayLog(null);
+                    this.activeTrackingSvc.clear();
                 }
             }),
             finalize(() => this.state.setLoading(false)),
@@ -322,6 +333,7 @@ export class PlanDayDomainService {
                     if (current?.id === id) {
                         this.storage.removeDayLogStorage(current.userId);
                         this.state.setDayLog(null);
+                        this.activeTrackingSvc.clear();
                     }
                 }
             }),

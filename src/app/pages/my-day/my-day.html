@@ -2,8 +2,25 @@
   <div class="text-primary bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-2">
     <h1 class="text-4xl font-bold text-center">Tu día de entrenamiento</h1>
 
-    @if (this.loading() || !this.dayLog()) {
-      <p class="text-text2 text-center text-sm">Cargando tu día...</p>
+    @if (this.loading() || this.activeLoading()) {
+      <section
+        role="status"
+        aria-label="Cargando tu día"
+        class="mt-4 w-full flex flex-col gap-4 animate-pulse"
+      >
+        <div class="bg-background3 rounded-2xl p-6 flex flex-col gap-4">
+          <div class="h-6 bg-background2 rounded-md w-1/3"></div>
+          <div class="h-4 bg-background2 rounded-md w-2/3"></div>
+          <div class="h-12 bg-background2 rounded-xl"></div>
+          <div class="h-10 bg-background2 rounded-xl"></div>
+        </div>
+        <div class="bg-background3 rounded-xl p-4 flex flex-col gap-3">
+          <div class="h-4 bg-background2 rounded-md w-1/2"></div>
+          <div class="h-16 bg-background2 rounded-lg"></div>
+          <div class="h-16 bg-background2 rounded-lg"></div>
+          <div class="h-16 bg-background2 rounded-lg"></div>
+        </div>
+      </section>
     } @else {
       @if (this.dayLog()) {
         <app-tracking-day [dayLog]="this.dayLog()"></app-tracking-day>
@@ -25,8 +42,17 @@
             size="md"
             [showIcon]="true"
             [color]="'accent'"
+            [isDisabled]="creating()"
             (click)="createDayLog()"
-          ></app-btn>
+          >
+            <app-icon>
+              <div class="h-6 w-6">
+                @if (creating()) {
+                  <app-spinner></app-spinner>
+                }
+              </div>
+            </app-icon>
+          </app-btn>
         </section>
       }
     }

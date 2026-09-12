@@ -3,7 +3,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, finalize, Observable, of, tap } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { ActiveTrackingApi } from './active-tracking.api';
-import { ActiveTrackingVM } from '../../../shared/interfaces/day-log.interface';
+import { ActiveDayVM, ActiveTrackingVM, ActiveWeekVM } from '../../../shared/interfaces/day-log.interface';
 
 @Injectable({
     providedIn: 'root',
@@ -71,7 +71,7 @@ export class ActiveTrackingService {
     }
 
     private init(userId: string) {
-        if (this.currentUserId === userId && this.activeTrackingSubject.value) {
+        if (this.currentUserId === userId && this.ready()) {
             return;
         }
 
@@ -80,10 +80,44 @@ export class ActiveTrackingService {
         this.fetchActiveTracking().subscribe();
     }
 
+    /**
+     * Recarga el estado activo desde la API. Se usa tras mutaciones (create day/week,
+     * complete, remove) cuando el estado local debe confirmarse contra el servidor.
+     */
+    refresh(): void {
+        if (!this.currentUserId) {
+            return;
+        }
+        this.ready.set(false);
+        this.fetchActiveTracking().subscribe();
+    }
+
+    /** Marca la semana como tracking activo sin consultar la API (tras createTracking). */
+    markWeekActive(week: ActiveWeekVM): void {
+        this.setActiveTracking({ hasActive: true, type: 'WEEK_LOG', week, day: null });
+        this.error.set(null);
+        this.ready.set(true);
+    }
+
+    /** Marca el día como tracking activo sin consultar la API (tras createDayLog). */
+    markDayActive(day: ActiveDayVM): void {
+        this.setActiveTracking({ hasActive: true, type: 'DAY_LOG', week: null, day });
+        this.error.set(null);
+        this.ready.set(true);
+    }
+
+    /** Fuerza estado "sin tracking activo" (tras complete/remove day o week). */
+    clear(): void {
+        this.setActiveTracking(this.empty());
+        this.error.set(null);
+        this.ready.set(true);
+    }
+
     private reset() {
         this.currentUserId = '';
         this.loading.set(false);
         this.ready.set(false);
+        this.error.set(null);
         this.activeTrackingSubject.next(null);
     }
 

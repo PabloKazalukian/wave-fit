@@ -1,11 +1,19 @@
 <section class="w-full">
-  <header>
-    <p class="mb-2">
-      <span class="text-text2 text-sm">Fecha de Rutina:</span>
-      {{ this.facade.workoutVM()?.date | date: 'dd/MM/yyyy' : 'UTC' }}
-    </p>
-  </header>
-  <app-workout-day-stats [workout]="this.facade.workoutVM()"></app-workout-day-stats>
+  @if (this.facade.activeLoading()) {
+    <div class="bg-background3 rounded-lg p-3 mb-4 border border-primary">
+      <h4>Cargando...</h4>
+      <div class="pl-[128px]">
+        <app-loading></app-loading>
+      </div>
+    </div>
+  } @else {
+    <header>
+      <p class="mb-2">
+        <span class="text-text2 text-sm">Fecha de Rutina:</span>
+        {{ this.facade.workoutVM()?.date | date: 'dd/MM/yyyy' : 'UTC' }}
+      </p>
+    </header>
+    <app-workout-day-stats [workout]="this.facade.workoutVM()"></app-workout-day-stats>
   <section class="flex flex-col gap-2">
     @if (this.facade.loadings()) {
       <div class="bg-background3 rounded-lg p-3 mb-4 border border-primary">
@@ -151,5 +159,6 @@
         </aside>
       }
     }
-  </section>
+    </section>
+  }
 </section>

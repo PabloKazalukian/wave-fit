@@ -6,6 +6,7 @@ import {
     WorkoutSessionVM,
 } from '../../../../interfaces/tracking.interface';
 import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
+import { ActiveTrackingService } from '../../../../../core/services/trackings/active-tracking.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 
@@ -15,8 +16,13 @@ export class TrackingWorkoutFacade {
     exerciseSvc = inject(ExercisesService);
 
     store = inject(WORKOUT_STORE);
+    private activeTrackingSvc = inject(ActiveTrackingService);
 
     loadings = computed(() => this.store.loadingWorkoutCreation().state === true);
+    /** El workout no existe hasta que el tracking activo esté resuelto y el store apunte al modo correcto. */
+    readonly activeLoading = computed(
+        () => this.activeTrackingSvc.loading() || !this.activeTrackingSvc.ready(),
+    );
 
     readonly workoutDate = this.store.selectedDate;
     readonly workoutVM = this.store.workoutSession;

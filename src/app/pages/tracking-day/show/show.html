@@ -1,0 +1,126 @@
+<section class="container px-4 py-8 max-w-lg mx-auto">
+  <section class="mb-8">
+    <div class="mb-4">
+      <app-text-link
+        [text]="'Volver al historial'"
+        [routerLink]="'/user'"
+        [color]="'primary'"
+      ></app-text-link>
+    </div>
+
+    @if (dayLog$ | async; as day) {
+      <article class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold text-text1">Detalle de Día</h2>
+        <span
+          class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+          [ngClass]="{
+            'bg-success/20 text-success border border-success/30': day.completed,
+            'bg-background3 text-text2 border border-background4': day.status === 'skipped',
+            'bg-warning/20 text-warning border border-warning/30':
+              !day.completed && day.status !== 'skipped',
+          }"
+        >
+          {{
+            day.completed
+              ? 'Completado'
+              : day.status === 'skipped'
+                ? 'Omitido'
+                : 'Pendiente'
+          }}
+        </span>
+      </article>
+
+      <article class="grid gap-6">
+        <!-- Day info card -->
+        <section class="bg-background2 border-2 border-background4 rounded-2xl p-5">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-primary/10 rounded-lg text-primary">
+              <lucide-icon [img]="CalendarIcon" size="24"></lucide-icon>
+            </div>
+            <div>
+              <p class="text-xs text-text2 font-medium uppercase tracking-widest">Fecha del día</p>
+              <p class="text-lg font-bold text-text1">
+                {{ day.date ? dateSvc.toDisplayString(day.date) : '--' }}
+              </p>
+            </div>
+          </div>
+
+          @if (day.planId) {
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-secondary/10 rounded-lg text-secondary">
+                <lucide-icon [img]="ClipboardListIcon" size="24"></lucide-icon>
+              </div>
+              <div>
+                <p class="text-xs text-text2 font-medium uppercase tracking-widest">Plan</p>
+                <p class="text-base font-semibold text-text1">{{ day.planId }}</p>
+              </div>
+            </div>
+          }
+        </section>
+
+        <!-- Exercises -->
+        <section>
+          <h3 class="text-sm font-bold text-text2 uppercase tracking-widest mb-3 px-1">
+            Ejercicios del Día
+          </h3>
+          <div class="space-y-3">
+            @for (ex of day.exercises; track ex.exerciseId) {
+              <div class="bg-background2 border-2 border-background4 rounded-xl p-4">
+                <div class="flex items-center justify-between text-sm mb-1.5">
+                  <span class="font-semibold text-text1">{{ ex.name }}</span>
+                  <span class="text-text3 text-xs">{{ ex.series }} series</span>
+                </div>
+                <div class="flex flex-wrap gap-x-2 gap-y-1.5">
+                  @for (set of ex.sets; track $index) {
+                    <div
+                      class="flex items-center gap-1 text-[14px] leading-none py-1 px-1.5 bg-background3 rounded border border-background4/50"
+                    >
+                      <span class="font-bold text-primary/80">x{{ $index + 1 }}</span>
+                      <span class="text-text2">reps:</span>
+                      <span class="font-semibold text-text1">{{ set.reps }}</span>
+                      @if (set.weights) {
+                        <span class="text-text2 ml-0.5">weight:</span>
+                        <span class="font-semibold text-text1 text-nowrap">{{ set.weights }}kg</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            } @empty {
+              <p class="text-center py-6 text-text3 italic">No hay ejercicios registrados</p>
+            }
+          </div>
+        </section>
+
+        @if (day.notes) {
+          <section>
+            <h3 class="text-sm font-bold text-text2 uppercase tracking-widest mb-3 px-1">Notas</h3>
+            <div
+              class="bg-background2 border-2 border-background4 rounded-xl p-4 italic text-text2"
+            >
+              {{ day.notes }}
+            </div>
+          </section>
+        }
+      </article>
+    } @else if (asyncLoaded) {
+      <article
+        class="text-center py-12 bg-background2 border-2 border-dashed border-background4 rounded-2xl"
+      >
+        <p class="text-text2">No se encontró la información de este día.</p>
+        <app-text-link
+          [text]="'Volver al historial'"
+          [routerLink]="'/user'"
+          [color]="'primary'"
+          class="mt-4 inline-block"
+        ></app-text-link>
+      </article>
+    } @else {
+      <!-- Skeleton -->
+      <div class="animate-pulse space-y-4">
+        <div class="h-32 bg-background2 rounded-2xl"></div>
+        <div class="h-48 bg-background2 rounded-2xl"></div>
+      </div>
+    }
+  </section>
+</section>

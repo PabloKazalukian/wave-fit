@@ -1,7 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PlanTrackingService } from '../../../../../../core/services/trackings/plan-tracking.service';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ActiveTrackingService } from '../../../../../../core/services/trackings/active-tracking.service';
 import { BtnComponent } from '../../../../ui/btn/btn';
 
 @Component({
@@ -11,11 +10,12 @@ import { BtnComponent } from '../../../../ui/btn/btn';
     templateUrl: './tracking-active.html',
 })
 export class TrackingActiveComponent {
-    private trackingSvc = inject(PlanTrackingService);
-    private tracking = toSignal(this.trackingSvc.trackingPlanVM$);
-    loadingTracking = this.trackingSvc.loadingTracking;
+    private activeTrackingSvc = inject(ActiveTrackingService);
 
-    get weekActive(): boolean {
-        return !!this.tracking();
-    }
+    readonly activeLoading = this.activeTrackingSvc.loading;
+    readonly activeReady = this.activeTrackingSvc.ready;
+
+    readonly active = computed(() => this.activeTrackingSvc.hasActive());
+    readonly isDayActive = computed(() => this.activeTrackingSvc.isDayLogActive());
+    readonly isWeekActive = computed(() => this.activeTrackingSvc.isWeekLogActive());
 }

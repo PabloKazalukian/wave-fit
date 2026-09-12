@@ -1,4 +1,4 @@
-@if (loadingTracking()) {
+@if (activeLoading() || !activeReady()) {
   <div class="bg-background2 border-2 border-primary/20 rounded-2xl p-4 mb-6 animate-pulse">
     <div class="flex items-center justify-between mb-2">
       <div class="h-6 bg-background3 rounded w-32"></div>
@@ -12,35 +12,50 @@
 } @else {
   <article class="bg-background2 border-2 border-primary rounded-2xl p-4 mb-6">
     <header class="flex items-center justify-between mb-2">
-      <span class="text-lg font-medium text-primary">Semana Activa:</span>
-      @if (weekActive) {
+      <span class="text-lg font-medium text-primary">Seguimiento:</span>
+      @if (active()) {
         <span
           class="px-3 py-1 bg-success/20 text-success text-xs rounded-full border-2 border-success/30"
         >
-          Activa
+          @if (isDayActive()) {
+            Día activo
+          } @else {
+            Semana activa
+          }
         </span>
       } @else {
         <span
           class="px-3 py-1 bg-error/20 text-error text-xs rounded-full border-2 border-error/30"
         >
-          No iniciada
+          No iniciado
         </span>
       }
     </header>
     <footer class="flex flex-col w-full md:flex-row items-center justify-between">
-      @if (weekActive) {
-        <p class="text-base text-text2">Continúa con tu rutina de esta semana</p>
+      @if (isDayActive()) {
+        <p class="text-base text-text2">Continúa con tu entrenamiento de hoy</p>
         <app-btn
           text="Ir a mi día"
-          [routerLink]="'/my-week'"
+          [routerLink]="'/my-day'"
           [showIcon]="true"
           size="sm"
           variant="raised"
           color="primary"
           dataTest="ir-a-mi-dia"
         ></app-btn>
+      } @else if (isWeekActive()) {
+        <p class="text-base text-text2">Continúa con tu rutina de esta semana</p>
+        <app-btn
+          text="Ir a mi semana"
+          [routerLink]="'/my-week'"
+          [showIcon]="true"
+          size="sm"
+          variant="raised"
+          color="primary"
+          dataTest="ir-a-mi-semana"
+        ></app-btn>
       } @else {
-        <p class="text-xs text-text2 max-w-40">Comienza tu primera semana de entrenamiento ahora</p>
+        <p class="text-xs text-text2 max-w-40">Comienza tu primer seguimiento de entrenamiento ahora</p>
         <app-btn
           text="comenzar ahora"
           [routerLink]="'/my-week'"

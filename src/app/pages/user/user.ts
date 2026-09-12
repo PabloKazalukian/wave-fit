@@ -16,6 +16,7 @@ import {
 } from 'lucide-angular';
 import { TrackingListState } from '../../core/services/trackings/tracking-list.state';
 import { WeeklyTrackings } from '../../shared/components/widgets/users/weekly-trackings/weekly-trackings';
+import { DailyTracking } from '../../shared/components/widgets/users/daily-tracking/daily-tracking';
 import { Avatar } from '../../shared/components/ui/dialog/avatar/avatar';
 import { BtnComponent } from '../../shared/components/ui/btn/btn';
 
@@ -25,6 +26,7 @@ import { BtnComponent } from '../../shared/components/ui/btn/btn';
         TrackingActiveComponent,
         LucideAngularModule,
         WeeklyTrackings,
+        DailyTracking,
         Avatar,
         BtnComponent,
     ],

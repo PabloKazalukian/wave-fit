@@ -115,6 +115,13 @@ export class PlanTrackingDomainService {
             tap((res) => {
                 if (res !== undefined && res !== null) {
                     this.state.setTracking(res);
+                    this.activeTrackingSvc.markWeekActive({
+                        id: res.id,
+                        startDate: res.startDate,
+                        endDate: res.endDate,
+                        completed: res.completed,
+                        active: true,
+                    });
                 }
             }),
             map(() => this.state.getTrackingValue()),
@@ -335,6 +342,7 @@ export class PlanTrackingDomainService {
                     if (res) {
                         this.storage.removeTrackingStorage(this.state.userId());
                         this.state.setTracking(null);
+                        this.activeTrackingSvc.clear();
                     }
                 }),
                 finalize(() => this.state.setLoading(false)),
@@ -381,6 +389,7 @@ export class PlanTrackingDomainService {
                     if (current?.id === id) {
                         this.storage.removeTrackingStorage(this.state.userId());
                         this.state.setTracking(null);
+                        this.activeTrackingSvc.clear();
                     }
                 }
             }),
