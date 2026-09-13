@@ -1,250 +1,120 @@
-# WaveFit - Guía para Agentes IA
+# AGENTS.md — WaveFit Frontend
 
-## 1. Proyecto
+## Purpose
 
-- **Frontend:** Angular 20 + TypeScript + TailwindCSS + Apollo GraphQL
-- **Backend:** NestJS + GraphQL + MongoDB (otro repositorio)
-- **Auth:** Google OAuth (PKCE) + email/password
-- **Demo:** https://wave-fit.vercel.app/
+This file is the entry point for AI agents and engineers working on the WaveFit
+**frontend** (Angular 20 + TypeScript + TailwindCSS + Apollo GraphQL; the
+backend is a separate NestJS repository).
 
----
+It defines navigation rules and mandatory development behavior.
+It does not contain detailed architectural, domain, feature, or
+implementation documentation — those live in `docs/`.
 
-## 2. Propósito
+## Mandatory Read Order
 
-- Crear ejercicios personalizados
-- Crear rutinas diarias (RoutineDay) con ejercicios
-- Crear planes semanales (RoutinePlan) combinando rutinas diarias
-- Hacer seguimiento (Tracking) de cada semana con series, pesos y reps
+1. `docs/engineering/charter.md`
+2. Relevant engineering documentation (`docs/engineering/README.md`)
+3. Relevant domain documentation (`docs/domain/README.md`)
+4. Relevant ADRs (`docs/decisions/README.md`)
+5. Relevant Spec (`docs/specs/README.md`)
+6. Relevant existing code and tests (`src/`)
+7. Create or review the Plan (`docs/plans/<feature>/plan.md`)
 
----
+## Development Workflow
 
-## 3. Arquitectura de Componentes
+Engineering Charter
+→ Spec
+→ Clarification
+→ Plan
+→ Tasks
+→ Tests
+→ Implementation
+→ Validation
+→ Documentation Update
 
-### Flujo de datos
-```
-Dumb Components → Facade → Domain Service → (API/Storage Services + State Service)
-```
+## Source of Truth
 
-### Capas
+For implemented behavior:
 
-| Capa | Responsabilidad | Ejemplo |
-|------|-----------------|---------|
-| **Dumb Components** | Solo renderizado, sin lógica | `Button`, `Card` |
-| **Facade** | Coordina la vista, consume domain services | `RoutineFacade` |
-| **Domain Service** | Lógica de negocio, orquestación | `TrackingDomainService`, `RoutineDomainService` |
-| **API/Storage Services** | Cache con BehaviorSubject, llamadas HTTP | `ExerciseService` |
-| **State Service** | Estado reactivo del elemento activo (día/workout) | `WorkoutStateService`, `RoutineCreationStateService` |
+- Spec + Code are authoritative.
+- Stable documentation (`docs/engineering/`, `docs/domain/`) describes the
+  validated current system.
+- ADRs (`docs/decisions/`) preserve decision rationale.
+- Plans (`docs/plans/`) and the legacy archive (`docs/legacy/`) are historical
+  and non-authoritative.
 
----
+A contradiction between Spec and Code must be explicitly resolved.
+Do not silently choose one.
 
-## 4. Estructura de Carpetas
+## Planning
 
-```
-src/app/
-├── core/
-│   ├── apollo/               # Queries GraphQL (coach, exercises, plans, tracking, ...)
-│   ├── auth/                 # TokenStorage, auth.initializer
-│   ├── services/             # Todos los servicios (ver §8)
-│   └── auth-guard.ts
-├── pages/                     # Vistas (lazy-loaded)
-│   ├── auth/                 # login, register, callback
-│   ├── coach/                # Coach IA
-│   ├── home/                 # Dashboard
-│   ├── exercises/
-│   ├── my-week/              # + success/
-│   ├── plans/                # + create/
-│   ├── routines/             # + show/
-│   ├── trackings/            # lista, stats/, show/:id
-│   └── user/                 # + profile/
-├── shared/
-│   ├── animations/
-│   ├── components/           # Dumb components (widgets)
-│   ├── interfaces/           # *.interface.ts, api/*.api.ts, input*.ts
-│   ├── pipes/
-│   ├── utils/
-│   ├── validators/
-│   └── wrappers/             # Transformadores
-├── app.routes.ts
-└── app.config.ts
-```
+A Plan is mandatory before implementation, regardless of whether
+the developer explicitly requests planning.
 
----
+Plans live in:
 
-## 5. Modelo de Datos: Dos Ramas
+`docs/plans/<feature>/plan.md`
 
-| Rama | Contenedor | Elemento Activo (State) |
-|------|------------|------------------------|
-| **TEMPLATE** | RoutinePlan | RoutineDay |
-| **TRACKING** | Tracking | WorkoutSession |
+Plans are implementation artifacts and never define current behavior.
 
----
+## Implementation
 
-## 6. Convenciones
+- One task at a time.
+- Tests first.
+- Validate each task.
+- Do not implement unspecified behavior.
+- Do not silently change contracts.
 
-- **Componentes:** Standalone (Angular 20, sin NgModules)
-- **CSS:** TailwindCSS (paleta, spacing y patrones en [`documents/design/UI-Conventions.md`](documents/design/UI-Conventions.md))
-- **HTML semántico:** Priorizar etiquetas semánticas sobre `div` genéricos (ver §6.1)
-- **Naming:**
-  - Archivos: `kebab-case.ts`, `kebab-case.html`
-  - Clases: `PascalCase`
-  - Interfaces: `*.interface.ts`
-- **Prettier:** printWidth: 100, singleQuote: true
+## Changes
 
-### 6.1 HTML Semántico (OBLIGATORIO)
+If implementation reveals that the Spec is incomplete or incorrect:
 
-Los templates `.html` deben usar etiquetas semánticas en vez de `div` a secas. Referencia de buenas prácticas: `src/app/pages/auth/callback/callback.html`.
+Spec
+→ Clarification
+→ Plan
+→ Tasks
+→ Tests
+→ Code
+→ Validation
+→ Documentation
 
-| Etiqueta | Uso |
-|----------|-----|
-| `<section>` | Bloque temático autocontenido (un widget, una tarjeta de contenido) |
-| `<header>` | Cabecera de un bloque/sección (título + acciones) |
-| `<footer>` | Pie de un bloque/sección (información complementaria) |
-| `<nav>` | Navegación (paginación, dots de carrusel, menús) |
-| `<h1>`–`<h6>` | Títulos respetando la jerarquía (h2 > h3 > h4...) |
-| `<ul>`/`<ol>` + `<li>` | Listas de datos (nunca `div` repetidos para filas) |
-| `<p>` | Párrafos de texto |
-| `<a>` | Enlaces |
-| `<button>` | Acciones clicables (tipo botón) |
-| `<aside>` | Contenido complementario |
-| `<figure>`/`<figcaption>` | Ilustraciones con pie |
+## Documentation
 
-Reglas:
-1. **Solo `<div>` para layouts puros** (grid/flex que no aportan semántica). Si el contenido es una lista, un título, una navegación o un texto → usar la etiqueta adecuada.
-2. Respetar la **jerarquía de encabezados** (no saltar de h2 a h4 sin h3, no usar h1 repetido en widgets).
-3. **Listas de filas label/value → `<ul>` con `<li>`**, no un `<div>` por fila.
-4. Usar `aria-label`/`aria-labelledby` en secciones, navegaciones y controles sin texto visible.
+- Stable documentation is updated only after validation.
+- Do not duplicate feature behavior in engineering documentation.
+- Do not use Plans as current documentation.
 
----
+## Language
 
-## 7. GraphQL
+- Code: English.
+- Technical documentation: English.
+- Specs: English.
+- Developer-facing responses: developer's requested language.
+- User-facing application content: product language.
 
-- Cliente: Apollo Angular
-- Consultas/Mutaciones: Inline con `gql`
-- Errores: `handleGraphqlError` en `shared/utils/`
+## Validation
 
----
-
-## 8. Arquitectura de Servicios
-
-| Complejidad | Patrón | Servicios |
-|-------------|--------|-----------|
-| **Alta** | Domain + (API \| Storage) + State | PlanTracking |
-| **Media** | Domain + API + State | UserProfile |
-| **Media** | API + Storage + State | Plans, TrackingList |
-| **Media** | API + State | ExtraSession, DayPlan, Workouts |
-| **Baja** | API + Service (juntos) | Exercises, Routines, Auth, Coach, TrainingHistory |
-| **Infra** | Soporte (offline, red, utilidades) | Network, Sync, Storage, Date, Warmup |
-
-> ⚠️ `ExtraSession` **NO tiene Storage** (usa WorkoutState); `DayPlan` es puro State; `UserService` **no existe** (reemplazado por UserProfile).
-
-### Estructura de Services
-```
-core/services/
-├── trackings/              # Alta: Domain + API + Storage + State
-│   ├── plan-tracking.service.ts           # Fachada
-│   ├── plan-tracking.domain.ts            # Lógica de negocio
-│   ├── plan-tracking.state.ts             # Estado reactivo
-│   ├── tracking-list.state.ts             # Estado lista de trackings
-│   └── plan-tracking/
-│       ├── api/plan-tranking.api.ts       # (nota: "tranking" en el nombre del repo)
-│       └── storage/plan-tracking.storage.ts
-├── plans/                  # Media: API + Storage + State
-│   ├── plans.service.ts
-│   ├── day-plan-state.service.ts
-│   ├── api/plans.api.ts
-│   └── storage/plans.storage.ts
-├── extra-session/          # Media: API + State (estado en WorkoutState)
-│   ├── extra-session.service.ts
-│   └── api/extra-session.api.ts
-├── training-history/       # Baja: API + Service
-│   └── training-history.service.ts
-├── user/                   # UserProfile: Domain + API + State
-│   ├── user-profile.service.ts
-│   ├── user-profile.domain.ts
-│   ├── user-profile.state.ts
-│   └── api/
-│       ├── user-profile-api.service.ts
-│       ├── user-profile-api.get.service.ts
-│       └── user-profile-api.set.service.ts
-├── routines/               # Baja: API + Service
-│   ├── routines.service.ts
-│   └── api/routines.api.ts
-├── exercises/              # Baja: API + Service
-│   └── exercises.service.ts
-├── auth/                   # Baja: API + Service (TokenStorage en core/auth/)
-│   ├── auth.service.ts
-│   └── credentials.service.ts
-├── coach/                  # Baja: API + Service
-│   └── coach.service.ts
-├── workouts/               # Estado + API
-│   ├── workout.state.ts
-│   └── api/workout.api.ts
-├── network/                # network-status.service.ts
-├── sync/                   # sync-queue.service.ts, sync.types.ts (offline)
-├── storage/                # indexed-db.service.ts
-├── date.service.ts
-└── warmup.service.ts
-```
-
----
-
-## 9. Estado y Patrones
-
-- **Signals:** `user = signal<any | null>(null)`
-- **RxJS:** BehaviorSubject para cache de services
-
----
-
-## 10. Rutas
-
-```
-/home                    -> Dashboard (protegido)
-/coach                   -> Coach IA (protegido)
-/auth/*                  -> Público (login, register, callback)
-/exercises               -> Biblioteca ejercicios (protegido)
-/my-week                 -> Entrenamiento del día + /success (protegido)
-/plans                   -> Planes + /create (protegido)
-/routines/show/:id       -> Ver rutina (protegido)
-/user                    -> Perfil usuario (protegido)
-/user/profile            -> Editar perfil (protegido)
-/user/history            -> Historial / calendario (protegido)
-/user/trackings          -> Lista + stats + show/:id (protegido)
-```
-
-Todas excepto `/auth` requieren `authGuard`.
-
----
-
-## 11. Comandos
+Quality gates are local (no CI pipeline committed yet — see
+`docs/engineering/ci-cd.md`).
 
 ```bash
-npm start        # Desarrollo http://localhost:4200
-npm run build    # Build producción
+npm start        # dev server, http://localhost:4200
 npm run lint     # ESLint
-npm run format   # Prettier
+npm test         # unit tests (Karma + Jasmine)
+npm run build    # production build + Workbox PWA service worker
+npx prettier --check .   # formatting (no npm script; .prettierrc configured)
 ```
 
----
+E2E uses Playwright (`@playwright/test`) — see `docs/engineering/testing.md`.
+Before touching templates, read `docs/design/ui-conventions.md`.
 
-## 12. Documentos de Referencia
+## Repository Map
 
-| Escenario | Archivo |
-|-----------|---------|
-| Interfaces, Enums, Wrappers, Naming | `CONTRACT.md` |
-| Tracking: componentes y servicios | `documents/components/MyWeekComponent.md` |
-| Rutinas: componentes y servicios | `documents/components/RoutinePlanComponent.md` |
-| Índice de componentes | `documents/components/index.md` |
-| Índice de servicios | `documents/services/index.md` |
-| Auth y Apollo | `documents/services/AuthenticationAndApollo.md` |
-| ExercisesService | `documents/services/ExercisesService.md` |
-| RoutinesService | `documents/services/RoutinesService.md` |
-| UserProfileService | `documents/services/UserProfileService.md` |
-| PlanTrackingService | `documents/services/PlanTrackingService.md` |
-| ExtraSessionService | `documents/services/ExtraSessionService.md` |
-| WorkoutStateService | `documents/services/WorkoutStateService.md` |
-| TrainingHistoryService / /user/history | `documents/components/TrainingHistoryComponent.md` |
-| Guía de estilo / UI (colores por acción, spacing, tipografía, botones) | `documents/design/UI-Conventions.md` |
-
-> **Importante:** Antes de modificar código de tracking o rutinas, leer el documento de componentes correspondiente.
-
-> **Importante:** Antes de crear/modificar templates o revisar cambios de UI, consultar [`documents/design/UI-Conventions.md`](documents/design/UI-Conventions.md) (colores por acción, spacing, tipografía, botones) y AGENTS §6.1.
+- `src/` — application code (`src/app/core`, `src/app/pages`, `src/app/shared`)
+- `docs/engineering/` — stable engineering knowledge (charter, architecture, coding standards, testing, git, ci-cd, pwa)
+- `docs/domain/` — stable domain knowledge (overview, glossary, business rules)
+- `docs/decisions/` — ADRs
+- `docs/specs/` — feature Specs (source of truth per feature)
+- `docs/design/` — UI/UX conventions
+- `docs/plans/` — implementation plans/history
+- `docs/legacy/` — archived historical documentation (former `documents/`; reference only)
