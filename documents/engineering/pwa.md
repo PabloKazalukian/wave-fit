@@ -185,7 +185,7 @@ On user acceptance it reloads and sends `SKIP_WAITING`.
 | User profile (`Me`)            | ✅     | ✅ From IndexedDB      |
 | Mutations (create, etc.)       | ✅     | ❌ Without connection  |
 
-The frontend **offline-first layer** (for writes) lives in `SyncQueueService` + `IndexedDbStorageService`; see the [pwa-offline Spec](../specs/pwa-offline/spec.md).
+The frontend **offline-first layer** (for writes) lives in `SyncQueueService` + `IndexedDbStorageService`; see the [pwa-offline Spec](../../sdd/pwa-offline/spec.md).
 
 ---
 

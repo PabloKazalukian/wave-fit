@@ -6,7 +6,7 @@ This directory contains the **feature-level contracts** of the WaveFit frontend.
 
 > **The current Spec and the current Code are the authoritative sources for implemented behavior.**
 
-Specs describe **what a feature must do**, not only implementation notes. They are the first artifact to read before planning, implementing, or changing a feature (see the [Engineering Charter](../engineering/charter.md)).
+Specs describe **what a feature must do**, not only implementation notes. They are the first artifact to read before planning, implementing, or changing a feature (see the [Engineering Charter](../documents/engineering/charter.md)).
 
 ## Required top-level structure
 
@@ -42,8 +42,8 @@ Use explicit, stable identifiers:
 | `TEST-xxx` | Test scenario              |
 | `AC-xxx`   | Acceptance criterion       |
 
-- Cross-feature domain rules `BR-0xx` are defined in [Domain Business Rules](../domain/business-rules.md) and referenced (not duplicated).
-- Stable engineering rules live in [Engineering Documentation](../engineering/README.md).
+- Cross-feature domain rules `BR-0xx` are defined in [Domain Business Rules](../documents/domain/business-rules.md) and referenced (not duplicated).
+- Stable engineering rules live in [Engineering Documentation](../documents/engineering/README.md).
 - Data contracts shared by more than one feature are embedded in the owning spec and referenced from others.
 
 ## Specs
@@ -64,4 +64,4 @@ Use explicit, stable identifiers:
 
 ---
 
-_Historical implementation plans and old documentation are archived in [../legacy/README.md](../legacy/README.md). UI design reference: [../design/ui-conventions.md](../design/ui-conventions.md)._
+_Historical implementation plans and old documentation are archived in [../documents/legacy/README.md](../documents/legacy/README.md). UI design reference: [../documents/design/ui-conventions.md](../documents/design/ui-conventions.md)._

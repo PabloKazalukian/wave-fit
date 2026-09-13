@@ -4,14 +4,14 @@ Archived documentation from the former `documents/` tree. These files are **hist
 
 ## Archive map
 
-| Legacy path                | Superseded by                                                                                                 |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `components/`              | [Specs](../specs/README.md) + [architecture.md](../engineering/architecture.md) + `shared/components/widgets` |
-| `services/`                | [Specs](../specs/README.md) + [architecture.md](../engineering/architecture.md) (services/index.md mapping)   |
-| `workflows/`               | Domain rules [business-rules.md](../domain/business-rules.md) + tracking/day-log specs                        |
-| `pwa/`                     | [pwa.md](../engineering/pwa.md) + [pwa-offline spec](../specs/pwa-offline/spec.md)                            |
-| `plans/`                   | Spec history (`implementation-plan-day.md` → [day-log spec](../specs/day-log/spec.md))                        |
-| `design/UI-Conventions.md` | [../design/ui-conventions.md](../design/ui-conventions.md) (translated, live)                                 |
+| Legacy path                | Superseded by                                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `components/`              | [Specs](../../sdd/README.md) + [architecture.md](../engineering/architecture.md) + `shared/components/widgets` |
+| `services/`                | [Specs](../../sdd/README.md) + [architecture.md](../engineering/architecture.md) (services/index.md mapping)   |
+| `workflows/`               | Domain rules [business-rules.md](../domain/business-rules.md) + tracking/day-log specs                         |
+| `pwa/`                     | [pwa.md](../engineering/pwa.md) + [pwa-offline spec](../../sdd/pwa-offline/spec.md)                            |
+| `plans/`                   | Spec history (`implementation-plan-day.md` → [day-log spec](../../sdd/day-log/spec.md))                        |
+| `design/UI-Conventions.md` | [../design/ui-conventions.md](../design/ui-conventions.md) (translated, live)                                  |
 
 > Removed during migration: `documents/workflows/readm.md` (a personal GitHub profile, unrelated to the project) and root `CONTRACT.md` (content fully distributed into the specs and `coding-standards.md`).
 
@@ -23,4 +23,4 @@ Archived documentation from the former `documents/` tree. These files are **hist
 - **pwa/** — offline PWA design plans and documentation.
 - **plans/** — historical implementation plans (e.g., `implementation-plan-day.md`, `actualizacion-documentacion.md`).
 
-All legacy content was written in Spanish; the active docs tree ([docs/](../README.md)) is in English.
+All legacy content was written in Spanish; the active docs tree ([documents/](../README.md)) is in English.

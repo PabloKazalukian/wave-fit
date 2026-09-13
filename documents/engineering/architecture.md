@@ -2,7 +2,7 @@
 
 This document describes the **stable high-level architecture** of the WaveFit frontend repository.
 
-It is intentionally feature-agnostic. Feature-specific architecture, files, and data contracts live in the relevant [Specs](../specs/README.md). UI visual conventions live in [UI-Conventions](../design/ui-conventions.md).
+It is intentionally feature-agnostic. Feature-specific architecture, files, and data contracts live in the relevant [Specs](../../sdd/README.md). UI visual conventions live in [UI-Conventions](../design/ui-conventions.md).
 
 ---
 
@@ -228,7 +228,7 @@ A **root factory token** (`workouts/workout-store.mode.ts`, `workoutStoreByMode(
     - `SyncQueueService` → mutation queue (`enqueue` / `dequeue` / `processQueue` on reconnect), with domain handlers per operation name (e.g., `CreateExercise`, `CreateRoutineDay`, `UpdateWeekLogDay`).
 - Background-sync listener exists in `src/sw.js` for `sync-mutations`.
 
-See [`pwa.md`](pwa.md) for the detailed current-state reference and the [pwa-offline Spec](../specs/pwa-offline/spec.md) for the feature capability model.
+See [`pwa.md`](pwa.md) for the detailed current-state reference and the [pwa-offline Spec](../../sdd/pwa-offline/spec.md) for the feature capability model.
 
 ---
 

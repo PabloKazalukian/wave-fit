@@ -114,15 +114,15 @@ Todas excepto `/auth` requieren sesión iniciada (`authGuard`).
 
 ## 📖 Documentación
 
-La documentación técnica vive en [`/docs`](./docs/) (inglés, spec-anclada). Para empezar: [docs/README.md](./docs/README.md).
+La documentación técnica vive en [`/documents`](./documents/) y los Specs en [`/sdd`](./sdd/README.md) (inglés, spec-anclada). Para empezar: [documents/README.md](./documents/README.md).
 
-| Recurso                                           | Descripción                              |
-| ------------------------------------------------- | ---------------------------------------- |
-| [Specs](./docs/specs/README.md)                   | Contratos por feature (fuente de verdad) |
-| [Domain](./docs/domain/README.md)                 | Glosario y business rules                |
-| [Engineering](./docs/engineering/README.md)       | Arquitectura, coding standards, tests    |
-| [UI Conventions](./docs/design/ui-conventions.md) | Colores, spacing, tipografía, botones    |
-| [Archivo histórico](./docs/legacy/README.md)      | Antiguos `documents/` (referencia)       |
+| Recurso                                                | Descripción                              |
+| ------------------------------------------------------ | ---------------------------------------- |
+| [Specs](./sdd/README.md)                               | Contratos por feature (fuente de verdad) |
+| [Domain](./documents/domain/README.md)                 | Glosario y business rules                |
+| [Engineering](./documents/engineering/README.md)       | Arquitectura, coding standards, tests    |
+| [UI Conventions](./documents/design/ui-conventions.md) | Colores, spacing, tipografía, botones    |
+| [Archivo histórico](./documents/legacy/README.md)      | Antiguos `documents/` (referencia)       |
 
 ---
 

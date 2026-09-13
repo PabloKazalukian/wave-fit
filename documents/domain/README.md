@@ -8,4 +8,4 @@ Canonical domain vocabulary and cross-feature rules for WaveFit.
 | [glossary.md](glossary.md)             | Canonical glossary (what every term means, legacy replacements)                                                             |
 | [business-rules.md](business-rules.md) | Stable cross-feature business rules (`BR-001`…`BR-014`)                                                                     |
 
-> Feature-specific requirements/constraints belong to the owning [Spec](../specs/README.md), not here.
+> Feature-specific requirements/constraints belong to the owning [Spec](../../sdd/README.md), not here.

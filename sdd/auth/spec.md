@@ -21,7 +21,7 @@ WaveFit requires an authenticated user for every feature except the auth pages t
 
 ### BR
 
-Cross-cutting domain rules apply (see [business-rules.md](../../domain/business-rules.md)); `BR-005` (route protection) is owned by this feature.
+Cross-cutting domain rules apply (see [business-rules.md](../../documents/domain/business-rules.md)); `BR-005` (route protection) is owned by this feature.
 
 ### NFR
 

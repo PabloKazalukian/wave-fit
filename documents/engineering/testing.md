@@ -2,7 +2,7 @@
 
 This document defines the **stable testing strategy** for the WaveFit frontend repository.
 
-Feature-specific test scenarios live in the relevant [Specs](../specs/README.md) under their `Tests` section.
+Feature-specific test scenarios live in the relevant [Specs](../../sdd/README.md) under their `Tests` section.
 
 ---
 

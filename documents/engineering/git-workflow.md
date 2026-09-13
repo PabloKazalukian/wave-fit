@@ -35,8 +35,8 @@ This document defines the **branch strategy, commit conventions, and merge rules
 
 - Open a PR to `main` when the feature/fix branch is ready.
 - The PR description should reference:
-    - the Spec it implements (`docs/specs/<feature>/spec.md`);
-    - the Plan it follows (`docs/plans/<feature>/plan.md`), when applicable;
+    - the Spec it implements (`sdd/<feature>/spec.md`);
+    - the Plan it follows (`documents/plans/<feature>/plan.md`), when applicable;
     - the validation performed.
 - CI checks run on the PR (lint, build, tests — see [ci-cd.md](ci-cd.md)).
 

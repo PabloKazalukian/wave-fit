@@ -2,7 +2,7 @@
 
 Stable domain/business rules that apply **across multiple features**.
 
-> Rules that are only relevant to one feature belong in that feature's [Spec](../specs/README.md) and must not be duplicated here.
+> Rules that are only relevant to one feature belong in that feature's [Spec](../../sdd/README.md) and must not be duplicated here.
 
 ---
 

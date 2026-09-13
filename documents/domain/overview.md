@@ -1,6 +1,6 @@
 # WaveFit — Domain Overview
 
-This document describes the WaveFit domain at a **stable conceptual level**. It is not a feature specification; feature contracts live in the [Specs](../specs/README.md). The canonical vocabulary lives in the [Glossary](glossary.md).
+This document describes the WaveFit domain at a **stable conceptual level**. It is not a feature specification; feature contracts live in the [Specs](../../sdd/README.md). The canonical vocabulary lives in the [Glossary](glossary.md).
 
 ---
 

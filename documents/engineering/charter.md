@@ -2,7 +2,7 @@
 
 This document defines the **stable engineering principles and development methodology** of the WaveFit frontend repository.
 
-It is not feature-specific. Feature behavior lives in the relevant [Specs](../specs/README.md). Implementation history lives in [Plans](../plans/README.md). Technical decisions live in [ADRs](../decisions/README.md).
+It is not feature-specific. Feature behavior lives in the relevant [Specs](../../sdd/README.md). Implementation history lives in [Plans](../plans/README.md). Technical decisions live in [ADRs](../decisions/README.md).
 
 ---
 

@@ -8,17 +8,17 @@ backend is a separate NestJS repository).
 
 It defines navigation rules and mandatory development behavior.
 It does not contain detailed architectural, domain, feature, or
-implementation documentation — those live in `docs/`.
+implementation documentation — those live in `documents/` and `sdd/`.
 
 ## Mandatory Read Order
 
-1. `docs/engineering/charter.md`
-2. Relevant engineering documentation (`docs/engineering/README.md`)
-3. Relevant domain documentation (`docs/domain/README.md`)
-4. Relevant ADRs (`docs/decisions/README.md`)
-5. Relevant Spec (`docs/specs/README.md`)
+1. `documents/engineering/charter.md`
+2. Relevant engineering documentation (`documents/engineering/README.md`)
+3. Relevant domain documentation (`documents/domain/README.md`)
+4. Relevant ADRs (`documents/decisions/README.md`)
+5. Relevant Spec (`sdd/README.md`)
 6. Relevant existing code and tests (`src/`)
-7. Create or review the Plan (`docs/plans/<feature>/plan.md`)
+7. Create or review the Plan (`documents/plans/<feature>/plan.md`)
 
 ## Development Workflow
 
@@ -37,10 +37,10 @@ Engineering Charter
 For implemented behavior:
 
 - Spec + Code are authoritative.
-- Stable documentation (`docs/engineering/`, `docs/domain/`) describes the
+- Stable documentation (`documents/engineering/`, `documents/domain/`) describes the
   validated current system.
-- ADRs (`docs/decisions/`) preserve decision rationale.
-- Plans (`docs/plans/`) and the legacy archive (`docs/legacy/`) are historical
+- ADRs (`documents/decisions/`) preserve decision rationale.
+- Plans (`documents/plans/`) and the legacy archive (`documents/legacy/`) are historical
   and non-authoritative.
 
 A contradiction between Spec and Code must be explicitly resolved.
@@ -53,7 +53,7 @@ the developer explicitly requests planning.
 
 Plans live in:
 
-`docs/plans/<feature>/plan.md`
+`documents/plans/<feature>/plan.md`
 
 Plans are implementation artifacts and never define current behavior.
 
@@ -95,7 +95,7 @@ Spec
 ## Validation
 
 Quality gates are local (no CI pipeline committed yet — see
-`docs/engineering/ci-cd.md`).
+`documents/engineering/ci-cd.md`).
 
 ```bash
 npm start        # dev server, http://localhost:4200
@@ -105,16 +105,16 @@ npm run build    # production build + Workbox PWA service worker
 npx prettier --check .   # formatting (no npm script; .prettierrc configured)
 ```
 
-E2E uses Playwright (`@playwright/test`) — see `docs/engineering/testing.md`.
-Before touching templates, read `docs/design/ui-conventions.md`.
+E2E uses Playwright (`@playwright/test`) — see `documents/engineering/testing.md`.
+Before touching templates, read `documents/design/ui-conventions.md`.
 
 ## Repository Map
 
 - `src/` — application code (`src/app/core`, `src/app/pages`, `src/app/shared`)
-- `docs/engineering/` — stable engineering knowledge (charter, architecture, coding standards, testing, git, ci-cd, pwa)
-- `docs/domain/` — stable domain knowledge (overview, glossary, business rules)
-- `docs/decisions/` — ADRs
-- `docs/specs/` — feature Specs (source of truth per feature)
-- `docs/design/` — UI/UX conventions
-- `docs/plans/` — implementation plans/history
-- `docs/legacy/` — archived historical documentation (former `documents/`; reference only)
+- `sdd/` — feature Specs (source of truth per feature: `sdd/<feature>/spec.md`)
+- `documents/engineering/` — stable engineering knowledge (charter, architecture, coding standards, testing, git, ci-cd, pwa)
+- `documents/domain/` — stable domain knowledge (overview, glossary, business rules)
+- `documents/decisions/` — ADRs
+- `documents/design/` — UI/UX conventions
+- `documents/plans/` — implementation plans/history
+- `documents/legacy/` — archived historical documentation (former loose `documents/` tree; reference only)

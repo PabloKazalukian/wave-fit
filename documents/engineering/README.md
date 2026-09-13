@@ -12,4 +12,4 @@ Stable engineering rules and system references for the WaveFit frontend.
 | [ci-cd.md](ci-cd.md)                       | Build/quality gates and deployment (current status)                                                                                   |
 | [pwa.md](pwa.md)                           | PWA architecture (Workbox, build pipeline, offline caching)                                                                           |
 
-> Start here: read the [Charter](charter.md) first, then the [Architecture](architecture.md) and the relevant [Spec](../specs/README.md) for the feature you touch.
+> Start here: read the [Charter](charter.md) first, then the [Architecture](architecture.md) and the relevant [Spec](../../sdd/README.md) for the feature you touch.
