@@ -88,7 +88,7 @@ export interface TrainingCalendarInput {
 ## Files
 
 ```
-src/app/core/services/training-history/training-history.service.ts  (+ .spec.ts — broken, imports nonexistent './training-history')
+src/app/core/services/training-history/training-history.service.ts  (+ training-history.service.spec.ts)
 src/app/core/apollo/training-history.queries.ts
 src/app/shared/interfaces/training-history.interface.ts
 src/app/pages/user/history/  (history.ts, history.html, history.css — no spec file)
@@ -117,10 +117,10 @@ src/app/pages/user/history/  (history.ts, history.html, history.css — no spec 
 
 ## Tests
 
-- **TEST-001** ~~`getTrainingCalendar` sends `month+1` to the API (1-based) with the user's timezone.~~ **NOT IMPLEMENTED.**
-- **TEST-002** ~~Response maps correctly: days list, type, status, optional `weekLogReference`.~~ **NOT IMPLEMENTED.**
+- **TEST-001** `getTrainingCalendar` sends `month+1` to the API (1-based) with the user's timezone. ✅ (`training-history.service.spec.ts`)
+- **TEST-002** Response maps correctly: days list, type, status, optional `weekLogReference`. ✅ (`training-history.service.spec.ts`)
 
-**Note:** The existing `training-history.spec.ts` is broken — it imports `TrainingHistory` from `./training-history` which does not exist (the real export is `TrainingHistoryService` from `./training-history.service`). There is no `history.spec.ts` for the page component.
+**Note:** The previous `training-history.spec.ts` (broken import of nonexistent `./training-history`) was removed; coverage now lives in `training-history.service.spec.ts`. There is no `history.spec.ts` for the page component.
 
 ## Acceptance Criteria
 
