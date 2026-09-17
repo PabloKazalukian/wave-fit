@@ -316,6 +316,15 @@ export class PlanDayDomainService {
             tap((res) => {
                 if (res) {
                     this.state.setDayLog(res);
+                    // Parity con week-log: la sesión global se vacía localmente de forma
+                    // determinista (id + exercises + status 'pending'), aunque el backend
+                    // devuelva un payload parcial que mantendría datos stale tras el merge.
+                    this.state.updateDayLog((d) => ({
+                        ...d,
+                        workoutSessionId: undefined,
+                        exercises: [],
+                        status: 'pending',
+                    }));
                 }
             }),
             map(() => this.state.getDayLogValue()),

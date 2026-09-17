@@ -133,7 +133,7 @@ export function wrapperAssignRoutineToDayLogApiToVM(
     };
 }
 
-/** RemoveWorkoutSessionFromDayLog → { id workoutSessionId status } */
+/** RemoveWorkoutSessionFromDayLog → { id workoutSessionId status } + cleared exercises */
 export function wrapperRemoveWorkoutSessionFromDayLogApiToVM(
     payload: RemoveWorkoutSessionFromDayLogResultAPI | null,
 ): Partial<DayLogVM> {
@@ -141,7 +141,8 @@ export function wrapperRemoveWorkoutSessionFromDayLogApiToVM(
     return {
         id: payload.id,
         workoutSessionId: payload.workoutSessionId ?? undefined,
-        status: payload.status,
+        status: payload.status ?? 'pending',
+        exercises: [],
     };
 }
 

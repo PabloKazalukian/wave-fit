@@ -1,6 +1,12 @@
-import { UpdateDayLogResultAPI } from '../interfaces/api/day-log-api.interface';
+import {
+    RemoveWorkoutSessionFromDayLogResultAPI,
+    UpdateDayLogResultAPI,
+} from '../interfaces/api/day-log-api.interface';
 import { Exercise, ExerciseCategory } from '../interfaces/exercise.interface';
-import { wrapperUpdateDayLogApiToVM } from './day-log.wrapper';
+import {
+    wrapperRemoveWorkoutSessionFromDayLogApiToVM,
+    wrapperUpdateDayLogApiToVM,
+} from './day-log.wrapper';
 
 describe('wrapperUpdateDayLogApiToVM', () => {
     const catalog: Exercise[] = [
@@ -60,5 +66,48 @@ describe('wrapperUpdateDayLogApiToVM', () => {
         expect(res.exercises?.[0].name).toBe('Press banca');
         expect(res.exercises?.[0].usesWeight).toBe(true);
         expect(res.exercises?.[0].category).toBe(ExerciseCategory.CHEST);
+    });
+});
+
+describe('wrapperRemoveWorkoutSessionFromDayLogApiToVM', () => {
+    it('returns an empty object for a null payload', () => {
+        expect(wrapperRemoveWorkoutSessionFromDayLogApiToVM(null)).toEqual({});
+    });
+
+    it('clears the day exercises', () => {
+        const res = wrapperRemoveWorkoutSessionFromDayLogApiToVM({ id: 'day-1' });
+        expect(res.exercises).toEqual([]);
+    });
+
+    it('normalizes a null workoutSessionId to undefined', () => {
+        const res = wrapperRemoveWorkoutSessionFromDayLogApiToVM({
+            id: 'day-1',
+            workoutSessionId: null,
+        });
+        expect(res.workoutSessionId).toBeUndefined();
+    });
+
+    it('falls back to pending status when the backend does not provide one', () => {
+        const res = wrapperRemoveWorkoutSessionFromDayLogApiToVM({ id: 'day-1' });
+        expect(res.status).toBe('pending');
+    });
+
+    it('keeps the status returned by the backend', () => {
+        const res = wrapperRemoveWorkoutSessionFromDayLogApiToVM({
+            id: 'day-1',
+            status: 'complete',
+        });
+        expect(res.status).toBe('complete');
+    });
+
+    it('maps the day id', () => {
+        const payload: RemoveWorkoutSessionFromDayLogResultAPI = {
+            id: 'day-1',
+            workoutSessionId: 'ws-1',
+            status: 'pending',
+        };
+        expect(wrapperRemoveWorkoutSessionFromDayLogApiToVM(payload)).toEqual(
+            jasmine.objectContaining({ id: 'day-1' }),
+        );
     });
 });

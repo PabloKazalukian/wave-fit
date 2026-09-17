@@ -16,10 +16,11 @@ import { PlanDayStateService } from './plan-day.state';
 describe('PlanDayDomainService.createWorkout', () => {
     let service: PlanDayDomainService;
     let dayLog: DayLogVM | null;
-    let api: { updateDayLog: jasmine.Spy };
+    let api: { updateDayLog: jasmine.Spy; removeWorkoutSessionFromDayLog: jasmine.Spy };
     let state: {
         getDayLogValue: jasmine.Spy;
         setDayLog: jasmine.Spy;
+        updateDayLog: jasmine.Spy;
         setLoadingWorkoutCreation: jasmine.Spy;
     };
     let storage: { setDayLogStorage: jasmine.Spy };
@@ -39,12 +40,22 @@ describe('PlanDayDomainService.createWorkout', () => {
     beforeEach(() => {
         dayLog = buildDayLog();
 
-        api = { updateDayLog: jasmine.createSpy('updateDayLog') };
+        api = {
+            updateDayLog: jasmine.createSpy('updateDayLog'),
+            removeWorkoutSessionFromDayLog: jasmine.createSpy('removeWorkoutSessionFromDayLog'),
+        };
         state = {
             getDayLogValue: jasmine.createSpy('getDayLogValue').and.callFake(() => dayLog),
             setDayLog: jasmine.createSpy('setDayLog').and.callFake((next: DayLogVM | null) => {
                 dayLog = next;
             }),
+            updateDayLog: jasmine
+                .createSpy('updateDayLog')
+                .and.callFake((updater: (d: DayLogVM) => DayLogVM) => {
+                    if (dayLog) {
+                        dayLog = updater(dayLog);
+                    }
+                }),
             setLoadingWorkoutCreation: jasmine.createSpy('setLoadingWorkoutCreation'),
         };
         storage = { setDayLogStorage: jasmine.createSpy('setDayLogStorage') };
@@ -160,5 +171,41 @@ describe('PlanDayDomainService.createWorkout', () => {
 
         expect(result).toBeNull();
         expect(api.updateDayLog).not.toHaveBeenCalled();
+    });
+
+    describe('removeWorkoutSession', () => {
+        it('clears the flat session locally even when the api returns a clone with stale exercises', () => {
+            dayLog = buildDayLog({
+                workoutSessionId: 'ws-1',
+                status: 'complete',
+                exercises: [
+                    {
+                        exerciseId: 'ex-1',
+                        name: 'Press banca',
+                        category: ExerciseCategory.CHEST,
+                        usesWeight: true,
+                        series: 3,
+                        sets: [{ reps: 10, weights: 50 }],
+                    },
+                ],
+            });
+            api.removeWorkoutSessionFromDayLog.and.returnValue(of({ ...dayLog }));
+
+            let result: DayLogVM | null | undefined;
+            service.removeWorkoutSession('ws-1').subscribe((res) => (result = res));
+
+            expect(result?.workoutSessionId).toBeUndefined();
+            expect(result?.exercises).toEqual([]);
+            expect(result?.status).toBe('pending');
+        });
+
+        it('does nothing when the api returns no data', () => {
+            dayLog = buildDayLog({ workoutSessionId: 'ws-1', status: 'complete' });
+            api.removeWorkoutSessionFromDayLog.and.returnValue(of(null));
+
+            service.removeWorkoutSession('ws-1').subscribe();
+
+            expect(state.updateDayLog).not.toHaveBeenCalled();
+        });
     });
 });
