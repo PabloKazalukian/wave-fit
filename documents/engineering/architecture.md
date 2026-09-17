@@ -121,7 +121,7 @@ Services are grouped under `core/services/<feature>/` and classified by complexi
 | **High**   | Domain + API + Storage + State | `PlanTrackingService`, `PlanDayService`                                                                    |
 | **High**   | Domain + API + State           | `UserProfileService`                                                                                       |
 | **Medium** | API + Storage + State          | `PlansService`                                                                                             |
-| **Medium** | API + State                    | `ExtraSessionService`, `WorkoutStateService` (+ `DayWorkoutStore`), `CoachService` (API + State + Storage) |
+| **Medium** | API + State                    | `ExtraSessionService`, `WorkoutStateService` (+ `DayWorkoutStore`), `CoachService` (API + State + Storage), `ActiveTrackingService` (+ `ActiveTrackingApi`) |
 | **Low**    | API + Service                  | `ExercisesService`, `RoutinesService`, `AuthService`, `TrainingHistoryService`                             |
 | **Infra**  | Support                        | `NetworkStatusService`, `SyncQueueService`, `IndexedDbStorageService`, `DateService`, `WarmupService`      |
 
@@ -142,6 +142,7 @@ core/services/
 ├── trackings/       # plan-tracking.service.ts / .domain.ts / .state.ts,
 │                    # active-tracking.{api,service}.ts, tracking-list.state.ts,
 │                    # plan-tracking/{api,storage}
+├── training-history/# training-history.service.ts
 ├── training-history/# training-history.service.ts
 ├── user/            # user-profile.service.ts / .domain.ts / .state.ts, api/
 ├── workouts/        # workout.state.ts, day-workout.store.ts, workout-store.*.ts, api/workout.api.ts
@@ -180,13 +181,17 @@ export interface WorkoutStore {
     updateExercises(exercises: ExercisePerformanceVM[]): void;
 
     createWorkout(date: LocalDate): Observable<unknown>;
-    setRestDay(date, workout, status): Observable<unknown>;
-    setRemoveAllExercises(date): void;
-    updateWorkoutStatus(date, status): void;
-    updateWorkoutSession(date, workout): void;
-    removeWorkoutSession(date, id): Observable<boolean>;
-    createWorkoutWithRoutine(routineDayId, date): Observable<unknown>;
-    createRoutineFromWorkout(title, exerciseIds): Observable<RoutineDayAPI | null>;
+    setRestDay(
+        date: LocalDate,
+        workout: WorkoutSessionVM,
+        status: StatusWorkoutSession,
+    ): Observable<unknown>;
+    setRemoveAllExercises(date: LocalDate): void;
+    updateWorkoutStatus(date: LocalDate, status: StatusWorkoutSession): void;
+    updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): void;
+    removeWorkoutSession(date: LocalDate, id: string): Observable<boolean>;
+    createWorkoutWithRoutine(routineDayId: string, date: LocalDate): Observable<unknown>;
+    createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<RoutineDayAPI | null>;
 }
 
 export const WORKOUT_STORE = new InjectionToken<WorkoutStore>('WORKOUT_STORE');
@@ -207,7 +212,7 @@ A **root factory token** (`workouts/workout-store.mode.ts`, `workoutStoreByMode(
 
 - **Service caches**: `BehaviorSubject<T>` exposed as `readonly $` observable plus a `toSignal(..., { initialValue })` where convenient.
 - **Atomic/active state**: Signals for the resolution of the active element (e.g., `TrackingStateService.tracking`, `PlanDayStateService.dayLog`, `WorkoutStateService.workoutSession`).
-- **Reactive user effect**: services that depend on the authenticated user subscribe to `AuthService.user$` in a constructir `effect` and initialize/reset their state when the user changes (e.g., `PlanTrackingService`, `ActiveTrackingService`).
+- **Reactive user effect**: services that depend on the authenticated user subscribe to `AuthService.user$` in a constructor `effect` and initialize/reset their state when the user changes (e.g., `PlanTrackingService`, `ActiveTrackingService`).
 - **Debounced persistence**: long-lived edits (e.g., exercise edits) persist through `debounceTime(4000)` to avoid saturating the API.
 - **Loading/error/ready**: each state service exposes `loading*`, `error`, and (where relevant) `ready` signals.
 
@@ -225,7 +230,7 @@ A **root factory token** (`workouts/workout-store.mode.ts`, `workoutStoreByMode(
 - **Offline-first infrastructure** (frontend services):
     - `NetworkStatusService` → online/offline signal.
     - `IndexedDbStorageService` (Dexie) → `exercises`, `routines`, `plans`, `tracking`/`dayLogs`, `graphqlCache`, `pendingMutations`, `authUser`.
-    - `SyncQueueService` → mutation queue (`enqueue` / `dequeue` / `processQueue` on reconnect), with domain handlers per operation name (e.g., `CreateExercise`, `CreateRoutineDay`, `UpdateWeekLogDay`).
+    - `SyncQueueService` → mutation queue (`enqueue` / `dequeue` / `processQueue` on reconnect), with domain handlers registered per operation name. Currently registered: `CreateExercise`, `CreateRoutinePlan`, `CreateRoutineDay`, `UpdateWeekLogDay`, `UpdateDayLog`.
 - Background-sync listener exists in `src/sw.js` for `sync-mutations`.
 
 See [`pwa.md`](pwa.md) for the detailed current-state reference and the [pwa-offline Spec](../../sdd/pwa-offline/spec.md) for the feature capability model.
@@ -234,12 +239,12 @@ See [`pwa.md`](pwa.md) for the detailed current-state reference and the [pwa-off
 
 ## 9. Authentication Architecture
 
-- **Flows**: Google OAuth (PKCE) and email/password.
+- **Flows**: Google OAuth (PKCE, via Google Identity Services — `https://accounts.google.com/gsi/client` loaded in `index.html`) and email/password.
 - **Token**: JWT delivered in an **HttpOnly cookie** (`token`); in production `Secure` + `SameSite=None`.
-- **Apollo**: no `authLink`; GraphQL requests use `withCredentials`. An `errorLink` handles `UNAUTHENTICATED` (fires a logout) and is wired in `main.ts`.
-- **TokenStorage** (`core/auth/token.storage.ts`): asynchronous persistence over **IndexedDB/Dexie** (store `authUser`). `AuthService` exposes signals + `initializeUserFromStorage`, `updateAvatar`, `avatarUrl`.
-- **Credentials** (`credentials.service.ts`): "remember me" encrypted data in `localStorage`.
-- **Startup**: `auth.initializer.ts` restores the session with timeouts (3s) before the app renders; `authGuard` protects all routes except `/auth`.
+- **Apollo**: no `authLink`; GraphQL requests use `withCredentials`. An `errorLink` handles `UNAUTHENTICATED`/`UNAUTHORIZED` and HTTP 401 (fires a logout + redirect to `/auth/login`) and is wired in `main.ts`.
+- **TokenStorage** (`core/auth/token.storage.ts`): asynchronous persistence over **IndexedDB/Dexie** (store `authUser`, key `current`). `AuthService` (in `core/services/auth/`) exposes signals + `initializeUserFromStorage`, `me()`, `hasSession()`, `avatarUrl` (`computed`).
+- **Credentials** (`core/services/auth/credentials.service.ts`): "remember me" encrypted data in `localStorage` (`remember`, `identifier`, `password` via `encryption.util`).
+- **Startup**: `auth.initializer.ts` runs before the app renders — it skips `/auth/login` and `/auth/register`, hydrates the session from IndexedDB first, then (only if a session exists) refreshes via `me()` with a **3s timeout**, non-blocking when offline. `authGuard` protects all routes except `/auth`.
 
 ---
 

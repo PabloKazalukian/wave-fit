@@ -38,7 +38,7 @@ This document defines the **branch strategy, commit conventions, and merge rules
     - the Spec it implements (`sdd/<feature>/spec.md`);
     - the Plan it follows (`documents/plans/<feature>/plan.md`), when applicable;
     - the validation performed.
-- CI checks run on the PR (lint, build, tests — see [ci-cd.md](ci-cd.md)).
+- There is **no committed CI pipeline yet** (no `.github/workflows`, no `vercel.json`); validate locally with the gates in [ci-cd.md](ci-cd.md) (lint, format check, unit tests, e2e, build, type check) before opening the PR.
 
 ---
 

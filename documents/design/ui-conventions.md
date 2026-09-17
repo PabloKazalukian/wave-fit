@@ -152,9 +152,11 @@ Global fonts: `Lato` (sans, body) and `Work Sans` (heading).
 
 **Forbidden** to create buttons with loose classes (`<button class="bg-...">`). Use `app-btn` (renders an `<a>` when there is a `routerLink`, a `<button>` otherwise).
 
-| Prop              | Values                                                                                    | Use                                        |
-| ----------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------ |
-| `variant`         | `raised` (solid=CTA) / `outline` (border=contextual) / `ghost` (cancel) / `flat` (subtle) | by button hierarchy                        |
+> Legacy widget templates (e.g. `workout-in-progress.html`) still contain raw `<button>` elements from before this rule; leave them as-is unless the widget is being migrated, but route **new or edited** buttons through `app-btn`.
+
+| Prop              | Values                                                                                                                    | Use                                        |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `variant`         | `basic` / `basicLight` / `raised` (solid=CTA) / `stroked` / `strokedColor` (borde + texto color) / `flat` (relleno sutil) / `outline` (borde color) / `outlineLigth` / `outlineDark` / `ghost` (cancel) / `ghostColor` | by button hierarchy                        |
 | `size`            | `sm` / `md`                                                                               | `md` for featured CTAs                     |
 | `color`           | tokens from the §1 table                                                                  | by action role                             |
 | `showIcon`        | `true` → arrow (or projected `<app-icon>`)                                                | CTAs                                       |

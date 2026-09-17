@@ -20,7 +20,7 @@ Feature-specific test scenarios live in the relevant [Specs](../../sdd/README.md
 - Framework: **Jasmine** runner on **Karma** (`jasmine-core`, `karma`, `karma-chrome-launcher`, `karma-jasmine`, `karma-coverage`).
 - Command: `npm test` (alias `ng test`); `ng test` in watch mode for development.
 - Location: co-located `*.spec.ts` next to the source file (e.g., `exercises.service.spec.ts`, `plan-tracking.spec.ts`, `workout.spec.ts`).
-- Covered areas today include: services (`auth`, `coach`, `exercises`, `plans`, `routines`, `tracking-history`, `user-profile`), API modules (`extra-session.api`, `plans.api`, `routines.api`, `plan-tranking.api`), storage (`plans.storage`, `plan-tracking.storage`), state (`workout`), infra (`date.service`, `token.storage`, `credentials`).
+- Covered areas today include: core services (`auth`, `coach`, `exercises`, `extra-session`, `plans`, `routines`, `tracking`, `training-history`, `user-profile`), API modules (`extra-session.api`, `plans.api`, `routines.api`, `plan-tranking.api`), storage (`plans.storage`, `plan-tracking.storage`), state (`workout`), infra (`date.service`, `token.storage`, `credentials`), plus a broad set of shared UI/widget component specs (`btn`, `alert`, `avatar`, `dialog`, `input-number`, `select`, `table`, `tracking-week`, `coach-manage`, `routine-form`, `user-profile`, etc.).
 
 ### Naming
 
@@ -36,6 +36,7 @@ Feature-specific test scenarios live in the relevant [Specs](../../sdd/README.md
 - Command: `npx playwright test` (not wired into `npm` scripts).
 - Config: `playwright.config.ts` (baseURL `http://localhost:4200`, `data-test` test id attribute, chromium project, `e2e/.auth/user.json` storage state, HTML reporter, CI-aware retries/workers).
 - A **setup** project (`*.setup.ts`) prepares authenticated state before the main suite.
+- **Note**: `webServer` is **not** configured in `playwright.config.ts` (commented out) — the app must be running already (`npm start`) before `npx playwright test`.
 
 ---
 

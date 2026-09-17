@@ -21,6 +21,7 @@ This document defines the **stable source-code conventions** for the WaveFit fro
 
 - `plan-tranking.api.ts` — the "tranking" typo is legacy and **must not** be silently renamed in a behavior change.
 - Service files in high-complexity features use `.ts` suffixes without `.service`: `plan-tracking.domain.ts`, `plan-tracking.state.ts`, `plan-day.domain.ts`, `plan-day.state.ts`.
+- Wrapper function names are **not** uniformly `wrapper<Source>To<Target>`: actual code also uses `wrapperExerciseAPItoVM` (lowercase `to`), `wrapperDayLogApiToVM` (lowercase `Api`), and non-`wrapper`-prefixed helpers (`apiDateToLocalDate`, `patchDayLog`, `mapToUpdateWeekLogExtraSessionInput`, `emptyDay`). The convention above is a default for new code, not enforced on existing wrappers.
 
 ---
 
@@ -108,8 +109,8 @@ Follow the complexity-based service pattern (see [architecture.md](architecture.
 
 ## 8. Formatting and Imports
 
-- **Prettier**: `printWidth: 100`, `singleQuote: true` (repository `.prettierrc`).
-- Run `npm run format` before finalizing changes; run `npm run lint` after implementing.
+- **Prettier**: `printWidth: 100`, `singleQuote: true` — configured via the **`prettier` key in `package.json`** (this is the config Prettier actually resolves, confirmed with `prettier --find-config-path`). The repository's `.prettierrc` file (`printWidth: 140`, `tabWidth: 4`) exists but is **shadowed/ignored** because Prettier resolves `package.json` first; treat it as obsolete.
+- Run `npx prettier --write .` before finalizing changes; there is **no** `format` npm script. Run `npm run lint` after implementing.
 - Keep imports explicit and ordered: Angular core → rxjs → project modules → local.
 - Do not add comments to code unless they carry real value (per current repo style, avoid gratuitous comments).
 

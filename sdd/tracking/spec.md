@@ -13,13 +13,13 @@ Week-log tracking records one executed week of training (TRACKING branch). A `Tr
 - **FR-003** `reloadTracking()` re-fetches the active week bypassing the cache.
 - **FR-004** Day drill: `createWorkout(dateWorkout)` marks a day complete; `createWorkoutWithRoutine(routineDayId, date)` seeds a day from a routine.
 - **FR-005** Exercises are edited via `setExercises(date, exercises)` with `debounceTime(4000)` persistence; offline edits enqueue `UpdateWeekLogDay`.
-- **FR-006** Day status transitions: `setRestDay(day, workout, desiredStatus)` (REST/NOT_STARTED), `updateWorkoutStatus(date, status)` (COMPLETE/EDITED/REST).
+- **FR-006** Day status transitions: `setRestDay(day, workout, desiredStatus)` (REST/NOT_STARTED), `updateWorkoutStatus(date, status)` (COMPLETE/EDITED/REST). **Note:** `updateWorkoutStatus` (EDITED/COMPLETE) only updates local state + localStorage; it does NOT persist to the API. Only the REST/NOT_STARTED branch persists via `setRestDay` → `updateDayWorkoutStatus`.
 - **FR-007** Extra sessions are added/removed through `updateExtraSession(date, form)` / `removeExtraSession(date, id)` (week-log day payload).
 - **FR-008** `updateWorkoutSession(date, workout)` persists a full edited workout via `WorkoutApi`.
 - **FR-009** `setRemoveAllExercises(date)` / `removeWorkoutSession(date, id)` clear the day.
 - **FR-010** `completeTracking(complete)` closes the week (`completed`, `active:false`), pads the 7 days, clears state/storage, and redirects to `/my-week/success`.
 - **FR-011** `createRoutineFromWorkout(title, exerciseIds)` creates a routine from a workout.
-- **FR-012** History: `findAll(limit, offset)`, `findById(id)`, `removeTracking(id)` on `/user/trackings`, `/user/trackings/:id`, `/user/trackings/stats` (powered by `TrackingListState`, incl. `getStats()`).
+- **FR-012** History: `findAll(limit, offset)`, `findById(id)`, `removeTracking(id)` on `/user/trackings`, `/user/trackings/:id`, `/user/trackings/stats` (powered by `TrackingListState`, incl. `getStats()`). **Note:** the GraphQL operations are named `findOne` and `removeWeekLog` respectively.
 - **FR-013** Day-level widgets consume the **`WorkoutStore`** contract (week impl = `WorkoutStateService`), selected via `ActiveTracking.isDayLogActive()`.
 
 ### BR
@@ -30,7 +30,7 @@ Week-log tracking records one executed week of training (TRACKING branch). A `Tr
 
 - **NFR-001** Exercise edits must not saturate the API (4s debounce).
 - **NFR-002** Offline edits queue and replay on reconnect (`UpdateWeekLogDay` handler).
-- **NFR-003** Cache-first: in-memory `BehaviorSubject` + IndexedDB; API only when no cache or on force reload.
+- **NFR-003** **Network-first with write-only caching:** All tracking API calls use `fetchPolicy: 'no-cache'`. IndexedDB and localStorage are write-only (populated but never read back for initialization). The localStorage fast-path is commented out. The app always hits the network on startup; offline cold start cannot render cached tracking data.
 
 ## Constraints
 
@@ -50,12 +50,17 @@ PlanTrackingService (facade) — core/services/trackings/plan-tracking.service.t
 │     ├── WorkoutApi (workouts/api/workout.api.ts)
 │     ├── RoutinesService (createRoutineFromWorkout)
 │     └── SyncQueueService / NetworkStatusService
-├── PlanTrackingStateService (plan-tracking.state.ts)     — signals + BehaviorSubject + IndexedDB
-├── PlanTrackingStorage (plan-tracking/storage/…)         — localStorage
+├── PlanTrackingStateService (plan-tracking.state.ts)     — signals + BehaviorSubject + IndexedDB (write-only)
+├── PlanTrackingStorage (plan-tracking/storage/…)         — localStorage (write-only; read path commented out)
 └── TrackingListState (tracking-list.state.ts)            — history/stats
 ```
 
 UI tree (week mode): `MyWeek → TrackingWeekComponent → InfoCard, WeeklyStats, NavigatorWeek, ExtraSessionForm, TrackingWorkoutComponent → WorkoutDayStats/ExtraSessionContent + status switch (WorkoutCompleteList | WorkoutEdition | WorkoutInProgress → WorkoutActionsMenu → WorkoutRoutineSelector)`.
+
+**Extra UI not in original spec:**
+- `TrackingActiveComponent` — used on home and user pages (not on `/my-week`); shows "Seguimiento: Día activo / Semana activa / No iniciado" card.
+- `WeeklyStats` carousel and `WorkoutDayStats` compute calories/records/streaks/muscle groups.
+- `MyWeek` page also hosts day-log CTAs and a day mode (`startDay()`).
 
 ## Data contract
 
@@ -92,7 +97,7 @@ interface TrackingVMS {
     completed: boolean;
     notes?: string;
     workouts?: WorkoutSessionVM[];
-    extras?: string[];
+    extras?: string[]; // declared but never populated by the wrapper
 }
 
 interface WeekLogDayVM {
@@ -123,6 +128,14 @@ interface ExercisePerformanceVM {
     sets: { reps: number; weights?: number }[];
     usesWeight: boolean;
     notes?: string;
+    isFavorite?: boolean; // extra field, not in original spec
+}
+
+interface ExtraActivityVM {
+    // extra entity, not in original spec
+    id: string;
+    name: string;
+    type: string;
 }
 ```
 
@@ -132,33 +145,70 @@ interface ExercisePerformanceVM {
 src/app/core/services/trackings/
 ├── plan-tracking.service.ts            # facade
 ├── plan-tracking.domain.ts             # domain
-├── plan-tracking.state.ts              # state (+ IndexedDB)
+├── plan-tracking.state.ts              # state (+ IndexedDB — write-only)
 ├── tracking-list.state.ts              # history/stats
-├── active-tracking.{service,api}.ts    # source of truth
-└── plan-tracking/{api/plan-tranking.api.ts, storage/plan-tracking.storage.ts}
-src/app/core/services/workouts/workout.state.ts        # WorkoutStore (week impl)
-src/app/core/services/workouts/api/workout.api.ts
+├── active-tracking.service.ts          # source of truth
+├── active-tracking.api.ts              # activeTracking query
+└── plan-tracking/
+    ├── api/plan-tranking.api.ts        # GraphQL (legacy typo in filename preserved)
+    └── storage/plan-tracking.storage.ts # localStorage (write-only)
+src/app/core/services/workouts/
+├── workout.state.ts                    # WorkoutStore (week impl)
+├── workout-store.interface.ts          # WORKOUT_STORE token
+├── workout-store.mode.ts               # isDayLogActive()
+└── api/workout.api.ts
 src/app/core/apollo/tracking.queries.ts
 src/app/shared/interfaces/tracking.interface.ts
+src/app/shared/interfaces/api/tracking-api.interface.ts
 src/app/shared/wrappers/tracking.wrapper.ts
 src/app/pages/my-week/  (my-week, success/)
 src/app/pages/trackings/ (trackings, show/, stats/)
-src/app/shared/components/widgets/tracking/
+src/app/shared/components/widgets/tracking/  (tracking-week, tracking-day, tracking-workout, tracking-active, users/weekly-trackings, users/daily-tracking)
 ```
+
+## Known issues
+
+### Data flow
+- **Double init fetch:** Both `PlanTrackingService` and `PlanTrackingDomainService` run effects on login that call `initTracking`, potentially firing the week-log query twice.
+- **Two divergent "active" sources:** `ActiveTrackingApi` queries `activeTracking` (returns `hasActive/types`) while `PlanTrackingApi.getTrackingByUser` queries `activeWeekLog` (returns `hasActiveWeek/week`). These can theoretically disagree.
+- **Inverted signal name:** `hasActiveTracking` in `my-week.ts` actually means "no active tracking" (template shows the week only when `!this.hasActiveTracking()`). Behavior is correct; naming is inverted.
+- **Overloaded `planId`:** `show.ts` swaps `tracking.planId` for the plan **name** and displays it — field is overloaded as a display label.
+
+### Dead code
+- 4 unused GraphQL mutations in `tracking.queries.ts`: `CREATE_WORKOUT_SESSION` (duplicate of the one in `workout.queries.ts`), `UPDATE_WEEK_LOG_WORKOUT_SESSION`, `SYNC_WEEK_LOG_DAYS`, `ASSIGN_ROUTINE_TO_DAYS` (unused duplicate of singular `ASSIGN_ROUTINE_TO_DAY`).
+- Commented-out legacy `REMOVE_WORKOUT_SESSION_FROM_DAY`.
+- `setRestDay` ignores its `workout` parameter (only reads `desiredStatus`).
+- `navigator-week.ts` injects `WorkoutStateService` directly instead of using `WORKOUT_STORE` token.
+
+### Debug artifacts
+- `console.log` at `plan-tranking.api.ts:57` — copy-paste label `[PLAN_DAY_API]` inside the week-log API.
+- `console.log` at `plan-tranking.api.ts:93-94, 114`.
+- `console.log` at `plan-tracking.domain.ts:332-333`.
+
+### Interface drift
+- `TrackingVMS.extras` is declared but never populated by the wrapper (`tracking.wrapper.ts`).
+- `TrackingCreate.completed?` exists in the API interface but is not part of the spec's create signature.
+- `workout.api.ts:43` `wrapperWorkoutSessionVMToApi` returns `any`.
+
+### Tests
+- `plan-tracking.spec.ts` imports nonexistent `PlanTracking` class (should be `PlanTrackingService` from `./plan-tracking.service`).
+- `tracking-week.spec.ts` and `tracking-workout.spec.ts` have wrong `describe()` names (`RoutineScheduler` and `RoutineTrackingExercise` respectively).
 
 ## Tests
 
-- **TEST-001** `createTracking` builds the current-week range and persists.
-- **TEST-002** `setExercises` debounces and enqueues `UpdateWeekLogDay` offline.
-- **TEST-003** Day status transitions map REST/COMPLETE/EDITED correctly.
-- **TEST-004** `completeTracking` deactivates + cleans state/storage.
-- **TEST-005** Wrappers convert ISO → `LocalDate` per user timezone.
-- **TEST-006** `WorkoutStateService` satisfies the `WorkoutStore` contract (week mode).
+- **TEST-001** ~~`createTracking` builds the current-week range and persists.~~ **NOT IMPLEMENTED.**
+- **TEST-002** ~~`setExercises` debounces and enqueues `UpdateWeekLogDay` offline.~~ **NOT IMPLEMENTED.**
+- **TEST-003** ~~Day status transitions map REST/COMPLETE/EDITED correctly.~~ **NOT IMPLEMENTED.**
+- **TEST-004** ~~`completeTracking` deactivates + cleans state/storage.~~ **NOT IMPLEMENTED.**
+- **TEST-005** ~~Wrappers convert ISO → `LocalDate` per user timezone.~~ **NOT IMPLEMENTED.**
+- **TEST-006** ~~`WorkoutStateService` satisfies the `WorkoutStore` contract (week mode).~~ **NOT IMPLEMENTED.**
+
+**Note:** All existing tracking spec files are trivial "should create" smoke tests. `plan-tracking.spec.ts` is broken (imports nonexistent class).
 
 ## Acceptance Criteria
 
-- **AC-001** The user can start a week and train day by day with sets/reps/weights.
-- **AC-002** Rest days, complete/edited statuses, and exercise clearing work per day.
-- **AC-003** Extra sessions are attached to the active week-log day.
-- **AC-004** Completing the week redirects to success and history reflects it.
-- **AC-005** Offline modifications replay once connectivity returns.
+- **AC-001** The user can start a week and train day by day with sets/reps/weights. ✅
+- **AC-002** Rest days, complete/edited statuses, and exercise clearing work per day. ✅ (edited/complete are local-only until next API persist)
+- **AC-003** Extra sessions are attached to the active week-log day. ✅
+- **AC-004** Completing the week redirects to success and history reflects it. ✅
+- **AC-005** Offline modifications replay once connectivity returns. ✅ (only for `UpdateWeekLogDay`)

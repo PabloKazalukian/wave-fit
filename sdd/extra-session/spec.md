@@ -9,16 +9,16 @@ An **ExtraSession** is additional training beyond the planned workout (CARDIO, S
 ### FR: Functionality
 
 - **FR-001** `loadCatalog()` loads the `ExtraSessionDisciplineConfig[]` catalog once (cached in a `BehaviorSubject`).
-- **FR-002** `extraSessionForm` (ReactiveForms) captures `category`, `discipline` (min 3 chars), `workoutSessionId`, `date`, `duration`, `intensityLevel`, `calories`, `notes`.
+- **FR-002** The shared `extraSessionForm` (ReactiveForms, owned by `ExtraSessionService` and reused by the form/create widgets) captures `category`, `discipline`, `workoutSessionId`, `date`, `duration`, `intensityLevel`, `calories`, `notes` (`minLength(3)` on `category` and `discipline`); only the `CreateExtraSessionForm` subset is sent.
 - **FR-003** `create(input)` delegates by active container: day-log → `PlanDayService.updateExtraSession(input)`; week-log → `PlanTrackingService.updateExtraSession(date, input)` (BR-008).
 - **FR-004** `remove(id)` delegates to `PlanDayService.removeExtraSession(id)` (day) or `PlanTrackingService.removeExtraSession(date, id)` (week).
 - **FR-005** `update(input)` calls the API and reflects the change in `activeWorkoutSessions$`.
 - **FR-006** `extraSessions` signal is derived from the store's `workoutSession().extras` ids, loading via `getByIds(ids)` (auto-refresh with signals + effect).
-- **FR-007** `loadByWorkoutSession(ids)` fetches sessions for a given set of ids.
+- **FR-007** `loadByWorkoutSession(workoutSessionId: string[])` fetches sessions for a given set of ids (delegates to `ExtraSessionApi.getByIds`).
 
 ### BR
 
-`BR-001` (container exclusivity through `ActiveTracking.isDayLogActive()`), `BR-008` (extra sessions belong to a WorkoutSession; MET calorie estimation) apply.
+`BR-001` (container exclusivity through `ActiveTracking.isDayLogActive()`), `BR-008` (extra sessions belong to a WorkoutSession; MET calorie estimation) apply — calorie estimation is implemented in the widgets (`extra-session-create`, `extra-session-card`), not in the service.
 
 ### NFR
 
@@ -29,7 +29,8 @@ An **ExtraSession** is additional training beyond the planned workout (CARDIO, S
 
 - **No storage layer**: state lives in the `WorkoutStore` (week: `WorkoutStateService`, day: `DayWorkoutStore`) — do not add a storage service.
 - The `workoutSessionId` field is **not part of `CreateExtraSessionForm`** (filled from the active session context).
-- `date` on the form is a JS `Date`; the API payload flattens it to `LocalDate`.
+- The form's `date` control is a JS `Date` but is not sent; the payload `date` is the active day's `LocalDate` from the store (`selectedDate`).
+- `CreateExtraSessionContext` and `mapToUpdateWeekLogExtraSessionInput` (`extra-session.wrapper.ts`, which hardcodes `workoutSessionId: '1'`) are currently unused — legacy retained.
 
 ## Architecture
 
@@ -108,7 +109,7 @@ src/app/core/services/extra-session/api/extra-session.api.ts        (+ .spec.ts)
 src/app/core/apollo/extra-session.queries.ts
 src/app/shared/interfaces/extra-session.interface.ts
 src/app/shared/wrappers/extra-session.wrapper.ts
-src/app/shared/components/widgets/extra-session/  (extra-session-form, extra-session-create, extra-session-content)
+src/app/shared/components/widgets/extra-session/  (extra-session-form, extra-session-create, extra-session-content + extra-session-card)
 ```
 
 ## Tests

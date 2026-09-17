@@ -16,10 +16,10 @@ The Coach is an AI-driven plan generator. The user describes their goal ('commen
     - `CREATE_ROUTINE_PLAN` — create a template `RoutinePlan`,
     - `ADAPT_ACTIVE_WEEK` — adapt the currently active week.
 - **FR-005** `getPlanTrainings(limit, offset)` paginates plan history (`fetchPolicy: 'network-only'`, returns `TrainingPlansPage`).
-- **FR-006** `getPlanTrainingById(id)` reads a plan detail (snapshot).
+- **FR-006** `getPlanTrainingById(id)` reads a plan detail (snapshot) with Apollo default `cache-first` (unlike the list and usage queries).
 - **FR-007** `removePlantraningById(id)` deletes a generated plan.
 - **FR-008** `getAiUsageStatus()` returns `AiUsageStatus { used, limit, remaining, resetAt }` (network-only).
-- **FR-009** Local state/persistence: `coach.state.ts` (reactive state) and `storage/coach.storage.ts` (async IndexedDB/IDB persistence) keep drafts/history.
+- **FR-009** Local state/persistence: `coach.state.ts` (class `CoachState`) exposes the **single active plan** (`activePlan`, signals) reactive state; `storage/coach.storage.ts` persists that plan per user in **localStorage** (synchronous). Plan history is served by the API (`GetTrainingPlans`), not stored locally.
 
 ### BR
 
@@ -28,21 +28,22 @@ The Coach is an AI-driven plan generator. The user describes their goal ('commen
 ### NFR
 
 - **NFR-001** List queries bypass the Apollo cache (`network-only`).
-- **NFR-002** AI responses are snapshotted (`AiSnapshot.rawResponse`) for reproducibility.
+- **NFR-002** AI responses are snapshotted (`AiSnapshot { modelUsed, tokensUsed, rawResponse: AiPlanResponse | string }`) for reproducibility.
 
 ## Constraints
 
 - Generation is **slow** (LLM); the UI must handle pending/loading and errors.
 - `AiPlanResponse` is the raw AI payload (`title`, `focus`, `durationWeeks`, `daysPerWeek`, `days[]`); it feeds the seed mapping — do not alias it as `TrainingPlanDetail`.
-- Legacy naming (`removePlantraning`, `Plantraning`) is kept inside the API layer only.
+- Legacy naming survives only in the service method `removePlantraningById`; the GraphQL operation is the clean `removeTrainingPlan`. No `Plantraning` naming is kept in the API layer.
 
 ## Architecture
 
 ```
 CoachService (core/services/coach/coach.service.ts)   — GraphQL + handleGraphqlError
-├── CoachStateService (core/services/coach/coach.state.ts)              — reactive state
-├── CoachStorageService (core/services/coach/storage/coach.storage.ts)  — IndexedDB persistence
+├── CoachState (core/services/coach/coach.state.ts)                      — single active-plan state
+├── CoachStorage (core/services/coach/storage/coach.storage.ts)          — localStorage per user
 ├── coach.query.ts / ai-usage.query.ts (core/apollo)
+├── utils/ai-plan.adapter.ts                          — AiPlanResponse → TrackingVM seed mapping
 └── shared/interfaces/coach.interface.ts  (+ ai-plan.interface.ts)
 ```
 

@@ -11,13 +11,13 @@ The exercise library is the base catalog of movements used everywhere else (rout
 - **FR-001** Expose the exercise catalog on `/exercises` in the browser.
 - **FR-002** `ExercisesService.getExercises(force?)` loads the catalog; `force` bypasses the cache.
 - **FR-003** `createExercise(exercise)` creates a new exercise; offline it generates a local ObjectId, writes to IndexedDB, and enqueues a `CreateExercise` sync operation.
-- **FR-004** `setIsFavorite(exerciseId, favorite)` toggles the local favorite flag and syncs to the API (BR-007).
-- **FR-005** API responses are wrapped with `wrapperExerciseAPItoVM()` (→ `ExercisePerformanceVM` shape where consumed by tracking).
-- **FR-006** Exercises are cached with a `BehaviorSubject` (`exercises` signal) so every consument reads once and reuses.
+- **FR-004** `setIsFavorite(exerciseId, favorite)` updates the local cache (signal + IndexedDB) optimistically; the API sync is performed by the `exercise-selector` widget through `UserProfileService.toggleFavoriteExercise` (BR-007), not by the service itself.
+- **FR-005** Exercises are wrapped with `wrapperExerciseAPItoVM()` where consumed (e.g. the `exercise-selector` computed; also exposed as `ExercisesService.wrapperExerciseAPItoVM()`), producing the `ExercisePerformanceVM` shape used by tracking.
+- **FR-006** Exercises are cached in the reactive signal `exercises` (Angular `signal`, not a `BehaviorSubject`) + IndexedDB so every consumer reads once and reuses.
 
 ### BR
 
-- **BR-004** (category normalization) is owned here: the API returns categories in UPPERCASE; normalize with `toLowerCase()`.
+- **BR-004** (category normalization) is owned here. Current code stores `ExerciseCategory` as **lowercase** string values and passes them through without runtime normalization; the `exercise-category` pipe lowercases only for display labels, and the exercises table facade keeps UPPERCASE lookup keys.
 
 ### NFR
 
@@ -27,16 +27,16 @@ The exercise library is the base catalog of movements used everywhere else (rout
 ## Constraints
 
 - The **current** model has no `muscle`/`equipment` fields (legacy fields removed).
-- The page-level create flow is exercised through `exercise-selector`/`exercise-create` widgets (create button is commented on the list page today).
+- The page-level create flow is exercised through the `exercise-selector`/`exercise-create` widgets; the `/exercises/create` route is commented out in `exercises.routes.ts` and the list page hosts only a category select.
 - Service location follows the low-complexity pattern: API and service live together (`exercises.service.ts`).
 
 ## Architecture
 
 ```
 ExercisesService (core/services/exercises/exercises.service.ts)
-├── index.js cache (BehaviorSubject → `exercises` signal)
-├── GraphQL inline via `core/apollo/exercises.queries.ts`
-├── NetworkStatusService + SyncQueueService (offline `CreateExercise` handler)
+├── `exercises` signal (Angular signal) + IndexedDB table `exercises` cache
+├── GraphQL via `core/apollo/exercises.queries.ts`
+├── NetworkStatusService + SyncQueueService (offline `CreateExercise` handler, registered in the service)
 └── wrapperExerciseAPItoVM (shared/wrappers/exercises.wrapper.ts)
 ```
 
@@ -55,17 +55,17 @@ interface Exercise {
 }
 
 enum ExerciseCategory {
-    CHEST,
-    BACK,
-    LEGS,
-    LEGS_FRONT,
-    LEGS_POSTERIOR,
-    BICEPS,
-    TRICEPS,
-    SHOULDERS,
-    CORE,
-    CARDIO,
-} // stored lowercase; API sends UPPERCASE
+    CHEST = 'chest',
+    BACK = 'back',
+    LEGS = 'legs',
+    LEGS_FRONT = 'legs_front',
+    LEGS_POSTERIOR = 'legs_posterior',
+    BICEPS = 'biceps',
+    TRICEPS = 'triceps',
+    SHOULDERS = 'shoulders',
+    CORE = 'core',
+    CARDIO = 'cardio',
+} // lowercase string values; no runtime normalization (see BR-004)
 ```
 
 ## Files
