@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Apollo } from 'apollo-angular';
 
 import { Profile } from './profile';
+import { apolloMock } from '../../../core/testing/apollo.mock';
 
 describe('Profile', () => {
     let component: Profile;
@@ -9,6 +11,7 @@ describe('Profile', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [Profile],
+            providers: [{ provide: Apollo, useValue: apolloMock }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(Profile);

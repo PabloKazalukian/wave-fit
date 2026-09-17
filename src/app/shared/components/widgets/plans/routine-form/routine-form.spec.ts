@@ -4,29 +4,41 @@ import { RoutinePlanFormFacade } from './routine-form.facade';
 import { of } from 'rxjs';
 import { Router } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { FormArray, FormControl } from '@angular/forms';
 
 describe('RoutinePlanForm', () => {
     let component: RoutinePlanForm;
     let fixture: ComponentFixture<RoutinePlanForm>;
-    let facade: RoutinePlanFormFacade;
     let router: Router;
+
+    const signalMock = <T>(value: T) => Object.assign(() => value, { set: jasmine.createSpy() });
 
     const mockFacade = {
         initFacade: jasmine.createSpy('initFacade'),
         submitPlan: jasmine.createSpy('submitPlan').and.returnValue(of({ id: '123' })),
-        show: { set: jasmine.createSpy('show.set') },
-        complete: { set: jasmine.createSpy('complete.set') },
-        showConfirmSave: { set: jasmine.createSpy('showConfirmSave.set'), value: () => false },
-        showConfirmCancel: { set: jasmine.createSpy('showConfirmCancel.set'), value: () => false },
-        notification: {
-            set: jasmine.createSpy('notification.set'),
-            value: () => ({ show: false }),
-        },
+        show: signalMock(false),
+        complete: signalMock(false),
+        showConfirmSave: signalMock(false),
+        showConfirmCancel: signalMock(false),
+        notification: signalMock({ show: false }),
+        handleCloseNotification: jasmine.createSpy('handleCloseNotification'),
         loading: () => false,
+        removeForm: jasmine.createSpy('removeForm'),
         routineForm: {
             valid: true,
             markAllAsTouched: jasmine.createSpy('markAllAsTouched'),
-            get: jasmine.createSpy('get').and.returnValue({ value: 'test' }),
+            get: jasmine.createSpy('get').and.callFake((key: string) => {
+                switch (key) {
+                    case 'name':
+                    case 'weekly_distribution':
+                    case 'description':
+                        return new FormControl('');
+                    case 'routineDays':
+                        return new FormArray([]);
+                    default:
+                        return null;
+                }
+            }),
         },
     };
 
@@ -42,7 +54,6 @@ describe('RoutinePlanForm', () => {
 
         fixture = TestBed.createComponent(RoutinePlanForm);
         component = fixture.componentInstance;
-        facade = fixture.debugElement.injector.get(RoutinePlanFormFacade);
         router = TestBed.inject(Router);
         fixture.detectChanges();
     });
@@ -51,15 +62,15 @@ describe('RoutinePlanForm', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should open save confirmation dialog when onSaveRequested is called and form is valid', () => {
+    it('should open save confirmation dialog when onSubmit is called and form is valid', () => {
         mockFacade.routineForm.valid = true;
-        // component.onSaveRequested();
+        component.onSubmit();
         expect(mockFacade.showConfirmSave.set).toHaveBeenCalledWith(true);
     });
 
-    it('should show error notification when onSaveRequested is called and form is invalid', () => {
+    it('should show error notification when onSubmit is called and form is invalid', () => {
         mockFacade.routineForm.valid = false;
-        // component.onSaveRequested();
+        component.onSubmit();
         expect(mockFacade.notification.set).toHaveBeenCalled();
     });
 
@@ -80,6 +91,6 @@ describe('RoutinePlanForm', () => {
     it('should navigate on confirmCancel', () => {
         component.confirmCancel();
         expect(mockFacade.showConfirmCancel.set).toHaveBeenCalledWith(false);
-        expect(router.navigate).toHaveBeenCalledWith(['/routines/create']);
+        expect(router.navigate).toHaveBeenCalledWith(['/routines']);
     });
 });

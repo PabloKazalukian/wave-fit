@@ -19,7 +19,12 @@ Feature-specific test scenarios live in the relevant [Specs](../../sdd/README.md
 
 - Framework: **Jasmine** runner on **Karma** (`jasmine-core`, `karma`, `karma-chrome-launcher`, `karma-jasmine`, `karma-coverage`).
 - Command: `npm test` (alias `ng test`); `ng test` in watch mode for development.
+- CI/non-interactive run: `npm run test:ci` (`ng test --watch=false --browsers=ChromeHeadless`).
 - Location: co-located `*.spec.ts` next to the source file (e.g., `exercises.service.spec.ts`, `plan-tracking.spec.ts`, `workout.spec.ts`).
+- Narrow targeted run (single feature while developing): pass `--include` with the spec
+  path(s), e.g. `ng test --watch=false --include=src/app/core/auth/token.storage.spec.ts
+--browsers=ChromeHeadless` (a directory path includes all its `.spec.ts` files). This
+  overrides the default `**/*.spec.ts` glob.
 - Covered areas today include: core services (`auth`, `coach`, `exercises`, `extra-session`, `plans`, `routines`, `tracking`, `training-history`, `user-profile`), API modules (`extra-session.api`, `plans.api`, `routines.api`, `plan-tranking.api`), storage (`plans.storage`, `plan-tracking.storage`), state (`workout`), infra (`date.service`, `token.storage`, `credentials`), plus a broad set of shared UI/widget component specs (`btn`, `alert`, `avatar`, `dialog`, `input-number`, `select`, `table`, `tracking-week`, `coach-manage`, `routine-form`, `user-profile`, etc.).
 
 ### Naming

@@ -32,10 +32,23 @@ describe('TokenStorage', () => {
     });
 
     describe('User operations', () => {
-        const mockUser = { id: '1', name: 'Test', email: 'test@test.com', role: 'user' };
+        const mockUser = {
+            id: '1',
+            name: 'Test',
+            email: 'test@test.com',
+            avatar: { url: 'https://example.com/avatar.png' },
+            role: 'user',
+        };
 
         it('should store and retrieve user', async () => {
-            const authUser = { id: 'current', userId: mockUser.id, name: mockUser.name, email: mockUser.email, role: mockUser.role };
+            const authUser = {
+                id: 'current',
+                userId: mockUser.id,
+                name: mockUser.name,
+                avatar: mockUser.avatar.url,
+                email: mockUser.email,
+                role: mockUser.role,
+            };
             mockIndexedDb.db.authUser.get.and.returnValue(Promise.resolve(authUser));
 
             await service.setUser(mockUser);

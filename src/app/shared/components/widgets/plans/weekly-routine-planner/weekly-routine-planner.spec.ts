@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Apollo } from 'apollo-angular';
 
 import { WeeklyRoutinePlannerComponent } from './weekly-routine-planner';
+import { apolloMock } from '../../../../../core/testing/apollo.mock';
 
 describe('WeeklyRoutinePlanner', () => {
     let component: WeeklyRoutinePlannerComponent;
@@ -9,6 +11,7 @@ describe('WeeklyRoutinePlanner', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [WeeklyRoutinePlannerComponent],
+            providers: [{ provide: Apollo, useValue: apolloMock }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(WeeklyRoutinePlannerComponent);
