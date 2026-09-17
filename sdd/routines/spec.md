@@ -146,13 +146,13 @@ src/app/shared/components/widgets/users/routines-used/  (dead widget)
 
 ## Tests
 
-- **TEST-001** ~~`getAllRoutines` caches; `updateAllRoutines` refreshes.~~ **NOT IMPLEMENTED.**
-- **TEST-002** ~~`getRoutinesByCategory` filters correctly.~~ **NOT IMPLEMENTED.**
-- **TEST-003** ~~`createRoutine` offline enqueues `CreateRoutineDay`.~~ **NOT IMPLEMENTED.**
-- **TEST-004** ~~`setIsFavorite` optimistically updates the cache.~~ **NOT IMPLEMENTED.**
-- **TEST-005** ~~Wrappers map API ↔ VM including `kind`, `isFavorite`, `expanded`/`day` VM fields.~~ **NOT IMPLEMENTED.**
+- **TEST-001** `getAllRoutines` caches; `updateAllRoutines` refreshes. ✅ (`routines.service.spec.ts`)
+- **TEST-002** `getRoutinesByCategory` filters correctly. ✅ (`routines.service.spec.ts`)
+- **TEST-003** `createRoutine` offline enqueues `CreateRoutineDay`. ✅ (`routines.service.spec.ts`)
+- **TEST-004** `setIsFavorite` optimistically updates the cache. ✅ (`routines.service.spec.ts`)
+- **TEST-005** Wrappers map API ↔ VM including `kind`, `isFavorite`, `expanded`/`day` VM fields. ✅ (`routines.wrapper.spec.ts`)
 
-**Note:** Existing spec files are either broken (`routines.spec.ts` imports nonexistent `./routines`; `routines-api.service.spec.ts` can't resolve dependencies) or trivial smoke tests. `routine-form.spec.ts` expects navigation to `['/routines/create']` while the component navigates to `['/routines']`.
+**Note:** The broken `routines.spec.ts` was removed; `routines-api.service.spec.ts` and `routine-form.spec.ts` are green.
 
 ## Acceptance Criteria
 
