@@ -11,15 +11,15 @@ The day-log is the **single-day** tracking container (TRACKING branch). Unlike t
 - **FR-001** Start/active routing: `/my-day` shows the active day-log; when no container is active, `/my-week` offers the week/day mode selector.
 - **FR-002** `/my-day/success` is shown after the day-log is completed.
 - **FR-003** `PlanDayService` (facade) exposes the day-log container, state and persistence: `core/services/day-logs/plan-day.{service,domain,state}.ts` + `plan-day/storage/plan-day.storage.ts`.
-- **FR-004** `createDayLog(CreateDayLogInput)` creates a day-log for a `LocalDate` (requires `timezone` IANA).
-- **FR-005** `updateDayLog(UpdateDayLogInput)` persists notes/completed/extra-session for the single day.
-- **FR-006** `updateDayLogStatus` transitions day status (`pending|complete|skipped`) and returns the mutation id/status/`workoutSessionId`.
-- **FR-007** `assignRoutineToDayLog` seeds the day from a routine day (`routineDayId`), returning the session exercise performances.
-- **FR-008** `removeWorkoutSessionFromDayLog` clears the global session (id, status).
-- **FR-009** `removeExtraSessionFromDayLog` detaches an extra session id.
-- **FR-010** Offline mutations update local state and enqueue sync in `plan-day.domain.ts` (BR-012).
+- **FR-004** `createDayLog(planId?, date?, routineDayId?)` (facade) creates a day-log for a `LocalDate`; it builds `CreateDayLogInput` with the user timezone (IANA) in the domain layer.
+- **FR-005** `PlanDayApi.updateDayLog(UpdateDayLogInput)` persists the single day in one unified mutation: `status`, `completed`, `notes`, `extraSession` and `workoutSession` (creates/updates the global WS, including its `exercises`, in the same call). The facade reaches it via `completeDayLog`, `updateExtraSession` and `createWorkout`. `timezone` is sent when the day has no WS yet. This input mirrors the week-log `days[].status`/`workoutSession` contract (parity with the backend week-log update).
+- **FR-006** `PlanDayApi.updateDayLogStatus(date, isRest)` transitions day status and returns `{ id, status, workoutSessionId, active }`; the facade wraps it as `setRestDay`. `DayWorkoutStore.createWorkout` (the "Completar el día" flow) instead goes through `PlanDayService.createWorkout` → FR-005: it sends `status: 'complete'` + `workoutSession.status: 'complete'` (with the day exercises) and **leaves `completed` untouched**, so the workout becomes editable while the day stays open. In `updateDayLog`, day-log `status` is a **display-only** value persisted as-is (no side effects on `completed`, `active` or the WS) and is never inferred by the backend; `completed: true` is the **only** day-closing action (`completeDayLog` → `active = false` → `/my-day/success`).
+- **FR-007** `PlanDayApi.assignRoutineToDayLog(routineDayId, date)` seeds the day from a routine day; the facade exposes it as `createWorkoutWithRoutine`.
+- **FR-008** `PlanDayApi.removeWorkoutSessionFromDayLog(workoutSessionId)` clears the global session; the facade exposes it as `removeWorkoutSession`.
+- **FR-009** `PlanDayApi.removeExtraSessionFromDayLog(extraSessionId)` detaches an extra session id; the facade exposes it as `removeExtraSession`.
+- **FR-010** Offline updates run through the `UpdateDayLog` sync operation registered in `plan-day.domain.ts` (enqueued by `updateExercises`); there is no offline path for create/status/assign/remove (no `CreateDayLog` sync op).
 - **FR-011** Day exercises/session are driven through the **`WorkoutStore`** contract with the day implementation = `DayWorkoutStore` (`core/services/workouts/day-workout.store.ts`), selected via `ActiveTracking.isDayLogActive()`.
-- **FR-012** History: day-logs appear in `/user/trackings` via `DayLogs` query (`DayLogSummaryVM[]`); the show page renders a completed day-log.
+- **FR-012** History: day-logs appear as `DayLogSummaryVM[]` via the `DayLogs` query (`dayLogFindAll`) consumed by the `DailyTracking` widget on `/user`; a completed day-log is rendered read-only at `/user/tracking/day/:id` (`pages/tracking-day/show`). `/user/trackings` lists week-logs only.
 
 ### BR
 
@@ -45,11 +45,11 @@ ActiveTrackingService ──► DAY_LOG ──► WORKOUT_STORE token → DayWor
 PlanDayService (core/services/day-logs/plan-day.service.ts)   — facade
 ├── PlanDayDomainService (plan-day.domain.ts)                 — business logic + offline sync enqueue
 ├── PlanDayStateService (plan-day.state.ts)                   — reactive container (BehaviorSubject/signals)
-├── PlanDayApiService (plan-day/api/plan-day.api.ts)          — GraphQL (day-log.queries)
-└── PlanDayStorageService (plan-day/storage/plan-day.storage.ts) — local persistence
+├── PlanDayApi (plan-day/api/plan-day.api.ts)                — GraphQL (day-log.queries)
+└── PlanDayStorage (plan-day/storage/plan-day.storage.ts)    — local persistence
 ```
 
-Pages: `/my-day` (`MyDay`) → `TrackedDayComponent` (title card, `WorkoutDayStats`, extra-session, status switch), `/my-day/success` (`Success`). History: `/user/trackings` list + show page (week-log and day-log both rendered).
+Pages: `/my-day` (`MyDay`) → `TrackingDayComponent` (title card, `WorkoutDayStats`, extra-session, status switch), `/my-day/success` (`Success`). History: `/user/trackings` list + show page (week-log and day-log both rendered).
 
 ## Data contract
 
@@ -101,17 +101,29 @@ export interface CreateDayLogInput {
 }
 export interface UpdateDayLogInput {
     id: string;
+    timezone?: string; // IANA, required when the day has no WS yet
+    status?: DayStatusAPI; // 'pending' | 'complete' | 'skipped'
     completed?: boolean;
     notes?: string;
+    workoutSession?: UpdateWorkoutSessionInput; // creates/updates the global WS + exercises
     extraSession?: CreateExtraSessionWithoutWsInput;
+}
+export interface UpdateDayLogResultAPI {
+    id: string;
+    status?: DayStatusAPI;
+    active?: boolean;
+    completed?: boolean;
+    workoutSessionId?: string | null;
+    notes?: string;
+    extraSessionIds?: string[];
+    exercises?: ExercisePerformanceAPI[];
 }
 ```
 
 ## Files
 
 ```
-src/app/core/apollo/day-log.queries.ts
-src/app/core/apollo/day-log.queries.ts   (includes ACTIVE_TRACKING)
+src/app/core/apollo/day-log.queries.ts   (incl. ACTIVE_TRACKING, consumed by active-tracking.api.ts)
 src/app/core/services/day-logs/plan-day.service.ts
 src/app/core/services/day-logs/plan-day.domain.ts
 src/app/core/services/day-logs/plan-day.state.ts
@@ -124,17 +136,20 @@ src/app/shared/interfaces/day-log.interface.ts
 src/app/shared/interfaces/api/day-log-api.interface.ts
 src/app/shared/wrappers/day-log.wrapper.ts
 src/app/pages/my-day/  (+ success/)
-src/app/pages/trackings/  (list, show/, stats/)
+src/app/pages/tracking-day/show/   (DayLog read-only show)
+src/app/pages/trackings/  (week-log list, show/, stats/)
+src/app/shared/components/widgets/users/daily-tracking/   (DayLog summary list)
 ```
 
 ## Tests
 
 - **TEST-001** Wrapper converts `DayLogAPI.date` (ISO) → `LocalDate` per timezone.
-- **TEST-002** `createDayLog` sends `timezone`; offline enqueue `CreateDayLog` sync op.
+- **TEST-002** `createDayLog` sends the user `timezone` (IANA) in `CreateDayLogInput`.
 - **TEST-003** `assignRoutineToDayLog` seeds exercises from a routine day.
 - **TEST-004** `removeWorkoutSessionFromDayLog` empties the flat session (id + status).
 - **TEST-005** Completing the day-log flips `active`/`completed` and redirects to success.
 - **TEST-006** `DayWorkoutStore` satisfies the `WorkoutStore` contract for day mode.
+- **TEST-007** `createWorkout` sends `status:'complete'` + `workoutSession.status:COMPLETE` (with mapped exercises, no `completed`), stores the returned day-log and toggles the loading flag.
 
 ## Acceptance Criteria
 

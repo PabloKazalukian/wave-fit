@@ -108,6 +108,7 @@ export class PlanDayApi {
     }
 
     updateDayLog(payload: UpdateDayLogInput): Observable<DayLogVM | null> {
+        console.log(payload);
         return this.apollo
             .mutate<{ updateDayLog: UpdateDayLogResultAPI }>({
                 mutation: UPDATE_DAY_LOG,
@@ -118,7 +119,10 @@ export class PlanDayApi {
                 map(({ data }) =>
                     patchDayLog(
                         this.state.getDayLogValue(),
-                        wrapperUpdateDayLogApiToVM(data?.updateDayLog ?? null),
+                        wrapperUpdateDayLogApiToVM(
+                            data?.updateDayLog ?? null,
+                            this.exerciseSvc.exercises(),
+                        ),
                     ),
                 ),
             );

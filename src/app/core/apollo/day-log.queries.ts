@@ -87,10 +87,21 @@ export const UPDATE_DAY_LOG = gql`
     mutation UpdateDayLog($input: UpdateDayLogInput!) {
         updateDayLog(input: $input) {
             id
+            status
             active
             completed
+            workoutSessionId
             notes
             extraSessionIds
+            exercises {
+                exerciseId
+                series
+                sets {
+                    reps
+                    weights
+                }
+                notes
+            }
         }
     }
 `;

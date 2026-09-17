@@ -28,7 +28,11 @@ import { PlanDayApi } from './plan-day/api/plan-day.api';
 import { ActiveTrackingService } from '../trackings/active-tracking.service';
 import { PlanDayStateService } from './plan-day.state';
 import { PlanDayStorage } from './plan-day/storage/plan-day.storage';
-import { CreateDayLogInput, UpdateDayLogInput } from '../../../shared/interfaces/api/day-log-api.interface';
+import {
+    CreateDayLogInput,
+    UpdateDayLogInput,
+} from '../../../shared/interfaces/api/day-log-api.interface';
+import { wrapperExercisePerformanceVMToApi } from '../../../shared/wrappers/tracking.wrapper';
 
 @Injectable({
     providedIn: 'root',
@@ -143,6 +147,39 @@ export class PlanDayDomainService {
                 }
             }),
             map(() => this.state.getDayLogValue()),
+        );
+    }
+
+    createWorkout(date: LocalDate): Observable<DayLogVM | null> {
+        const dayLog = this.state.getDayLogValue();
+        if (!dayLog) return of(null);
+
+        // Parity con week-log: el workout del día se marca `complete` (editable) y
+        // el WS global se crea/actualiza con sus ejercicios en el mismo update.
+        // `completed` NO se toca: el cierre del día sigue siendo `completeDayLog`.
+        const payload: UpdateDayLogInput = {
+            id: dayLog.id,
+            status: 'complete',
+            timezone: this.dateService.getUserTimezone(),
+            workoutSession: {
+                ...(dayLog.workoutSessionId ? { id: dayLog.workoutSessionId } : {}),
+                date,
+                status: StatusWorkoutSessionEnum.COMPLETE,
+                exercises: wrapperExercisePerformanceVMToApi(dayLog.exercises ?? []),
+            },
+        };
+
+        this.state.setLoadingWorkoutCreation(date, true);
+
+        return this.api.updateDayLog(payload).pipe(
+            tap((res) => {
+                if (res) {
+                    this.state.setDayLog(res);
+                    this.storage.setDayLogStorage(res, res.userId);
+                }
+            }),
+            map(() => this.state.getDayLogValue()),
+            finalize(() => this.state.setLoadingWorkoutCreation(date, false)),
         );
     }
 

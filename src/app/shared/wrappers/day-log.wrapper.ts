@@ -82,15 +82,25 @@ function patchDayLogEmpty(): DayLogVM {
     };
 }
 
-/** UpdateDayLog → { id active completed notes extraSessionIds } */
-export function wrapperUpdateDayLogApiToVM(payload: UpdateDayLogResultAPI | null): Partial<DayLogVM> {
+/** UpdateDayLog → { id status active completed workoutSessionId notes extraSessionIds exercises } */
+export function wrapperUpdateDayLogApiToVM(
+    payload: UpdateDayLogResultAPI | null,
+    allExercises: Exercise[],
+): Partial<DayLogVM> {
     if (!payload) return {};
     return {
         id: payload.id,
+        status: payload.status,
         active: payload.active,
         completed: payload.completed,
+        ...(payload.workoutSessionId !== undefined
+            ? { workoutSessionId: payload.workoutSessionId ?? undefined }
+            : {}),
         notes: payload.notes,
         ...(payload.extraSessionIds ? { extraSessionIds: payload.extraSessionIds } : {}),
+        ...(payload.exercises
+            ? { exercises: wrapperExercisePerformanceApiToVM(payload.exercises, allExercises) }
+            : {}),
     };
 }
 

@@ -54,6 +54,10 @@ export class PlanDayStateService {
         this.loadingStatusWorkout.set(isLoading);
     }
 
+    setLoadingWorkoutCreation(date: LocalDate, isLoading: boolean): void {
+        this.loadingWorkoutCreation.set({ date, state: isLoading });
+    }
+
     setError(error: string | null): void {
         this.error.set(error);
     }

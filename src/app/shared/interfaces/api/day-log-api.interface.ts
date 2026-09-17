@@ -1,4 +1,9 @@
-import { CreateExtraSessionWithoutWsInput, ExercisePerformanceAPI, LocalDate } from './tracking-api.interface';
+import {
+    CreateExtraSessionWithoutWsInput,
+    ExercisePerformanceAPI,
+    LocalDate,
+    UpdateWorkoutSessionInput,
+} from './tracking-api.interface';
 
 export type DayStatusAPI = 'pending' | 'complete' | 'skipped';
 
@@ -14,8 +19,11 @@ export interface CreateDayLogInput {
 /** Payload para cerrar/completar un DayLog o actualizarlo (unificado, un solo día). */
 export interface UpdateDayLogInput {
     id: string;
+    timezone?: string; // IANA, usado para crear el WS cuando el day-log aún no tiene uno
+    status?: DayStatusAPI; // 'pending' | 'complete' | 'skipped'
     completed?: boolean;
     notes?: string;
+    workoutSession?: UpdateWorkoutSessionInput; // crea/actualiza el WS en el mismo update
     extraSession?: CreateExtraSessionWithoutWsInput;
 }
 
@@ -73,13 +81,16 @@ export interface ActiveDayAPI {
 
 //──────────── Retornos parciales de mutations day-log ────────────
 
-/** Retorno de UpdateDayLog: { id active completed notes extraSessionIds } */
+/** Retorno de UpdateDayLog: { id status active completed workoutSessionId notes extraSessionIds exercises } */
 export interface UpdateDayLogResultAPI {
     id: string;
+    status?: DayStatusAPI;
     active?: boolean;
     completed?: boolean;
+    workoutSessionId?: string | null;
     notes?: string;
     extraSessionIds?: string[];
+    exercises?: ExercisePerformanceAPI[];
 }
 
 /** Retorno de UpdateDayLogStatus: { id status workoutSessionId active } */

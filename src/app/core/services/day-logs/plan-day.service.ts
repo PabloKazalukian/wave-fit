@@ -105,6 +105,14 @@ export class PlanDayService {
         );
     }
 
+    createWorkout(date: LocalDate): Observable<DayLogVM | null> {
+        return this.domain.createWorkout(date).pipe(
+            tap((res) => {
+                if (res) this._persist(res);
+            }),
+        );
+    }
+
     createWorkoutWithRoutine(routineDayId: string, date: LocalDate): Observable<DayLogVM | null> {
         return this.domain.createWorkoutWithRoutine(routineDayId, date).pipe(
             tap((res) => {

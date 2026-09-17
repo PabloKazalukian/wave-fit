@@ -49,9 +49,7 @@ export class DayWorkoutStore implements WorkoutStore {
     }
 
     createWorkout(date: LocalDate): Observable<unknown> {
-        return this.planDaySvc
-            .setRestDay(date, false)
-            .pipe(map((dayLog) => this.toWorkout(dayLog)));
+        return this.planDaySvc.createWorkout(date).pipe(map((dayLog) => this.toWorkout(dayLog)));
     }
 
     setRestDay(
