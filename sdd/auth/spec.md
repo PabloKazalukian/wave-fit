@@ -56,7 +56,10 @@ AuthService (core/services/auth/auth.service.ts)          — user signal, user$
 ```
 src/app/core/auth/token.storage.ts
 src/app/core/auth/auth.initializer.ts
-src/app/core/auth.spec.ts
+src/app/core/auth/token.storage.spec.ts
+src/app/core/services/auth/auth.service.spec.ts
+src/app/core/services/auth/credentials.service.spec.ts
+src/app/core/auth-guard.spec.ts
 src/app/core/services/auth/auth.service.ts   (inline Me/Login/Logout/CreateUser/LoginWithGoogle queries)
 src/app/core/services/auth/credentials.service.ts
 src/app/core/auth-guard.ts
@@ -66,10 +69,10 @@ core/apollo/user-profile.queries.ts           (user profile queries, NOT the Me 
 
 ## Tests
 
-- **TEST-001** TokenStorage persists/reads/clears the session asynchronously (IndexedDB).
-- **TEST-002** CredentialsService encrypts and restores "remember me" data.
-- **TEST-003** AuthService exposes the session and reacts to `UNAUTHENTICATED`.
-- **TEST-004** authGuard redirects when unauthenticated and allows when authenticated.
+- **TEST-001** TokenStorage persists/reads/clears the session asynchronously (IndexedDB). ✅ (`token.storage.spec.ts`)
+- **TEST-002** CredentialsService encrypts and restores "remember me" data. ✅ (`credentials.service.spec.ts`)
+- **TEST-003** AuthService exposes the session and reacts to `UNAUTHENTICATED`. ✅ (`auth.service.spec.ts`)
+- **TEST-004** authGuard redirects when unauthenticated and allows when authenticated. ✅ (`auth-guard.spec.ts`)
 
 ## Acceptance Criteria
 
