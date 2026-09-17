@@ -75,6 +75,9 @@ src/app/core/services/exercises/exercises.service.ts
 src/app/core/services/exercises/exercises.service.spec.ts
 src/app/core/apollo/exercises.queries.ts
 src/app/shared/wrappers/exercises.wrapper.ts
+src/app/shared/wrappers/exercises.wrapper.spec.ts
+src/app/shared/pipes/exercise-category.pipe.ts
+src/app/shared/pipes/exercise-category-pipe.spec.ts
 src/app/shared/interfaces/exercise.interface.ts
 src/app/pages/exercises/
 src/app/shared/components/widgets/exercises/  (exercise-selector, exercise-create, table)
@@ -82,10 +85,10 @@ src/app/shared/components/widgets/exercises/  (exercise-selector, exercise-creat
 
 ## Tests
 
-- **TEST-001** `getExercises` caches and honors `force`.
-- **TEST-002** `createExercise` online calls the API and updates the cache; offline enqueues `CreateExercise`.
-- **TEST-003** `setIsFavorite` updates cache optimistically.
-- **TEST-004** Category normalization maps UPPERCASE API values to the lowercase enum.
+- **TEST-001** `getExercises` caches and honors `force`. ✅ (`exercises.service.spec.ts`)
+- **TEST-002** `createExercise` online calls the API and updates the cache; offline enqueues `CreateExercise`. ✅ (`exercises.service.spec.ts`)
+- **TEST-003** `setIsFavorite` updates cache optimistically. ✅ (`exercises.service.spec.ts`)
+- **TEST-004** Category normalization maps UPPERCASE API values to display labels. ✅ (`exercise-category-pipe.spec.ts`, `exercises.wrapper.spec.ts`) — **Spec correction:** normalization is **display-only** (`ExerciseCategoryPipe` lowercases for label lookup). The service/wrapper pass the category through unchanged (BR-004), so no runtime enum normalization is asserted.
 
 ## Acceptance Criteria
 
