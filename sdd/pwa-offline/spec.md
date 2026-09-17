@@ -82,12 +82,29 @@ core/services/sync/sync.types.ts                   — PendingMutation + event t
 
 Per feature: offline-write handlers live inside the domain services and enqueue `PendingMutation` typed by operation name.
 
+## Files
+
+```
+src/sw.js                                                   (Workbox service worker)
+workbox-config.js
+src/app/core/services/sync/sync-queue.service.ts            (+ sync-queue.service.spec.ts)
+src/app/core/services/sync/sync.types.ts
+src/app/core/services/network/network-status.service.ts     (+ network-status.service.spec.ts)
+src/app/core/services/storage/indexed-db.service.ts         (+ indexed-db.service.spec.ts)
+```
+
+## Tests
+
+- **TEST-001** `NetworkStatusService` exposes the `isOnline` signal, reacts to `online`/`offline` events and cleans up on destroy. ✅ (`network-status.service.spec.ts`)
+- **TEST-002** `SyncQueueService` counts, enqueues, dequeues, replays FIFO, retries below the limit, marks failed at the limit, fails unknown operations and auto-processes on reconnect. ✅ (`sync-queue.service.spec.ts`)
+- **TEST-003** `IndexedDbStorageService` persists/replaces stores and guards id-less records. ✅ (`indexed-db.service.spec.ts`)
+
 ## Known issues
 
 - **6 of 11+ operations have no offline handler** (see FR-005).
 - **No PWA install prompt** (see FR-008).
 - **IndexedDB version mismatch** between SW (version 31) and Angular app (version 4) — `dayLogs` store is only created by Angular, not by the SW.
-- **No unit tests** for any PWA/offline components (`SyncQueueService`, `NetworkStatusService`, `IndexedDbStorageService`, offline-write handlers).
+- **Unit tests** now cover `SyncQueueService`, `NetworkStatusService` and `IndexedDbStorageService` (TEST-001..003). The per-feature offline-write handlers remain untested in the queue/sync layer (their feature specs cover the enqueue calls).
 - **`localStorage` usage** extends beyond the spec'd exception (credentials, coach, tracking, day-log caches).
 - **SW GraphQL whitelist** is limited to `['GetExercises', 'Me']` — only these two queries get cached in the SW's IndexedDB cache.
 
