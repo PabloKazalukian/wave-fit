@@ -106,7 +106,7 @@ npx prettier --check .   # formatting (no npm script; .prettierrc configured)
 ```
 
 E2E uses Playwright (`@playwright/test`) — see `documents/engineering/testing.md`.
-Before touching templates, read `documents/design/ui-conventions.md`.
+Before touching templates, read `documents/design/ui-conventions.md` and `documents/design/ui-components.md`.
 
 ## Repository Map
 

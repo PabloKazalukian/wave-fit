@@ -6,6 +6,8 @@ All values were surveyed from the real repository code (Tailwind config + templa
 
 > Status: **active/live** reference. This file was migrated (translated and kept current) from the former `documents/design/UI-Conventions.md`; the full old-doc archive is in [../legacy/README.md](../legacy/README.md).
 
+> Shared UI components (loading/skeleton, text links, form controls) and their preferred usage are documented in **[ui-components.md](ui-components.md)**. Read both files before touching templates.
+
 ---
 
 ## 1. Palette and Color Semantics
@@ -154,16 +156,16 @@ Global fonts: `Lato` (sans, body) and `Work Sans` (heading).
 
 > Legacy widget templates (e.g. `workout-in-progress.html`) still contain raw `<button>` elements from before this rule; leave them as-is unless the widget is being migrated, but route **new or edited** buttons through `app-btn`.
 
-| Prop              | Values                                                                                                                    | Use                                        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Prop              | Values                                                                                                                                                                                                                 | Use                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
 | `variant`         | `basic` / `basicLight` / `raised` (solid=CTA) / `stroked` / `strokedColor` (borde + texto color) / `flat` (relleno sutil) / `outline` (borde color) / `outlineLigth` / `outlineDark` / `ghost` (cancel) / `ghostColor` | by button hierarchy                        |
-| `size`            | `sm` / `md`                                                                               | `md` for featured CTAs                     |
-| `color`           | tokens from the §1 table                                                                  | by action role                             |
-| `showIcon`        | `true` → arrow (or projected `<app-icon>`)                                                | CTAs                                       |
-| `descriptionText` | secondary text under the label                                                            | make the action explicit                   |
-| `routerLink`      | destination route                                                                         | navigation (renders `<a>`)                 |
-| `isDisabled`      | `true`                                                                                    | in-progress processes (`deleting()`, etc.) |
-| `buttonType`      | `button` / `submit`                                                                       | forms                                      |
+| `size`            | `sm` / `md`                                                                                                                                                                                                            | `md` for featured CTAs                     |
+| `color`           | tokens from the §1 table                                                                                                                                                                                               | by action role                             |
+| `showIcon`        | `true` → arrow (or projected `<app-icon>`)                                                                                                                                                                             | CTAs                                       |
+| `descriptionText` | secondary text under the label                                                                                                                                                                                         | make the action explicit                   |
+| `routerLink`      | destination route                                                                                                                                                                                                      | navigation (renders `<a>`)                 |
+| `isDisabled`      | `true`                                                                                                                                                                                                                 | in-progress processes (`deleting()`, etc.) |
+| `buttonType`      | `button` / `submit`                                                                                                                                                                                                    | forms                                      |
 
 Pattern examples:
 
@@ -215,6 +217,8 @@ Repo goal (AGENTS §6.1): `<section>`/`<article>` per block, `<header>`/`<footer
 ## 6. Review Checklist (before editing or approving a UI change)
 
 - [ ] Is `app-btn` used instead of custom buttons?
+- [ ] Are loading states using the preferred component by size (skeleton for sections/cards, `app-loading` for child/small elements)? See `ui-components.md`.
+- [ ] Do forms use the shared components (`app-input`, `app-input-number`, `app-input-search`, `app-select`, `app-multi-select`, `app-checkbox`) instead of raw native elements, and links use `app-text-link`? See `ui-components.md`.
 - [ ] Does the `color` match the action role (§1 table)? Destructive→`error`, CTA→`primary/accent/confirm`, success→`success`.
 - [ ] Is padding within the standard scale (`p-1..8`) with no weird values?
 - [ ] Do sibling cards share **padding + max-width + radius**?
