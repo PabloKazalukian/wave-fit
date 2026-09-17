@@ -12,7 +12,7 @@ This document describes the **current build, quality-gate, and deployment strate
 | ------------ | ------------------------ | ----------------------------------------- |
 | Lint         | `npm run lint`           | Angular ESLint (`ng lint`)                |
 | Format check | `npx prettier --check .` | Prettier `printWidth: 100`, `singleQuote` |
-| Unit tests   | `npm test`               | Karma + Jasmine (`ng test`)               |
+| Unit tests   | `npm run test:ci`        | Karma + Jasmine, headless (`ng test --watch=false --browsers=ChromeHeadless`); `npm test` for watch mode |
 | E2E tests    | `npx playwright test`    | Playwright (`/e2e`) — optional, CI-aware  |
 | Build        | `npm run build`          | `ng build` + `workbox injectManifest`     |
 | Type check   | `npx tsc --noEmit`       | Enum/type contract verification           |
