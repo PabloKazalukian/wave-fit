@@ -13,21 +13,33 @@ import { PlanDayStorage } from './plan-day/storage/plan-day.storage';
 import { PlanDayDomainService } from './plan-day.domain';
 import { PlanDayStateService } from './plan-day.state';
 
-describe('PlanDayDomainService.createWorkout', () => {
+describe('PlanDayDomainService', () => {
+    const USER_ID = 'user-1';
+    const TIMEZONE = 'America/Argentina/Buenos_Aires';
+
     let service: PlanDayDomainService;
     let dayLog: DayLogVM | null;
-    let api: { updateDayLog: jasmine.Spy; removeWorkoutSessionFromDayLog: jasmine.Spy };
+    let api: {
+        createDayLog: jasmine.Spy;
+        updateDayLog: jasmine.Spy;
+        updateDayLogStatus: jasmine.Spy;
+        assignRoutineToDayLog: jasmine.Spy;
+        getActiveDayLog: jasmine.Spy;
+        removeWorkoutSessionFromDayLog: jasmine.Spy;
+    };
     let state: {
         getDayLogValue: jasmine.Spy;
         setDayLog: jasmine.Spy;
         updateDayLog: jasmine.Spy;
+        setLoading: jasmine.Spy;
         setLoadingWorkoutCreation: jasmine.Spy;
     };
-    let storage: { setDayLogStorage: jasmine.Spy };
+    let storage: { setDayLogStorage: jasmine.Spy; removeDayLogStorage: jasmine.Spy };
+    let activeTracking: { markDayActive: jasmine.Spy; clear: jasmine.Spy };
 
     const buildDayLog = (overrides: Partial<DayLogVM> = {}): DayLogVM => ({
         id: 'day-1',
-        userId: 'user-1',
+        userId: USER_ID,
         date: '2026-05-01',
         extraSessionIds: [],
         status: 'pending',
@@ -41,7 +53,11 @@ describe('PlanDayDomainService.createWorkout', () => {
         dayLog = buildDayLog();
 
         api = {
+            createDayLog: jasmine.createSpy('createDayLog'),
             updateDayLog: jasmine.createSpy('updateDayLog'),
+            updateDayLogStatus: jasmine.createSpy('updateDayLogStatus'),
+            assignRoutineToDayLog: jasmine.createSpy('assignRoutineToDayLog'),
+            getActiveDayLog: jasmine.createSpy('getActiveDayLog'),
             removeWorkoutSessionFromDayLog: jasmine.createSpy('removeWorkoutSessionFromDayLog'),
         };
         state = {
@@ -56,9 +72,17 @@ describe('PlanDayDomainService.createWorkout', () => {
                         dayLog = updater(dayLog);
                     }
                 }),
+            setLoading: jasmine.createSpy('setLoading'),
             setLoadingWorkoutCreation: jasmine.createSpy('setLoadingWorkoutCreation'),
         };
-        storage = { setDayLogStorage: jasmine.createSpy('setDayLogStorage') };
+        storage = {
+            setDayLogStorage: jasmine.createSpy('setDayLogStorage'),
+            removeDayLogStorage: jasmine.createSpy('removeDayLogStorage'),
+        };
+        activeTracking = {
+            markDayActive: jasmine.createSpy('markDayActive'),
+            clear: jasmine.createSpy('clear'),
+        };
 
         TestBed.configureTestingModule({
             providers: [
@@ -68,7 +92,10 @@ describe('PlanDayDomainService.createWorkout', () => {
                 { provide: PlanDayStorage, useValue: storage },
                 {
                     provide: DateService,
-                    useValue: { getUserTimezone: () => 'America/Argentina/Buenos_Aires' },
+                    useValue: {
+                        getUserTimezone: () => TIMEZONE,
+                        todayLocalDate: () => '2026-05-01',
+                    },
                 },
                 { provide: RoutinesService, useValue: { updateAllRoutines: () => of([]) } },
                 { provide: NetworkStatusService, useValue: { isOnline: () => true } },
@@ -79,98 +106,234 @@ describe('PlanDayDomainService.createWorkout', () => {
                         enqueue: jasmine.createSpy('enqueue'),
                     },
                 },
-                {
-                    provide: ActiveTrackingService,
-                    useValue: {
-                        markDayActive: jasmine.createSpy('markDayActive'),
-                        clear: jasmine.createSpy('clear'),
-                    },
-                },
+                { provide: ActiveTrackingService, useValue: activeTracking },
             ],
         });
 
         service = TestBed.inject(PlanDayDomainService);
     });
 
-    it('sends a unified UpdateDayLog payload marking the workout complete', () => {
-        api.updateDayLog.and.returnValue(of(dayLog));
+    describe('createDayLog', () => {
+        it('sends the user timezone (IANA) with the provided date, plan and routine day', () => {
+            const created = buildDayLog({ id: 'day-2', date: '2026-05-02' });
+            api.createDayLog.and.returnValue(of(created));
 
-        service.createWorkout('2026-05-01').subscribe();
+            service.createDayLog('plan-1', '2026-05-02', 'rd-1').subscribe();
 
-        expect(api.updateDayLog).toHaveBeenCalledTimes(1);
-        const payload = api.updateDayLog.calls.mostRecent().args[0];
-        expect(payload.id).toBe('day-1');
-        expect(payload.status).toBe('complete');
-        expect(payload.timezone).toBe('America/Argentina/Buenos_Aires');
-        expect(payload.completed).toBeUndefined();
-        expect(payload.workoutSession.status).toBe(StatusWorkoutSessionEnum.COMPLETE);
-        expect(payload.workoutSession.date).toBe('2026-05-01');
-        expect(payload.workoutSession.id).toBeUndefined();
+            expect(api.createDayLog).toHaveBeenCalledWith({
+                date: '2026-05-02',
+                timezone: TIMEZONE,
+                planId: 'plan-1',
+                routineDayId: 'rd-1',
+            });
+        });
+
+        it('defaults the date to today in the user timezone', () => {
+            api.createDayLog.and.returnValue(of(dayLog));
+
+            service.createDayLog().subscribe();
+
+            const payload = api.createDayLog.calls.mostRecent().args[0];
+            expect(payload.date).toBe('2026-05-01');
+            expect(payload.timezone).toBe(TIMEZONE);
+            expect(payload.planId).toBeUndefined();
+            expect(payload.routineDayId).toBeUndefined();
+        });
+
+        it('stores the created day-log and marks the day as active', () => {
+            const created = buildDayLog({ id: 'day-2', date: '2026-05-02' });
+            api.createDayLog.and.returnValue(of(created));
+
+            let result: DayLogVM | null | undefined;
+            service.createDayLog('plan-1', '2026-05-02').subscribe((res) => (result = res));
+
+            expect(result).toEqual(created);
+            expect(state.setDayLog).toHaveBeenCalledWith(created);
+            expect(storage.setDayLogStorage).toHaveBeenCalledWith(created, USER_ID);
+            expect(activeTracking.markDayActive).toHaveBeenCalledWith({
+                id: 'day-2',
+                date: '2026-05-02',
+                completed: false,
+                active: true,
+                status: 'pending',
+            });
+        });
     });
 
-    it('links the existing workout session when the day already has one', () => {
-        dayLog = buildDayLog({ workoutSessionId: 'ws-9' });
-        api.updateDayLog.and.returnValue(of(dayLog));
+    describe('createWorkout', () => {
+        it('sends a unified UpdateDayLog payload marking the workout complete', () => {
+            api.updateDayLog.and.returnValue(of(dayLog));
 
-        service.createWorkout('2026-05-01').subscribe();
+            service.createWorkout('2026-05-01').subscribe();
 
-        expect(api.updateDayLog.calls.mostRecent().args[0].workoutSession.id).toBe('ws-9');
-    });
+            expect(api.updateDayLog).toHaveBeenCalledTimes(1);
+            const payload = api.updateDayLog.calls.mostRecent().args[0];
+            expect(payload.id).toBe('day-1');
+            expect(payload.status).toBe('complete');
+            expect(payload.timezone).toBe(TIMEZONE);
+            expect(payload.completed).toBeUndefined();
+            expect(payload.workoutSession.status).toBe(StatusWorkoutSessionEnum.COMPLETE);
+            expect(payload.workoutSession.date).toBe('2026-05-01');
+            expect(payload.workoutSession.id).toBeUndefined();
+        });
 
-    it('maps the day exercises into the workout session payload', () => {
-        dayLog = buildDayLog({
-            exercises: [
+        it('links the existing workout session when the day already has one', () => {
+            dayLog = buildDayLog({ workoutSessionId: 'ws-9' });
+            api.updateDayLog.and.returnValue(of(dayLog));
+
+            service.createWorkout('2026-05-01').subscribe();
+
+            expect(api.updateDayLog.calls.mostRecent().args[0].workoutSession.id).toBe('ws-9');
+        });
+
+        it('maps the day exercises into the workout session payload', () => {
+            dayLog = buildDayLog({
+                exercises: [
+                    {
+                        exerciseId: 'ex-1',
+                        name: 'Press banca',
+                        category: ExerciseCategory.CHEST,
+                        usesWeight: true,
+                        series: 3,
+                        sets: [{ reps: 10, weights: 50 }],
+                    },
+                ],
+            });
+            api.updateDayLog.and.returnValue(of(dayLog));
+
+            service.createWorkout('2026-05-01').subscribe();
+
+            expect(api.updateDayLog.calls.mostRecent().args[0].workoutSession.exercises).toEqual([
                 {
                     exerciseId: 'ex-1',
-                    name: 'Press banca',
-                    category: ExerciseCategory.CHEST,
-                    usesWeight: true,
                     series: 3,
                     sets: [{ reps: 10, weights: 50 }],
+                    notes: undefined,
                 },
-            ],
+            ]);
         });
-        api.updateDayLog.and.returnValue(of(dayLog));
 
-        service.createWorkout('2026-05-01').subscribe();
+        it('toggles the loading flag around the request', () => {
+            api.updateDayLog.and.returnValue(of(dayLog));
 
-        expect(api.updateDayLog.calls.mostRecent().args[0].workoutSession.exercises).toEqual([
-            { exerciseId: 'ex-1', series: 3, sets: [{ reps: 10, weights: 50 }], notes: undefined },
-        ]);
+            service.createWorkout('2026-05-01').subscribe();
+
+            expect(state.setLoadingWorkoutCreation.calls.first().args).toEqual([
+                '2026-05-01',
+                true,
+            ]);
+            expect(state.setLoadingWorkoutCreation.calls.mostRecent().args).toEqual([
+                '2026-05-01',
+                false,
+            ]);
+        });
+
+        it('stores the returned day-log as the new state', () => {
+            const updated = buildDayLog({ status: 'complete', workoutSessionId: 'ws-1' });
+            api.updateDayLog.and.returnValue(of(updated));
+
+            let result: DayLogVM | null | undefined;
+            service.createWorkout('2026-05-01').subscribe((res) => (result = res));
+
+            expect(result).toEqual(updated);
+            expect(state.setDayLog).toHaveBeenCalledWith(updated);
+            expect(storage.setDayLogStorage).toHaveBeenCalledWith(updated, USER_ID);
+        });
+
+        it('does nothing when there is no active day-log', () => {
+            dayLog = null;
+
+            let result: DayLogVM | null | undefined;
+            service.createWorkout('2026-05-01').subscribe((res) => (result = res));
+
+            expect(result).toBeNull();
+            expect(api.updateDayLog).not.toHaveBeenCalled();
+        });
     });
 
-    it('toggles the loading flag around the request', () => {
-        api.updateDayLog.and.returnValue(of(dayLog));
+    describe('createWorkoutWithRoutine', () => {
+        it('seeds the day exercises from the routine day', () => {
+            api.assignRoutineToDayLog.and.returnValue(
+                of({ id: 'day-1', routineDayId: 'rd-1', workoutSessionId: 'ws-1' }),
+            );
+            const seeded = buildDayLog({
+                routineDayId: 'rd-1',
+                workoutSessionId: 'ws-1',
+                exercises: [
+                    {
+                        exerciseId: 'ex-1',
+                        name: 'Press banca',
+                        category: ExerciseCategory.CHEST,
+                        usesWeight: true,
+                        series: 3,
+                        sets: [{ reps: 10, weights: 50 }],
+                    },
+                ],
+            });
+            api.getActiveDayLog.and.returnValue(of(seeded));
 
-        service.createWorkout('2026-05-01').subscribe();
+            let result: DayLogVM | null | undefined;
+            service
+                .createWorkoutWithRoutine('rd-1', '2026-05-01')
+                .subscribe((res) => (result = res));
 
-        expect(state.setLoadingWorkoutCreation.calls.first().args).toEqual(['2026-05-01', true]);
-        expect(state.setLoadingWorkoutCreation.calls.mostRecent().args).toEqual([
-            '2026-05-01',
-            false,
-        ]);
+            expect(api.assignRoutineToDayLog).toHaveBeenCalledWith('rd-1', '2026-05-01');
+            expect(api.getActiveDayLog).toHaveBeenCalledTimes(1);
+            expect(result).toEqual(seeded);
+            expect(result?.exercises?.length).toBe(1);
+            expect(state.setDayLog).toHaveBeenCalledWith(seeded);
+            expect(storage.setDayLogStorage).toHaveBeenCalledWith(seeded, USER_ID);
+        });
+
+        it('keeps the current day-log when the mutation returns no workout session', () => {
+            api.assignRoutineToDayLog.and.returnValue(of({ id: 'day-1', routineDayId: 'rd-1' }));
+
+            let result: DayLogVM | null | undefined;
+            service
+                .createWorkoutWithRoutine('rd-1', '2026-05-01')
+                .subscribe((res) => (result = res));
+
+            expect(api.getActiveDayLog).not.toHaveBeenCalled();
+            expect(result).toEqual(dayLog);
+        });
+
+        it('does nothing when there is no active day-log', () => {
+            dayLog = null;
+
+            let result: DayLogVM | null | undefined;
+            service
+                .createWorkoutWithRoutine('rd-1', '2026-05-01')
+                .subscribe((res) => (result = res));
+
+            expect(result).toBeNull();
+            expect(api.assignRoutineToDayLog).not.toHaveBeenCalled();
+        });
     });
 
-    it('stores the returned day-log as the new state', () => {
-        const updated = buildDayLog({ status: 'complete', workoutSessionId: 'ws-1' });
-        api.updateDayLog.and.returnValue(of(updated));
+    describe('completeDayLog', () => {
+        it('closes the day sending completed:true and clears the local state', () => {
+            api.updateDayLog.and.returnValue(of({ id: 'day-1', completed: true, active: false }));
 
-        let result: DayLogVM | null | undefined;
-        service.createWorkout('2026-05-01').subscribe((res) => (result = res));
+            service.completeDayLog(true).subscribe();
 
-        expect(result).toEqual(updated);
-        expect(state.setDayLog).toHaveBeenCalledWith(updated);
-        expect(storage.setDayLogStorage).toHaveBeenCalledWith(updated, 'user-1');
-    });
+            expect(api.updateDayLog).toHaveBeenCalledWith({ id: 'day-1', completed: true });
+            expect(storage.removeDayLogStorage).toHaveBeenCalledWith(USER_ID);
+            expect(state.setDayLog).toHaveBeenCalledWith(null);
+            expect(activeTracking.clear).toHaveBeenCalledTimes(1);
+            expect(state.setLoading.calls.first().args).toEqual([true]);
+            expect(state.setLoading.calls.mostRecent().args).toEqual([false]);
+        });
 
-    it('does nothing when there is no active day-log', () => {
-        dayLog = null;
+        it('is idempotent: does not call the api again once the day is closed', () => {
+            dayLog = null;
 
-        let result: DayLogVM | null | undefined;
-        service.createWorkout('2026-05-01').subscribe((res) => (result = res));
+            let result: DayLogVM | null | undefined;
+            service.completeDayLog(true).subscribe((res) => (result = res));
 
-        expect(result).toBeNull();
-        expect(api.updateDayLog).not.toHaveBeenCalled();
+            expect(result).toBeNull();
+            expect(api.updateDayLog).not.toHaveBeenCalled();
+            expect(state.setLoading).not.toHaveBeenCalled();
+        });
     });
 
     describe('removeWorkoutSession', () => {
