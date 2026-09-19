@@ -1,5 +1,9 @@
 # Plan: CI/CD — GitHub Actions quality gates
 
+> **Status: Historical / Non-Authoritative.** The CI/CD pipeline is implemented
+> and validated; see `sdd/ci-cd/spec.md` and `documents/engineering/ci-cd.md`
+> for the current system.
+
 ## Context
 
 The repository defines canonical **local** quality gates
@@ -17,7 +21,8 @@ Spec: `sdd/ci-cd/spec.md`.
 ## Decisions
 
 1. Platform: **GitHub Actions** (workflow `.github/workflows/ci.yml`).
-2. Gates: four parallel jobs — `lint` (ESLint + Prettier check), `typecheck`,
+2. Gates: four parallel jobs — `lint` (ESLint + `format:check`, Prettier scoped to
+   `src/**/*.{ts,js,html,scss,css}` + root tooling configs), `typecheck`,
    `unit` (`test:ci`), `build` (ng build + Workbox).
 3. `typecheck` targets `tsconfig.app.json` explicitly
    (`tsc --noEmit -p tsconfig.app.json`): the root `tsconfig.json` is a
@@ -31,16 +36,20 @@ Spec: `sdd/ci-cd/spec.md`.
    `concurrency` with `cancel-in-progress`.
 8. Workflow runs on `pull_request` → `main`, `push` → `main`, and
    `workflow_dispatch` (manual).
+9. Lint debt settled before adding the workflow: pre-existing ESLint errors were
+   fixed (dead imports, outputs named `onXxx`/native `toggle`, label/click a11y
+   in templates) and the `@typescript-eslint/no-explicit-any` rule was disabled
+   in `eslint.config.js`. Source was reformatted once with Prettier.
 
 ## Tasks
 
 - **T1** Write the Spec `sdd/ci-cd/spec.md`.
 - **T2** Write this Plan (`documents/plans/ci-cd/plan.md`).
 - **T3** Test-first: validate every gate command locally (the Spec `Tests`):
-  `npm run lint`, `npx prettier --check .`, `npm run test:ci`, `npm run build`,
+  `npm run lint`, `npm run format:check`, `npm run test:ci`, `npm run build`,
   and the `typecheck` command once added in T4.
-- **T4** Add the `typecheck` npm script to `package.json`:
-  `"typecheck": "tsc --noEmit -p tsconfig.app.json"`.
+- **T4** Add the `typecheck` and `format:check` npm scripts to `package.json`
+  (`tsc --noEmit -p tsconfig.app.json`; Prettier scoped to `src/**` + root configs).
 - **T5** Add `.github/workflows/ci.yml` with the four parallel jobs (decisions
   above).
 - **T6** Documentation update (after validation):
@@ -59,9 +68,9 @@ Spec: `sdd/ci-cd/spec.md`.
 
 Per task:
 
-- T4 → `npm run typecheck` on the app project.
+- T4 → `npm run typecheck` on the app project; `npm run format:check` green.
 - T5 → `git diff` review of the YAML against the Spec gates; YAML parse check.
-- Final local gates before pushing: `npm run lint`, `npx prettier --check .`,
+- Final local gates before pushing: `npm run lint`, `npm run format:check`,
   `npm run typecheck`, `npm run test:ci`, `npm run build`.
 - On GitHub (T7): workflow run / PR required checks.
 
