@@ -3,21 +3,22 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NumericPagination } from './numeric-pagination';
 
 describe('NumericPagination', () => {
-  let component: NumericPagination;
-  let fixture: ComponentFixture<NumericPagination>;
+    let component: NumericPagination;
+    let fixture: ComponentFixture<NumericPagination>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [NumericPagination]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [NumericPagination],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(NumericPagination);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(NumericPagination);
+        component = fixture.componentInstance;
+        fixture.componentRef.setInput('currentPage', 1);
+        fixture.componentRef.setInput('totalPages', 1);
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

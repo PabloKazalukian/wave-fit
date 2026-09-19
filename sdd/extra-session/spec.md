@@ -114,11 +114,11 @@ src/app/shared/components/widgets/extra-session/  (extra-session-form, extra-ses
 
 ## Tests
 
-- **TEST-001** `loadCatalog` caches the catalog after first fetch.
-- **TEST-002** `create` routes to `PlanDayService.updateExtraSession` when day-log active and to `PlanTrackingService.updateExtraSession` when week-log active.
-- **TEST-003** `remove` routes per active container.
-- **TEST-004** `update` mutates `activeWorkoutSessions$`.
-- **TEST-005** `extraSessions` reacts to store `extras` id changes and calls `getByIds`.
+- **TEST-001** `loadCatalog` caches the catalog after first fetch. ✅ (`extra-session.service.spec.ts`)
+- **TEST-002** `create` routes to `PlanDayService.updateExtraSession` when day-log active and to `PlanTrackingService.updateExtraSession` when week-log active. ✅ (`extra-session.service.spec.ts`)
+- **TEST-003** `remove` routes per active container. ✅ (`extra-session.service.spec.ts`)
+- **TEST-004** `update` mutates `activeWorkoutSessions$`. ✅ (`extra-session.service.spec.ts`)
+- **TEST-005** `extraSessions` reacts to store `extras` id changes and calls `getByIds`. ✅ (`extra-session.service.spec.ts`)
 
 ## Acceptance Criteria
 

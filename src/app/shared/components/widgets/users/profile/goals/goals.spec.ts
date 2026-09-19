@@ -1,23 +1,25 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Apollo } from 'apollo-angular';
 
 import { Goals } from './goals';
+import { apolloMock } from '../../../../../../core/testing/apollo.mock';
 
 describe('Goals', () => {
-  let component: Goals;
-  let fixture: ComponentFixture<Goals>;
+    let component: Goals;
+    let fixture: ComponentFixture<Goals>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Goals]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [Goals],
+            providers: [{ provide: Apollo, useValue: apolloMock }],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(Goals);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(Goals);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

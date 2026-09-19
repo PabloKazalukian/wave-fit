@@ -102,8 +102,8 @@ export interface ConfirmPlanOutput {
 
 ```
 src/app/core/services/coach/coach.service.ts   (+ .spec.ts)
-src/app/core/services/coach/coach.state.ts
-src/app/core/services/coach/storage/coach.storage.ts
+src/app/core/services/coach/coach.state.ts   (+ .spec.ts)
+src/app/core/services/coach/storage/coach.storage.ts   (+ .spec.ts)
 src/app/core/apollo/coach.query.ts | ai-usage.query.ts
 src/app/shared/interfaces/coach.interface.ts | ai-plan.interface.ts
 src/app/pages/coach/
@@ -112,10 +112,10 @@ src/app/shared/components/widgets/coach/
 
 ## Tests
 
-- **TEST-001** `generatePlan` maps `data.generatePlan` and handles GraphQL errors.
-- **TEST-002** `confirmPlan` passes `action` and surfaces `ConfirmPlanOutput`.
-- **TEST-003** `getPlanTrainings` uses `network-only` and maps the page.
-- **TEST-004** `state`/`storage` persist drafts across navigation.
+- **TEST-001** `generatePlan` maps `data.generatePlan` and handles GraphQL errors. ✅ (`coach.service.spec.ts`)
+- **TEST-002** `confirmPlan` passes `action` and surfaces `ConfirmPlanOutput`. ✅ (`coach.service.spec.ts`)
+- **TEST-003** `getPlanTrainings` uses `network-only` and maps the page. ✅ (`coach.service.spec.ts`)
+- **TEST-004** `state`/`storage` persist drafts across navigation. ✅ (`coach.state.spec.ts`, `storage/coach.storage.spec.ts`)
 
 ## Acceptance Criteria
 

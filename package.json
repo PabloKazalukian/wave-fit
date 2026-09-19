@@ -9,6 +9,7 @@
         "serve:pwa": "npm run build && npx workbox-cli injectManifest workbox-config.js && npx http-server dist/wave-fit/browser -p 4200 -a localhost -c-1 -o",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
+        "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
         "lint": "ng lint"
     },
     "prettier": {

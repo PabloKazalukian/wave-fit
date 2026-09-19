@@ -49,10 +49,13 @@ that encodes the `TEST-xxx` scenarios.
 ## Phase 0 — Green gate (`npm test` compiles and passes)
 
 - **0.1 Tooling**: `package.json` += `test:ci` (`ng test --watch=false --browsers=ChromeHeadless`).
-  Document the targeted-run recipe for narrow validation: temporary
-  `tsconfig.spec.tmp.json` with an `include` restricted to the specs under test, run
-  `ng test --watch=false --ts-config=tsconfig.spec.tmp.json --browsers=ChromeHeadless`,
-  then delete the temporary file.
+  Targeted-run recipe for narrow validation (`@angular/build:karma`): pass `--include` with
+  the spec path(s), e.g.
+  `ng test --watch=false --include=src/app/core/services/day-logs/plan-day.service.spec.ts --browsers=ChromeHeadless`
+  (a directory path includes all its `.spec.ts` files). The recipe originally proposed a
+  temporary `tsconfig.spec.tmp.json` with a restricted `include` — that does **not** work
+  with this builder, which requires every spec matched by the configured glob
+  (`**/*.spec.ts`) to be part of the TypeScript program.
 - **0.2 Delete 9 zombie UI specs**:
   `src/app/shared/components/ui/accordion-item/accordion-item.spec.ts`,
   `src/app/shared/components/ui/btn/btn.spec.ts`,

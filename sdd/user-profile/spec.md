@@ -110,15 +110,15 @@ export interface UserProfileContextAPI {
 ## Files
 
 ```
-src/app/core/services/user/user-profile.service.ts   (+ spec — broken, imports nonexistent './user-profile')
+src/app/core/services/user/user-profile.service.ts   (+ user-profile.service.spec.ts)
 src/app/core/services/user/user-profile.domain.ts
 src/app/core/services/user/user-profile.state.ts
 src/app/core/services/user/api/user-profile-api.service.ts
 src/app/core/services/user/api/user-profile-api.get.service.ts
 src/app/core/services/user/api/user-profile-api.set.service.ts
 src/app/core/apollo/user-profile.queries.ts
-src/app/shared/utils/profile.types.ts
-src/app/shared/wrappers/profile.wrapper.ts
+src/app/shared/utils/profile.types.ts   (+ profile.types.spec.ts)
+src/app/shared/wrappers/profile.wrapper.ts   (+ profile.wrapper.spec.ts)
 src/app/shared/interfaces/user-profile.interface.ts  (empty file)
 src/app/pages/user/  (user.ts, user.html, profile/profile.ts, profile.html)
 src/app/shared/components/widgets/users/profile/  (user-profile, weight, strength-metrics, resource, training-performance, health-constraints, schedule, goals)
@@ -143,13 +143,13 @@ src/app/pages/my-week/activation-selector.ts  (reads distributionDays default �
 
 ## Tests
 
-- **TEST-001** ~~`initUserProfile` maps `UserProfileContextAPI` → `ProfileUser`.~~ **NOT IMPLEMENTED.**
-- **TEST-002** ~~`updateUserProfile` splits into sub-record calls and aggregates `failedSteps`.~~ **NOT IMPLEMENTED** (method doesn't exist as described).
-- **TEST-003** ~~`updateProfile` merges the result into state.~~ **NOT IMPLEMENTED.**
-- **TEST-004** ~~`distributionToLogMode` maps WEEK→`week`, DAY→`day`.~~ **NOT IMPLEMENTED.**
-- **TEST-005** ~~Logout clears the profile state.~~ **NOT IMPLEMENTED** (and the behavior itself is broken — see FR-007).
+- **TEST-001** `initUserProfile` maps `UserProfileContextAPI` → `ProfileUser`. ✅ (`profile.wrapper.spec.ts`, `user-profile.service.spec.ts`)
+- **TEST-002** ~~`updateUserProfile` splits into sub-record calls and aggregates `failedSteps`.~~ **DEFERRED** — the method does not exist as described; `failedSteps` aggregation lives only in `completeBasicSetup` (coach flow) and is not covered here.
+- **TEST-003** `updateProfile` merges the result into state. ✅ (`user-profile.service.spec.ts`)
+- **TEST-004** `distributionToLogMode` maps WEEK→`week`, DAY→`day`. ✅ (`profile.types.spec.ts`)
+- **TEST-005** ~~Logout clears the profile state.~~ **DEFERRED / KNOWN BROKEN** — `resetMyProfile()` and the effect's `else` branch exist, but the automatic reset on `clearSession()` never fires because `AuthService.clearSession()` does not emit `userIdSubject` (see FR-007). No code repair in this task.
 
-**Note:** The existing `user-profile.spec.ts` is broken — it imports `UserProfile` from `./user-profile` which does not exist (the real export is `UserProfileService` from `./user-profile.service`). All other widget spec files are trivial "should create" smoke tests.
+**Note:** The previous broken `user-profile.spec.ts` (imported nonexistent `./user-profile`) was removed. TEST-002/005 are intentionally left unimplemented pending the FR-007 code repair (out of scope). All widget spec files remain trivial "should create" smoke tests.
 
 ## Acceptance Criteria
 

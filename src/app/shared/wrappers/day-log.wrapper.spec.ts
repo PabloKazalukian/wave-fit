@@ -4,9 +4,64 @@ import {
 } from '../interfaces/api/day-log-api.interface';
 import { Exercise, ExerciseCategory } from '../interfaces/exercise.interface';
 import {
+    apiDateToLocalDate,
+    wrapperDayLogApiToVM,
+    wrapperDayLogSummaryApiToVM,
     wrapperRemoveWorkoutSessionFromDayLogApiToVM,
     wrapperUpdateDayLogApiToVM,
 } from './day-log.wrapper';
+
+describe('apiDateToLocalDate (TEST-001)', () => {
+    const ISO = '2026-05-01T02:30:00.000Z';
+
+    const withTimezone = (timeZone: string) => {
+        const resolved = new Intl.DateTimeFormat('en-US', { timeZone }).resolvedOptions();
+        spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions').and.returnValue(resolved);
+    };
+
+    it('converts an ISO instant to the LocalDate of the resolved timezone (UTC-3)', () => {
+        withTimezone('America/Argentina/Buenos_Aires');
+        expect(apiDateToLocalDate(ISO)).toBe('2026-04-30');
+    });
+
+    it('converts the same ISO instant to the LocalDate of another timezone (UTC+9)', () => {
+        withTimezone('Asia/Tokyo');
+        expect(apiDateToLocalDate(ISO)).toBe('2026-05-01');
+    });
+
+    it('returns a plain yyyy-MM-dd string without time information', () => {
+        withTimezone('UTC');
+        expect(apiDateToLocalDate(ISO)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+
+    it('converts the date field of a day-log payload', () => {
+        withTimezone('America/Argentina/Buenos_Aires');
+        const vm = wrapperDayLogApiToVM(
+            {
+                id: 'day-1',
+                date: ISO,
+                extraSessionIds: [],
+                status: 'pending',
+                active: true,
+                completed: false,
+            },
+            [],
+        );
+        expect(vm.date).toBe('2026-04-30');
+    });
+
+    it('converts the date field of a day-log summary payload', () => {
+        withTimezone('America/Argentina/Buenos_Aires');
+        const vm = wrapperDayLogSummaryApiToVM({
+            id: 'day-1',
+            date: ISO,
+            completed: false,
+            active: true,
+            status: 'pending',
+        });
+        expect(vm.date).toBe('2026-04-30');
+    });
+});
 
 describe('wrapperUpdateDayLogApiToVM', () => {
     const catalog: Exercise[] = [

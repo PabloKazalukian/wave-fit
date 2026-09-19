@@ -191,19 +191,16 @@ src/app/shared/components/widgets/tracking/  (tracking-week, tracking-day, track
 - `workout.api.ts:43` `wrapperWorkoutSessionVMToApi` returns `any`.
 
 ### Tests
-- `plan-tracking.spec.ts` imports nonexistent `PlanTracking` class (should be `PlanTrackingService` from `./plan-tracking.service`).
-- `tracking-week.spec.ts` and `tracking-workout.spec.ts` have wrong `describe()` names (`RoutineScheduler` and `RoutineTrackingExercise` respectively).
+- The former `plan-tracking.spec.ts` (broken import) was removed and the mistitled `tracking-week.spec.ts` / `tracking-workout.spec.ts` describes were renamed; tracking coverage now lives in the domain/facade/wrapper/store specs (see ## Tests).
 
 ## Tests
 
-- **TEST-001** ~~`createTracking` builds the current-week range and persists.~~ **NOT IMPLEMENTED.**
-- **TEST-002** ~~`setExercises` debounces and enqueues `UpdateWeekLogDay` offline.~~ **NOT IMPLEMENTED.**
-- **TEST-003** ~~Day status transitions map REST/COMPLETE/EDITED correctly.~~ **NOT IMPLEMENTED.**
-- **TEST-004** ~~`completeTracking` deactivates + cleans state/storage.~~ **NOT IMPLEMENTED.**
-- **TEST-005** ~~Wrappers convert ISO → `LocalDate` per user timezone.~~ **NOT IMPLEMENTED.**
-- **TEST-006** ~~`WorkoutStateService` satisfies the `WorkoutStore` contract (week mode).~~ **NOT IMPLEMENTED.**
-
-**Note:** All existing tracking spec files are trivial "should create" smoke tests. `plan-tracking.spec.ts` is broken (imports nonexistent class).
+- **TEST-001** `createTracking` builds the current-week range and persists. ✅ (`plan-tracking.domain.spec.ts`)
+- **TEST-002** `setExercises` debounces and enqueues `UpdateWeekLogDay` offline. ✅ (`plan-tracking.service.spec.ts`, `plan-tracking.domain.spec.ts`)
+- **TEST-003** Day status transitions map REST/COMPLETE/EDITED correctly. ✅ (`plan-tracking.domain.spec.ts`, `plan-tracking.service.spec.ts`)
+- **TEST-004** `completeTracking` deactivates + cleans state/storage. ✅ (`plan-tracking.domain.spec.ts`)
+- **TEST-005** Wrappers convert ISO → `LocalDate` per user timezone. ✅ (`tracking.wrapper.spec.ts`)
+- **TEST-006** `WorkoutStateService` satisfies the `WorkoutStore` contract (week mode). ✅ (`workout.state.spec.ts`)
 
 ## Acceptance Criteria
 

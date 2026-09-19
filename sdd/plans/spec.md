@@ -100,11 +100,11 @@ src/app/shared/components/widgets/plans/          (weekly-routine-planner, routi
 
 ## Tests
 
-- **TEST-001** `validateTitleUnique` rejects duplicates.
-- **TEST-002** `submitPlan` online calls `createPlan` and updates cache/storage.
-- **TEST-003** `submitPlan` offline enqueues `CreateRoutinePlan` (+ day ops) without losing data.
-- **TEST-004** Day-plan state edits (kind/expand/remove) update the reactive model.
-- **TEST-005** `RoutinePlanSend` maps `routineDays` to day IDs.
+- **TEST-001** `validateTitleUnique` rejects duplicates. ✅ (`plans-api.service.spec.ts`, `plans.service.spec.ts`)
+- **TEST-002** `submitPlan` online calls `createPlan` and clears the local plan. ✅ (`plans.service.spec.ts`) — **Spec correction:** the code runs `clearPlan()` (state/storage cleared, `userId` reset), it does **not** update cache/storage.
+- **TEST-003** `submitPlan` offline enqueues `CreateRoutinePlan` (+ day ops) without losing data. ✅ (`plans.service.spec.ts`)
+- **TEST-004** Day-plan state edits (kind/expand/remove) update the reactive model. ✅ (`day-plan-state.service.spec.ts`, `plans.service.spec.ts`)
+- **TEST-005** `RoutinePlanSend` maps `routineDays` to day IDs. ✅ (`plans.wrapper.spec.ts`)
 
 ## Acceptance Criteria
 
