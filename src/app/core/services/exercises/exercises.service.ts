@@ -24,10 +24,12 @@ export class ExercisesService {
     constructor() {
         this.syncQueue.registerHandler('CreateExercise', async (mutation) => {
             const exercise = mutation.variables.input;
-            const res = await firstValueFrom(this.apollo.mutate<{ createExercise: Exercise }>({
-                mutation: CREATE_EXERCISE,
-                variables: { input: exercise }
-            }));
+            const res = await firstValueFrom(
+                this.apollo.mutate<{ createExercise: Exercise }>({
+                    mutation: CREATE_EXERCISE,
+                    variables: { input: exercise },
+                }),
+            );
             return res.data?.createExercise;
         });
     }
@@ -57,7 +59,9 @@ export class ExercisesService {
     // Helper para generar IDs compatibles con MongoDB ObjectId en el frontend
     private generateObjectId(): string {
         const timestamp = Math.floor(new Date().getTime() / 1000).toString(16);
-        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16));
+        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () =>
+            Math.floor(Math.random() * 16).toString(16),
+        );
         return (timestamp + randomHex).toLowerCase();
     }
 
@@ -86,7 +90,7 @@ export class ExercisesService {
                             await this.updateLocalCache(newExercise);
                         }
                     }),
-                    map((res) => res.data!.createExercise)
+                    map((res) => res.data!.createExercise),
                 );
         } else {
             const pending = {
@@ -94,7 +98,7 @@ export class ExercisesService {
                 operationName: 'CreateExercise',
                 variables: { input: exerciseWithId },
                 status: 'pending' as const,
-                createdAt: Date.now()
+                createdAt: Date.now(),
             };
 
             return from(this.saveOfflineMutation(pending, exerciseWithId));
@@ -108,30 +112,32 @@ export class ExercisesService {
     }
 
     private async updateLocalCache(newExercise: Exercise) {
-        this.exercises.update(current => {
-            const existing = current.find(e => e.id === newExercise.id);
+        this.exercises.update((current) => {
+            const existing = current.find((e) => e.id === newExercise.id);
             if (existing) return current;
             return [...current, newExercise];
         });
-        
+
         this.idb.saveExercises(this.exercises());
 
         const cacheKey = JSON.stringify({ operationName: 'GetExercises', variables: {} });
-        
+
         try {
             const cached = await this.idb.db.graphqlCache.get(cacheKey);
             if (cached && cached.data && cached.data.exercises) {
-                const existingInCache = cached.data.exercises.find((e: any) => e.id === newExercise.id);
+                const existingInCache = cached.data.exercises.find(
+                    (e: any) => e.id === newExercise.id,
+                );
                 if (!existingInCache) {
                     const updatedData = {
                         ...cached.data,
-                        exercises: [...cached.data.exercises, newExercise]
+                        exercises: [...cached.data.exercises, newExercise],
                     };
-                    
+
                     await this.idb.db.graphqlCache.put({
                         cacheKey,
                         data: updatedData,
-                        updatedAt: Date.now()
+                        updatedAt: Date.now(),
                     });
                 }
             }

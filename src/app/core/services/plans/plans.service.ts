@@ -39,7 +39,9 @@ export class PlansService {
 
     private generateObjectId(): string {
         const timestamp = Math.floor(new Date().getTime() / 1000).toString(16);
-        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16));
+        const randomHex = 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () =>
+            Math.floor(Math.random() * 16).toString(16),
+        );
         return (timestamp + randomHex).toLowerCase();
     }
 
@@ -125,7 +127,7 @@ export class PlansService {
                 if (plan && plan.id) {
                     this.idb.savePlan(plan);
                 }
-            })
+            }),
         );
     }
 
@@ -180,7 +182,7 @@ export class PlansService {
             return this.planApi.createPlan(payload).pipe(
                 tap({
                     next: () => this.clearPlan(),
-                })
+                }),
             );
         } else {
             const pending = {
@@ -188,13 +190,15 @@ export class PlansService {
                 operationName: 'CreateRoutinePlan',
                 variables: { input: payload },
                 status: 'pending' as const,
-                createdAt: Date.now()
+                createdAt: Date.now(),
             };
-            
-            return from(this.syncQueue.enqueue(pending).then(() => {
-                this.clearPlan();
-                return { ...payload, id: newId };
-            }));
+
+            return from(
+                this.syncQueue.enqueue(pending).then(() => {
+                    this.clearPlan();
+                    return { ...payload, id: newId };
+                }),
+            );
         }
     }
 

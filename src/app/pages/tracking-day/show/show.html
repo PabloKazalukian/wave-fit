@@ -20,13 +20,7 @@
               !day.completed && day.status !== 'skipped',
           }"
         >
-          {{
-            day.completed
-              ? 'Completado'
-              : day.status === 'skipped'
-                ? 'Omitido'
-                : 'Pendiente'
-          }}
+          {{ day.completed ? 'Completado' : day.status === 'skipped' ? 'Omitido' : 'Pendiente' }}
         </span>
       </article>
 
@@ -80,7 +74,9 @@
                       <span class="font-semibold text-text1">{{ set.reps }}</span>
                       @if (set.weights) {
                         <span class="text-text2 ml-0.5">weight:</span>
-                        <span class="font-semibold text-text1 text-nowrap">{{ set.weights }}kg</span>
+                        <span class="font-semibold text-text1 text-nowrap"
+                          >{{ set.weights }}kg</span
+                        >
                       }
                     </div>
                   }

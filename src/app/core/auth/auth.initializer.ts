@@ -23,7 +23,7 @@ export function authInitializerFactory(authService: AuthService) {
                         catchError(() => of(true)),
                     ),
                 );
-            } catch (e) {
+            } catch {
                 // Network failed or timeout, but we have the offline session from IndexedDB
                 console.warn('Initial auth sync failed, proceeding with offline state');
             }

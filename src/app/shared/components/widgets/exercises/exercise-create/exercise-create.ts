@@ -48,13 +48,13 @@ export class ExerciseCreate implements OnInit {
         }
     }
 
-    @Output() onCancel = new EventEmitter<void>();
-    @Output() onCreateSuccess = new EventEmitter<void>();
+    @Output() cancelRequested = new EventEmitter<void>();
+    @Output() createSuccess = new EventEmitter<void>();
 
     cancel() {
         this.facade.routineExerciseCreateForm.reset();
         this.facade.selectForm.reset();
-        this.onCancel.emit();
+        this.cancelRequested.emit();
     }
 
     ngOnInit(): void {
@@ -83,8 +83,8 @@ export class ExerciseCreate implements OnInit {
                 this.facade.showNotification.set(true);
                 this.facade.notification.set('success');
                 setTimeout(() => {
-                    // this.onCancel.emit();
-                    this.onCreateSuccess.emit();
+                    // this.cancelRequested.emit();
+                    this.createSuccess.emit();
                 }, 2000);
             },
             error: (error) => {

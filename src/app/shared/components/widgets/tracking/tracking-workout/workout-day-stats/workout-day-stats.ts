@@ -1,12 +1,4 @@
-import {
-    Component,
-    DestroyRef,
-    computed,
-    effect,
-    inject,
-    input,
-    signal,
-} from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import {

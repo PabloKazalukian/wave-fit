@@ -1,6 +1,8 @@
 .expand-wrapper {
   overflow: hidden;
-  transition: max-height 0.35s ease, opacity 2s ease;
+  transition:
+    max-height 0.35s ease,
+    opacity 2s ease;
 }
 
 /* Estado colapsado */
@@ -19,7 +21,9 @@
 .inner-enter {
   opacity: 0;
   transform: translateY(-8px);
-  transition: opacity 0.2s ease 2s, transform 2s ease 5s;
+  transition:
+    opacity 0.2s ease 2s,
+    transform 2s ease 5s;
 }
 
 .inner-enter-active {

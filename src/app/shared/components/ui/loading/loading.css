@@ -1,45 +1,43 @@
 .loader {
-    width: var(--loader-width, 8px);
-    height: var(--loader-height, 38px);
-    display: inline-block;
-    position: relative;
-    border-radius: 4px;
-    box-sizing: border-box;
-    animation: animloader 0.6s linear infinite;
-    color: var(--loader-color, currentColor);
+  width: var(--loader-width, 8px);
+  height: var(--loader-height, 38px);
+  display: inline-block;
+  position: relative;
+  border-radius: 4px;
+  box-sizing: border-box;
+  animation: animloader 0.6s linear infinite;
+  color: var(--loader-color, currentColor);
 }
 
 @keyframes animloader {
-    0% {
-        box-shadow:
-            var(--s1) -10px var(--loader-color),
-            var(--s2) 10px var(--loader-color),
-            var(--s3) 0px var(--loader-color);
-    }
-    25% {
-        box-shadow:
-            var(--s1) 0px var(--loader-color),
-            var(--s2) 0px var(--loader-color),
-            var(--s3) 10px var(--loader-color);
-    }
-    50% {
-        box-shadow:
-            var(--s1) 10px var(--loader-color),
-            var(--s2) -10px var(--loader-color),
-            var(--s3) 0px var(--loader-color);
-    }
-    75% {
-        box-shadow:
-            var(--s1) 0px var(--loader-color),
-            var(--s2) 0px var(--loader-color),
-            var(--s3) -10px var(--loader-color);
-    }
-    100% {
-        box-shadow:
-            var(--s1) -10px var(--loader-color),
-            var(--s2) 10px var(--loader-color),
-            var(--s3) 0px var(--loader-color);
-    }
+  0% {
+    box-shadow:
+      var(--s1) -10px var(--loader-color),
+      var(--s2) 10px var(--loader-color),
+      var(--s3) 0px var(--loader-color);
+  }
+  25% {
+    box-shadow:
+      var(--s1) 0px var(--loader-color),
+      var(--s2) 0px var(--loader-color),
+      var(--s3) 10px var(--loader-color);
+  }
+  50% {
+    box-shadow:
+      var(--s1) 10px var(--loader-color),
+      var(--s2) -10px var(--loader-color),
+      var(--s3) 0px var(--loader-color);
+  }
+  75% {
+    box-shadow:
+      var(--s1) 0px var(--loader-color),
+      var(--s2) 0px var(--loader-color),
+      var(--s3) -10px var(--loader-color);
+  }
+  100% {
+    box-shadow:
+      var(--s1) -10px var(--loader-color),
+      var(--s2) 10px var(--loader-color),
+      var(--s3) 0px var(--loader-color);
+  }
 }
-
-

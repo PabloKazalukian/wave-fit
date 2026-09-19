@@ -50,7 +50,7 @@
               [subtitle]="routine.type?.join(', ') || ''"
               [isSelected]="selectedRoutineId() === routine.id"
               [open]="showRoutine()?.id === routine.id"
-              (toggle)="selectToShowRoutine(routine)"
+              (toggled)="selectToShowRoutine(routine)"
             >
               <app-btn
                 [text]="selectedRoutineId() === routine.id ? 'Quitar' : 'Seleccionar'"

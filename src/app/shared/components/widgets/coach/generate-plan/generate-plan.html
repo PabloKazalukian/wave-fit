@@ -94,11 +94,7 @@
 
   <app-btn
     [text]="
-      hasReachedLimit
-        ? 'Límite alcanzado'
-        : loading()
-          ? 'Generando...'
-          : 'Generar un nuevo Plan'
+      hasReachedLimit ? 'Límite alcanzado' : loading() ? 'Generando...' : 'Generar un nuevo Plan'
     "
     [color]="hasReachedLimit ? 'error' : 'primary'"
     [variant]="'outline'"

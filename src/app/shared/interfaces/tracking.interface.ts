@@ -29,7 +29,7 @@ export interface TrackingVM {
     id: string;
     userId: string;
     startDate: LocalDate; // "yyyy-MM-dd"
-    endDate: LocalDate;   // "yyyy-MM-dd"
+    endDate: LocalDate; // "yyyy-MM-dd"
     workouts?: WorkoutSessionVM[];
     planId?: string | null;
     notes?: string;
@@ -40,7 +40,7 @@ export interface TrackingVMS {
     id: string;
     userId: string;
     startDate: LocalDate; // "yyyy-MM-dd"
-    endDate: LocalDate;   // "yyyy-MM-dd"
+    endDate: LocalDate; // "yyyy-MM-dd"
     planId?: string | null;
     days: WeekLogDayVM[];
     completed: boolean;

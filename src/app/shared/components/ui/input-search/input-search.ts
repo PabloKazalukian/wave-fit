@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-input-search',
-  imports: [],
-  templateUrl: './input-search.html',
-  styles: ``,
+    selector: 'app-input-search',
+    imports: [],
+    templateUrl: './input-search.html',
+    styles: ``,
 })
-export class InputSearch {
-
-}
+export class InputSearch {}

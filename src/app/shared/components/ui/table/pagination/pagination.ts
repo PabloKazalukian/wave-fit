@@ -28,6 +28,8 @@ export class TablePaginationComponent {
     currentPage = signal<number>(0);
     pageSize = signal<number>(10);
 
+    pageSizeSelectId = `page-size-${crypto.randomUUID()}`;
+
     // Computed values
     totalItems = computed(() => this.data().length);
     totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()));

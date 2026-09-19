@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { BtnComponent } from '../../ui/btn/btn';
 import { WaveLogoComponent } from '../../ui/logos/wave-logo/wave-logo';
-import { AvatarComponent } from '../../ui/avatar/avatar';
 import { UserBadge } from '../../ui/user-badge/user-badge';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
@@ -70,7 +69,7 @@ export class Header implements OnInit {
 
         return this.activeTrackingSvc.isDayLogActive() ? '/my-day' : '/my-week';
     });
-    
+
     isOnline = this.networkSvc.isOnline;
     pendingMutations = this.syncQueue.pendingCount;
 
