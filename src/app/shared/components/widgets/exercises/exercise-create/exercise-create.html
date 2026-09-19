@@ -67,7 +67,10 @@
             }
 
             @case ('error') {
-              <app-notification [message]="'¡Ocurrió un error!'" [type]="'error'"></app-notification>
+              <app-notification
+                [message]="'¡Ocurrió un error!'"
+                [type]="'error'"
+              ></app-notification>
             }
 
             @default {

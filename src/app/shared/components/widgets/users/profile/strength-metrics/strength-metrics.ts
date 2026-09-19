@@ -19,7 +19,13 @@ type StrengthMetricFormType = FormControlsOf<CreateStrengthMetricInput>;
 
     standalone: true,
 
-    imports: [ReactiveFormsModule, FormInputComponent, InputNumber, BtnComponent, FormSelectComponent],
+    imports: [
+        ReactiveFormsModule,
+        FormInputComponent,
+        InputNumber,
+        BtnComponent,
+        FormSelectComponent,
+    ],
 
     templateUrl: './strength-metrics.html',
 })
@@ -53,9 +59,12 @@ export class StrengthMetrics implements OnInit {
                 validators: [Validators.required, Validators.min(1)],
             }),
 
-            repsAtWeight: new FormControl(undefined as unknown as { weightKg: number; reps: number }, {
-                nonNullable: true,
-            }),
+            repsAtWeight: new FormControl(
+                undefined as unknown as { weightKg: number; reps: number },
+                {
+                    nonNullable: true,
+                },
+            ),
 
             confidenceLevel: new FormControl('estimated' as ConfidenceLevel, {
                 nonNullable: true,

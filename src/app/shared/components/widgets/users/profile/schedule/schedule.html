@@ -17,10 +17,18 @@
       <app-input-number [label]="'Duración sesión minutos'" [control]="sessionDurationMinControl">
       </app-input-number>
 
-      <app-select [label]="'Horario preferido'" [options]="preferredTimeOptions" [control]="preferredTimeControl">
+      <app-select
+        [label]="'Horario preferido'"
+        [options]="preferredTimeOptions"
+        [control]="preferredTimeControl"
+      >
       </app-select>
 
-      <app-select [label]="'Actividad descanso'" [options]="restDayActivityOptions" [control]="restDayActivityControl">
+      <app-select
+        [label]="'Actividad descanso'"
+        [options]="restDayActivityOptions"
+        [control]="restDayActivityControl"
+      >
       </app-select>
 
       <app-btn

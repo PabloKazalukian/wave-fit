@@ -56,13 +56,11 @@ export const routes: Routes = [
             },
             {
                 path: 'history',
-                loadComponent: () =>
-                    import('./pages/user/history/history').then((m) => m.History),
+                loadComponent: () => import('./pages/user/history/history').then((m) => m.History),
             },
             {
                 path: 'tracking/day/:id',
-                loadComponent: () =>
-                    import('./pages/tracking-day/show/show').then((m) => m.Show),
+                loadComponent: () => import('./pages/tracking-day/show/show').then((m) => m.Show),
             },
             {
                 path: 'trackings',

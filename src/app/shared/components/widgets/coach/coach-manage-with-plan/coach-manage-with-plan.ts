@@ -1,21 +1,26 @@
-import {
-    Component,
-    effect,
-    inject,
-    input,
-    output,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, effect, inject, input, output, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, CalendarPlus, Save, Wand2, PlusCircle, Trash2, Edit3, CheckCircle } from 'lucide-angular';
+import {
+    LucideAngularModule,
+    CalendarPlus,
+    Save,
+    Wand2,
+    PlusCircle,
+    Trash2,
+    Edit3,
+    CheckCircle,
+} from 'lucide-angular';
 import { CoachNavigatorWeek } from '../coach-navigator-week/coach-navigator-week';
 import { CoachShowWorkout } from '../coach-show-workout/coach-show-workout';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { DialogComponent } from '../../../ui/dialog/dialog';
 import { InfoCard } from '../../../ui/info-card/info-card';
 import { SpinnerComponent } from '../../../ui/icon/spinner';
-import { TrainingPlanDetail, PlanConfirmationAction, AiUsageStatus } from '../../../../interfaces/coach.interface';
+import {
+    TrainingPlanDetail,
+    PlanConfirmationAction,
+    AiUsageStatus,
+} from '../../../../interfaces/coach.interface';
 import { CoachManageWithPlanFacade } from './coach-manage-with-plan.facade';
 import { WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 import { CoachService } from '../../../../../core/services/coach/coach.service';

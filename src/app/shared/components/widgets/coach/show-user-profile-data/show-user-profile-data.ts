@@ -1,6 +1,5 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { DataSection } from '../../../ui/data-section/data-section';
-import { UserProfile } from '../../users/profile/user-profile/user-profile';
 import { UserProfileService } from '../../../../../core/services/user/user-profile.service';
 
 @Component({

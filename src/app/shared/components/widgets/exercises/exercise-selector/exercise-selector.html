@@ -105,7 +105,9 @@
             </button>
           </article>
         } @empty {
-          <span class="p-4 text-center text-text2 text-sm italic">No se encontraron ejercicios</span>
+          <span class="p-4 text-center text-text2 text-sm italic"
+            >No se encontraron ejercicios</span
+          >
         }
       </section>
       <div class="p-2 bg-background3 rounded-b-xl flex justify-center">
@@ -126,8 +128,8 @@
     <div @fadeAnimation>
       <app-exercise-create
         [selectedCategory]="category()"
-        (onCancel)="toggleCreateForm()"
-        (onCreateSuccess)="onExerciseCreated()"
+        (cancelRequested)="toggleCreateForm()"
+        (createSuccess)="onExerciseCreated()"
       ></app-exercise-create>
     </div>
   }

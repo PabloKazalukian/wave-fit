@@ -1,7 +1,8 @@
 <div class="filter-container">
-  <label class="block text-sm font-medium mb-2">{{ label() }}</label>
+  <label class="block text-sm font-medium mb-2" [for]="filterInputId">{{ label() }}</label>
   <input
     type="text"
+    [id]="filterInputId"
     [placeholder]="placeholder()"
     [(ngModel)]="searchValue"
     (ngModelChange)="onSearchChange($event)"

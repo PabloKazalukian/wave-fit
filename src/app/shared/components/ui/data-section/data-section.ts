@@ -20,7 +20,9 @@ export class DataSection {
     excludedKeys = new Set(['id', 'userId', 'updatedAt', 'createdAt']);
 
     get entries(): [string, unknown][] {
-        return this.data ? Object.entries(this.data).filter(([key]) => !this.excludedKeys.has(key)) : [];
+        return this.data
+            ? Object.entries(this.data).filter(([key]) => !this.excludedKeys.has(key))
+            : [];
     }
 
     entriesOf(obj: unknown): [string, unknown][] {

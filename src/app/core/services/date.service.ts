@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { addDays, eachDayOfInterval, format, isEqual, parseISO } from 'date-fns';
-import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
+import { addDays, format, isEqual, parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
 
 /**
@@ -16,7 +16,7 @@ export interface DayWithString {
     day: string;
     dayNumber: number;
     localDate: LocalDate; // "yyyy-MM-dd"
-    displayDate: Date;    // Solo para renderizado UI
+    displayDate: Date; // Solo para renderizado UI
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,9 +50,7 @@ export class DateService {
      * Genera el rango de 7 LocalDates a partir de un startDate LocalDate.
      */
     weekRangeLocalDates(startLocalDate: LocalDate): LocalDate[] {
-        return Array.from({ length: 7 }, (_, i) =>
-            this.addDaysToLocalDate(startLocalDate, i),
-        );
+        return Array.from({ length: 7 }, (_, i) => this.addDaysToLocalDate(startLocalDate, i));
     }
 
     /**

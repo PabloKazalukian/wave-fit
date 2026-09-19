@@ -128,7 +128,9 @@ export function wrapperWeightLogToDomain(api: WeightLogAPI): WeightLog {
     };
 }
 
-export function wrapperProfileUserToDomain(api: ProfileUserAPI | null | undefined): ProfileUser | null {
+export function wrapperProfileUserToDomain(
+    api: ProfileUserAPI | null | undefined,
+): ProfileUser | null {
     if (!api) return null;
     return {
         id: api.id,
@@ -154,7 +156,7 @@ export function wrapperProfileUserToDomain(api: ProfileUserAPI | null | undefine
 
 export function wrapperProfileContextToDomain(
     api: UserProfileContextAPI | null | undefined,
-    userIdFallback?: string
+    userIdFallback?: string,
 ): ProfileUser | null {
     if (!api) return null;
     const profile = api.profile;

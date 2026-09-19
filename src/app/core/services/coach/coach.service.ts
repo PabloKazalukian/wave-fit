@@ -28,7 +28,7 @@ export class CoachService {
 
     authSvc = inject(AuthService);
 
-    generatePlan(comment: string = ''): Observable<TrainingPlanDetail | null> {
+    generatePlan(comment = ''): Observable<TrainingPlanDetail | null> {
         return this.apollo
             .mutate<{ generatePlan: TrainingPlanDetail }>({
                 mutation: GENERATE_PLAN,
@@ -52,7 +52,8 @@ export class CoachService {
             );
     }
 
-    getPlanTrainings(limit: number, offset: number): Observable<TrainingPlansPage | null> {        return this.apollo
+    getPlanTrainings(limit: number, offset: number): Observable<TrainingPlansPage | null> {
+        return this.apollo
             .query<{ trainingPlans: TrainingPlansPage }>({
                 query: GET_TRAINING_PLANS,
                 variables: { limit, offset },
