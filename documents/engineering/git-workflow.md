@@ -38,7 +38,7 @@ This document defines the **branch strategy, commit conventions, and merge rules
     - the Spec it implements (`sdd/<feature>/spec.md`);
     - the Plan it follows (`documents/plans/<feature>/plan.md`), when applicable;
     - the validation performed.
-- There is **no committed CI pipeline yet** (no `.github/workflows`, no `vercel.json`); validate locally with the gates in [ci-cd.md](ci-cd.md) (lint, format check, unit tests, e2e, build, type check) before opening the PR.
+- CI is mandatory for merges: the workflow in `.github/workflows/ci.yml` runs the gates in [ci-cd.md](ci-cd.md) (lint, format check, type check, unit tests, build) as required checks on the PR. A PR whose CI checks fail **cannot be merged**; validate locally before pushing to avoid wasted runs.
 
 ---
 
@@ -53,7 +53,7 @@ This document defines the **branch strategy, commit conventions, and merge rules
 ## 5. `main` Branch Rules
 
 - `main` is the **deployable** branch (production deployment target).
-- `main` must always build and pass validation.
+- `main` must always build and pass validation; pushes to `main` run the committed CI workflow as required checks.
 - Direct pushes to `main` are avoided; changes land via PRs.
 - Do not force-push to `main`.
 

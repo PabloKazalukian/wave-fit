@@ -85,11 +85,7 @@ export class WorkoutStateService implements WorkoutStore {
         return this.trackingSvc.createWorkout(date);
     }
 
-    setRestDay(
-        date: LocalDate,
-        workout: WorkoutSessionVM,
-        status: StatusWorkoutSession,
-    ) {
+    setRestDay(date: LocalDate, workout: WorkoutSessionVM, status: StatusWorkoutSession) {
         return this.trackingSvc.setRestDay(date, workout, status as StatusWorkoutSessionEnum);
     }
 

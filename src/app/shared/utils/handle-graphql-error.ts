@@ -5,6 +5,7 @@ import { GraphQLFormattedError } from 'graphql';
 import { HttpErrorResponse } from '@angular/common/http';
 
 export function handleGraphqlError<T>(authSvc: AuthService): OperatorFunction<T, T> {
+    void authSvc;
     return catchError((error) => {
         console.log(error);
         if (CombinedGraphQLErrors.is(error)) {

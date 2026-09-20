@@ -343,24 +343,24 @@ export type UpdateProfileInput = Partial<{
     unitsPreference: UnitsPreference;
 }>;
 
-export type UpdateGoalsInput = {
+export interface UpdateGoalsInput {
     primaryGoal: PrimaryGoal;
     secondaryGoals?: string[];
     targetWeightKg?: number;
     timelineWeeks?: number;
     trainingExperience: TrainingExperience;
     sportSpecificity?: string;
-};
+}
 
-export type UpdateScheduleInput = {
+export interface UpdateScheduleInput {
     daysPerWeek: number;
     preferredDays?: number[];
     sessionDurationMin?: number;
     preferredTime?: PreferredTime;
     restDayActivity?: RestDayActivity;
-};
+}
 
-export type UpdateHealthConstraintsInput = {
+export interface UpdateHealthConstraintsInput {
     injuries?: {
         bodyPart: BodyPart;
         severity: InjurySeverity;
@@ -371,39 +371,39 @@ export type UpdateHealthConstraintsInput = {
     conditions?: string[];
     mobilityLevel?: MobilityLevel;
     hasHealthcareSupervision?: boolean;
-};
+}
 
-export type UpdateTrainingPreferenceInput = {
+export interface UpdateTrainingPreferenceInput {
     preferredStyles: TrainingStyle[];
     dislikedExercises?: string[];
     favoriteExercises?: string[];
     cardioPreference?: CardioPreference;
     intensityPreference?: IntensityPreference;
     workoutVibe?: string;
-};
+}
 
-export type UpdateResourceInput = {
+export interface UpdateResourceInput {
     trainingEnvironments: TrainingEnvironment[];
     equipment?: Partial<AvailableEquipment>;
     dumbbellMaxKg?: number;
     gymDistanceKm?: number;
-};
+}
 
-export type CreateStrengthMetricInput = {
+export interface CreateStrengthMetricInput {
     exerciseKey: string;
     oneRmKg: number;
     repsAtWeight?: { weightKg: number; reps: number };
     confidenceLevel?: ConfidenceLevel;
     measuredAt?: string;
     notes?: string;
-};
+}
 
-export type CreateWeightLogInput = {
+export interface CreateWeightLogInput {
     weightKg: number;
     bodyFatPct?: number;
     loggedAt?: string;
     notes?: string;
-};
+}
 
 // ── Favoritos ──
 

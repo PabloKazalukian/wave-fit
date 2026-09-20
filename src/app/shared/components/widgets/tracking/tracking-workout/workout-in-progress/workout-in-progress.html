@@ -29,7 +29,7 @@
               [open]="this.facade.isOpen(exercise.exerciseId)"
               [isSelected]="false"
               [isIncomplete]="facade.getSets(exercise.exerciseId).length === 0"
-              (toggle)="toggleAccordion(exercise.exerciseId)"
+              (toggled)="toggleAccordion(exercise.exerciseId)"
             >
               <div class="space-y-3">
                 <!-- Sets display -->

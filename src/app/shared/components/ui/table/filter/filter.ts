@@ -23,6 +23,8 @@ export class TableFilterComponent {
 
     filteredData = output<any[]>();
 
+    filterInputId = `filter-${crypto.randomUUID()}`;
+
     searchValue = signal<string>('');
 
     onSearchChange(value: string): void {

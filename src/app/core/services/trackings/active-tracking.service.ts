@@ -3,7 +3,11 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, finalize, Observable, of, tap } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { ActiveTrackingApi } from './active-tracking.api';
-import { ActiveDayVM, ActiveTrackingVM, ActiveWeekVM } from '../../../shared/interfaces/day-log.interface';
+import {
+    ActiveDayVM,
+    ActiveTrackingVM,
+    ActiveWeekVM,
+} from '../../../shared/interfaces/day-log.interface';
 
 @Injectable({
     providedIn: 'root',

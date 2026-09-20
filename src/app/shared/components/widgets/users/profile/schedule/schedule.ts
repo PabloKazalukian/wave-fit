@@ -8,10 +8,7 @@ import { MultiSelectComponent } from '../../../../ui/multi-select/multi-select';
 import { SelectType } from '../../../../../interfaces/input.interface';
 import { BtnComponent } from '../../../../ui/btn/btn';
 import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
-import {
-    PreferredTime,
-    RestDayActivity,
-} from '../../../../../utils/profile.types';
+import { PreferredTime, RestDayActivity } from '../../../../../utils/profile.types';
 
 export interface ScheduleForm {
     daysPerWeek: number;
@@ -26,7 +23,13 @@ type ScheduleFormType = FormControlsOf<ScheduleForm>;
 @Component({
     selector: 'app-schedule',
     standalone: true,
-    imports: [ReactiveFormsModule, InputNumber, BtnComponent, FormSelectComponent, MultiSelectComponent],
+    imports: [
+        ReactiveFormsModule,
+        InputNumber,
+        BtnComponent,
+        FormSelectComponent,
+        MultiSelectComponent,
+    ],
     templateUrl: './schedule.html',
 })
 export class Schedule implements OnInit {

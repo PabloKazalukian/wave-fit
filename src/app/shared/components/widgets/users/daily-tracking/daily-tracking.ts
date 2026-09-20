@@ -37,9 +37,7 @@ export class DailyTracking {
 
     limit = input<number>(5);
 
-    days$ = toObservable(this.limit).pipe(
-        switchMap((limit) => this.planDaySvc.findAll(limit)),
-    );
+    days$ = toObservable(this.limit).pipe(switchMap((limit) => this.planDaySvc.findAll(limit)));
 
     readonly SunIcon = Sun;
     readonly ChevronRightIcon = ChevronRight;

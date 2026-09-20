@@ -150,7 +150,7 @@ export class PlanTrackingApi {
             );
     }
 
-    findAllTrackingByUser(limit: number = 5, offset: number = 0): Observable<TrackingVM[] | null> {
+    findAllTrackingByUser(limit = 5, offset = 0): Observable<TrackingVM[] | null> {
         return this.apollo
             .query<{
                 findAll: TrackingAPI[];

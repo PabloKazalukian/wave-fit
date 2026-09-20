@@ -1,6 +1,11 @@
 <div class="flex flex-col gap-1 w-full">
   @if (label) {
-    <label class="font-semibold text-white text-sm">{{ label }}</label>
+    <label class="font-semibold text-white text-sm">
+      {{ label }}
+      <input type="hidden" [name]="name" [value]="control.value" />
+    </label>
+  } @else {
+    <input type="hidden" [name]="name" [value]="control.value" />
   }
 
   <div class="flex items-end gap-1.5" [style.height.px]="barContainerHeight">
@@ -15,8 +20,6 @@
       ></button>
     }
   </div>
-
-  <input type="hidden" [name]="name" [value]="control.value" />
 
   @if (showHint && currentHint) {
     <span class="text-xs text-white/50 min-h-[1.1rem]">{{ currentHint }}</span>

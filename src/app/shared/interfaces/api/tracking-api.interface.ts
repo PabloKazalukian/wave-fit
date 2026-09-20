@@ -77,7 +77,7 @@ export interface WeekLogDayAPI {
 export interface UpdateWeekLogInput {
     id: string;
     startDate?: LocalDate; // "yyyy-MM-dd"
-    endDate?: LocalDate;   // "yyyy-MM-dd"
+    endDate?: LocalDate; // "yyyy-MM-dd"
     timezone?: string;
     days?: UpdateWeekLogDayInput[];
     completed?: boolean;

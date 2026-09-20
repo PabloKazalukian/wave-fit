@@ -36,7 +36,10 @@ export interface WorkoutStore {
     updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): void;
     removeWorkoutSession(date: LocalDate, id: string): Observable<boolean>;
     createWorkoutWithRoutine(routineDayId: string, date: LocalDate): Observable<unknown>;
-    createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<RoutineDayAPI | null>;
+    createRoutineFromWorkout(
+        title: string,
+        exerciseIds: string[],
+    ): Observable<RoutineDayAPI | null>;
 }
 
 export const WORKOUT_STORE = new InjectionToken<WorkoutStore>('WORKOUT_STORE');

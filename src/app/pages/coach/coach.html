@@ -67,14 +67,20 @@
 
               <!-- Sección de Generar Plan o Visualizar/Modificar Plan Activo -->
               @if (loadingPlan()) {
-                <div class="flex flex-col items-center justify-center gap-3 py-8 bg-background3/50 border border-background4 rounded-2xl" aria-busy="true">
+                <div
+                  class="flex flex-col items-center justify-center gap-3 py-8 bg-background3/50 border border-background4 rounded-2xl"
+                  aria-busy="true"
+                >
                   <div class="h-8 w-8">
                     <app-spinner></app-spinner>
                   </div>
                   <p class="text-text2 text-sm">Cargando plan seleccionado...</p>
                 </div>
               } @else if (coachState.activePlan()) {
-                <section class="border border-background4 bg-background/50 rounded-2xl p-4" aria-label="Gestión de plan activo">
+                <section
+                  class="border border-background4 bg-background/50 rounded-2xl p-4"
+                  aria-label="Gestión de plan activo"
+                >
                   <app-coach-manage-with-plan
                     [planData]="coachState.activePlan()!"
                     (createNewPlan)="onNewPlan()"
@@ -83,10 +89,11 @@
                   />
                 </section>
               } @else {
-                <section class="border border-background4 bg-background/50 rounded-2xl p-4" aria-label="Crear nuevo plan">
-                  <app-coach-generate-plan
-                    (planGenerated)="onPlanGenerated($event)"
-                  />
+                <section
+                  class="border border-background4 bg-background/50 rounded-2xl p-4"
+                  aria-label="Crear nuevo plan"
+                >
+                  <app-coach-generate-plan (planGenerated)="onPlanGenerated($event)" />
                 </section>
               }
             </section>

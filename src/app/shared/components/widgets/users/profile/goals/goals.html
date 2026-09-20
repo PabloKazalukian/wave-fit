@@ -3,7 +3,11 @@
     <h2>Objetivos</h2>
 
     <form class="flex flex-wrap gap-5 mt-8" [formGroup]="goalForm" (ngSubmit)="onSubmit()">
-      <app-select [label]="'Objetivo principal'" [options]="primaryGoalOptions" [control]="primaryGoalControl">
+      <app-select
+        [label]="'Objetivo principal'"
+        [options]="primaryGoalOptions"
+        [control]="primaryGoalControl"
+      >
       </app-select>
 
       <!-- <app-input

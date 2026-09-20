@@ -34,7 +34,7 @@ export class CoachState {
         }
     }
 
-    setPlan(plan: TrainingPlanDetail, persist: boolean = true): void {
+    setPlan(plan: TrainingPlanDetail, persist = true): void {
         this.activePlan.set(plan);
         if (persist) {
             const uid = this.authService.user()?.id;

@@ -1,7 +1,7 @@
 export interface Syncable {
     id: string;
-    version: number;          // Para optimistic locking
-    updatedAt: string;        // ISO timestamp
+    version: number; // Para optimistic locking
+    updatedAt: string; // ISO timestamp
     syncStatus: 'synced' | 'pending' | 'failed' | 'conflict';
     pendingSync: boolean;
 }

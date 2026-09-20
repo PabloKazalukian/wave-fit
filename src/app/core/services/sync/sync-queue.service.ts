@@ -11,7 +11,7 @@ export class SyncQueueService {
     pendingCount = signal<number>(0);
 
     // Sistema de registro de handlers para evitar dependencias circulares
-    private handlers: Map<string, (mutation: PendingMutation) => Promise<any>> = new Map();
+    private handlers = new Map<string, (mutation: PendingMutation) => Promise<any>>();
 
     constructor() {
         effect(() => {
@@ -44,8 +44,8 @@ export class SyncQueueService {
     // Encolar una mutation
     async enqueue(mutation: PendingMutation): Promise<void> {
         await this.idb.db.pendingMutations.put(mutation);
-        this.pendingCount.update(c => c + 1);
-        
+        this.pendingCount.update((c) => c + 1);
+
         // Registrar para background sync si está disponible
         if ('serviceWorker' in navigator && 'SyncManager' in window) {
             try {
@@ -60,7 +60,7 @@ export class SyncQueueService {
     // Remover de la cola (éxito)
     async dequeue(id: string): Promise<void> {
         await this.idb.db.pendingMutations.delete(id);
-        this.pendingCount.update(c => Math.max(0, c - 1));
+        this.pendingCount.update((c) => Math.max(0, c - 1));
     }
 
     // Procesar cola pendiente

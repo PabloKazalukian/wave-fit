@@ -10,7 +10,9 @@
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
         "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
-        "lint": "ng lint"
+        "lint": "ng lint",
+        "typecheck": "tsc --noEmit -p tsconfig.app.json",
+        "format:check": "prettier --check \"src/**/*.{ts,js,html,scss,css}\" \"eslint.config.js\" \"playwright.config.ts\" \"tailwind.config.js\" \"postcss.config.js\" \"workbox-config.js\""
     },
     "prettier": {
         "printWidth": 100,

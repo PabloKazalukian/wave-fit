@@ -90,4 +90,3 @@ export class MyWeek implements OnInit {
         });
     }
 }
-

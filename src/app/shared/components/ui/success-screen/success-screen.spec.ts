@@ -3,21 +3,20 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SuccessScreen } from './success-screen';
 
 describe('SuccessScreen', () => {
-  let component: SuccessScreen;
-  let fixture: ComponentFixture<SuccessScreen>;
+    let component: SuccessScreen;
+    let fixture: ComponentFixture<SuccessScreen>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [SuccessScreen]
-    })
-    .compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [SuccessScreen],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(SuccessScreen);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        fixture = TestBed.createComponent(SuccessScreen);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

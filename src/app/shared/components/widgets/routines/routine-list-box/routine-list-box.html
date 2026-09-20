@@ -33,7 +33,7 @@
           <app-accordion-item
             [title]="this.facade.routineSelected()?.title || ''"
             [open]="openIndex() === 0"
-            (toggle)="toggleAccordion(0)"
+            (toggled)="toggleAccordion(0)"
             [isSelected]="true"
           >
             <button class="text-sm text-error underline mb-2" (click)="removeRoutine()">
@@ -53,7 +53,7 @@
               <app-accordion-item
                 [title]="r.title"
                 [open]="openIndex() === i"
-                (toggle)="toggleAccordion(i)"
+                (toggled)="toggleAccordion(i)"
                 [isSelected]="false"
               >
                 <button class="text-sm text-primary underline mb-2" (click)="addRoutine(r)">
