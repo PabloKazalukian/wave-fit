@@ -166,6 +166,7 @@ function aiWeekToTracking(week: AiPlanWeek, startDate: LocalDate, planTitle: str
         planId: null,
         notes: planTitle,
         completed: false,
+        active: false,
     };
 }
 

@@ -37,6 +37,7 @@ export class ExtraSessionContent {
         duration: number;
         intensityLevel: number;
         calories?: number;
+        notes?: string;
     }) {
         this.service
             .update({
@@ -44,6 +45,7 @@ export class ExtraSessionContent {
                 duration: data.duration,
                 intensityLevel: data.intensityLevel,
                 calories: data.calories,
+                notes: data.notes,
             })
             .subscribe({
                 error: (err) => console.error(err),

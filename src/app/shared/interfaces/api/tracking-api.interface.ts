@@ -59,6 +59,7 @@ export interface TrackingAPI {
     planId?: string | null;
     days: WeekLogDayAPI[];
     completed: boolean;
+    active: boolean;
     notes?: string;
 }
 

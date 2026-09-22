@@ -1,0 +1,32 @@
+<section
+  class="flex flex-col gap-2 p-4 rounded-xl bg-background2 border-2 border-background4 text-primary3"
+>
+  <header class="flex justify-between items-center gap-2 pb-2 border-b-2 border-primary">
+    <h4 class="text-lg text-primary3 font-bold">{{ getDisciplineLabel() }}</h4>
+    <span
+      class="text-xs font-bold uppercase tracking-widest text-accent"
+      aria-label="Categoría {{ session().category }}"
+    >
+      {{ session().category }}
+    </span>
+  </header>
+
+  @if (session().notes) {
+    <p class="text-sm text-text2 italic">{{ session().notes }}</p>
+  }
+
+  <article class="flex flex-wrap gap-4 text-sm">
+    <div class="flex items-center gap-1">
+      <span class="text-text2">⏱</span>
+      <span class="font-medium" data-test="extra-duration">{{ session().duration }} min</span>
+    </div>
+    <div class="flex items-center gap-1">
+      <span class="text-text2">💪</span>
+      <span class="font-medium" data-test="extra-intensity">{{ session().intensityLevel }}</span>
+    </div>
+    <div class="flex items-center gap-1">
+      <span class="text-text2">🔥</span>
+      <span class="font-medium" data-test="extra-calories">{{ session().calories || 0 }} kcal</span>
+    </div>
+  </article>
+</section>

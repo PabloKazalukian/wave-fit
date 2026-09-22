@@ -44,6 +44,7 @@ export function wrapperTrackingApiToVMS(
         planId: payload.planId,
         notes: payload.notes,
         completed: payload.completed,
+        active: payload.active,
         days: payload.days?.map((d) => wrapperWeekLogDayApiToVM(d, allExercises)) ?? [],
         workouts: payload.days?.map((d) => wrapperWeekLogDayVMToWorkoutVM(d, allExercises)) ?? [],
     };
@@ -58,6 +59,7 @@ export function wrapperTrackingApiToVM(payload: TrackingAPI, allExercises: Exerc
         planId: payload.planId,
         notes: payload.notes,
         completed: payload.completed,
+        active: payload.active,
         workouts: payload.days.map((d) => wrapperWeekLogDayVMToWorkoutVM(d, allExercises)),
     };
 }

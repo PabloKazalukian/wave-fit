@@ -60,6 +60,7 @@ describe('WorkoutStateService (TEST-006)', () => {
         endDate: '2026-05-03',
         workouts: [buildWorkout()],
         completed: false,
+        active: false,
         ...overrides,
     });
 

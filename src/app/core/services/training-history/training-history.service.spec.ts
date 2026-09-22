@@ -6,6 +6,7 @@ import {
     TrainingCalendarResponse,
     TrainingStatus,
 } from '../../../shared/interfaces/training-history.interface';
+import { ExtraSessionCategory } from '../../../shared/interfaces/extra-session.interface';
 import { TrainingHistoryService } from './training-history.service';
 
 const TIMEZONE = 'America/Buenos_Aires';
@@ -36,7 +37,21 @@ describe('TrainingHistoryService', () => {
                 date: '2026-02-03',
                 type: CalendarDayType.DAY_LOG,
                 status: TrainingStatus.PENDING,
+                workoutSessionId: 'ws-day-1',
                 extraSessionIds: ['extra-1'],
+                extraSessions: [
+                    {
+                        id: 'extra-1',
+                        category: ExtraSessionCategory.CARDIO,
+                        discipline: 'running',
+                        date: '2026-02-03',
+                        duration: 30,
+                        intensityLevel: 3,
+                        calories: 320,
+                        notes: 'trotada',
+                    },
+                ],
+                dayLogId: 'day-1',
                 weekLogReference: null,
             },
         ],
@@ -99,7 +114,19 @@ describe('TrainingHistoryService', () => {
             expect(result!.days[0].status).toBe(TrainingStatus.COMPLETE);
             expect(result!.days[1].status).toBe(TrainingStatus.PENDING);
             expect(result!.days[0].workoutSessionId).toBe('ws-1');
+            expect(result!.days[1].workoutSessionId).toBe('ws-day-1');
             expect(result!.days[1].extraSessionIds).toEqual(['extra-1']);
+            expect(result!.days[1].extraSessions?.[0]).toEqual({
+                id: 'extra-1',
+                category: ExtraSessionCategory.CARDIO,
+                discipline: 'running',
+                date: '2026-02-03',
+                duration: 30,
+                intensityLevel: 3,
+                calories: 320,
+                notes: 'trotada',
+            });
+            expect(result!.days[1].dayLogId).toBe('day-1');
             expect(result!.days[0].weekLogReference?.id).toBe('week-1');
             expect(result!.days[1].weekLogReference).toBeNull();
         });

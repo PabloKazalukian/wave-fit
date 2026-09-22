@@ -25,7 +25,13 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
     readonly extraSessions = this.service.extraSessions;
 
     delete = output<string>();
-    save = output<{ id: string; duration: number; intensityLevel: number; calories?: number }>();
+    save = output<{
+        id: string;
+        duration: number;
+        intensityLevel: number;
+        calories?: number;
+        notes?: string;
+    }>();
     cancelEdit = output<void>();
 
     isEditing = signal(false);
@@ -35,6 +41,7 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
         duration: new FormControl<number>(0, { nonNullable: true }),
         intensityLevel: new FormControl<number>(0, { nonNullable: true }),
         calories: new FormControl<number>(0, { nonNullable: true }),
+        notes: new FormControl<string>('', { nonNullable: true }),
     });
 
     ngOnInit() {
@@ -56,6 +63,7 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
             duration: this.session().duration,
             intensityLevel: this.session().intensityLevel,
             calories: this.session().calories || 0,
+            notes: this.session().notes || '',
         });
     }
 
@@ -72,6 +80,7 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
             duration: this.durationControl.value,
             intensityLevel: this.intensityControl.value,
             calories: this.caloriesControl.value || undefined,
+            notes: this.notesControl.value || undefined,
         });
         this.isEditing.set(false);
     }
@@ -107,5 +116,9 @@ export class ExtraSessionCard implements OnInit, OnDestroy {
 
     get caloriesControl(): FormControl<number> {
         return this.form.get('calories') as FormControl<number>;
+    }
+
+    get notesControl(): FormControl<string> {
+        return this.form.get('notes') as FormControl<string>;
     }
 }

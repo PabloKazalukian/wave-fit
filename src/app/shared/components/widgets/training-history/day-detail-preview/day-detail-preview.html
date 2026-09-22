@@ -1,0 +1,101 @@
+@if (preview(); as p) {
+  <section
+    class="mt-4 pt-3 border-t border-background4"
+    aria-label="Detalle del día seleccionado"
+    data-test="history-preview"
+  >
+    <header class="flex items-center justify-between gap-3 mb-3">
+      <div>
+        <h3 class="text-sm font-bold text-primary uppercase tracking-widest">Detalle del día</h3>
+        <p class="text-xs text-text2">{{ dateSvc.toDisplayString(p.date) }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        @if (p.id) {
+          <app-btn
+            [text]="previewCtaLabel(p)"
+            [variant]="'outline'"
+            [color]="'primary'"
+            [size]="'sm'"
+            [routerLink]="previewRouterLink(p)"
+          ></app-btn>
+          @if (p.kind === CalendarDayType.WEEK_LOG && p.active) {
+            <app-btn
+              text="Ver mi semana"
+              variant="raised"
+              color="primary"
+              size="sm"
+              [routerLink]="MY_WEEK_ROUTER_LINK"
+            ></app-btn>
+          }
+        }
+      </div>
+    </header>
+
+    <ul class="space-y-3">
+      @for (ex of p.exercises; track ex.exerciseId) {
+        <li class="bg-background3 border-2 border-background4 rounded-xl p-4">
+          <div class="flex items-center justify-between text-sm mb-1.5">
+            <span class="font-semibold text-text1">{{ ex.name }}</span>
+            <span class="text-text3 text-xs">{{ ex.series }} series</span>
+          </div>
+          <div class="flex flex-wrap gap-x-2 gap-y-1.5">
+            @for (set of ex.sets; track $index) {
+              <div
+                class="flex items-center gap-1 text-[14px] leading-none py-1 px-1.5 bg-background2 rounded border border-background4/50"
+              >
+                <span class="font-bold text-primary/80">x{{ $index + 1 }}</span>
+                <span class="text-text2">reps:</span>
+                <span class="font-semibold text-text1">{{ set.reps }}</span>
+                @if (set.weights) {
+                  <span class="text-text2 ml-0.5">weight:</span>
+                  <span class="font-semibold text-text1 text-nowrap">{{ set.weights }}kg</span>
+                }
+              </div>
+            }
+          </div>
+        </li>
+      } @empty {
+        @if (p.extraSessions.length === 0) {
+          <li>
+            <p class="text-center py-6 text-text3 italic">No hay ejercicios registrados</p>
+          </li>
+        }
+      }
+    </ul>
+
+    @if (p.extraSessions.length > 0) {
+      <section class="mt-4 pt-4 border-t-2 border-background4" aria-label="Sesiones extra del día">
+        <h4 class="text-sm font-bold text-accent uppercase tracking-widest mb-3">Sesiones extra</h4>
+        <ul class="space-y-3">
+          @for (session of p.extraSessions; track session.id) {
+            <li>
+              <app-extra-session-show [session]="session" [disciplines]="disciplines()" />
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </section>
+} @else if (loading()) {
+  <section class="mt-4 pt-3 border-t border-background4" aria-label="Cargando detalle del día">
+    <div class="flex items-center justify-center py-6">
+      <app-loading color="primary" size="md" />
+    </div>
+  </section>
+} @else if (error()) {
+  <section
+    class="mt-4 pt-3 border-t border-background4"
+    aria-label="Error al cargar el detalle del día"
+  >
+    <div class="flex flex-col items-center justify-center gap-3 py-4">
+      <p class="text-sm text-text2 text-center">No se pudo cargar el detalle de este día.</p>
+      <button
+        class="px-4 py-2 text-sm font-medium rounded-lg border border-primary text-primary hover:bg-primary/10 transition-colors"
+        data-test="history-preview-retry"
+        (click)="retry.emit()"
+      >
+        Reintentar
+      </button>
+    </div>
+  </section>
+}

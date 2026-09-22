@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../auth/auth.service';
 import { GET_TRAINING_CALENDAR } from '../../apollo/training-history.queries';
@@ -28,7 +28,7 @@ export class TrainingHistoryService {
                 fetchPolicy: 'network-only',
             })
             .pipe(
-                tap((res) => console.log(res)),
+                // tap((res) => console.log(res)),
                 handleGraphqlError(this.authSvc),
                 map((res) => res.data!.trainingCalendar),
             );

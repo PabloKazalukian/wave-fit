@@ -90,6 +90,10 @@ export class ExtraSessionCreate implements OnInit, OnDestroy {
         return this.form.get('calories') as FormControl<number>;
     }
 
+    get notesControl(): FormControl<string> {
+        return this.form.get('notes') as FormControl<string>;
+    }
+
     onCancelClick() {
         this.cancelES.emit();
     }
