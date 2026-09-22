@@ -11,6 +11,7 @@ export const GET_TRAINING_CALENDAR = gql`
                 status
                 workoutSessionId
                 extraSessionIds
+                dayLogId
                 weekLogReference {
                     id
                     startDate

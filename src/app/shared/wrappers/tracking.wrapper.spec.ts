@@ -30,6 +30,7 @@ describe('tracking.wrapper (TEST-005)', () => {
         endDate: ISO,
         days: [buildDay()],
         completed: false,
+        active: false,
         ...overrides,
     });
 
@@ -67,6 +68,16 @@ describe('tracking.wrapper (TEST-005)', () => {
         const vm = wrapperWeekLogDayApiToVM(buildDay(), catalog);
 
         expect(vm.date).toBe('2026-04-30');
+    });
+
+    it('maps the active flag to the view model', () => {
+        withTimezone('UTC');
+
+        const inactive = wrapperTrackingApiToVM(buildTracking(), catalog);
+        expect(inactive.active).toBe(false);
+
+        const active = wrapperTrackingApiToVM(buildTracking({ active: true }), catalog);
+        expect(active.active).toBe(true);
     });
 
     it('converts every day and workout date in wrapperTrackingApiToVMS', () => {

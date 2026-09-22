@@ -36,7 +36,9 @@ describe('TrainingHistoryService', () => {
                 date: '2026-02-03',
                 type: CalendarDayType.DAY_LOG,
                 status: TrainingStatus.PENDING,
+                workoutSessionId: 'ws-day-1',
                 extraSessionIds: ['extra-1'],
+                dayLogId: 'day-1',
                 weekLogReference: null,
             },
         ],
@@ -99,7 +101,9 @@ describe('TrainingHistoryService', () => {
             expect(result!.days[0].status).toBe(TrainingStatus.COMPLETE);
             expect(result!.days[1].status).toBe(TrainingStatus.PENDING);
             expect(result!.days[0].workoutSessionId).toBe('ws-1');
+            expect(result!.days[1].workoutSessionId).toBe('ws-day-1');
             expect(result!.days[1].extraSessionIds).toEqual(['extra-1']);
+            expect(result!.days[1].dayLogId).toBe('day-1');
             expect(result!.days[0].weekLogReference?.id).toBe('week-1');
             expect(result!.days[1].weekLogReference).toBeNull();
         });

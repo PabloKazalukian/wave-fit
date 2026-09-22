@@ -105,6 +105,41 @@ Follow the complexity-based service pattern (see [architecture.md](architecture.
 - **Domain services** own business rules and offline sync registration.
 - **State services** own reactive state only — **no API/storage logic**.
 
+### 7.1 Page composition and component granularity
+
+Pages (route components) are **thin orchestrators**: they own the route's state
+(data loading, selection, navigation) and compose feature widgets. Views and
+logic that are **not core to the page** must be extracted into feature widgets
+under `shared/components/widgets/<feature>/` — pages do not define their own
+child components.
+
+Extract when any of the following holds:
+
+- The view is **secondary** to the page's main responsibility. Example: the
+  training-history page's core is the calendar grid; the day-detail preview
+  panel underneath it is an extra and lives in its own widget.
+- The page's template/class grows beyond a thin orchestrator (the biggest
+  pages historically exceeded ~350 lines and duplicated markup that already
+  existed in other pages).
+- The same markup or logic would be duplicated across pages (e.g., the
+  exercise list is shared by `trackings/show`, `tracking-day/show` and the
+  history day preview).
+
+Rules:
+
+- A page renders its primary view and coordinates (loads data, wires widget
+  outputs); it does **not** render secondary panels inline.
+- Feature widgets live in `shared/components/widgets/<feature>/` and may be
+  presentational (inputs + outputs) or smart (inject services/facades via
+  local `providers`), matching existing widgets such as `tracking-day`,
+  `tracking-week`.
+- Widget selectors are **feature-prefixed** (`app-<feature>-<name>`, e.g.
+  `app-training-history-calendar`), never generic (`app-calendar`).
+- Reference implementations: `pages/user/history` composes
+  `app-training-history-calendar` + `app-training-history-day-preview`;
+  `pages/my-day`, `pages/my-week`, `pages/user/profile` are thin pages over
+  widgets.
+
 ---
 
 ## 8. Formatting and Imports

@@ -8,6 +8,7 @@ export const WEEK_LOG_FIELDS = `
     planId
     notes
     completed
+    active
     days {
         order
         date

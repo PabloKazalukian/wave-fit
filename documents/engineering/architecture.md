@@ -53,6 +53,13 @@ Dumb Components → Facade → Domain Service → (API/Storage Services + State 
 - **State services** hold reactive state (signals + `BehaviorSubject`) for the active element (active day / active workout / active day-log).
 - **Wrappers** transform data between layers (API ↔ VM ↔ Send).
 
+Pages are **thin composers**: they own the route's state and wiring while the
+actual views are feature widgets under `shared/components/widgets/<feature>/`
+(possibly nested, and either presentational or facade-backed). See
+`coding-standards.md` §7.1 for the granularity rules and the canonical example
+`pages/user/history` → `app-training-history-calendar` +
+`app-training-history-day-preview`.
+
 ---
 
 ## 3. Module / Folder Structure
@@ -78,7 +85,7 @@ src/app/
 │   └── user/            # profile, history
 ├── shared/
 │   ├── animations/
-│   ├── components/      # widgets (business) + ui (dumb)
+│   ├── components/      # feature widgets (page building blocks) + ui (dumb)
 │   ├── interfaces/      # *.interface.ts (+ api/, input*.ts)
 │   ├── pipes/
 │   ├── utils/
@@ -116,14 +123,14 @@ It exposes `hasActive`, `isWeekLogActive`, `isDayLogActive`, and `mode: 'week' |
 
 Services are grouped under `core/services/<feature>/` and classified by complexity:
 
-| Complexity | Pattern                        | Services                                                                                                   |
-| ---------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| **High**   | Domain + API + Storage + State | `PlanTrackingService`, `PlanDayService`                                                                    |
-| **High**   | Domain + API + State           | `UserProfileService`                                                                                       |
-| **Medium** | API + Storage + State          | `PlansService`                                                                                             |
+| Complexity | Pattern                        | Services                                                                                                                                                    |
+| ---------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **High**   | Domain + API + Storage + State | `PlanTrackingService`, `PlanDayService`                                                                                                                     |
+| **High**   | Domain + API + State           | `UserProfileService`                                                                                                                                        |
+| **Medium** | API + Storage + State          | `PlansService`                                                                                                                                              |
 | **Medium** | API + State                    | `ExtraSessionService`, `WorkoutStateService` (+ `DayWorkoutStore`), `CoachService` (API + State + Storage), `ActiveTrackingService` (+ `ActiveTrackingApi`) |
-| **Low**    | API + Service                  | `ExercisesService`, `RoutinesService`, `AuthService`, `TrainingHistoryService`                             |
-| **Infra**  | Support                        | `NetworkStatusService`, `SyncQueueService`, `IndexedDbStorageService`, `DateService`, `WarmupService`      |
+| **Low**    | API + Service                  | `ExercisesService`, `RoutinesService`, `AuthService`, `TrainingHistoryService`                                                                              |
+| **Infra**  | Support                        | `NetworkStatusService`, `SyncQueueService`, `IndexedDbStorageService`, `DateService`, `WarmupService`                                                       |
 
 ### Folder layout (current)
 
@@ -191,7 +198,10 @@ export interface WorkoutStore {
     updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): void;
     removeWorkoutSession(date: LocalDate, id: string): Observable<boolean>;
     createWorkoutWithRoutine(routineDayId: string, date: LocalDate): Observable<unknown>;
-    createRoutineFromWorkout(title: string, exerciseIds: string[]): Observable<RoutineDayAPI | null>;
+    createRoutineFromWorkout(
+        title: string,
+        exerciseIds: string[],
+    ): Observable<RoutineDayAPI | null>;
 }
 
 export const WORKOUT_STORE = new InjectionToken<WorkoutStore>('WORKOUT_STORE');

@@ -1,3 +1,5 @@
+import type { ExercisePerformanceVM } from './tracking.interface';
+
 export enum CalendarDayType {
     WEEK_LOG = 'WEEK_LOG',
     DAY_LOG = 'DAY_LOG',
@@ -26,6 +28,7 @@ export interface CalendarDay {
     status: TrainingStatus;
     workoutSessionId?: string;
     extraSessionIds?: string[];
+    dayLogId?: string;
     weekLogReference?: WeekLogReference | null;
 }
 
@@ -39,4 +42,12 @@ export interface TrainingCalendarInput {
     year: number;
     month: number;
     timezone?: string;
+}
+
+export interface DayPreview {
+    kind: CalendarDayType.WEEK_LOG | CalendarDayType.DAY_LOG;
+    id: string; // weekLogReference.id (WEEK_LOG) or dayLogId (DAY_LOG)
+    date: string; // LocalDate "yyyy-MM-dd"
+    exercises: ExercisePerformanceVM[];
+    active?: boolean; // solo para WEEK_LOG: si es la semana activa
 }

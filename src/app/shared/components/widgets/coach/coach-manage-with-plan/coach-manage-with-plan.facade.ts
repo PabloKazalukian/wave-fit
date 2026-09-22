@@ -274,6 +274,7 @@ export class CoachManageWithPlanFacade {
             workouts,
             planId: plan.id,
             completed: false,
+            active: false,
         };
 
         console.log('tracking', tracking);

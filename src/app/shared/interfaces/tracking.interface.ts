@@ -34,6 +34,7 @@ export interface TrackingVM {
     planId?: string | null;
     notes?: string;
     completed: boolean;
+    active: boolean;
 }
 
 export interface TrackingVMS {
@@ -44,6 +45,7 @@ export interface TrackingVMS {
     planId?: string | null;
     days: WeekLogDayVM[];
     completed: boolean;
+    active: boolean;
     notes?: string;
     workouts?: WorkoutSessionVM[];
     extras?: string[];
