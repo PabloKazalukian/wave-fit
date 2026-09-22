@@ -1,10 +1,12 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideAngularModule, Calendar } from 'lucide-angular';
 import { switchMap } from 'rxjs';
 import { TrainingHistoryService } from '../../../core/services/training-history/training-history.service';
 import { PlanTrackingService } from '../../../core/services/trackings/plan-tracking.service';
 import { PlanDayService } from '../../../core/services/day-logs/plan-day.service';
 import { ExercisesService } from '../../../core/services/exercises/exercises.service';
+import { ExtraSessionService } from '../../../core/services/extra-session/extra-session.service';
 import {
     CalendarDay,
     CalendarDayType,
@@ -26,8 +28,11 @@ export class History implements OnInit {
     private readonly planTrackingSvc = inject(PlanTrackingService);
     private readonly planDaySvc = inject(PlanDayService);
     private readonly exerciseSvc = inject(ExercisesService);
+    private readonly extraSessionSvc = inject(ExtraSessionService);
 
     readonly CalendarIcon = Calendar;
+
+    catalog = toSignal(this.extraSessionSvc.catalog$, { initialValue: [] });
 
     private now = new Date();
     currentMonth = signal(this.now.getMonth());
@@ -44,6 +49,7 @@ export class History implements OnInit {
     previewError = signal(false);
 
     ngOnInit() {
+        this.extraSessionSvc.loadCatalog();
         this.loadCalendar(this.currentYear(), this.currentMonth());
     }
 
@@ -101,7 +107,8 @@ export class History implements OnInit {
 
         if (day.type === CalendarDayType.WEEK_LOG) {
             const reference = day.weekLogReference;
-            if (day.status === TrainingStatus.REST || !reference?.id) {
+            const hasExtras = !!day.extraSessions?.length;
+            if ((day.status === TrainingStatus.REST && !hasExtras) || !reference?.id) {
                 this.closePreview();
                 return;
             }
@@ -111,12 +118,16 @@ export class History implements OnInit {
         }
 
         if (day.type === CalendarDayType.DAY_LOG) {
-            if (!day.dayLogId) {
+            if (!day.dayLogId && !day.extraSessions?.length) {
                 this.closePreview();
                 return;
             }
             this.select(day);
-            this.loadDayPreview(day.dayLogId);
+            if (day.dayLogId) {
+                this.loadDayPreview(day.dayLogId);
+            } else {
+                this.showExtrasOnlyPreview(day);
+            }
             return;
         }
 
@@ -143,6 +154,17 @@ export class History implements OnInit {
         this.previewError.set(false);
     }
 
+    private showExtrasOnlyPreview(day: CalendarDay) {
+        this.preview.set({
+            kind: CalendarDayType.DAY_LOG,
+            id: '',
+            date: day.date,
+            exercises: [],
+            extraSessions: day.extraSessions ?? [],
+        });
+        this.previewLoading.set(false);
+    }
+
     private loadWeekPreview(date: string, weekId: string) {
         this.exerciseSvc
             .getExercises()
@@ -153,8 +175,13 @@ export class History implements OnInit {
                         this.failPreview();
                         return;
                     }
+                    const extras = this.selectedDay()?.extraSessions ?? [];
                     const workout = tracking.workouts?.find((w) => w.date === date);
-                    if (!workout || workout.exercises.length === 0) {
+                    if (!workout && extras.length === 0) {
+                        this.closePreview();
+                        return;
+                    }
+                    if (workout && workout.exercises.length === 0 && extras.length === 0) {
                         this.closePreview();
                         return;
                     }
@@ -162,7 +189,8 @@ export class History implements OnInit {
                         kind: CalendarDayType.WEEK_LOG,
                         id: tracking.id,
                         date,
-                        exercises: workout.exercises,
+                        exercises: workout?.exercises ?? [],
+                        extraSessions: extras,
                         active: this.selectedDay()?.weekLogReference?.active ?? false,
                     });
                     this.previewLoading.set(false);
@@ -177,7 +205,12 @@ export class History implements OnInit {
             .pipe(switchMap(() => this.planDaySvc.findById(dayLogId)))
             .subscribe({
                 next: (dayLog) => {
-                    if (!dayLog || !dayLog.exercises?.length) {
+                    const extras = this.selectedDay()?.extraSessions ?? [];
+                    if (!dayLog) {
+                        this.failPreview();
+                        return;
+                    }
+                    if (!dayLog.exercises?.length && extras.length === 0) {
                         this.closePreview();
                         return;
                     }
@@ -185,7 +218,8 @@ export class History implements OnInit {
                         kind: CalendarDayType.DAY_LOG,
                         id: dayLog.id,
                         date: dayLog.date,
-                        exercises: dayLog.exercises,
+                        exercises: dayLog.exercises ?? [],
+                        extraSessions: extras,
                     });
                     this.previewLoading.set(false);
                 },

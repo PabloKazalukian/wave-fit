@@ -1,4 +1,5 @@
 import type { ExercisePerformanceVM } from './tracking.interface';
+import type { ExtraSession } from './extra-session.interface';
 
 export enum CalendarDayType {
     WEEK_LOG = 'WEEK_LOG',
@@ -28,6 +29,7 @@ export interface CalendarDay {
     status: TrainingStatus;
     workoutSessionId?: string;
     extraSessionIds?: string[];
+    extraSessions?: ExtraSession[];
     dayLogId?: string;
     weekLogReference?: WeekLogReference | null;
 }
@@ -46,8 +48,9 @@ export interface TrainingCalendarInput {
 
 export interface DayPreview {
     kind: CalendarDayType.WEEK_LOG | CalendarDayType.DAY_LOG;
-    id: string; // weekLogReference.id (WEEK_LOG) or dayLogId (DAY_LOG)
+    id: string; // weekLogReference.id (WEEK_LOG) or dayLogId (DAY_LOG); '' (empty) for extras-only day-logs without a dayLogId → hides the header CTA (FR-011)
     date: string; // LocalDate "yyyy-MM-dd"
     exercises: ExercisePerformanceVM[];
+    extraSessions: ExtraSession[]; // always present; [] when the day has none (FR-011)
     active?: boolean; // solo para WEEK_LOG: si es la semana activa
 }

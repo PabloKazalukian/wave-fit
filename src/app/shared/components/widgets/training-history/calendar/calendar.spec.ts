@@ -6,6 +6,7 @@ import {
     CalendarDayType,
     TrainingStatus,
 } from '../../../../interfaces/training-history.interface';
+import { ExtraSessionCategory } from '../../../../interfaces/extra-session.interface';
 
 describe('TrainingHistoryCalendar', () => {
     let component: TrainingHistoryCalendar;
@@ -113,5 +114,31 @@ describe('TrainingHistoryCalendar', () => {
 
         expect(qs('[data-date="2026-02-02"]')!.getAttribute('role')).toBe('button');
         expect(qs('[data-date="2026-02-03"]')!.getAttribute('role')).toBe('button');
+    });
+
+    it('makes a REST week-log day with extras clickable (FR-011)', () => {
+        fixture.componentRef.setInput('days', [
+            {
+                date: '2026-02-04',
+                type: CalendarDayType.WEEK_LOG,
+                status: TrainingStatus.REST,
+                weekLogReference: { ...weekLogDay.weekLogReference! },
+                extraSessions: [
+                    {
+                        id: 'extra-1',
+                        category: ExtraSessionCategory.CARDIO,
+                        discipline: 'running',
+                        date: '2026-02-04',
+                        duration: 30,
+                        intensityLevel: 3,
+                        calories: 320,
+                        notes: 'cardio de recuperación',
+                    },
+                ],
+            },
+        ]);
+        fixture.detectChanges();
+
+        expect(qs('[data-date="2026-02-04"]')!.getAttribute('role')).toBe('button');
     });
 });

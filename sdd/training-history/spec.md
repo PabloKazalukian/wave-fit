@@ -11,13 +11,14 @@ The training history is a **read-only** calendar view that lists completed/pendi
 - **FR-001** `/user/history` displays a monthly calendar; each day tile shows status and container type.
 - **FR-002** `TrainingHistoryService.getTrainingCalendar(year, month)` sends `GET_TRAINING_CALENDAR` with `{ year, month+1, timezone }` and returns `TrainingCalendarResponse`.
 - **FR-003** `CalendarDay.type` distinguishes `WEEK_LOG` vs `DAY_LOG` entries.
-- **FR-004** Each calendar day carries `status: TrainingStatus` (`pending`, `complete`, `skipped`, `rest`, `none`), and optional `workoutSessionId`, `extraSessionIds[]`, `dayLogId` (the day-log id for `DAY_LOG` entries) and `weekLogReference` (the parent week container reference).
-- **FR-005** Clicking a calendar day with content opens a detail **preview panel below the calendar** with that day's exercises and a navigation button (in the panel header) to the corresponding show page by id. Tiles without content (`none`, `rest`, or days without exercises) do not open a preview.
+- **FR-004** Each calendar day carries `status: TrainingStatus` (`pending`, `complete`, `skipped`, `rest`, `none`), and optional `workoutSessionId`, `extraSessionIds[]`, `extraSessions[]` (full objects, both container types), `dayLogId` (the day-log id for `DAY_LOG` entries) and `weekLogReference` (the parent week container reference).
+- **FR-005** Clicking a calendar day with content opens a detail **preview panel below the calendar** with that day's exercises (followed by its `extraSessions` at the end of the workout-session list) and a navigation button (in the panel header) to the corresponding show page by id. Tiles without content (`none`, `rest` without extra sessions, or days without exercises and without extra sessions) do not open a preview.
 - **FR-006** `WeekLogReference` exposes `id`, `startDate`, `endDate`, `completed`, `active`, `notes?`.
-- **FR-007** Clicking a `WEEK_LOG` day fetches the week by `weekLogReference.id` (`PlanTrackingService.findById` → `findOne`), resolves the workout whose `date` matches the clicked day and shows its exercises in the preview; the header button "Ver semana" navigates to `/user/trackings/:id`. If that day has no exercises, no preview opens.
-- **FR-008** Clicking a `DAY_LOG` day with a `dayLogId` fetches the day-log (`PlanDayService.findById`) and shows its exercises in the preview; the header button "Ver día" navigates to `/user/tracking/day/:id`. If the day-log has no exercises, no preview opens.
+- **FR-007** Clicking a `WEEK_LOG` day fetches the week by `weekLogReference.id` (`PlanTrackingService.findById` → `findOne`), resolves the workout whose `date` matches the clicked day and shows its exercises in the preview; the header button "Ver semana" navigates to `/user/trackings/:id`. If that day has no exercises **and no extra sessions**, no preview opens. A `REST` day carrying `extraSessions` still opens the preview showing the extra sessions only.
+- **FR-008** Clicking a `DAY_LOG` day with a `dayLogId` fetches the day-log (`PlanDayService.findById`) and shows its exercises in the preview; the header button "Ver día" navigates to `/user/tracking/day/:id`. If the day-log has no exercises **and no extra sessions**, no preview opens. A day-log without `dayLogId` but with `extraSessions` opens a preview with the extra sessions only and **no header CTA** (there is no show page to navigate to).
 - **FR-009** The week-log show page (`/user/trackings/:id`) renders a status badge: "Activa" (secondary-light styling) when `tracking.active`, otherwise "Completada" (success) or "Incompleto" (warning) by `completed`.
 - **FR-010** When the preview shows a `WEEK_LOG` day whose parent week is active (`DayPreview.active`), an extra CTA "Ver mi semana" (raised, primary) is rendered next to "Ver semana"; both navigate to `/user/trackings/:id`. Non-active weeks keep only "Ver semana".
+- **FR-011** The preview renders each day's extra sessions at the end of the workout-session exercise list, **read-only**, using the shared `extra-session-show` widget (no edit/delete). Discipline labels are resolved from the `extraSessionCatalog` cache (`ExtraSessionService.catalog$` / `loadCatalog`), which the page loads once. An empty `DayPreview.id` (extras-only day-log without a `dayLogId`) hides the header CTA instead of building a broken link.
 
 ### BR
 
@@ -53,11 +54,13 @@ The page is a **thin orchestrator** (see `documents/engineering/coding-standards
   `selectedDate`, `loading`, `error` as inputs and emits `daySelected`,
   `previousMonth`, `nextMonth`, `reload`.
 - `TrainingHistoryDayPreview` receives `preview: DayPreview | null`, `loading`,
-  `error` as inputs and emits `retry`. The CTA routerLink and label are derived
-  from `DayPreview.kind`.
-- The page owns calendar data loading, month/year signals, and the preview
+  `error`, `disciplines: ExtraSessionDisciplineConfig[]` as inputs and emits `retry`.
+  The CTA routerLink and label are derived from `DayPreview.kind`; the CTA is
+  hidden when `preview.id` is empty (FR-011).
+- The page owns calendar data loading, month/year signals, the preview
   state machine (`loadWeekPreview` / `loadDayPreview` / `failPreview` /
-  `closePreview`).
+  `closePreview`) and the extra-session catalog (`ExtraSessionService.catalog$`
+  via `loadCatalog()`, passed down as `disciplines`; FR-011).
 
 **Note:** The component class is named `History` (not `HistoryComponent` as previously spec'd). The service depends on `AuthService` and uses `handleGraphqlError` for error handling.
 
@@ -90,6 +93,7 @@ export interface CalendarDay {
     status: TrainingStatus;
     workoutSessionId?: string;
     extraSessionIds?: string[];
+    extraSessions?: ExtraSession[]; // full objects (WEEK_LOG and DAY_LOG); see extra-session.interface
     dayLogId?: string; // day-log id for DAY_LOG entries (backend contract; added for FR-005/FR-008)
     weekLogReference?: WeekLogReference | null;
 }
@@ -112,9 +116,10 @@ export interface TrainingCalendarInput {
 ```ts
 export interface DayPreview {
     kind: CalendarDayType.WEEK_LOG | CalendarDayType.DAY_LOG;
-    id: string; // weekLogReference.id (WEEK_LOG) or dayLogId (DAY_LOG)
+    id: string; // weekLogReference.id (WEEK_LOG) or dayLogId (DAY_LOG); '' (empty) for extras-only day-logs without a dayLogId → hides the header CTA (FR-011)
     date: LocalDate;
     exercises: ExercisePerformanceVM[];
+    extraSessions: ExtraSession[]; // always present; [] when the day has none (FR-011)
     active?: boolean; // WEEK_LOG only: true when the parent week is the active week (FR-010)
 }
 ```
@@ -147,6 +152,7 @@ src/app/pages/user/history/  (history.ts, history.html, history.css, history.spe
 - Week-run styling (consecutive week-log days get visual continuity within a month).
 - Route registered at `user` → `history`; linked from header (desktop + mobile).
 - Day-click preview (FR-005/FR-007/FR-008): clicking a week-log or day-log day with exercises shows a preview panel below the calendar with a navigation button to the corresponding show page by id.
+- Extra sessions in the preview (FR-011): the calendar query returns full `extraSessions` per day; the preview lists them read-only at the end of the exercise list via `extra-session-show`, with discipline labels from the catalog. Days with extras but no exercises open the preview with the extras only (both container types).
 - `DayPreview.active` propagates the parent week's `active` flag (FR-010); active weeks render the raised "Ver mi semana" CTA next to "Ver semana".
 - Week-log show page renders the "Activa" badge via `Tracking.active` (FR-009), exposed through the `WEEK_LOG_FIELDS` fragment.
 
@@ -156,11 +162,9 @@ src/app/pages/user/history/  (history.ts, history.html, history.css, history.spe
 
 ### Known issues
 
-- **Debug `console.log(res)`** at `training-history.service.ts:31` — leftover debugging.
-- **Effect subscription leak:** `calendarEffect` subscribes inside an `effect` without `DestroyRef`; subscription is not tied to component destroy.
 - **Padding days** from adjacent months are synthetic entries typed as `DAY_LOG` with `status: NONE` — fabricated, not from API.
-- **Fetched but unused fields:** `workoutSessionId` and `extraSessionIds` are queried and declared in the interface but never read by the UI component (`dayLogId` and `weekLogReference` are used by the preview panel).
-- **Backend dependency:** the preview requires `trainingCalendar.days[].dayLogId` on `DAY_LOG` entries; until `wave-fit-api` returns it, `GET_TRAINING_CALENDAR` fails at the GraphQL field-selection level (calendar breaks). Deploy fields in tandem.
+- **Fetched but unused fields:** `workoutSessionId` is queried and declared in the interface but not read by the UI (`dayLogId`, `weekLogReference` and `extraSessions` are used).
+- **Backend dependency:** the preview requires `trainingCalendar.days[].dayLogId` on `DAY_LOG` entries and `trainingCalendar.days[].extraSessions` (full objects) on both types; until `wave-fit-api` returns them, `GET_TRAINING_CALENDAR` fails at the GraphQL field-selection level (calendar breaks). Deploy fields in tandem.
 - **`toUpperCase()` comparison** in `isComplete`/`isRest`/`isPending` is inconsistent with `isNone` which compares directly to the enum.
 
 ## Tests
@@ -172,6 +176,9 @@ src/app/pages/user/history/  (history.ts, history.html, history.css, history.spe
 - **TEST-005** Day-preview widget (`day-detail-preview.spec.ts`): exercise list rendering, CTA label/routerLink per `kind`, loading/error + `retry` emission. (Implemented with the widget extraction.)
 - **TEST-006** Week show page (`show.spec.ts`): renders "Activa" (secondary-light) when `active`, "Completada"/"Incompleto" otherwise (FR-009). ✅
 - **TEST-007** Day-preview widget (`day-detail-preview.spec.ts`) and page (`history.spec.ts`): an active `WEEK_LOG` day renders the raised "Ver mi semana" CTA alongside "Ver semana"; non-active weeks do not (FR-010). ✅
+- **TEST-008** `extra-session-show.spec.ts`: renders discipline label (from catalog), duration, intensity, calories and notes; read-only — no "Modificar"/"Eliminar" controls (FR-011).
+- **TEST-009** Day-preview widget (`day-detail-preview.spec.ts`): a preview with `extraSessions` renders them after the exercises; without extras renders none; an empty `preview.id` hides the header CTA (FR-011).
+- **TEST-010** Page (`history.spec.ts`) and calendar widget (`calendar.spec.ts`): a day with empty exercises but with extras opens the preview showing the extras only; a `REST` week-log day with extras opens it too; a `REST`/empty day without extras does not; an extras-only day-log without `dayLogId` opens a CTA-less preview (FR-007/FR-008/FR-011).
 
 **Note:** The previous `training-history.spec.ts` (broken import of nonexistent `./training-history`) was removed; service coverage lives in `training-history.service.spec.ts`. The page and widget specs are `history.spec.ts`, `calendar.spec.ts`, `day-detail-preview.spec.ts`.
 
@@ -180,3 +187,4 @@ src/app/pages/user/history/  (history.ts, history.html, history.css, history.spe
 - **AC-001** The user can view a month of training and distinguish week-log vs day-log entries. ✅
 - **AC-002** Completed, pending, rest ~~and skipped~~ days are visually distinct. ⚠️ Skipped has no distinct rendering.
 - **AC-003** Clicking a calendar day opens the corresponding detail page via the preview panel below the calendar. ✅
+- **AC-004** The preview shows each day's extra sessions read-only at the end of the workout-session list; a day with only extra sessions still opens its preview. ✅

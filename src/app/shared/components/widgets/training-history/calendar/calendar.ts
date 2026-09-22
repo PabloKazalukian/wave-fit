@@ -139,10 +139,11 @@ export class TrainingHistoryCalendar {
 
     isClickable(day: CalendarDay): boolean {
         if (day.type === CalendarDayType.WEEK_LOG) {
-            return day.status !== TrainingStatus.REST && !!day.weekLogReference?.id;
+            if (!day.weekLogReference?.id) return false;
+            return day.status !== TrainingStatus.REST || !!day.extraSessions?.length;
         }
         if (day.type === CalendarDayType.DAY_LOG) {
-            return !!day.dayLogId;
+            return !!day.dayLogId || !!day.extraSessions?.length;
         }
         return false;
     }

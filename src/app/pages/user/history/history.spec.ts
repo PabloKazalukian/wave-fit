@@ -6,6 +6,7 @@ import { TrainingHistoryService } from '../../../core/services/training-history/
 import { PlanTrackingService } from '../../../core/services/trackings/plan-tracking.service';
 import { PlanDayService } from '../../../core/services/day-logs/plan-day.service';
 import { ExercisesService } from '../../../core/services/exercises/exercises.service';
+import { ExtraSessionService } from '../../../core/services/extra-session/extra-session.service';
 import {
     CalendarDay,
     CalendarDayType,
@@ -17,6 +18,11 @@ import {
     WorkoutSessionVM,
 } from '../../../shared/interfaces/tracking.interface';
 import { DayLogVM } from '../../../shared/interfaces/day-log.interface';
+import {
+    ExtraSession,
+    ExtraSessionCategory,
+    ExtraSessionDisciplineConfig,
+} from '../../../shared/interfaces/extra-session.interface';
 
 describe('History', () => {
     let component: History;
@@ -25,6 +31,7 @@ describe('History', () => {
     let planTrackingSvc: jasmine.SpyObj<PlanTrackingService>;
     let planDaySvc: jasmine.SpyObj<PlanDayService>;
     let exerciseSvc: jasmine.SpyObj<ExercisesService>;
+    let extraSessionSvc: jasmine.SpyObj<ExtraSessionService>;
 
     const qs = (selector: string): HTMLElement | null =>
         fixture.nativeElement.querySelector(selector);
@@ -37,6 +44,21 @@ describe('History', () => {
         sets: [{ reps: 10, weights: 20 }],
         usesWeight: true,
     });
+
+    const extraSession: ExtraSession = {
+        id: 'extra-1',
+        category: ExtraSessionCategory.CARDIO,
+        discipline: 'running',
+        date: '2026-02-02',
+        duration: 30,
+        intensityLevel: 3,
+        calories: 320,
+        notes: 'trotada',
+    };
+
+    const catalog: ExtraSessionDisciplineConfig[] = [
+        { key: 'running', label: 'Running', category: ExtraSessionCategory.CARDIO, met: 9.8 },
+    ];
 
     const weekLogDay: CalendarDay = {
         date: '2026-02-02',
@@ -91,6 +113,9 @@ describe('History', () => {
         trainingHistorySvc.getTrainingCalendar.and.callFake((year: number, month: number) =>
             of({ year, month, days: [] }),
         );
+        extraSessionSvc = jasmine.createSpyObj('ExtraSessionService', ['loadCatalog']);
+        extraSessionSvc.catalog$ = of(catalog);
+        extraSessionSvc.loadCatalog.and.returnValue();
 
         await TestBed.configureTestingModule({
             imports: [History],
@@ -100,6 +125,7 @@ describe('History', () => {
                 { provide: PlanTrackingService, useValue: planTrackingSvc },
                 { provide: PlanDayService, useValue: planDaySvc },
                 { provide: ExercisesService, useValue: exerciseSvc },
+                { provide: ExtraSessionService, useValue: extraSessionSvc },
             ],
         }).compileComponents();
 
@@ -266,6 +292,57 @@ describe('History', () => {
             expect(preview.textContent).toContain('Ver semana');
             expect(preview.textContent).not.toContain('Ver mi semana');
         });
+
+        it('opens a preview with extra sessions only when the day has no exercises (FR-011)', () => {
+            component.calendarDays.set([{ ...weekLogDay, extraSessions: [extraSession] }]);
+            planTrackingSvc.findById.and.returnValue(
+                of(
+                    weekTracking([
+                        {
+                            id: 'ws-1',
+                            date: '2026-02-02',
+                            exercises: [],
+                            status: 'complete',
+                        },
+                    ]),
+                ),
+            );
+            fixture.detectChanges();
+
+            qs('[data-date="2026-02-02"]')!.click();
+            fixture.detectChanges();
+
+            const preview = qs('[data-test="history-preview"]')!;
+            expect(preview).toBeTruthy();
+            expect(preview.textContent).toContain('Sesiones extra');
+            expect(preview.textContent).toContain('Running');
+        });
+
+        it('opens a preview for a REST week-log day with extra sessions (FR-011)', () => {
+            component.calendarDays.set([
+                {
+                    ...weekLogDay,
+                    date: '2026-02-04',
+                    status: TrainingStatus.REST,
+                    extraSessions: [extraSession],
+                },
+            ]);
+            planTrackingSvc.findById.and.returnValue(
+                of(
+                    weekTracking([
+                        { id: 'ws-1', date: '2026-02-04', exercises: [], status: 'rest' },
+                    ]),
+                ),
+            );
+            fixture.detectChanges();
+
+            qs('[data-date="2026-02-04"]')!.click();
+            fixture.detectChanges();
+
+            const preview = qs('[data-test="history-preview"]')!;
+            expect(preview).toBeTruthy();
+            expect(preview.textContent).toContain('Running');
+        });
     });
 
     describe('day-log preview', () => {
@@ -302,6 +379,52 @@ describe('History', () => {
 
             expect(planDaySvc.findById).toHaveBeenCalledWith('day-1');
             expect(qs('[data-test="history-preview"]')).toBeNull();
+        });
+
+        it('renders extra sessions after the exercises (FR-011)', () => {
+            component.calendarDays.set([{ ...dayLogDay, extraSessions: [extraSession] }]);
+            planDaySvc.findById.and.returnValue(of(dayLog()));
+            fixture.detectChanges();
+
+            qs('[data-date="2026-02-03"]')!.click();
+            fixture.detectChanges();
+
+            const preview = qs('[data-test="history-preview"]')!;
+            expect(preview.textContent).toContain('Sentadilla');
+            expect(preview.textContent).toContain('Running');
+            expect(preview.textContent!.indexOf('Sentadilla')).toBeLessThan(
+                preview.textContent!.indexOf('Running'),
+            );
+        });
+
+        it('opens a preview with extra sessions only when the day-log has no exercises (FR-011)', () => {
+            component.calendarDays.set([{ ...dayLogDay, extraSessions: [extraSession] }]);
+            planDaySvc.findById.and.returnValue(of({ ...dayLog(), exercises: [] }));
+            fixture.detectChanges();
+
+            qs('[data-date="2026-02-03"]')!.click();
+            fixture.detectChanges();
+
+            const preview = qs('[data-test="history-preview"]')!;
+            expect(preview).toBeTruthy();
+            expect(preview.textContent).toContain('Running');
+            expect(preview.textContent).toContain('Ver día');
+        });
+
+        it('opens a CTA-less preview when a day-log has extras but no dayLogId (FR-011)', () => {
+            component.calendarDays.set([
+                { ...dayLogDay, dayLogId: undefined, extraSessions: [extraSession] },
+            ]);
+            fixture.detectChanges();
+
+            qs('[data-date="2026-02-03"]')!.click();
+            fixture.detectChanges();
+
+            expect(planDaySvc.findById).not.toHaveBeenCalled();
+            const preview = qs('[data-test="history-preview"]')!;
+            expect(preview).toBeTruthy();
+            expect(preview.textContent).toContain('Running');
+            expect(preview.querySelector('a')).toBeNull();
         });
     });
 
