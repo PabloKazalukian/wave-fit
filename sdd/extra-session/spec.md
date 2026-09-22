@@ -9,12 +9,13 @@ An **ExtraSession** is additional training beyond the planned workout (CARDIO, S
 ### FR: Functionality
 
 - **FR-001** `loadCatalog()` loads the `ExtraSessionDisciplineConfig[]` catalog once (cached in a `BehaviorSubject`).
-- **FR-002** The shared `extraSessionForm` (ReactiveForms, owned by `ExtraSessionService` and reused by the form/create widgets) captures `category`, `discipline`, `workoutSessionId`, `date`, `duration`, `intensityLevel`, `calories`, `notes` (`minLength(3)` on `category` and `discipline`); only the `CreateExtraSessionForm` subset is sent.
+- **FR-002** The shared `extraSessionForm` (ReactiveForms, owned by `ExtraSessionService` and reused by the form/create widgets) captures `category`, `discipline`, `workoutSessionId`, `date`, `duration`, `intensityLevel`, `calories`, `notes` (`minLength(3)` on `category` and `discipline`); only the `CreateExtraSessionForm` subset is sent. The create widget exposes a **notes field** bound to the shared form; `extra-session-form.save()` sends the control's real value (not a hardcoded empty string).
 - **FR-003** `create(input)` delegates by active container: day-log → `PlanDayService.updateExtraSession(input)`; week-log → `PlanTrackingService.updateExtraSession(date, input)` (BR-008).
 - **FR-004** `remove(id)` delegates to `PlanDayService.removeExtraSession(id)` (day) or `PlanTrackingService.removeExtraSession(date, id)` (week).
 - **FR-005** `update(input)` calls the API and reflects the change in `activeWorkoutSessions$`.
 - **FR-006** `extraSessions` signal is derived from the store's `workoutSession().extras` ids, loading via `getByIds(ids)` (auto-refresh with signals + effect).
 - **FR-007** `loadByWorkoutSession(workoutSessionId: string[])` fetches sessions for a given set of ids (delegates to `ExtraSessionApi.getByIds`).
+- **FR-008** The editable card (`extra-session-card`) displays the session `notes` when present and allows **editing them** in its edit mode; the `save` output includes `notes`, and `extra-session-content` forwards it to `ExtraSessionService.update` → `UpdateExtraSessionInput.notes`.
 
 ### BR
 
@@ -43,9 +44,11 @@ ExtraSessionService (core/services/extra-session/extra-session.service.ts)
 └── PlanDayService (day path)         ── updateExtraSession/removeExtraSession
 ```
 
-Widgets: `shared/components/widgets/extra-session/` (`extra-session-form`, `extra-session-create`, `extra-session-content`), used by tracking weeks and the my-day tracking day.
+Widgets: `shared/components/widgets/extra-session/` (`extra-session-form`, `extra-session-create`, `extra-session-content` + `extra-session-card`), used by tracking weeks and the my-day tracking day; the card shows/edits `notes` (FR-008) and the form/create collect `notes` (FR-002). `extra-session-show` is a **read-only** variant (no edit/delete) used by the training-history calendar preview (see `sdd/training-history/spec.md` FR-011).
 
 ## Data contract
+
+- In the training-calendar payload (`trainingCalendar.days[].extraSessions`) `category` serializes as the uppercase enum (`CARDIO`) and `discipline` travels lowercase (minúscula), consistent with `extraSessionCatalog`.
 
 ```ts
 export enum ExtraSessionCategory {
@@ -109,7 +112,7 @@ src/app/core/services/extra-session/api/extra-session.api.ts        (+ .spec.ts)
 src/app/core/apollo/extra-session.queries.ts
 src/app/shared/interfaces/extra-session.interface.ts
 src/app/shared/wrappers/extra-session.wrapper.ts
-src/app/shared/components/widgets/extra-session/  (extra-session-form, extra-session-create, extra-session-content + extra-session-card)
+src/app/shared/components/widgets/extra-session/  (extra-session-form, extra-session-create, extra-session-content + extra-session-card, extra-session-show)
 ```
 
 ## Tests
@@ -119,9 +122,13 @@ src/app/shared/components/widgets/extra-session/  (extra-session-form, extra-ses
 - **TEST-003** `remove` routes per active container. ✅ (`extra-session.service.spec.ts`)
 - **TEST-004** `update` mutates `activeWorkoutSessions$`. ✅ (`extra-session.service.spec.ts`)
 - **TEST-005** `extraSessions` reacts to store `extras` id changes and calls `getByIds`. ✅ (`extra-session.service.spec.ts`)
+- **TEST-006** `extra-session-card` shows `notes` when present and includes a notes field in edit mode; saving emits the notes value (FR-008). ✅ (`extra-session-card.spec.ts`)
+- **TEST-007** `extra-session-content` forwards the edited notes to `ExtraSessionService.update` (FR-008). ✅ (`extra-session-content.spec.ts`)
+- **TEST-008** The create widget renders a notes field bound to the shared form, and `extra-session-form.save()` sends the control's value instead of hardcoding `''` (FR-002). ✅ (`extra-session-create.spec.ts`, `extra-session-form.spec.ts`)
 
 ## Acceptance Criteria
 
 - **AC-001** The user can add/update/remove a cardio/strength/sport/mind-body session on the active day in both week and day modes.
 - **AC-002** Calories are estimated from the discipline `met` where provided.
 - **AC-003** Lists stay consistent after create/update/remove without manual reload.
+- **AC-004** Notes captured at creation are visible and editable on the tracking card, and persist on update. ✅

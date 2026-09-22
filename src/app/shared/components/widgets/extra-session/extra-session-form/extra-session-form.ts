@@ -92,6 +92,10 @@ export class ExtraSessionForm implements OnInit {
         return this.extraSessionForm.get('calories') as FormControl<number>;
     }
 
+    get notesControl(): FormControl<string> {
+        return this.extraSessionForm.get('notes') as FormControl<string>;
+    }
+
     save(): void {
         this.extraSessionForm.markAllAsTouched();
         if (this.extraSessionForm.invalid) return;
@@ -104,7 +108,7 @@ export class ExtraSessionForm implements OnInit {
                 duration: this.durationControl.value,
                 intensityLevel: this.intensityLevelControl.value,
                 calories: this.caloriesControl.value || undefined,
-                notes: '',
+                notes: this.notesControl.value,
             })
             .pipe(
                 takeUntilDestroyed(this.destroyRef),

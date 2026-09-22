@@ -24,6 +24,16 @@
     ></app-input-number>
   </section>
 
+  <label class="flex flex-col gap-1">
+    <span class="text-sm text-text2 font-medium">Notas</span>
+    <textarea
+      [formControl]="notesControl"
+      rows="2"
+      placeholder="Anotaciones (opcional)"
+      class="w-full rounded-md bg-background px-3 py-2 border border-background3 text-primary3 text-sm focus:outline-none focus:border-primary transition-colors"
+    ></textarea>
+  </label>
+
   <footer class="flex justify-end gap-2 mt-4">
     <app-btn
       [text]="'Cancelar'"
