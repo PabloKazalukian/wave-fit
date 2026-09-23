@@ -1,9 +1,11 @@
 import { TrackingAPI, WeekLogDayAPI } from '../interfaces/api/tracking-api.interface';
 import { Exercise } from '../interfaces/exercise.interface';
+import { StatusWorkoutSessionEnum, WorkoutSessionVM } from '../interfaces/tracking.interface';
 import {
     wrapperTrackingApiToVMS,
     wrapperTrackingApiToVM,
     wrapperWeekLogDayApiToVM,
+    wrapperWorkoutSessionVMtoUpdateWeekLogDayInput,
 } from './tracking.wrapper';
 
 describe('tracking.wrapper (TEST-005)', () => {
@@ -96,5 +98,29 @@ describe('tracking.wrapper (TEST-005)', () => {
         expect(vm.startDate).toBe('2026-04-30');
         expect(vm.days.map((d) => d.date)).toEqual(['2026-04-30', '2026-05-10']);
         expect(vm.workouts?.map((w) => w.date)).toEqual(['2026-04-30', '2026-05-10']);
+    });
+
+    describe('wrapperWorkoutSessionVMtoUpdateWeekLogDayInput', () => {
+        const buildWorkout = (overrides: Partial<WorkoutSessionVM> = {}): WorkoutSessionVM => ({
+            id: 'ws-1',
+            date: '2026-05-01',
+            exercises: [],
+            status: StatusWorkoutSessionEnum.COMPLETE,
+            ...overrides,
+        });
+
+        it('keeps a real workoutSessionId', () => {
+            const [day] = wrapperWorkoutSessionVMtoUpdateWeekLogDayInput([buildWorkout()]);
+
+            expect(day.workoutSessionId).toBe('ws-1');
+        });
+
+        it('normalizes an empty id to undefined instead of leaking ""', () => {
+            const [day] = wrapperWorkoutSessionVMtoUpdateWeekLogDayInput([
+                buildWorkout({ id: '' }),
+            ]);
+
+            expect(day.workoutSessionId).toBeUndefined();
+        });
     });
 });

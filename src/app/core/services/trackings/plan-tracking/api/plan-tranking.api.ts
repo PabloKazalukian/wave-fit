@@ -54,7 +54,7 @@ export class PlanTrackingApi {
                     })
                     .pipe(
                         tap(({ data }) =>
-                            console.log('[PLAN_DAY_API] getActiveDayLog raw:', { data }),
+                            console.log('[WEEK_LOG_API] getActiveWeekLog raw:', { data }),
                         ),
                         handleGraphqlError(this.authSvc),
                         map(({ data }) =>
@@ -111,7 +111,7 @@ export class PlanTrackingApi {
     }
 
     updateTrackingDay(payload: UpdateWeekLogDayUnifiedInput): Observable<WeekLogDayVM | null> {
-        console.log(payload);
+        console.log('[UPDATE_WEEK_LOG_DAY] payload:', JSON.stringify(payload, null, 2));
         return this.apollo
             .mutate<{ updateWeekDay: WeekLogDayAPI }>({
                 mutation: UPDATE_WEEK_LOG_DAY,
