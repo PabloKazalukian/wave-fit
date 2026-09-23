@@ -142,13 +142,6 @@ export class PlanTrackingDomainService {
         const workoutDraft = tracking.workouts![index];
         const order = Number(index) + 1;
 
-        console.log(
-            '[createWorkout] order:',
-            order,
-            'workoutDraft:',
-            JSON.stringify(workoutDraft, null, 2),
-        );
-
         this.state.loadingWorkoutCreation.update((current) => ({
             ...current,
             date: dateWorkout,
