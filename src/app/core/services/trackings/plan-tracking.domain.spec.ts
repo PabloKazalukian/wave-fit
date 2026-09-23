@@ -223,6 +223,28 @@ describe('PlanTrackingDomainService', () => {
             expect(result).toBeNull();
             expect(api.updateTrackingDay).not.toHaveBeenCalled();
         });
+
+        it('sends workoutSession.id when the day already has one', () => {
+            api.updateTrackingDay.and.returnValue(of(buildDayApi()));
+
+            service.createWorkout('2026-05-01').subscribe();
+
+            const payload = api.updateTrackingDay.calls.mostRecent().args[0];
+            expect(payload.days[0].workoutSession.id).toBe('ws-1');
+        });
+
+        it('omits workoutSession.id when the day has no session (rest day)', () => {
+            tracking = buildTracking({ workouts: [buildWorkout({ id: '' })] });
+            trackingSignal.set(tracking);
+            api.updateTrackingDay.and.returnValue(of(buildDayApi()));
+
+            service.createWorkout('2026-05-01').subscribe();
+
+            const payload = api.updateTrackingDay.calls.mostRecent().args[0];
+            expect('id' in payload.days[0].workoutSession).toBeFalse();
+            expect(payload.days[0].isRest).toBe(false);
+            expect(payload.days[0].status).toBe('complete');
+        });
     });
 
     describe('setRestDay (TEST-003)', () => {

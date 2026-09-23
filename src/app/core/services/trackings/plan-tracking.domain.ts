@@ -142,6 +142,13 @@ export class PlanTrackingDomainService {
         const workoutDraft = tracking.workouts![index];
         const order = Number(index) + 1;
 
+        console.log(
+            '[createWorkout] order:',
+            order,
+            'workoutDraft:',
+            JSON.stringify(workoutDraft, null, 2),
+        );
+
         this.state.loadingWorkoutCreation.update((current) => ({
             ...current,
             date: dateWorkout,
@@ -157,7 +164,7 @@ export class PlanTrackingDomainService {
                     isRest: false,
                     status: 'complete',
                     workoutSession: {
-                        id: workoutDraft.id,
+                        ...(workoutDraft.id ? { id: workoutDraft.id } : {}),
                         date: workoutDraft.date, // ✅ ya es LocalDate — sin conversión
                         status: StatusWorkoutSessionEnum.COMPLETE,
                         exercises: wrapperExercisePerformanceVMToApi(workoutDraft.exercises),
