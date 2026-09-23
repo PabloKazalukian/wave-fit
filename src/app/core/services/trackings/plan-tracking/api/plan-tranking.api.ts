@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { handleGraphqlError } from '../../../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../../../auth/auth.service';
-import { map, Observable, switchMap, tap } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import {
     TrackingVM,
     TrackingVMS,
@@ -53,9 +53,6 @@ export class PlanTrackingApi {
                         fetchPolicy: 'no-cache',
                     })
                     .pipe(
-                        tap(({ data }) =>
-                            console.log('[WEEK_LOG_API] getActiveWeekLog raw:', { data }),
-                        ),
                         handleGraphqlError(this.authSvc),
                         map(({ data }) =>
                             data?.activeWeekLog.hasActiveWeek
@@ -111,7 +108,6 @@ export class PlanTrackingApi {
     }
 
     updateTrackingDay(payload: UpdateWeekLogDayUnifiedInput): Observable<WeekLogDayVM | null> {
-        console.log('[UPDATE_WEEK_LOG_DAY] payload:', JSON.stringify(payload, null, 2));
         return this.apollo
             .mutate<{ updateWeekDay: WeekLogDayAPI }>({
                 mutation: UPDATE_WEEK_LOG_DAY,

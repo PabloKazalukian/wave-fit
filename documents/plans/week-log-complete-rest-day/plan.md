@@ -40,18 +40,12 @@ Hardening: `wrapperWorkoutSessionVMtoUpdateWeekLogDayInput` uses
 `w.id ?? undefined`, which does not filter `''`. Normalize falsy ids to
 `undefined` so no other payload path (e.g. `completeTracking`) can leak `''`.
 
-Debug aid: label the existing `console.log(payload)` in
-`plan-tranking.api.ts` (`[UPDATE_WEEK_LOG_DAY]`) so the outgoing payload is
-identifiable in the console while completing a day.
-
 ## Changes
 
 - `core/services/trackings/plan-tracking.domain.ts`: conditional spread of
   `workoutSession.id` in `createWorkout`.
 - `shared/wrappers/tracking.wrapper.ts`: `w.id || undefined` in
   `wrapperWorkoutSessionVMtoUpdateWeekLogDayInput`.
-- `core/services/trackings/plan-tracking/api/plan-tranking.api.ts`: labeled
-  `console.log` in `updateTrackingDay`.
 - Tests: `plan-tracking.domain.spec.ts` (payload omits `id` when empty, keeps
   it when present), `tracking.wrapper.spec.ts` (falsy id → `undefined`).
 
