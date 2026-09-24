@@ -80,8 +80,9 @@ src/app/
 │   ├── my-week/         # Week-log training (+ success/)
 │   ├── plans/           # Plans list (+ create/)
 │   ├── routines/        # (+ show/:id)
+│   ├── stats/           # Read-only stats dashboard (Highcharts: top exercises/routines, PRs, adherence)
 │   ├── tracking-day/    # (+ show/)
-│   ├── trackings/       # list, show/:id, stats/
+│   ├── trackings/       # list, show/:id
 │   └── user/            # profile, history
 ├── shared/
 │   ├── animations/
@@ -129,7 +130,7 @@ Services are grouped under `core/services/<feature>/` and classified by complexi
 | **High**   | Domain + API + State           | `UserProfileService`                                                                                                                                        |
 | **Medium** | API + Storage + State          | `PlansService`                                                                                                                                              |
 | **Medium** | API + State                    | `ExtraSessionService`, `WorkoutStateService` (+ `DayWorkoutStore`), `CoachService` (API + State + Storage), `ActiveTrackingService` (+ `ActiveTrackingApi`) |
-| **Low**    | API + Service                  | `ExercisesService`, `RoutinesService`, `AuthService`, `TrainingHistoryService`                                                                              |
+| **Low**    | API + Service                  | `ExercisesService`, `RoutinesService`, `AuthService`, `TrainingHistoryService`, `StatsService` (+ `StatsState` read-only per-section signals)                          |
 | **Infra**  | Support                        | `NetworkStatusService`, `SyncQueueService`, `IndexedDbStorageService`, `DateService`, `WarmupService`                                                       |
 
 ### Folder layout (current)
@@ -144,6 +145,7 @@ core/services/
 ├── network/         # network-status.service.ts
 ├── plans/           # plans.service.ts, day-plan-state.service.ts, api/, storage/
 ├── routines/        # routines.service.ts, api/routines.api.ts
+├── stats/           # stats.service.ts (4 network-only getters), stats.state.ts (per-section signals)
 ├── storage/         # indexed-db.service.ts (Dexie)
 ├── sync/            # sync-queue.service.ts, sync.types.ts
 ├── trackings/       # plan-tracking.service.ts / .domain.ts / .state.ts,

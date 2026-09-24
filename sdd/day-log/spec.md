@@ -137,7 +137,7 @@ src/app/shared/interfaces/api/day-log-api.interface.ts
 src/app/shared/wrappers/day-log.wrapper.ts
 src/app/pages/my-day/  (+ success/)
 src/app/pages/tracking-day/show/   (DayLog read-only show)
-src/app/pages/trackings/  (week-log list, show/, stats/)
+src/app/pages/trackings/  (week-log list, show/)
 src/app/shared/components/widgets/users/daily-tracking/   (DayLog summary list)
 ```
 

@@ -19,7 +19,7 @@ Week-log tracking records one executed week of training (TRACKING branch). A `Tr
 - **FR-009** `setRemoveAllExercises(date)` / `removeWorkoutSession(date, id)` clear the day.
 - **FR-010** `completeTracking(complete)` closes the week (`completed`, `active:false`), pads the 7 days, clears state/storage, and redirects to `/my-week/success`.
 - **FR-011** `createRoutineFromWorkout(title, exerciseIds)` creates a routine from a workout.
-- **FR-012** History: `findAll(limit, offset)`, `findById(id)`, `removeTracking(id)` on `/user/trackings`, `/user/trackings/:id`, `/user/trackings/stats` (powered by `TrackingListState`, incl. `getStats()`). **Note:** the GraphQL operations are named `findOne` and `removeWeekLog` respectively.
+- **FR-012** History: `findAll(limit, offset)`, `findById(id)`, `removeTracking(id)` on `/user/trackings`, `/user/trackings/:id` (powered by `TrackingListState`). **Note:** the GraphQL operations are named `findOne` and `removeWeekLog` respectively. The former `/user/trackings/stats` placeholder was removed (see `sdd/stats/spec.md`).
 - **FR-013** Day-level widgets consume the **`WorkoutStore`** contract (week impl = `WorkoutStateService`), selected via `ActiveTracking.isDayLogActive()`.
 
 ### BR
@@ -52,12 +52,13 @@ PlanTrackingService (facade) — core/services/trackings/plan-tracking.service.t
 │     └── SyncQueueService / NetworkStatusService
 ├── PlanTrackingStateService (plan-tracking.state.ts)     — signals + BehaviorSubject + IndexedDB (write-only)
 ├── PlanTrackingStorage (plan-tracking/storage/…)         — localStorage (write-only; read path commented out)
-└── TrackingListState (tracking-list.state.ts)            — history/stats
+└── TrackingListState (tracking-list.state.ts)            — history
 ```
 
 UI tree (week mode): `MyWeek → TrackingWeekComponent → InfoCard, WeeklyStats, NavigatorWeek, ExtraSessionForm, TrackingWorkoutComponent → WorkoutDayStats/ExtraSessionContent + status switch (WorkoutCompleteList | WorkoutEdition | WorkoutInProgress → WorkoutActionsMenu → WorkoutRoutineSelector)`.
 
 **Extra UI not in original spec:**
+
 - `TrackingActiveComponent` — used on home and user pages (not on `/my-week`); shows "Seguimiento: Día activo / Semana activa / No iniciado" card.
 - `WeeklyStats` carousel and `WorkoutDayStats` compute calories/records/streaks/muscle groups.
 - `MyWeek` page also hosts day-log CTAs and a day mode (`startDay()`).
@@ -146,7 +147,7 @@ src/app/core/services/trackings/
 ├── plan-tracking.service.ts            # facade
 ├── plan-tracking.domain.ts             # domain
 ├── plan-tracking.state.ts              # state (+ IndexedDB — write-only)
-├── tracking-list.state.ts              # history/stats
+├── tracking-list.state.ts              # history
 ├── active-tracking.service.ts          # source of truth
 ├── active-tracking.api.ts              # activeTracking query
 └── plan-tracking/
@@ -162,35 +163,41 @@ src/app/shared/interfaces/tracking.interface.ts
 src/app/shared/interfaces/api/tracking-api.interface.ts
 src/app/shared/wrappers/tracking.wrapper.ts
 src/app/pages/my-week/  (my-week, success/)
-src/app/pages/trackings/ (trackings, show/, stats/)
+src/app/pages/trackings/ (trackings, show/)
 src/app/shared/components/widgets/tracking/  (tracking-week, tracking-day, tracking-workout, tracking-active, users/weekly-trackings, users/daily-tracking)
 ```
 
 ## Known issues
 
 ### Data flow
+
 - **Double init fetch:** Both `PlanTrackingService` and `PlanTrackingDomainService` run effects on login that call `initTracking`, potentially firing the week-log query twice.
 - **Two divergent "active" sources:** `ActiveTrackingApi` queries `activeTracking` (returns `hasActive/types`) while `PlanTrackingApi.getTrackingByUser` queries `activeWeekLog` (returns `hasActiveWeek/week`). These can theoretically disagree.
 - **Inverted signal name:** `hasActiveTracking` in `my-week.ts` actually means "no active tracking" (template shows the week only when `!this.hasActiveTracking()`). Behavior is correct; naming is inverted.
 - **Overloaded `planId`:** `show.ts` swaps `tracking.planId` for the plan **name** and displays it — field is overloaded as a display label.
 
 ### Dead code
+
 - 4 unused GraphQL mutations in `tracking.queries.ts`: `CREATE_WORKOUT_SESSION` (duplicate of the one in `workout.queries.ts`), `UPDATE_WEEK_LOG_WORKOUT_SESSION`, `SYNC_WEEK_LOG_DAYS`, `ASSIGN_ROUTINE_TO_DAYS` (unused duplicate of singular `ASSIGN_ROUTINE_TO_DAY`).
 - Commented-out legacy `REMOVE_WORKOUT_SESSION_FROM_DAY`.
+- `TrackingListState.getStats()` is unused now that `/user/trackings/stats` was removed.
 - `setRestDay` ignores its `workout` parameter (only reads `desiredStatus`).
 - `navigator-week.ts` injects `WorkoutStateService` directly instead of using `WORKOUT_STORE` token.
 
 ### Debug artifacts
+
 - `console.log` at `plan-tranking.api.ts:57` — copy-paste label `[PLAN_DAY_API]` inside the week-log API.
 - `console.log` at `plan-tranking.api.ts:93-94, 114`.
 - `console.log` at `plan-tracking.domain.ts:332-333`.
 
 ### Interface drift
+
 - `TrackingVMS.extras` is declared but never populated by the wrapper (`tracking.wrapper.ts`).
 - `TrackingCreate.completed?` exists in the API interface but is not part of the spec's create signature.
 - `workout.api.ts:43` `wrapperWorkoutSessionVMToApi` returns `any`.
 
 ### Tests
+
 - The former `plan-tracking.spec.ts` (broken import) was removed and the mistitled `tracking-week.spec.ts` / `tracking-workout.spec.ts` describes were renamed; tracking coverage now lives in the domain/facade/wrapper/store specs (see ## Tests).
 
 ## Tests

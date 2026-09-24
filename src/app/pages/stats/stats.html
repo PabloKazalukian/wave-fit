@@ -1,0 +1,107 @@
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  @if (notification()) {
+    <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-full max-w-sm">
+      <app-notification
+        [message]="notification()!.message"
+        [type]="notification()!.type"
+        [duration]="4000"
+        (closeOuput)="notification.set(null)"
+      ></app-notification>
+    </div>
+  }
+
+  <section class="bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-2 mb-6">
+    <h1 class="text-5xl font-bold text-center text-primary">Mis Estadísticas</h1>
+    <p class="text-text2 text-center text-sm leading-relaxed">
+      Resumen de tu progreso de entrenamiento.
+    </p>
+  </section>
+
+  <div class="flex flex-col gap-6">
+    <app-stats-section
+      [title]="'Ejercicios destacados'"
+      [loading]="entries.topExercises().loading"
+      [error]="entries.topExercises().error"
+      [empty]="topExercisesEmpty()"
+      [emptyMessage]="'Aún no hay datos de ejercicios destacados.'"
+      [computedAt]="entries.topExercises().computedAt"
+      (retry)="reload('topExercises')"
+    >
+      @if (topExercisesOptions()) {
+        <app-stats-chart [options]="topExercisesOptions()" />
+      }
+    </app-stats-section>
+
+    <app-stats-section
+      [title]="'Rutinas destacadas'"
+      [loading]="entries.topRoutines().loading"
+      [error]="entries.topRoutines().error"
+      [empty]="topRoutinesEmpty()"
+      [emptyMessage]="'Aún no hay datos de rutinas destacadas.'"
+      [computedAt]="entries.topRoutines().computedAt"
+      (retry)="reload('topRoutines')"
+    >
+      @if (topRoutinesOptions()) {
+        <app-stats-chart [options]="topRoutinesOptions()" />
+      }
+    </app-stats-section>
+
+    <app-stats-section
+      [title]="'Récords personales'"
+      [loading]="entries.personalRecords().loading"
+      [error]="entries.personalRecords().error"
+      [empty]="personalRecordsEmpty()"
+      [emptyMessage]="'Aún no hay récords personales registrados.'"
+      [computedAt]="entries.personalRecords().computedAt"
+      (retry)="reload('personalRecords')"
+    >
+      @if (personalRecordsOptions()) {
+        <app-stats-chart [options]="personalRecordsOptions()" />
+      }
+      @if (personalRecordsList().length > 0) {
+        <ul class="flex flex-col gap-2">
+          @for (row of personalRecordsList(); track row.record.exerciseId) {
+            <li class="flex items-center justify-between gap-2 bg-background3 rounded-xl px-4 py-3">
+              <div class="flex flex-col gap-1 min-w-0">
+                <p class="text-sm font-semibold text-white truncate">
+                  {{ row.record.exerciseName }}
+                </p>
+                <p class="text-xs text-text2">
+                  {{ row.record.category | exerciseCategory }}
+                  · {{ formatWeight(row.record.bestWeight) }} kg · {{ row.record.bestReps }} reps ·
+                  {{ formatLocalDateShort(row.record.achievedAt) }}
+                </p>
+              </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                @if (row.record.previousOneRm !== null) {
+                  <span class="text-xs text-text2"
+                    >1RM {{ formatWeight(row.record.previousOneRm) }} kg</span
+                  >
+                }
+                @if (row.isNew) {
+                  <span class="text-xs font-bold uppercase tracking-widest text-primary">
+                    Nuevo PR
+                  </span>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </app-stats-section>
+
+    <app-stats-section
+      [title]="'Adherencia semanal'"
+      [loading]="entries.adherence().loading"
+      [error]="entries.adherence().error"
+      [empty]="adherenceEmpty()"
+      [emptyMessage]="'Aún no hay datos de adherencia semanal.'"
+      [computedAt]="entries.adherence().computedAt"
+      (retry)="reload('adherence')"
+    >
+      @if (adherenceOptions()) {
+        <app-stats-chart [options]="adherenceOptions()" />
+      }
+    </app-stats-section>
+  </div>
+</section>
