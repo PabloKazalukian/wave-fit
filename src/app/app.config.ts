@@ -6,6 +6,7 @@ import {
     provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideHighcharts } from 'highcharts-angular';
 
 import { routes } from './app.routes';
 
@@ -15,5 +16,6 @@ export const appConfig: ApplicationConfig = {
         provideBrowserGlobalErrorListeners(),
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(routes),
+        provideHighcharts(),
     ],
 };

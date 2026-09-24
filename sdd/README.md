@@ -58,6 +58,7 @@ Use explicit, stable identifiers:
 | Day-log             | [day-log](day-log/spec.md)                   | `/my-day`, `/my-day/success`, `/tracking-day/show/:id` |
 | Extra sessions      | [extra-session](extra-session/spec.md)       | (dialogs/widgets)                                      |
 | Coach AI            | [coach](coach/spec.md)                       | `/coach`                                               |
+| Stats dashboard     | [stats](stats/spec.md)                       | `/stats`                                               |
 | User profile        | [user-profile](user-profile/spec.md)         | `/user`, `/user/profile`                               |
 | Training history    | [training-history](training-history/spec.md) | `/user/history`                                        |
 | PWA / offline       | [pwa-offline](pwa-offline/spec.md)           | (whole app)                                            |

@@ -23,6 +23,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - run: npm install --global npm@11.12.1
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
@@ -35,6 +36,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - run: npm install --global npm@11.12.1
       - run: npm ci
       - run: npm run typecheck
 
@@ -46,6 +48,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - run: npm install --global npm@11.12.1
       - run: npm ci
       - run: npm run test:ci
 
@@ -57,5 +60,6 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - run: npm install --global npm@11.12.1
       - run: npm ci
       - run: npm run build
