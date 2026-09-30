@@ -1,9 +1,21 @@
 import {
+    resolveRoutineNames,
     wrapperAdherenceApiToVM,
     wrapperPersonalRecordsApiToVM,
     wrapperTopExercisesApiToVM,
     wrapperTopRoutinesApiToVM,
 } from './stats.wrapper';
+import type { TopRoutineVM } from '../interfaces/stats.interface';
+
+const routineVm = (overrides: Partial<TopRoutineVM> = {}): TopRoutineVM => ({
+    rank: 1,
+    planId: 'p1',
+    name: 'Desconocido',
+    totalWeeks: 4,
+    totalSessions: 12,
+    adherenceRate: 93,
+    ...overrides,
+});
 
 describe('stats.wrapper', () => {
     describe('wrapperTopExercisesApiToVM', () => {
@@ -85,6 +97,58 @@ describe('stats.wrapper', () => {
             expect(vm.routines[0].adherenceRate).toBe(93);
             expect(vm.routines[0].totalWeeks).toBe(4);
             expect(vm.routines[0].name).toBe('Push Pull Legs');
+        });
+    });
+
+    describe('resolveRoutineNames', () => {
+        it('replaces the snapshot name with the live plan name by planId', () => {
+            const resolved = resolveRoutineNames(
+                [routineVm({ planId: 'p1' }), routineVm({ rank: 2, planId: 'p2' })],
+                [
+                    { id: 'p1', name: 'Push Pull Legs' },
+                    { id: 'p2', name: 'Upper Legacy' },
+                ],
+            );
+
+            expect(resolved.map((r) => r.name)).toEqual(['Push Pull Legs', 'Upper Legacy']);
+        });
+
+        it('keeps the snapshot name when the planId does not resolve', () => {
+            const resolved = resolveRoutineNames(
+                [routineVm({ planId: 'missing', name: 'Desconocido' })],
+                [{ id: 'p1', name: 'Push Pull Legs' }],
+            );
+
+            expect(resolved[0].name).toBe('Desconocido');
+        });
+
+        it('degrades to the snapshot names when the catalog is empty or missing', () => {
+            const routines = [routineVm({ name: 'Desconocido' })];
+
+            expect(resolveRoutineNames(routines, [])[0].name).toBe('Desconocido');
+            expect(resolveRoutineNames(routines, undefined)[0].name).toBe('Desconocido');
+        });
+
+        it('prefers the live plan name even when the snapshot has a stale one', () => {
+            const resolved = resolveRoutineNames(
+                [routineVm({ planId: 'p1', name: 'Nombre viejo' })],
+                [{ id: 'p1', name: 'Push Pull Legs' }],
+            );
+
+            expect(resolved[0].name).toBe('Push Pull Legs');
+        });
+
+        it('ignores plans with an empty name and never mutates the input', () => {
+            const routines = [routineVm({ planId: 'p1' })];
+
+            const resolved = resolveRoutineNames(routines, [{ id: 'p1', name: '' }]);
+
+            expect(resolved[0].name).toBe('Desconocido');
+            expect(routines[0].name).toBe('Desconocido');
+        });
+
+        it('returns an empty array for empty input', () => {
+            expect(resolveRoutineNames([], [{ id: 'p1', name: 'PPL' }])).toEqual([]);
         });
     });
 

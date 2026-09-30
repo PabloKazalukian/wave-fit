@@ -1,4 +1,5 @@
 import { ExerciseCategory } from '../interfaces/exercise.interface';
+import { RoutinePlanAPI } from '../interfaces/api/routines-api.interface';
 import {
     AdherenceStatsAPI,
     PersonalRecordAPI,
@@ -73,6 +74,31 @@ export function wrapperTopRoutinesApiToVM(api: TopRoutinesStatsAPI): TopRoutines
         computedAt: api.computedAt,
         routines: (api.routines ?? []).map(wrapperTopRoutineApiToVM),
     };
+}
+
+/**
+ * El snapshot de `topRoutines` guarda el nombre del plan copiado por el worker.
+ * Ese nombre puede haber quedado sin resolver (planes globales no viajan en
+ * `getRawDataForWorker`), así que se prefiere el nombre del catálogo vivo de
+ * `routinePlans` y solo se recurre al del snapshot cuando el `planId` no
+ * resuelve. No se compara contra el texto literal del worker: no es un contrato.
+ */
+export function resolveRoutineNames(
+    routines: TopRoutineVM[],
+    plans?: Pick<RoutinePlanAPI, 'id' | 'name'>[] | null,
+): TopRoutineVM[] {
+    if (!plans?.length) return [...routines];
+
+    const names = new Map<string, string>();
+    for (const plan of plans) {
+        if (plan.name) names.set(plan.id, plan.name);
+    }
+    if (names.size === 0) return [...routines];
+
+    return routines.map((routine) => {
+        const live = names.get(routine.planId);
+        return live === undefined ? routine : { ...routine, name: live };
+    });
 }
 
 export function wrapperPersonalRecordApiToVM(api: PersonalRecordAPI): PersonalRecordVM {
