@@ -20,6 +20,18 @@ const BACKGROUND4 = '#295538';
 const WHITE = '#ffffff';
 const FONT_FAMILY = 'Lato, sans-serif';
 
+/** Rotación de las etiquetas del eje X: nombres largos de ejercicio/rutina en ~440px. */
+export const X_AXIS_LABEL_ROTATION = -45;
+
+/** Margen inferior que reserva espacio para las etiquetas rotadas a -45°. */
+export const ROTATED_LABEL_MARGIN_BOTTOM = 72;
+
+/** Alto de los gráficos cuyas categorías son nombres largos. */
+export const LONG_LABEL_CHART_HEIGHT = 300;
+
+/** Alto del gráfico de adherencia semanal (línea, categorías dd/MM). */
+export const ADHERENCE_CHART_HEIGHT = 240;
+
 export const statsChartBaseOptions: Options = {
     colors: STATS_CHART_COLORS,
     chart: {
@@ -44,6 +56,7 @@ export const statsChartBaseOptions: Options = {
         tickColor: BACKGROUND4,
         gridLineColor: 'rgba(255, 255, 255, 0.08)',
         labels: {
+            rotation: X_AXIS_LABEL_ROTATION,
             style: {
                 color: TEXT2,
                 fontFamily: FONT_FAMILY,

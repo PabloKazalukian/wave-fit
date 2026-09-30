@@ -2,7 +2,6 @@ import type {
     Options,
     Point,
     PointOptionsObject,
-    SeriesBarOptions,
     SeriesColumnOptions,
     SeriesLineOptions,
 } from 'highcharts';
@@ -14,9 +13,12 @@ import {
     TopRoutineVM,
 } from '../interfaces/stats.interface';
 import {
+    ADHERENCE_CHART_HEIGHT,
     formatLocalDateShort,
     formatPercent,
     formatWeight,
+    LONG_LABEL_CHART_HEIGHT,
+    ROTATED_LABEL_MARGIN_BOTTOM,
     withStatsTheme,
 } from './stats-chart.theme';
 import { LocalDate } from '../interfaces/api/stats-api.interface';
@@ -85,12 +87,6 @@ function percentLabel(this: Point): string {
     return `${formatPercent(this.y ?? 0)}%`;
 }
 
-const barSeries = (data: PointOptionsObject[]): SeriesBarOptions => ({
-    type: 'bar',
-    name: 'Volumen total',
-    data,
-});
-
 const columnSeries = (name: string, data: PointOptionsObject[]): SeriesColumnOptions => ({
     type: 'column',
     name,
@@ -99,7 +95,6 @@ const columnSeries = (name: string, data: PointOptionsObject[]): SeriesColumnOpt
 
 const lineSeries = (data: PointOptionsObject[]): SeriesLineOptions => ({
     type: 'line',
-    name: 'Adherencia',
     data,
 });
 
@@ -115,18 +110,22 @@ export function buildTopExercisesChartOptions(entries: TopExerciseVM[]): Options
     }));
 
     return withStatsTheme({
-        chart: { type: 'bar', height: Math.max(42 * top.length, 160) },
+        chart: {
+            type: 'column',
+            height: LONG_LABEL_CHART_HEIGHT,
+            marginBottom: ROTATED_LABEL_MARGIN_BOTTOM,
+        },
         title: { text: undefined },
         xAxis: { categories },
         yAxis: { title: { text: 'Volumen total (kg)' } },
         tooltip: { formatter: volumeTooltip },
         plotOptions: {
-            bar: {
+            column: {
                 dataLabels: { enabled: true, formatter: kgLabel, color: TEXT2 },
                 colorByPoint: true,
             },
         },
-        series: [barSeries(data)],
+        series: [columnSeries('Volumen total', data)],
     });
 }
 
@@ -141,7 +140,11 @@ export function buildTopRoutinesChartOptions(entries: TopRoutineVM[]): Options |
     }));
 
     return withStatsTheme({
-        chart: { type: 'column', height: Math.max(42 * entries.length, 200) },
+        chart: {
+            type: 'column',
+            height: LONG_LABEL_CHART_HEIGHT,
+            marginBottom: ROTATED_LABEL_MARGIN_BOTTOM,
+        },
         title: { text: undefined },
         xAxis: { categories },
         yAxis: { min: 0, max: 100, title: { text: 'Adherencia (%)' } },
@@ -169,7 +172,11 @@ export function buildPersonalRecordsChartOptions(entries: PersonalRecordVM[]): O
     }));
 
     return withStatsTheme({
-        chart: { type: 'column', height: Math.max(42 * entries.length, 200) },
+        chart: {
+            type: 'column',
+            height: LONG_LABEL_CHART_HEIGHT,
+            marginBottom: ROTATED_LABEL_MARGIN_BOTTOM,
+        },
         title: { text: undefined },
         xAxis: { categories },
         yAxis: { title: { text: 'Peso máximo (kg)' } },
@@ -196,9 +203,18 @@ export function buildAdherenceChartOptions(weeks: AdherenceWeekVM[]): Options | 
     }));
 
     return withStatsTheme({
-        chart: { type: 'line', height: 240 },
+        chart: {
+            type: 'line',
+            height: ADHERENCE_CHART_HEIGHT,
+            // Las categorías son dd/MM: no necesitan la rotación del tema base.
+            marginBottom: 0,
+        },
         title: { text: undefined },
-        xAxis: { categories, tickmarkPlacement: 'on' },
+        xAxis: {
+            categories,
+            tickmarkPlacement: 'on',
+            labels: { rotation: 0 },
+        },
         yAxis: { min: 0, max: 100, title: { text: 'Adherencia (%)' } },
         tooltip: { formatter: adherenceTooltip('Semana') },
         plotOptions: {

@@ -9,6 +9,16 @@
   *:focus-visible {
     @apply outline-none ring-2 ring-primary border-transparent;
   }
+
+  /* NFR-004: Highcharts mide el ancho de su elemento host para elegir el ancho
+     del gráfico. Sin esta regla <highcharts-chart> es inline, mide 0 y cae al
+     default de 600px, que desborda la card (~440px de contenido). Con
+     display:block el ancho medido es el real y el overflow:hidden que Highcharts
+     aplica al host pasa a recortar de verdad. */
+  highcharts-chart {
+    display: block;
+    width: 100%;
+  }
 }
 
 @font-face {

@@ -7,7 +7,7 @@ import {
     statsChartBaseOptions,
     withStatsTheme,
 } from './stats-chart.theme';
-import type { YAxisOptions } from 'highcharts';
+import type { XAxisOptions, YAxisOptions } from 'highcharts';
 
 describe('stats-chart.theme', () => {
     it('uses the app palette tokens for the series colors', () => {
@@ -22,15 +22,28 @@ describe('stats-chart.theme', () => {
         expect(statsChartBaseOptions.chart?.backgroundColor).toBe('transparent');
     });
 
+    it('rotates x-axis labels so long category names fit the card width (NFR-005)', () => {
+        expect((statsChartBaseOptions.xAxis as XAxisOptions)?.labels?.rotation).toBe(-45);
+    });
+
+    it('keeps the deep merge able to override the base label rotation', () => {
+        const options = withStatsTheme({
+            chart: { type: 'column' },
+            xAxis: { labels: { rotation: 0 } },
+        });
+
+        expect((options.xAxis as XAxisOptions)?.labels?.rotation).toBe(0);
+    });
+
     it('merges theme base with chart-specific options (deep merge)', () => {
         const options = withStatsTheme({
-            chart: { type: 'bar' },
+            chart: { type: 'column' },
             yAxis: { title: { text: 'Volumen (kg)' } },
             credits: { enabled: true },
         });
 
         // chart-specific values win
-        expect(options.chart?.type).toBe('bar');
+        expect(options.chart?.type).toBe('column');
         expect((options.yAxis as YAxisOptions)?.title?.text).toBe('Volumen (kg)');
         // base is preserved where not overridden (nested merge keeps colorByPoint etc.)
         expect(options.chart?.backgroundColor).toBe('transparent');
