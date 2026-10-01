@@ -21,7 +21,7 @@ import {
     ROTATED_LABEL_MARGIN_BOTTOM,
     withStatsTheme,
 } from './stats-chart.theme';
-import { LocalDate } from '../interfaces/api/stats-api.interface';
+import { LocalDate } from '../interfaces/local-date.interface';
 
 const TEXT2 = '#adadad';
 
