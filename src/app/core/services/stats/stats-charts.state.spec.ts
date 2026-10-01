@@ -308,4 +308,35 @@ describe('StatsChartsState (TEST-018, TEST-019)', () => {
             expect(state.entry('volume')().data).toEqual(emptyVm.volume);
         });
     });
+
+    describe('data() (typed per-section accessor)', () => {
+        it('returns null until the section resolves', () => {
+            expect(state.data('oneRm')()).toBeNull();
+        });
+
+        it('returns the payload narrowed to the VM family of that section', () => {
+            const weights = [
+                { exerciseId: 'ex-1', name: 'Press banca', category: 'chest', weeks: [] },
+            ] as unknown as OneRmExerciseVM[];
+            service.getOneRmWeekly.and.returnValue(of(weights));
+
+            state.load();
+
+            const data = state.data('oneRm')();
+            expect(data).toEqual(weights);
+            // Narrowing usable sin cast en la página: cada sección conoce su tipo.
+            expect(data?.[0].name).toBe('Press banca');
+        });
+
+        it('keeps a previous payload while the section refetches', () => {
+            service.getForgottenMuscles.and.returnValue(of(emptyVm.forgottenMuscles));
+            state.load();
+
+            service.getForgottenMuscles.and.returnValue(new Subject<ForgottenMuscleVM[]>());
+            state.applyRange(OTHER_RANGE);
+
+            expect(state.entry('forgottenMuscles')().loading).toBe(true);
+            expect(state.data('forgottenMuscles')()).toEqual(emptyVm.forgottenMuscles);
+        });
+    });
 });

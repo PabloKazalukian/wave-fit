@@ -47,7 +47,7 @@ export interface StatsChartsSectionEntry {
     error: string | null;
 }
 
-interface SectionData {
+export interface SectionData {
     oneRm: OneRmExerciseVM[];
     volume: VolumeWeekVM[];
     volumeTotal: VolumeTotalWeekVM[];
@@ -158,6 +158,22 @@ export class StatsChartsState {
 
     entry(section: StatsChartsSection): Signal<StatsChartsSectionEntry> {
         return this.entryBySection.get(section) ?? computed(() => emptyEntry());
+    }
+
+    /**
+     * El payload de una sección, ya narrowed a su familia de VM.
+     *
+     * Existe para que la página no tenga que discriminar la unión
+     * `StatsChartsSectionData` a mano ni castear: el state sabe qué getter
+     * corresponde a cada clave, así que el tipo sale de la clave, no de un cast.
+     */
+    data<S extends StatsChartsSection>(section: S): Signal<SectionData[S] | null> {
+        const entry = this.entry(section) as Signal<
+            StatsChartsSectionEntry & {
+                data: SectionData[S] | null;
+            }
+        >;
+        return computed(() => entry().data);
     }
 
     private input(): StatsChartsQueryInput {

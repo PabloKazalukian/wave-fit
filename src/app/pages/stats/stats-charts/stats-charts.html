@@ -1,0 +1,103 @@
+<section class="container px-4 py-4 max-w-2xl mx-auto mt-8 pb-12">
+  @if (notification(); as alert) {
+    <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-full max-w-sm">
+      <app-notification
+        [message]="alert.message"
+        [type]="alert.type"
+        [duration]="4000"
+        (closeOuput)="notification.set(null)"
+      ></app-notification>
+    </div>
+  }
+
+  <div class="bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-3 mb-6">
+    <h1 class="text-4xl font-bold text-center text-primary">Explorar por rango</h1>
+    <p class="text-text2 text-center text-sm leading-relaxed">
+      Cómo cambió tu entrenamiento entre dos fechas. Las seis lecturas se calculan al momento.
+    </p>
+    <app-text-link class="mx-auto" [text]="'Volver a Mis Estadísticas'" [routerLink]="'/stats'">
+    </app-text-link>
+  </div>
+
+  <app-stats-date-range
+    class="block mb-6"
+    [from]="range().from"
+    [to]="range().to"
+    (rangeChange)="onRangeChange($event)"
+  />
+
+  <div class="flex flex-col gap-6">
+    @for (card of cards; track card.section) {
+      <app-stats-section
+        [title]="card.title"
+        [subtitle]="rangeLabel()"
+        [loading]="card.loading()"
+        [refreshing]="card.refreshing()"
+        [error]="entries[card.section]().error"
+        [empty]="card.empty()"
+        [emptyMessage]="card.emptyMessage"
+        (retry)="retry(card.section)"
+      >
+        @for (chart of card.charts; track $index) {
+          @if (chart()) {
+            <app-stats-chart [options]="chart()" />
+          }
+        }
+
+        @switch (card.section) {
+          @case ('calories') {
+            <!-- El backend no estima las calorías de rutina: decirlo evita que
+                 la serie faltante se lea como un bug del frontend (FR-015). -->
+            <p class="text-xs text-text2">
+              Las calorías de rutina no están calculadas por el servidor; solo se muestran sesiones
+              extra.
+            </p>
+          }
+          @case ('forgottenMuscles') {
+            @if (forgottenMuscleList().length > 0) {
+              <ul class="flex flex-col gap-2">
+                @for (muscle of forgottenMuscleList(); track muscle.muscle) {
+                  <li
+                    class="flex items-center justify-between gap-2 bg-background3 rounded-xl px-4 py-3"
+                  >
+                    <p class="text-sm font-semibold text-white truncate">{{ muscle.label }}</p>
+                    <p class="text-xs text-text2 flex-shrink-0">
+                      {{ muscle.totalSets }} series · {{ muscle.weeksWithoutWork }} sem. sin
+                      trabajar ·
+                      {{ muscle.lastTrainedAt ?? 'Nunca' }}
+                    </p>
+                  </li>
+                }
+              </ul>
+            }
+          }
+          @case ('exerciseTrend') {
+            @if (trendList().length > 0) {
+              <ul class="flex flex-col gap-2">
+                @for (trend of trendList(); track trend.exerciseId) {
+                  <li
+                    class="flex items-center justify-between gap-2 bg-background3 rounded-xl px-4 py-3"
+                  >
+                    <p class="text-sm font-semibold text-white truncate">{{ trend.name }}</p>
+                    <p class="text-xs text-text2 flex items-center gap-2 flex-shrink-0">
+                      <span>{{ trend.weeksUsed }} sem.</span>
+                      @if (trend.slope !== null) {
+                        <span>{{ formatWeight(trend.slope) }} kg/sem</span>
+                      }
+                      <!-- INSUFFICIENT no es "0%": no hay con qué compararlo (FR-017). -->
+                      @if (trend.pctChange === null) {
+                        <span>{{ trendLabels.INSUFFICIENT }}</span>
+                      } @else {
+                        <span>{{ formatSignedPercent(trend.pctChange) }}</span>
+                      }
+                    </p>
+                  </li>
+                }
+              </ul>
+            }
+          }
+        }
+      </app-stats-section>
+    }
+  </div>
+</section>

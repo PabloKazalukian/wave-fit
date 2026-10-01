@@ -3,6 +3,7 @@ import {
     DIVERGING_BAR_CHART_HEIGHT,
     formatDateTime,
     formatKcal,
+    formatLocalDateDisplay,
     formatLocalDateShort,
     formatPercent,
     formatSignedPercent,
@@ -116,6 +117,16 @@ describe('stats-chart.theme — /stats/charts additions (TEST-007)', () => {
         it('renders zero without a sign and null as an em dash', () => {
             expect(formatSignedPercent(0)).toBe('0%');
             expect(formatSignedPercent(null)).toBe('—');
+        });
+    });
+
+    describe('formatLocalDateDisplay', () => {
+        it('formats a LocalDate as dd/MM/yyyy without timezone shifts (BR-003)', () => {
+            expect(formatLocalDateDisplay('2026-09-14')).toBe('14/09/2026');
+        });
+
+        it('passes a malformed value through instead of rendering Invalid Date', () => {
+            expect(formatLocalDateDisplay('not-a-date')).toBe('not-a-date');
         });
     });
 

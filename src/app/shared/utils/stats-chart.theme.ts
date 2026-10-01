@@ -161,6 +161,18 @@ export function formatLocalDateShort(localDate: string): string {
     return `${parts[2]}/${parts[1]}`;
 }
 
+/**
+ * "yyyy-MM-dd" → "dd/MM/yyyy", el mismo formato que muestra `app-input-date`.
+ *
+ * Sólo reformatea lo que tiene forma de `LocalDate`: un string cualquiera se
+ * devuelve tal cual en vez de quedar reorderado como si fuera una fecha.
+ */
+export function formatLocalDateDisplay(localDate: string): string {
+    const parts = LOCAL_DATE_SHAPE.exec(localDate);
+    if (!parts) return localDate;
+    return `${parts[3]}/${parts[2]}/${parts[1]}`;
+}
+
 export function formatDateTime(iso: string): string {
     const date = new Date(iso);
     if (Number.isNaN(date.getTime())) return iso;
@@ -174,6 +186,7 @@ export function formatDateTime(iso: string): string {
 }
 
 const ISO_WEEK_KEY = /^\d{4}-(W\d{1,2})$/;
+const LOCAL_DATE_SHAPE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /**
  * "2026-W40" → "W40" para la etiqueta del eje X de los gráficos semanales.

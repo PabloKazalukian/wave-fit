@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { provideHighcharts } from 'highcharts-angular';
+import { provideRouter } from '@angular/router';
 import { StatsPage } from './stats';
 import { StatsService } from '../../core/services/stats/stats.service';
 import {
@@ -102,7 +103,13 @@ describe('StatsPage (TEST-011)', () => {
 
         await TestBed.configureTestingModule({
             imports: [StatsPage],
-            providers: [provideHighcharts(), { provide: StatsService, useValue: service }],
+            providers: [
+                provideHighcharts(),
+                // El hero enlaza a `/stats/charts` con `routerLink`, que necesita
+                // un ActivatedRoute aunque el test no navegue.
+                provideRouter([]),
+                { provide: StatsService, useValue: service },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(StatsPage);
