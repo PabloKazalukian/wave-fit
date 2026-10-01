@@ -17,6 +17,14 @@ worker/Lambda. Backend resolvers live in `stats.resolver.ts`, response shapes in
 Visualization uses **Highcharts** (highcharts + highcharts-angular v5), a new
 project dependency approved for this feature.
 
+> **Related feature:** `/stats/charts` is a **separate** page, not an extension
+> of this one. It aggregates the raw training history on demand over a
+> **user-selected date range** through six other queries, whereas the four
+> queries below are **unparameterized** worker snapshots. See
+> [stats-charts](../stats-charts/spec.md). The two pages share the Highcharts
+> theme, the card shell (`app-stats-section`) and the chart wrapper
+> (`app-stats-chart`), but have independent services, state and data contracts.
+
 ## Requirements
 
 ### FR: Functionality

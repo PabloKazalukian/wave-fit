@@ -3,9 +3,17 @@
 > **Historical / Non-Authoritative.** Record of the work landed on branch
 > `feat/stats-charts`: three stats fixes (Highcharts DI bootstrap, chart
 > containment + orientation, routine-name resolution) plus the Spec alignment.
-> Current behavior: see `sdd/stats/spec.md`. Per-plan rationale lives in
-> `highcharts-provider-bootstrap/plan.md`, `stats-vertical-charts/plan.md` and
-> `stats-routine-name-resolution/plan.md`.
+> Current behavior: see [`sdd/stats/spec.md`](../../sdd/stats/spec.md). Per-plan
+> rationale lives in
+> [`highcharts-provider-bootstrap/plan.md`](../plans/highcharts-provider-bootstrap/plan.md),
+> [`stats-vertical-charts/plan.md`](../plans/stats-vertical-charts/plan.md) and
+> [`stats-routine-name-resolution/plan.md`](../plans/stats-routine-name-resolution/plan.md).
+>
+> This report covers the `/stats` **dashboard** work only. It is unrelated to
+> `/stats/charts`, the date-range page specced in
+> [`sdd/stats-charts/spec.md`](../../sdd/stats-charts/spec.md) and planned in
+> [`documents/plans/stats-charts-range/plan.md`](../plans/stats-charts-range/plan.md),
+> which reuses the theme, card shell and chart wrapper fixed here.
 
 ## 1. Objective
 
