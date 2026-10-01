@@ -171,12 +171,13 @@ match the repo conventions:
 - **FR-007 Client-side range validation mirrors the backend.** Before any query
   runs, the widget rejects — with a `text-xs text-error` inline message and
   **without** emitting `rangeChange` — a missing `from`/`to`, a value that is not
-  a valid `yyyy-MM-dd` calendar date (`DateService.isValidLocalDate`), a
-  `from > to`, and a span where `differenceInCalendarDays(to, from) >
-maxDays`. The message names the limit ("El rango no puede superar los 120
-  días"). This exists to give inline feedback instead of a `BadRequest`
-  round-trip; the backend remains authoritative and its rejection surfaces
-  through the section's error card (FR-011).
+  a valid `yyyy-MM-dd` calendar date (`DateService.isValidLocalDate`), and a span
+  where `differenceInCalendarDays(to, from) > maxDays`. The message names the
+  limit ("El rango no puede superar los 120 días"). An out-of-order `from` is
+  **not** a rejection case: FR-006 corrects it before this rule applies, so the
+  span seen here is already ordered. This exists to give inline feedback instead
+  of a `BadRequest` round-trip; the backend remains authoritative and its
+  rejection surfaces through the section's error card (FR-011).
 - **FR-008 Refetch on range change, with cancellation.** Emitting `rangeChange`
   re-runs **all six** getters with the new input. In-flight requests for the
   previous range are **cancelled** so a slow response cannot overwrite a newer
@@ -894,8 +895,9 @@ Jasmine, `npm run test:ci`. The `✅ (file)` annotation is added at validation t
   emits `rangeChange`; an out-of-order `from` pushes `to` forward instead of
   invalidating. ✅ (`stats-date-range.spec.ts`)
 - **TEST-004** `app-stats-date-range` emits **nothing** and reports a message via
-  `rangeInvalid` when `from`/`to` is missing, not a valid calendar date, when
-  `from > to`, or when `daysBetween(to, from) > maxDays` (FR-007). ✅
+  `rangeInvalid` when `from`/`to` is missing, not a valid calendar date, or when
+  `daysBetween(to, from) > maxDays` (FR-007). An out-of-order `from` is **not**
+  part of this list: it is corrected, per FR-006. ✅
   (`stats-date-range.spec.ts`)
 - **TEST-005** `DateService`: `isValidLocalDate` rejects `'2026-02-30'` and
   `'2026-13-01'`; `daysBetween` is signed and inclusive-free; `lastNDays(30)`
@@ -977,9 +979,10 @@ true`, `xAxis.labels.rotation === 0`. ✅
 - **AC-002** The page opens on the last 30 days ending today and shows the two
   date inputs plus the four presets; picking a preset or a valid custom range
   reloads every chart.
-- **AC-003** An invalid range (missing, malformed, `from > to`, or more than 120
-  days) shows an inline message, issues **no** request, and leaves the previous
-  charts untouched.
+- **AC-003** An invalid range (missing, malformed, or more than 120 days) shows an
+  inline message, issues **no** request, and leaves the previous charts
+  untouched. An out-of-order range is corrected instead (FR-006), so it never
+  reaches this state.
 - **AC-004** The six cards render the six documented chart types with the shared
   palette: a multi-series 1RM line with gaps, two stacked volume columns, a
   total-volume column with deload weeks highlighted, a calories column,

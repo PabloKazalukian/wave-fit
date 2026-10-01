@@ -86,7 +86,9 @@ ng g c shared/components/widgets/stats/stats-date-range  # app-stats-date-range 
   `from` after the current `to` pushes `to` forward: there is an obvious
   intended value. A span over `maxDays` has none, so it is rejected with a
   message naming the limit. One rule, two behaviors, decided by whether a
-  correction is unambiguous.
+  correction is unambiguous. This decision resolved a contradiction in the Spec
+  (FR-007 originally listed `from > to` as a rejection case while FR-006
+  required correcting it); FR-007, TEST-004 and AC-003 were aligned to FR-006.
 
 - **`maxDays` is a single exported constant**, `STATS_CHARTS_MAX_RANGE_DAYS`, read
   by the widget, the state and the tests. A literal `120` in a template is how
