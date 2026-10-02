@@ -4,10 +4,10 @@ import { By } from '@angular/platform-browser';
 import { DateService } from '../../../../../core/services/date.service';
 import type { LocalDate, LocalDateRange } from '../../../../interfaces/local-date.interface';
 import {
-    STATS_CHARTS_MAX_RANGE_DAYS,
-    STATS_CHARTS_RANGE_PRESETS,
+    STATS_INSIGHTS_MAX_RANGE_DAYS,
+    STATS_INSIGHTS_RANGE_PRESETS,
     type StatsDateRangePreset,
-} from '../../../../interfaces/stats-charts.interface';
+} from '../../../../interfaces/stats-insights.interface';
 import { InputDate } from '../../../ui/input-date/input-date';
 import { StatsDateRange } from './stats-date-range';
 
@@ -40,8 +40,8 @@ const shiftDays = (iso: LocalDate, days: number): LocalDate =>
 class Host {
     from: LocalDate = FROM;
     to: LocalDate = TO;
-    maxDays = STATS_CHARTS_MAX_RANGE_DAYS;
-    presets: StatsDateRangePreset[] = [...STATS_CHARTS_RANGE_PRESETS];
+    maxDays = STATS_INSIGHTS_MAX_RANGE_DAYS;
+    presets: StatsDateRangePreset[] = [...STATS_INSIGHTS_RANGE_PRESETS];
     emitted: LocalDateRange[] = [];
     errors: (string | null)[] = [];
 }
@@ -97,7 +97,7 @@ describe('StatsDateRange (TEST-003, TEST-004)', () => {
                 el().querySelectorAll<HTMLButtonElement>('[data-test^="preset-"]'),
             ).map((b) => Number(b.getAttribute('data-test')?.replace('preset-', '')));
 
-            expect(rendered).toEqual(STATS_CHARTS_RANGE_PRESETS.map((p) => p.days));
+            expect(rendered).toEqual(STATS_INSIGHTS_RANGE_PRESETS.map((p) => p.days));
         });
 
         it('resolves a preset through DateService and emits rangeChange', () => {

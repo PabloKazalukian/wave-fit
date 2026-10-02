@@ -105,7 +105,7 @@ describe('StatsPage (TEST-011)', () => {
             imports: [StatsPage],
             providers: [
                 provideHighcharts(),
-                // El hero enlaza a `/stats/charts` con `routerLink`, que necesita
+                // El hero enlaza a `/stats/insights` con `routerLink`, que necesita
                 // un ActivatedRoute aunque el test no navegue.
                 provideRouter([]),
                 { provide: StatsService, useValue: service },

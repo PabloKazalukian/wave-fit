@@ -1,15 +1,15 @@
-# Stats Charts (Estadísticas dinámicas por rango de fechas)
+# Stats Insights (Estadísticas dinámicas por rango de fechas)
 
 ## Context
 
-`/stats/charts` is a **read-only** analytics page that answers _"how did my
+`/stats/insights` is a **read-only** analytics page that answers _"how did my
 training change between these two dates?"_. The user picks a date range and the
 page aggregates the backend's raw training history **on demand** for six
 different lenses. Nothing is pre-computed, nothing is persisted.
 
 It is a **different feature** from `/stats`, not an extension of it:
 
-|             | `/stats` (see [stats](../stats/spec.md))               | `/stats/charts` (this spec)                             |
+|             | `/stats` (see [stats](../stats/spec.md))               | `/stats/insights` (this spec)                           |
 | ----------- | ------------------------------------------------------ | ------------------------------------------------------- |
 | Data origin | Worker snapshots pre-computed at training checkpoints  | On-demand aggregation at query time                     |
 | Queries     | 4, **unparameterized**, worker-facing getters excluded | 6, all sharing one `StatsChartsInput`                   |
@@ -76,15 +76,18 @@ match the repo conventions:
 
 ### Corrections applied against the initial exploration
 
-| #   | Correction                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `stats-date-range` lives at `widgets/stats/stats-date-range/` (the CLI default, and what already shipped), **not** `widgets/stats/date-range/` — it must mirror `widgets/stats/stats-chart/`.                                                                                                                                                                                                                                                                                                  |
-| 2   | The calendar popover was split out of the range widget into the generic `ui/input-date`. A date picker is reusable app-wide; the _range_ (two coupled dates + presets + a 120-day cap) is stats-specific.                                                                                                                                                                                                                                                                                      |
-| 3   | `ui-conventions.md` §1 background table is **missing** `bg-background1` (`#151A16`) and `bg-background5` (`#367C4D`), both of which exist in `tailwind.config.js` and are used by the calendar. Corrected in the documentation update (FR-021).                                                                                                                                                                                                                                                |
-| 4   | The Tailwind `safelist` does **not** contain `bg-background1..4`. No change is needed: the new templates use **literal** class names, which Tailwind collects through `content: ['./src/**/*.{html,ts}']`. The safelist only matters for dynamically-built names (as `btn.ts` does).                                                                                                                                                                                                           |
-| 5   | `app-input`'s `type: 'date'` is **not** removed by this feature — replacing it would touch the profile, strength-metrics, weight and coach form templates (cross-feature churn). See Known issues.                                                                                                                                                                                                                                                                                             |
-| 6   | `ForgottenMuscleVM.muscle` is typed `string`, **not** `StatsCategory`: `getStatsForgottenMuscles` walks the whole `ExerciseCategory` catalog, so it is the query most likely to return the backend-only `REST` member. A translated `label` is precomputed in the wrapper.                                                                                                                                                                                                                     |
-| 7   | The `/stats` spec's **FR-001** ("`/stats` is a top-level route … loaded lazily") and its **Architecture** tree become factually wrong once `/stats` becomes a `loadChildren` parent: the route is still top-level and still `authGuard`-protected, but `''` becomes a child route and the dashboard is one of two siblings. That Spec is corrected in the same change scope, at validation time — the same precedent this Spec's `/stats` sibling set when it removed `/user/trackings/stats`. |
+| #   | Correction                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `stats-date-range` lives at `widgets/stats/stats-date-range/` (the CLI default, and what already shipped), **not** `widgets/stats/date-range/` — it must mirror `widgets/stats/stats-chart/`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| 2   | The calendar popover was split out of the range widget into the generic `ui/input-date`. A date picker is reusable app-wide; the _range_ (two coupled dates + presets + a 120-day cap) is stats-specific.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 3   | `ui-conventions.md` §1 background table is **missing** `bg-background1` (`#151A16`) and `bg-background5` (`#367C4D`), both of which exist in `tailwind.config.js` and are used by the calendar. Corrected in the documentation update (FR-021).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 4   | The Tailwind `safelist` does **not** contain `bg-background1..4`. No change is needed: the new templates use **literal** class names, which Tailwind collects through `content: ['./src/**/*.{html,ts}']`. The safelist only matters for dynamically-built names (as `btn.ts` does).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 5   | `app-input`'s `type: 'date'` is **not** removed by this feature — replacing it would touch the profile, strength-metrics, weight and coach form templates (cross-feature churn). See Known issues.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 6   | `ForgottenMuscleVM.muscle` is typed `string`, **not** `StatsCategory`: `getStatsForgottenMuscles` walks the whole `ExerciseCategory` catalog, so it is the query most likely to return the backend-only `REST` member. A translated `label` is precomputed in the wrapper.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 7   | The `/stats` spec's **FR-001** ("`/stats` is a top-level route … loaded lazily") and its **Architecture** tree become factually wrong once `/stats` becomes a `loadChildren` parent: the route is still top-level and still `authGuard`-protected, but `''` becomes a child route and the dashboard is one of two siblings. That Spec is corrected in the same change scope, at validation time — the same precedent this Spec's `/stats` sibling set when it removed `/user/trackings/stats`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 9   | The page's flow is **chained and user-initiated**, not eager. FR-004 ("on first load the page uses…"), FR-008 ("re-runs **all six** getters"), FR-020 ("renders **six** cards"), AC-002 and AC-005 all described the delivered first version, which queried six unparameterized-by-metric queries the moment the route resolved. The requested flow is: pick **one** metric → pick a range → press **"Ver gráficas"** → exactly **one** section is queried and **one** card renders. FR-004, FR-008, FR-020, AC-002, AC-005, TEST-018 and TEST-021 are amended in place by FR-022/FR-023/FR-024; the six queries, the six card shapes and every mapper are **unchanged**. Only _when_ and _which_ section is fetched changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| 10  | The calendar day hover uses `accent` at 70% (`bg-accent/70`), which `ui-conventions.md` §1 reserves for new/alternative/free features and forbids as a page-level action color. The reservation is **amended**, not overridden: the exception is scoped to `_hover state on a day cell in the app-input-date month grid_` — a transient affordance on a control already inside the popover, not a CTA. It is not an action color, carries no meaning of its own, and is never used on a page, button, or chart. Recorded here and in `ui-conventions.md` §1 so the §6 role check has an explicit entry to match rather than flagging it as a violation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 11  | The feature was specced as `stats-charts` and is **renamed `stats-insights`**, because "charts" named only one of its six lenses (FR-020/FR-022: one metric is picked at a time) while the page is really the range-parameterized analytics view that "charts" merely renders. This is a **pure rename**: not one requirement, contract, query, card shape, mapper, threshold or acceptance criterion changes. Renamed: the Spec folder `sdd/stats-insights/`, the route `/stats/charts` → `/stats/insights` (child `charts` → `insights`), `StatsChartsPage`/`StatsChartsService`/`StatsChartsState`/`StatsChartsSection`/`StatsChartsMetricOption`/`StatsChartsSectionData`/`StatsChartsSectionEntry` → `StatsInsights…`, the local alias `StatsChartsQueryInput` → `StatsInsightsQueryInput`, the seven `STATS_CHARTS_*` constants → `STATS_INSIGHTS_*`, the selectors `app-stats-charts-page`/`-controls`/`-card` → `app-stats-insights-page`/`-controls`/`-card`, and every `stats-charts.*` path under `core/`, `pages/` and `shared/`. **Deliberately NOT renamed** (see Known issues): `StatsChartsInput`, the `stats-charts` GraphQL namespace and `stats-charts.resolver.ts`, the six query names, and `shared/interfaces/api/stats-charts-api.interface.ts` — those belong to the deployed `wave-fit-api` contract, which the frontend does not own; and `feat/stats-charts`, the branch, which keeps its name. Renaming a deployed contract would be a coordinated backend change, not a frontend refactor. |
 
 ## Requirements
 
@@ -92,31 +95,33 @@ match the repo conventions:
 
 - **FR-001 Route.** `/stats` becomes a `loadChildren` route
   (`STATS_ROUTES` in `src/app/pages/stats/stats.routes.ts`) with two children:
-  `''` → the existing `StatsPage`, `'charts'` → the new `StatsChartsPage`.
+  `''` → the existing `StatsPage`, `'charts'` → the new `StatsInsightsPage`.
   Both are lazy (`loadComponent`) and the parent carries
-  `canActivate: [authGuard]` (BR-005). `/stats/charts` is a child of `/stats`,
+  `canActivate: [authGuard]` (BR-005). `/stats/insights` is a child of `/stats`,
   not a flat sibling path.
 - **FR-002 Entry and exit navigation.** The `/stats` hero gains an `app-btn`
   (`variant: 'raised'`, `size: 'md'`, `color: 'primary'`, `showIcon: true`,
-  `routerLink: '/stats/charts'`, text "Explorar por rango de fechas") and the
+  `routerLink: '/stats/insights'`, text "Explorar por rango de fechas") and the
   new page renders an `app-text-link` back to `/stats` ("Volver a Mis
   Estadísticas"). The header needs **no** change: `isActive()` compares with
-  `startsWith`, so `/stats/charts` keeps the `/stats` entry highlighted.
-- **FR-003 Service.** `StatsChartsService`
-  (`core/services/stats/stats-charts.service.ts`) exposes exactly six public
+  `startsWith`, so `/stats/insights` keeps the `/stats` entry highlighted.
+- **FR-003 Service.** `StatsInsightsService`
+  (`core/services/stats/stats-insights.service.ts`) exposes exactly six public
   getters — `getOneRmWeekly`, `getVolumeWeekly`, `getVolumeTotalWeekly`,
   `getCaloriesWeekly`, `getForgottenMuscles`, `getExerciseTrend` — each taking
-  a `StatsChartsQueryInput` and returning `Observable<…VM[]>`. Every getter runs
+  a `StatsInsightsQueryInput` and returning `Observable<…VM[]>`. Every getter runs
   `fetchPolicy: 'network-only'` (NFR-001), sends
   `variables: { input: { from, to, timezone } }`, normalizes failures through
   `handleGraphqlError(AuthService)` and maps its payload through the matching
   wrapper.
-- **FR-004 Default range and timezone.** On first load the page uses the **last
-  30 calendar days ending today** in the user's timezone
+- **FR-004 Default range and timezone (amended by FR-023).** The controls open on
+  the **last 30 calendar days ending today** in the user's timezone
   (`DateService.lastNDays(30, timezone)`). `timezone` comes from
-  `DateService.getUserTimezone()` and is sent on **every** one of the six
-  queries, including the first. `from`/`to` are always `LocalDate`
-  (`"yyyy-MM-dd"`), never `Date` (BR-003).
+  `DateService.getUserTimezone()` and is sent on **every** query, including the
+  first. `from`/`to` are always `LocalDate` (`"yyyy-MM-dd"`), never `Date`
+  (BR-003). What changed: this range is the **prefilled pending value**, not a
+  query trigger — nothing is requested until the user presses "Ver gráficas"
+  (FR-023).
 - **FR-005 `app-input-date` (generic control).** Renders the bound `LocalDate`
   in `dd/MM/yyyy` and opens a **month calendar popover** on click/tap. It binds a
   `FormControl` like every other form control
@@ -154,8 +159,8 @@ match the repo conventions:
     ```ts
     from = input.required<LocalDate>();
     to = input.required<LocalDate>();
-    maxDays = input<number>(STATS_CHARTS_MAX_RANGE_DAYS); // 120
-    presets = input<StatsDateRangePreset[]>(STATS_CHARTS_RANGE_PRESETS);
+    maxDays = input<number>(STATS_INSIGHTS_MAX_RANGE_DAYS); // 120
+    presets = input<StatsDateRangePreset[]>(STATS_INSIGHTS_RANGE_PRESETS);
     isDisabled = input<boolean>(false);
     rangeChange = output<LocalDateRange>(); // emitted only when valid
     rangeInvalid = output<string | null>(); // Spanish message, or null
@@ -181,7 +186,7 @@ match the repo conventions:
 - **FR-008 Refetch on range change, with cancellation.** Emitting `rangeChange`
   re-runs **all six** getters with the new input. In-flight requests for the
   previous range are **cancelled** so a slow response cannot overwrite a newer
-  one — the state drives each section from a single `BehaviorSubject<StatsChartsQueryInput>`
+  one — the state drives each section from a single `BehaviorSubject<StatsInsightsQueryInput>`
   through `switchMap`, which makes the cancellation structural rather than
   bookkeeping. `timezone` is preserved across range changes.
 - **FR-009 Two distinct loading states.** First load → **skeleton** mirroring
@@ -205,7 +210,7 @@ rounded-xl`, `animate-pulse`, `aria-busy`), per `ui-components.md` §1.
 - **FR-012 1RM weekly per exercise.** `getStats1RmWeekly` → a **`line`** chart:
   x-axis = `weekKey`, one series per exercise (`best1RM`, kg). The mapper keeps
   the **6** exercises with the most participating weeks
-  (`STATS_CHARTS_MAX_1RM_SERIES`); ties break by `name` so the selection is
+  (`STATS_INSIGHTS_MAX_1RM_SERIES`); ties break by `name` so the selection is
   deterministic. `connectNulls: false` so a week with no eligible set renders as
   a **gap**, which is the semantic the backend encodes through
   `participated: false`. Legend is **enabled** for this chart only (the base
@@ -260,21 +265,129 @@ rounded-xl`, `animate-pulse`, `aria-busy`), per `ui-components.md` §1.
   to `'unknown'` exactly as on `/stats`. `muscle` keeps the raw lowercase value
   **and** gets a translated `label` (Correction 6). Display of both goes
   through the existing `exerciseCategory` pipe / `ForgottenMuscleVM.label`.
-- **FR-020 The page is a thin orchestrator.** `StatsChartsPage` owns no query,
-  no persistence and no chart-building logic: it reads `StatsChartsState`
-  signals, maps VM → `Highcharts.Options` through the pure mappers, and renders
-  six `app-stats-section` cards plus `app-stats-date-range`. Six sections ⇒ six
-  `computed` option signals and six `computed` empty flags, derived from the
-  same `sectionEmpty` / `sectionRefreshing` helpers the `/stats` page uses.
+- **FR-020 The page is a thin orchestrator (amended by FR-023, FR-024).**
+  `StatsInsightsPage` owns no query, no persistence and no chart-building logic: it
+  reads `StatsInsightsState` signals, maps VM → `Highcharts.Options` through the
+  pure mappers, and renders `app-stats-insights-controls` plus the
+  **one** `app-stats-insights-card` for the selected section. Six sections still
+  ⇒ six `computed` option signals (they are what makes the chart-type work of a
+  later change a one-liner per section), but only the selected section's card is
+  instantiated. `load()` is gone from the constructor and the `card()` factory's
+  state derivation moved into `app-stats-insights-card` (FR-024).
 - **FR-021 Documentation corrections.** After validation: add the
   `bg-background1` / `bg-background5` rows missing from `ui-conventions.md` §1;
   add `app-input-date` to the form-controls table in `ui-components.md` §3;
   create `documents/engineering/date-handling.md` (`LocalDate`, the two date
   modules, timezone resolution, the ISO-week rule, the test helper for pinning a
   zone) and register it in `documents/engineering/README.md`; add the
-  `stats-charts` entries to `documents/engineering/architecture.md` §3 and §5;
+  `stats-insights` entries to `documents/engineering/architecture.md` §3 and §5;
   and correct `sdd/stats/spec.md` FR-001 + Architecture for the route
   restructuring (Correction 7).
+- **FR-022 `app-stats-insights-controls` (the chained flow).** A new widget at
+  `shared/components/widgets/stats/stats-insights-controls/`, sibling of
+  `app-stats-date-range`, that owns the input chain in a fixed vertical order —
+  (1) **what to plot**, (2) **which range**, (3) **"Ver gráficas"**. It composes
+  `app-select` and the existing `app-stats-date-range`, and it **queries nothing**:
+  no `StatsInsightsState` reference, no `Apollo`, no subscription.
+
+    ```ts
+    options = input.required<readonly StatsInsightsMetricOption[]>();
+    from = input.required<LocalDate>();
+    to = input.required<LocalDate>();
+    isRunning = input<boolean>(false); // any visible section in flight
+    run = output<{ section: StatsInsightsSection; range: LocalDateRange }>();
+    ```
+
+    Step 1 is a **single**-choice `app-select` whose `value` is a
+    `StatsInsightsSection`; with no metric selected the button is `isDisabled`.
+    Step 2 is the **unmodified** `app-stats-date-range`: its `rangeChange` updates
+    a pending range **local to this widget** and emits nothing, so editing a date
+    never queries. Step 3 is `app-btn` (`variant: 'raised'`, `color: 'primary'`,
+    text "Ver gráficas") with a projected `app-spinner` while `isRunning`.
+    `[from]`/`[to]` are the seed only (FR-004); the widget's own pending range is
+    authoritative from then on, and the page reflects nothing back — otherwise a
+    parent write would overwrite what the user is editing.
+
+    `StatsInsightsMetricOption` is `{ section: StatsInsightsSection; label: string }`
+    in `shared/interfaces/stats-insights.interface.ts`, in product language. It is
+    the **same six strings** the card titles use, so the dropdown and the card
+    header cannot drift.
+
+- **FR-023 Explicit run; no query on route entry (amends FR-004 and FR-008).**
+  Entering `/stats/insights` fires **zero** requests. `StatsInsightsState` drops
+  `load()`, and `applyRange(range)` is replaced by `run(section, range)`, which
+  `next()`s **only that section's** `BehaviorSubject<StatsInsightsQueryInput>`.
+  The other five triggers are untouched, so their getters are never called.
+
+    The six per-section subjects are still constructed in the state constructor:
+    that is what keeps "zero requests on entry" true without special-casing. Each
+    starts on `null` and `switchMap` maps `null` to `EMPTY` (an existing guard),
+    so a constructed subject emits nothing until a real input arrives.
+
+    Cancellation is **preserved** — FR-008's substance survives, only its trigger
+    changes. `run` is a `switchMap` `next()` per section, so a second press while
+    a request is in flight still discards the superseded response structurally.
+    Pressing "Ver gráficas" again for the same metric is a refetch that keeps the
+    previous chart on screen (`refreshing`, FR-009); pressing it for a different
+    metric is a different card whose first load is a skeleton.
+
+    The page owns `selected: StatsInsightsSection | null` and the pending range.
+    `selected` is what a `visibleCards` `computed` filters on, so the page never
+    renders a card for a section the user did not choose.
+
+- **FR-024 `app-stats-insights-card` (one child per section).** Each card becomes
+  its own component at
+  `shared/components/widgets/stats/stats-insights-card/`, wrapping
+  `app-stats-section`. It is the unit that will carry the per-card interactions
+  (which charts to show, which chart type) later, without touching the page.
+
+    ```ts
+    title = input<string>('');
+    subtitle = input<string | null>(null);
+    emptyMessage = input<string>('');
+    charts = input.required<readonly Signal<Options | null>[]>();
+    loading = input<boolean>(false); // raw entry flag, from the state
+    hasData = input<boolean>(false);
+    error = input<string | null>(null);
+    retry = output<void>();
+    ```
+
+    `charts` is an array of **signals**, not an array of values, so the card
+    re-renders when a mapper result changes without the page rebuilding an array
+    on every render. That is also why `volume` (FR-013, two charts) stays **one**
+    card with two charts instead of being split: the granularity is the section,
+    which is simultaneously the query's granularity and the granularity of
+    `loading` / `error` / `empty`.
+
+    The component derives the two display flags rather than storing them, because
+    the page used to derive them per card and that is the duplication this
+    extraction removes:
+
+    ```ts
+    loading = computed(() => this.loading() && !this.hasData());
+    refreshing = computed(() => this.loading() && this.hasData());
+    ```
+
+    Deriving rather than receiving `loading` is what keeps AC-005 satisfied: a
+    refetch must never fall back to the skeleton and hide the previous chart.
+    `empty` stays an input because it depends on the mapped `Options`, which only
+    the page has. `app-stats-section` is **unchanged** by this FR — the new
+    component composes it.
+
+    Section-specific extras (the `routineKcal` note of FR-015, the two `<ul>`
+    lists of FR-016/FR-017) are projected through a named slot,
+    `<ng-content select="[cardExtras]">`, rendered only in the content branch.
+    The page keeps the `@switch` that decides which extras a section gets; only
+    the shell moved.
+
+- **FR-025 Calendar day hover.** Every enabled day cell in the `app-input-date`
+  month grid gets `bg-accent/70` on hover, with `transition-colors`. The
+  **selected** day does not change on hover (its fill is the user's current
+  value and must stay readable), and a `disabled` day does not hover either:
+  Tailwind applies `:hover` to `<button disabled>` in some browsers, so the
+  disabled rule also carries `disabled:hover:bg-transparent` to keep a blocked
+  day from looking selectable. See Correction 10 for why `accent` is allowed
+  here despite the §1 reservation.
 
 ### BR
 
@@ -284,7 +397,7 @@ rounded-xl`, `animate-pulse`, `aria-busy`), per `ui-components.md` §1.
   are display-only inside `app-input-date`.
 - `BR-004` applies: `category` is UPPERCASE at the API boundary and lowercased
   in the wrapper.
-- `BR-005` applies: `/stats/charts` is protected by `authGuard`, inherited from
+- `BR-005` applies: `/stats/insights` is protected by `authGuard`, inherited from
   the `/stats` parent route.
 - `BR-012` (offline-first writes) is **not** applicable: this feature is
   read-only. It does not write, queue or persist anything.
@@ -304,8 +417,10 @@ rounded-xl`, `animate-pulse`, `aria-busy`), per `ui-components.md` §1.
   in `src/sw.js` that would have allowed filtering is dead code. Recorded in
   Known issues with the concrete follow-up.
 - **NFR-003** Charts reuse `withStatsTheme` and `STATS_CHART_COLORS` unchanged.
-  Highcharts credits stay disabled. No new colors are introduced (FR-005,
-  Correction 3). Note the split this relies on: the four `label` colors are read
+  Highcharts credits stay disabled. **No new colors** are introduced in charts
+  (FR-005, Correction 3); the one new color usage is the calendar hover of
+  FR-025, `accent` at 70%, which reuses an existing token (Correction 10).
+  Note the split this relies on: the four `label` colors are read
   as **data** colors from the sanctioned chart palette, while the same four
   colors reappear as **badges** in the trend list, where the §1 action roles
   apply — `UP` → `primary` (positive/brand), `FLAT` → `text2` (neutral),
@@ -337,9 +452,18 @@ rounded-xl`, `animate-pulse`, `aria-busy`), per `ui-components.md` §1.
   on the skeleton, `aria-expanded` on the calendar trigger, `role="alert"` on the
   error card. The calendar grid is a table-free `<div>` grid with
   `aria-hidden` decorative cells excluded from the tab order.
-- **NFR-010** `StatsChartsPage` stays under ~200 lines of TypeScript and its
+- **NFR-010** `StatsInsightsPage` stays under ~200 lines of TypeScript and its
   template under ~120 lines, measured against the ~350-line pages that motivated
-  §7.1.
+  §7.1. FR-022 and FR-024 tighten this rather than stretching it: the chained
+  flow moves the controls into a widget and the card derivation into a widget,
+  so the page should come out **shorter** than the first version even though it
+  gained a third child component.
+- **NFR-011 The chained flow never queries speculatively.** Only the `run` output
+  of `app-stats-insights-controls` reaches the state. Changing the metric select or
+  any date issues no request, so a user comparing six metrics over four presets
+  pays for the combinations they actually opened. This is the practical half of
+  NFR-002 (the accepted Workbox cache-growth risk): one record per
+  `{section, range}` the user actually viewed, not six per page visit.
 
 ## Constraints
 
@@ -356,10 +480,10 @@ rounded-xl`, `animate-pulse`, `aria-busy`), per `ui-components.md` §1.
   and a cascading `NG0200` on the first `<highcharts-chart>` while every spec
   that registers it in its own `TestBed` still passes.
 - Chart options are produced by **pure functions** in
-  `shared/utils/stats-charts-chart.mapper.ts`. The page and the templates never
+  `shared/utils/stats-insights-chart.mapper.ts`. The page and the templates never
   build raw Highcharts options inline, and mappers never mutate their input.
 - The 120-day cap is a **single exported constant**
-  (`STATS_CHARTS_MAX_RANGE_DAYS`) consumed by the widget, the state and the
+  (`STATS_INSIGHTS_MAX_RANGE_DAYS`) consumed by the widget, the state and the
   tests — never a literal `120` in a template or a component.
 - `DateService` remains the only owner of `LocalDate` calendar math; the
   feature adds methods to it rather than calling `date-fns` from components.
@@ -377,30 +501,34 @@ The page follows the same **thin orchestrator + API/State** shape as `/stats`
 feature is read-only:
 
 ```
-StatsChartsState (core/services/stats/stats-charts.state.ts)
-│   — range signals (from/to/timezone) + six per-section signals
+StatsInsightsState (core/services/stats/stats-insights.state.ts)
+│   — applied range signal + six per-section signals
 │     (data, loading, error); one BehaviorSubject per section driving
-│     switchMap so a range change cancels the previous range (FR-008)
-└── StatsChartsService (core/services/stats/stats-charts.service.ts)
-      — 6 getters, all network-only (core/apollo/stats-charts.queries.ts)
+│     switchMap, each starting on null so route entry queries nothing
+│     (FR-023). run(section, range) next()s ONE subject; a second press
+│     cancels the previous request (FR-008's cancellation, new trigger)
+└── StatsInsightsService (core/services/stats/stats-insights.service.ts)
+      — 6 getters, all network-only (core/apollo/stats-insights.queries.ts)
       ├── handleGraphqlError + AuthService
       └── DateService.getUserTimezone()          — the `input.timezone` value
 
 shared/interfaces/local-date.interface.ts          — canonical LocalDate (new)
 shared/interfaces/api/stats-charts-api.interface.ts  — StatsChartsInput + 6 *API shapes
-shared/interfaces/stats-charts.interface.ts          — *VM, LocalDateRange, presets, caps, section keys
-shared/wrappers/stats-charts.wrapper.ts              — API → VM (lowercase, nulls, rounding, ISO week)
+shared/interfaces/stats-insights.interface.ts          — *VM, LocalDateRange, presets, caps, section keys
+shared/wrappers/stats-insights.wrapper.ts              — API → VM (lowercase, nulls, rounding, ISO week)
 shared/utils/date.utils.ts                           — apiDateTimeToLocalDate (pure)
 shared/utils/stats-chart.theme.ts                    — shared palette/formatters + new week/kcal formatters
-shared/utils/stats-charts-chart.mapper.ts            — VM → Highcharts.Options (pure, testable)
+shared/utils/stats-insights-chart.mapper.ts            — VM → Highcharts.Options (pure, testable)
 core/services/date.service.ts                        — isValidLocalDate, daysBetween, lastNDays, isoWeekStartLocalDate
-shared/components/ui/input-date/                    — app-input-date (generic calendar control, FR-005)
+shared/components/ui/input-date/                    — app-input-date (generic calendar control, FR-005/FR-025)
 shared/components/widgets/stats/stats-date-range/    — app-stats-date-range (range widget, FR-006)
+shared/components/widgets/stats/stats-insights-controls/ — app-stats-insights-controls (chained flow, FR-022)
+shared/components/widgets/stats/stats-insights-card/   — app-stats-insights-card (one card per section, FR-024)
 ```
 
-`StatsChartsService` lives in the **existing** `core/services/stats/` folder
+`StatsInsightsService` lives in the **existing** `core/services/stats/` folder
 beside `StatsService`/`StatsState` rather than in a new
-`core/services/stats-charts/` folder: the stats domain already has one folder in
+`core/services/stats-insights/` folder: the stats domain already has one folder in
 `architecture.md` §3, and one feature folder per **route group** is the house
 convention (`exercises/`, `plans/`, `day-logs/`). The two services stay separate
 classes so the `/stats` spec's "four getters" contract is untouched.
@@ -408,11 +536,16 @@ classes so the `/stats` spec's "four getters" contract is untouched.
 UI tree:
 
 ```
-/stats/charts → StatsChartsPage (app-stats-charts-page) — thin orchestrator
- ├── app-stats-date-range (app-stats-date-range) — "desde / hasta" + presets + inline validation
- └── app-stats-section ×6 (app-stats-section) — card shell: skeleton / error+retry / empty / content
-      ├── app-stats-chart (app-stats-chart) — <highcharts-chart> with the shared theme
-      └── <ul> (2 sections) — trend labels / forgotten-muscle detail rows
+/stats/insights → StatsInsightsPage (app-stats-insights-page) — thin orchestrator
+ ├── app-stats-insights-controls (app-stats-insights-controls) — the chain, FR-022
+ │    ├── app-select           — "¿Qué querés graficar?" (1 of 6)
+ │    ├── app-stats-date-range — "desde / hasta" + presets + inline validation
+ │    └── app-btn + app-spinner — "Ver gráficas"
+ └── app-stats-insights-card ×1 (app-stats-insights-card) — one for the selected
+      section, FR-024. Wraps app-stats-section and derives
+      loading/refreshing (AC-005) so the page does not.
+      ├── app-stats-chart (app-stats-chart) — <highcharts-chart>, shared theme
+      └── [cardExtras] — the routineKcal note and the two <ul> detail rows
 ```
 
 - `app-stats-section` gains only the `refreshing` input (FR-009); its
@@ -423,11 +556,16 @@ UI tree:
   page shows the range, not a freshness timestamp, because the data is live.
 - `app-stats-chart` is reused unchanged; a mapper owns each chart's `height`
   and `marginBottom`, never the component.
-- The two `<ul>` detail lists are rendered by the page template directly, as
-  `/stats` already does for "Récords personales" (`coding-standards.md` §4:
-  label/value rows → `<ul>/<li>`). They are not extracted into widgets.
+- The two `<ul>` detail lists are rendered by the page template and projected
+  into the card's `[cardExtras]` slot, as `/stats` already does for "Récords
+  personales" (`coding-standards.md` §4: label/value rows → `<ul>/<li>`). They
+  are not extracted into widgets; only the shell around them moved (FR-024).
 
 ### Card inventory
+
+All six remain; exactly one is reachable per `run` (FR-023). The `label` column
+is the **same string** the `app-select` option shows (FR-022) — the dropdown and
+the card header read from one constant, so they cannot drift.
 
 | #   | Section key        | Query                       | Card title (ES)           | Chart(s)                                   | Axes / labels           |
 | --- | ------------------ | --------------------------- | ------------------------- | ------------------------------------------ | ----------------------- |
@@ -523,7 +661,7 @@ export interface ExerciseTrendAPI {
 }
 ```
 
-### View-Model (`shared/interfaces/stats-charts.interface.ts`)
+### View-Model (`shared/interfaces/stats-insights.interface.ts`)
 
 ```ts
 export interface LocalDateRange {
@@ -536,16 +674,16 @@ export interface StatsDateRangePreset {
     days: number;
 }
 
-export const STATS_CHARTS_MAX_RANGE_DAYS = 120; // mirrors the backend limit
-export const STATS_CHARTS_DEFAULT_RANGE_DAYS = 30;
-export const STATS_CHARTS_RANGE_PRESETS: readonly StatsDateRangePreset[] = [
+export const STATS_INSIGHTS_MAX_RANGE_DAYS = 120; // mirrors the backend limit
+export const STATS_INSIGHTS_DEFAULT_RANGE_DAYS = 30;
+export const STATS_INSIGHTS_RANGE_PRESETS: readonly StatsDateRangePreset[] = [
     { label: 'Últimos 7 días', days: 7 },
     { label: 'Últimos 30 días', days: 30 },
     { label: 'Últimos 90 días', days: 90 },
     { label: 'Últimos 120 días', days: 120 },
 ];
 
-export type StatsChartsSection =
+export type StatsInsightsSection =
     | 'oneRm'
     | 'volume'
     | 'volumeTotal'
@@ -554,9 +692,9 @@ export type StatsChartsSection =
     | 'exerciseTrend';
 
 /** Mapper caps — data-shaping policy, not user preference. */
-export const STATS_CHARTS_MAX_1RM_SERIES = 6;
-export const STATS_CHARTS_MAX_VOLUME_SERIES = 8;
-export const STATS_CHARTS_OTHERS_SERIES_NAME = 'Otros';
+export const STATS_INSIGHTS_MAX_1RM_SERIES = 6;
+export const STATS_INSIGHTS_MAX_VOLUME_SERIES = 8;
+export const STATS_INSIGHTS_OTHERS_SERIES_NAME = 'Otros';
 
 // 1RM — mirrors the API; nulls are preserved, never coerced to 0.
 export interface OneRmWeekVM {
@@ -662,9 +800,18 @@ export interface ExerciseTrendVM {
 - `app-stats-date-range` internal messages (product language): "Elegí una fecha
   de inicio", "Elegí una fecha de fin", "La fecha de inicio no puede ser
   posterior a la de fin", "El rango no puede superar los {maxDays} días".
-- `app-input-date` trigger shows the bound value as `dd/MM/yyyy` via
-  `DateService.toDisplayString()`, or the `placeholder` when the control is
-  empty.
+- `app-input-date` trigger shows the bound value as `dd/MM/yyyy` (its own
+  `DISPLAY_FORMAT = 'dd/MM/yyyy'` with `date-fns` `format`), or the `placeholder`
+  when the control is empty.
+
+    > **Correction 8 (`dd/MM/yyyy` is not `toDisplayString`).** The Spec originally
+    > attributed this to `DateService.toDisplayString()`, which formats
+    > `dd-MM-yyyy` with dashes. Changing it would silently alter every existing
+    > caller, so `app-input-date` formats locally and a separate pure helper,
+    > `formatLocalDateDisplay()` in `stats-chart.theme.ts` (`dd/MM/yyyy`, returns
+    > the input unchanged when it is not a real calendar date), serves the page's
+    > range label. Both are recorded in
+    > `documents/engineering/date-handling.md` §6.
 
 ### New formatters and sizes (`shared/utils/stats-chart.theme.ts`)
 
@@ -708,7 +855,7 @@ export function apiDateTimeToLocalDate(iso: string, timezone?: string): LocalDat
 
 ```
 # Spec
-sdd/stats-charts/spec.md                                       (this file)
+sdd/stats-insights/spec.md                                       (this file)
 sdd/README.md                                                  (+ index row)
 sdd/stats/spec.md                                              (+ cross-reference in Context,
                                                                  FR-001 + Architecture correction — Correction 7)
@@ -727,30 +874,30 @@ documents/plans/stats-charts-range/plan.md                      (NEW — Plan fo
 src/app/app.routes.ts                                           (MOD — stats → loadChildren + authGuard)
 src/app/pages/stats/stats.routes.ts                            (NEW — STATS_ROUTES)
 src/app/pages/stats/stats.html                                 (MOD — entry app-btn)
-src/app/pages/stats/stats-charts/stats-charts.ts               (NEW)
-src/app/pages/stats/stats-charts/stats-charts.html             (NEW)
-src/app/pages/stats/stats-charts/stats-charts.spec.ts          (NEW)
+src/app/pages/stats/stats-insights/stats-insights.ts               (NEW)
+src/app/pages/stats/stats-insights/stats-insights.html             (NEW)
+src/app/pages/stats/stats-insights/stats-insights.spec.ts          (NEW)
 
 # Core
-src/app/core/apollo/stats-charts.queries.ts                    (NEW — 6 query constants)
-src/app/core/services/stats/stats-charts.service.ts            (NEW)
-src/app/core/services/stats/stats-charts.service.spec.ts       (NEW)
-src/app/core/services/stats/stats-charts.state.ts              (NEW)
-src/app/core/services/stats/stats-charts.state.spec.ts         (NEW)
+src/app/core/apollo/stats-insights.queries.ts                    (NEW — 6 query constants)
+src/app/core/services/stats/stats-insights.service.ts            (NEW)
+src/app/core/services/stats/stats-insights.service.spec.ts       (NEW)
+src/app/core/services/stats/stats-insights.state.ts              (NEW — run(section, range), no load())
+src/app/core/services/stats/stats-insights.state.spec.ts         (NEW)
 src/app/core/services/date.service.ts                          (MOD — 4 new methods)
 src/app/core/services/date.service.spec.ts                     (MOD — new cases)
 
 # Shared contracts + pure logic
 src/app/shared/interfaces/local-date.interface.ts               (NEW — canonical LocalDate)
 src/app/shared/interfaces/api/stats-charts-api.interface.ts    (NEW)
-src/app/shared/interfaces/stats-charts.interface.ts            (NEW)
-src/app/shared/wrappers/stats-charts.wrapper.ts                (NEW)
-src/app/shared/wrappers/stats-charts.wrapper.spec.ts           (NEW)
+src/app/shared/interfaces/stats-insights.interface.ts            (NEW)
+src/app/shared/wrappers/stats-insights.wrapper.ts                (NEW)
+src/app/shared/wrappers/stats-insights.wrapper.spec.ts           (NEW)
 src/app/shared/utils/date.utils.ts                             (MOD — apiDateTimeToLocalDate)
 src/app/shared/utils/stats-chart.theme.ts                      (MOD — sizes, colors, formatters)
 src/app/shared/utils/stats-chart.theme.spec.ts                 (MOD)
-src/app/shared/utils/stats-charts-chart.mapper.ts              (NEW)
-src/app/shared/utils/stats-charts-chart.mapper.spec.ts         (NEW)
+src/app/shared/utils/stats-insights-chart.mapper.ts              (NEW)
+src/app/shared/utils/stats-insights-chart.mapper.spec.ts         (NEW)
 
 # Shared UI
 src/app/shared/components/ui/input-date/input-date.ts           (MOD — stub → FR-005)
@@ -762,6 +909,19 @@ src/app/shared/components/widgets/stats/stats-date-range/stats-date-range.spec.t
 src/app/shared/components/ui/stats/stats-section/stats-section.ts    (MOD — refreshing, subtitle)
 src/app/shared/components/ui/stats/stats-section/stats-section.html  (MOD)
 src/app/shared/components/ui/stats/stats-section/stats-section.spec.ts (MOD)
+
+# Chained flow (FR-022..FR-025)
+src/app/shared/components/widgets/stats/stats-insights-controls/stats-insights-controls.ts        (NEW)
+src/app/shared/components/widgets/stats/stats-insights-controls/stats-insights-controls.html      (NEW)
+src/app/shared/components/widgets/stats/stats-insights-controls/stats-insights-controls.spec.ts   (NEW)
+src/app/shared/components/widgets/stats/stats-insights-card/stats-insights-card.ts               (NEW)
+src/app/shared/components/widgets/stats/stats-insights-card/stats-insights-card.html             (NEW)
+src/app/shared/components/widgets/stats/stats-insights-card/stats-insights-card.spec.ts          (NEW)
+src/app/shared/components/ui/input-date/input-date.html                                       (MOD — hover, FR-025)
+src/app/shared/interfaces/stats-insights.interface.ts                                            (MOD — StatsInsightsMetricOption)
+tailwind.config.js                                                                             (MOD — safelist: hover:bg-accent/70)
+documents/design/ui-conventions.md                                                             (§1 — Correction 10 exception)
+documents/plans/stats-charts-interactions/plan.md                                             (NEW — Plan for THIS change)
 ```
 
 Unchanged on purpose: `stats.service.ts`, `stats.state.ts`, `stats.queries.ts`,
@@ -771,20 +931,30 @@ Unchanged on purpose: `stats.service.ts`, `stats.state.ts`, `stats.queries.ts`,
 
 ## Implementation Notes
 
-- `StatsChartsService` mirrors `StatsService`: `apollo.query` with
+- `StatsInsightsService` mirrors `StatsService`: `apollo.query` with
   `variables: { input }`, `fetchPolicy: 'network-only'`, `handleGraphqlError`,
   then `map(res => wrapper…)`. Six one-liner getters, no `forkJoin`, no optional
   legs — unlike `/stats`'s `getTopRoutines`, nothing here joins a second query.
-- `StatsChartsState` holds `from`, `to` and `timezone` as signals plus a
-  `Record<StatsChartsSection, StatsChartsSectionEntry>` of
+- `StatsInsightsState` holds the **applied** range as a signal (not `from`/`to`/
+  `timezone` separately — the range is the unit it is asked about) plus a
+  `Record<StatsInsightsSection, StatsInsightsSectionEntry>` of
   `{ data, loading, error }`. Each section has its own
-  `BehaviorSubject<StatsChartsQueryInput>` consumed through `switchMap`, so
-  `applyRange(range)` is a single `next()` per section and cancellation is
-  structural. `retry(section)` re-`next()`s that section only, with the current
+  `BehaviorSubject<StatsInsightsQueryInput>` consumed through `switchMap`, so
+  `run(section, range)` is a single `next()` on **one** subject and cancellation
+  is structural (FR-023). The subjects are built in the constructor seeded with
+  `null`, which `switchMap` maps to `EMPTY` — that is what makes "route entry
+  fires zero requests" a property of the design rather than a check someone has
+  to remember. `retry(section)` re-`next()`s that section only, with the applied
   range (FR-011).
-- `refreshing` is **derived**, not stored: `loading() && data() !== null`. Same
-  for `empty`: `!loading && error === null && (data === null || options === null)`.
-  Both helpers live in the page, exactly like `/stats`'s `sectionEmpty`.
+- **The applied range is not the pending range.** The card subtitle and
+  `retry` read the applied range, so the header can never label a chart with a
+  range the user has typed but not yet run. The pending range lives in
+  `app-stats-insights-controls` until `run` fires (FR-022).
+- `loading`/`refreshing` are **derived**, not stored:
+  `loading = loading() && !hasData`, `refreshing = loading() && hasData`. After
+  FR-024 they are derived inside `app-stats-insights-card`, once, instead of per
+  card in the page. `empty` stays an input because it depends on the mapped
+  `Options`, which only the page has.
 - Wrapper conversions: `category.toLowerCase()` with an `'unknown'` fallback;
   `muscle`/`label` via the `exerciseCategory` pipe's translation table;
   `lastTrainedAt` ISO → `LocalDate` through `apiDateTimeToLocalDate` with the
@@ -863,18 +1033,41 @@ maxDays` is invalid, so the maximum accepted span is `daysBetween === 120` —
   (`e2e/auth.setup.ts` uses placeholder credentials), so the containment of 7
   new charts is verified by visual inspection only — the same limitation the
   `/stats` spec records.
+- **The feature was renamed `stats-charts` → `stats-insights`** (Correction 11).
+  Three kinds of `stats-charts` survive on purpose, and a reader who greps the
+  repo will hit all of them:
+    1. **The backend contract stays named `stats-charts`.** `StatsChartsInput`,
+       the `stats-charts` GraphQL namespace, `stats-charts.resolver.ts` and the six
+       query names are the deployed `wave-fit-api` contract. So is our mirror of it,
+       `shared/interfaces/api/stats-charts-api.interface.ts` — the filename is
+       allowed to disagree with the feature so the file is self-identifying as
+       "not ours to rename". Everything above the API boundary is `stats-insights`.
+    2. **The branch stays `feat/stats-charts`.** It already carries several commits
+       of this and unrelated stats work and is not pushed; renaming it would rewrite
+       history for no benefit and desynchronize the branch column in
+       `documents/reports/README.md`. `git-workflow.md` §1 already notes `feat/` is
+       not the canonical prefix — the branch is left as-is, as it was when this
+       feature was specced.
+    3. **Plans and reports keep their file names.**
+       `documents/plans/stats-charts-range/`, `documents/plans/stats-charts-interactions/`
+       and `documents/reports/stats-charts*.md` are historical artifacts: they record
+       what was delivered under the old name. Per `charter.md` §2 they are
+       non-authoritative, so renaming them would rewrite validated history and buy
+       nothing. Their **pointers** to live artifacts were updated to
+       `sdd/stats-insights/spec.md`; their prose was left as written.
 - **Report folder naming.** `documents/reports/stats-charts.md` is the **previous**
   `/stats` dashboard work (Highcharts DI, containment, routine names). It shares
-  this feature's name and nothing else. This feature's report, when it ships,
+  the old feature name and nothing else. This feature's report, when it ships,
   goes to `documents/reports/stats-charts-range.md`. Its Plan goes in
   `documents/plans/stats-charts-range/plan.md` — the two are deliberately kept in
   separate folders so a plan and a report for different features never share a
-  directory.
+  directory. Those three file names are frozen for the reasons above.
 - **Branch.** `feat/stats-charts` already carries four commits of unrelated stats
   work and is not pushed. This feature belongs on its own branch
   (`feature/stats-charts-range`) cut from it, so each change stays a separate
   reviewable PR. `feat/` is not the canonical prefix
   (`git-workflow.md` §1); the branch is left as-is, the new one uses `feature/`.
+  The rename in Correction 11 does **not** extend to the branch name.
 
 ## Tests
 
@@ -912,73 +1105,111 @@ Jasmine, `npm run test:ci`. The `✅ (file)` annotation is added at validation t
   through; `formatKcal` and `formatSignedPercent` produce `es-ES` output with
   sign, and `'—'` for `null`; `TREND_LABEL_COLORS` maps all four labels to
   documented tokens. ✅ (`stats-chart.theme.spec.ts`)
-- **TEST-008** Each of the six `StatsChartsService` getters sends
+- **TEST-008** Each of the six `StatsInsightsService` getters sends
   `variables: { input: { from, to, timezone } }` with `fetchPolicy:
 'network-only'`, returns the wrapper VM, and lets `handleGraphqlError`
   errors through (including `UNAUTHORIZED`). ✅
-  (`stats-charts.service.spec.ts`)
+  (`stats-insights.service.spec.ts`)
 - **TEST-009** Wrapper: `category` lowercased with an `'unknown'` fallback;
   `lastTrainedAt` ISO → `LocalDate`; every nullable numeric stays `null`
   (`best1RM`, `deltaPct`, `slope`, `pctChange`, `routineKcal`, and a `null`
   `lastTrainedAt`); `label` narrowed to `TrendLabelVM`; metrics rounded.
-  ✅ (`stats-charts.wrapper.spec.ts`)
+  ✅ (`stats-insights.wrapper.spec.ts`)
 - **TEST-010** Wrapper (Correction 6): a muscle outside the frontend
   `ExerciseCategory` (`'rest'`) is kept verbatim in `muscle` and translated in
   `label` instead of collapsing to `'unknown'`. ✅
-  (`stats-charts.wrapper.spec.ts`)
+  (`stats-insights.wrapper.spec.ts`)
 - **TEST-011** Mapper 1RM (FR-012): `chart.type === 'line'`, at most
-  `STATS_CHARTS_MAX_1RM_SERIES` series selected by participating weeks with a
+  `STATS_INSIGHTS_MAX_1RM_SERIES` series selected by participating weeks with a
   deterministic tie-break, `null` weeks kept as `null` (gaps), `legend.enabled:
 true`, `xAxis.labels.rotation === 0`. ✅
-  (`stats-charts-chart.mapper.spec.ts`)
+  (`stats-insights-chart.mapper.spec.ts`)
 - **TEST-012** Mapper volume (FR-013): `selectTopVolumeExercises` keeps
-  `STATS_CHARTS_MAX_VOLUME_SERIES` ids by total volume and returns the rest in
+  `STATS_INSIGHTS_MAX_VOLUME_SERIES` ids by total volume and returns the rest in
   `otherIds`; the built chart is stacked with an `"Otros"` series and each
   week's stacked total equals the input total (no volume silently dropped); the
   muscle chart has one stacked series per muscle. ✅
-  (`stats-charts-chart.mapper.spec.ts`)
+  (`stats-insights-chart.mapper.spec.ts`)
 - **TEST-013** Mapper volume total (FR-014): `column` chart, default point color
   `primary`, `possibleDeload: true` weeks get `accent`, `deltaPct: null` renders
-  "—" and never `0`. ✅ (`stats-charts-chart.mapper.spec.ts`)
+  "—" and never `0`. ✅ (`stats-insights-chart.mapper.spec.ts`)
 - **TEST-014** Mapper calories (FR-015): `column` of `extraKcal`; `routineKcal`
   appears in **no** series, **no** point and **no** tooltip branch even when
-  non-null input is fed. ✅ (`stats-charts-chart.mapper.spec.ts`)
+  non-null input is fed. ✅ (`stats-insights-chart.mapper.spec.ts`)
 - **TEST-015** Mapper forgotten muscles (FR-016): horizontal `bar` with
   `marginBottom: 0`, single series of `totalSets`, backend order preserved (the
-  mapper does not re-rank). ✅ (`stats-charts-chart.mapper.spec.ts`)
+  mapper does not re-rank). ✅ (`stats-insights-chart.mapper.spec.ts`)
 - **TEST-016** Mapper trend (FR-017): diverging `bar`, symmetric `min`/`max`,
   per-label colors, `INSUFFICIENT` entries excluded from the series, `null`
-  `pctChange` excluded. ✅ (`stats-charts-chart.mapper.spec.ts`)
+  `pctChange` excluded. ✅ (`stats-insights-chart.mapper.spec.ts`)
 - **TEST-017** All seven builders return `null` on empty input, and no mapper
-  mutates the array it receives. ✅ (`stats-charts-chart.mapper.spec.ts`)
-- **TEST-018** State: the initial range is the last 30 days ending today with the
-  resolved timezone; `load()` fetches all six; `applyRange()` refetches all six
-  with the new input; a failing section sets only its own `error`/`loading` and
-  leaves the others untouched; `retry(section)` re-runs one section with the
-  current range. ✅ (`stats-charts.state.spec.ts`)
-- **TEST-019** State (FR-008): switching range while a section is in flight
-  cancels the previous subscription, so a late response for the old range never
-  reaches `data` (out-of-order protection). ✅ (`stats-charts.state.spec.ts`)
+  mutates the array it receives. ✅ (`stats-insights-chart.mapper.spec.ts`)
+- **TEST-018** State (amended by FR-023): the initial range is the last 30 days
+  ending today with the resolved timezone; **constructing the state fires zero
+  getters**; `run(section, range)` fetches **only** that section and passes the
+  range and timezone on every query; a failing section sets only its own
+  `error`/`loading`; `retry(section)` re-runs one section with the applied
+  range. ✅ (`stats-insights.state.spec.ts`)
+- **TEST-019** State (FR-008 as amended by FR-023): running a second time while
+  a section is in flight cancels the previous subscription, so a late response
+  for the superseded range never reaches `data` (out-of-order protection). The
+  trigger is now `run` instead of a range change; the guarantee is identical.
+  ✅ (`stats-insights.state.spec.ts`)
 - **TEST-020** `app-stats-section`: `refreshing` renders `app-loading` in the
   header **and** keeps `<ng-content>` projected; `loading` still renders the
   skeleton; precedence is `loading` → `error` → `empty` → content; `subtitle`
   renders when provided. ✅ (`stats-section.spec.ts`)
-- **TEST-021** Page: renders `app-stats-date-range` plus six sections, triggers
-  the initial load, refetches on `rangeChange`, shows the "Routine calories are
-  not calculated" note, raises one global `app-notification` on a section error,
-  and retries a single section. ✅ (`stats-charts.spec.ts`)
-- **TEST-022** Routing: `/stats` still resolves to `StatsPage`, `/stats/charts`
-  resolves to `StatsChartsPage` under `authGuard`, and both are lazy. ✅
+- **TEST-021** Page (amended by FR-022/FR-023/FR-024): renders
+  `app-stats-insights-controls`; **issues no request on entry**; with no metric
+  selected renders **no** card; picking a metric and pressing "Ver gráficas"
+  queries exactly one section and renders exactly one card; shows the
+  "Routine calories are not calculated" note; raises one global
+  `app-notification` on a section error; retries a single section. ✅
+  (`stats-insights.spec.ts`)
+    > Extended during validation of the first delivery: a refetch must keep the
+    > **previous** chart visible with the header spinner and **no** skeleton
+    > (AC-005), which the first delivery did not satisfy — the page handed the
+    > shell the raw `loading` signal, whose precedence put the skeleton over the
+    > projected chart. After FR-024 that derivation lives in
+    > `app-stats-insights-card`, and TEST-024 pins it there.
+    > Extended during validation of the chained flow: the card **title** is read
+    > from the same `StatsInsightsMetricOption` the select shows, and the card
+    > **subtitle** from the section's _applied_ range, so the dropdown and the
+    > header cannot drift (FR-022, AC-011). Both are asserted in TEST-021, along
+    > with the stale-card case (AC-013).
+- **TEST-022** Routing: `/stats` still resolves to `StatsPage`, `/stats/insights`
+  resolves to `StatsInsightsPage` under `authGuard`, and both are lazy. ✅
   (`app.routes.spec.ts`)
+- **TEST-023** `app-stats-insights-controls` (FR-022): renders exactly one
+  `app-select` with six options, the `app-stats-date-range` and one
+  `app-btn`; the button is disabled with no metric selected; a
+  `rangeChange` from the inner widget **emits nothing**; pressing the button
+  emits `run` with the selected section and the pending range; `isRunning`
+  disables the button and renders the `app-spinner`. ✅
+  (`stats-insights-controls.spec.ts`)
+- **TEST-024** `app-stats-insights-card` (FR-024): derives `loading` as
+  `loading && !hasData` and `refreshing` as `loading && hasData`, so a refetch
+  with data on screen renders `app-loading` in the header **and keeps
+  `<ng-content>`**, with no `[aria-busy]` skeleton; precedence is
+  `loading` → `error` → `empty` → content; `charts` renders one
+  `app-stats-chart` per non-`null` options signal; `[cardExtras]` is projected
+  **only** in the content branch. ✅ (`stats-insights-card.spec.ts`)
+- **TEST-025** `app-input-date` hover (FR-025): an enabled, non-selected day cell
+  carries `bg-accent/70` on hover; the **selected** day does not change on hover;
+  a `disabled` day carries `disabled:hover:bg-transparent` and no hover fill.
+  ✅ (`input-date.spec.ts`)
 
 ## Acceptance Criteria
 
-- **AC-001** `/stats/charts` is reachable from the `/stats` hero button, is
+- **AC-001** `/stats/insights` is reachable from the `/stats` hero button, is
   protected by `authGuard`, and "Volver a Mis Estadísticas" returns to the
   dashboard; the header keeps `/stats` highlighted on both routes.
-- **AC-002** The page opens on the last 30 days ending today and shows the two
-  date inputs plus the four presets; picking a preset or a valid custom range
-  reloads every chart.
+- **AC-002 (amended by FR-022/FR-023)** The page opens with **no chart and no
+  request**. The controls open on the last 30 days ending today and show, in
+  order: the metric select, the two date inputs plus the four presets, and the
+  "Ver gráficas" button. Picking a preset or a valid custom range updates the
+  pending range but **issues no request**; only pressing "Ver gráficas"
+  reloads.
 - **AC-003** An invalid range (missing, malformed, or more than 120 days) shows an
   inline message, issues **no** request, and leaves the previous charts
   untouched. An out-of-order range is corrected instead (FR-006), so it never
@@ -987,9 +1218,24 @@ true`, `xAxis.labels.rotation === 0`. ✅
   palette: a multi-series 1RM line with gaps, two stacked volume columns, a
   total-volume column with deload weeks highlighted, a calories column,
   a horizontal forgotten-muscles bar, and a symmetric diverging trend bar.
-- **AC-005** First load shows card-shaped skeletons; changing the range shows an
-  inline spinner **while the previous chart stays visible**, with no skeleton
-  flash.
+- **AC-005** A section's **first** load shows a card-shaped skeleton; pressing
+  "Ver gráficas" again for the same metric with a different range shows an inline
+  spinner **while the previous chart stays visible**, with no skeleton flash.
+  `app-stats-insights-card` therefore passes `loading = loading && !hasData` to the
+  shell, not the raw `loading` signal (FR-024).
+- **AC-013** Exactly **one** card is on screen at a time: no metric selected →
+  none; a metric selected and "Ver gráficas" pressed → that section's card, with
+  the other five never queried (FR-023). A metric not chosen does not appear as
+  an inert placeholder.
+- **AC-014** The chain is visible and ordered: metric select, then dates, then the
+  button. The button is disabled until a metric is chosen, shows a spinner while
+  the query is in flight, and a date edit alone never triggers a load (FR-022).
+- **AC-015** Hovering a day in the calendar popover tints it `accent/70`; the
+  selected day keeps its own fill and a disabled day shows no hover, so neither
+  state can be misread (FR-025).
+- **AC-016** `npm run lint`, `npm run typecheck`, `npm run test:ci` and
+  `npm run build` pass and `npx prettier --check` is clean on every touched file
+  for this change (Correction 9, FR-021).
 - **AC-006** No chart spills past its card: chart SVGs measure the card's content
   width, not Highcharts' 600px default (NFR-004).
 - **AC-007** Week labels read `W40` horizontally; long exercise and muscle names
@@ -1002,7 +1248,9 @@ true`, `xAxis.labels.rotation === 0`. ✅
 - **AC-010** The calories card states that routine calories are not calculated by
   the server and shows only extra-session calories; the trend card labels
   `INSUFFICIENT` entries as "Sin datos suficientes" instead of a `0%` bar.
-- **AC-011** Rapid range changes never display data from a superseded range.
+- **AC-011** Rapid presses of "Ver gráficas" never display data from a superseded
+  range, and a card's subtitle and `retry` always describe the **applied** range,
+  not the one being typed (FR-023).
 - **AC-012** `npm run lint`, `npm run typecheck`, `npm run test:ci` and
   `npm run build` pass, `npx prettier --check` is clean on every touched file,
   and `documents/engineering/date-handling.md`, `ui-conventions.md` §1 and

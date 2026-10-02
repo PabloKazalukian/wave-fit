@@ -13,10 +13,10 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DateService } from '../../../../../core/services/date.service';
 import type { LocalDate, LocalDateRange } from '../../../../interfaces/local-date.interface';
 import {
-    STATS_CHARTS_MAX_RANGE_DAYS,
-    STATS_CHARTS_RANGE_PRESETS,
+    STATS_INSIGHTS_MAX_RANGE_DAYS,
+    STATS_INSIGHTS_RANGE_PRESETS,
     type StatsDateRangePreset,
-} from '../../../../interfaces/stats-charts.interface';
+} from '../../../../interfaces/stats-insights.interface';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { InputDate } from '../../../ui/input-date/input-date';
 
@@ -27,7 +27,7 @@ const INVALID_DATE_MESSAGE = 'Alguna de las fechas no es una fecha válida.';
 type Bound = 'from' | 'to';
 
 /**
- * Selector de rango de fechas para `/stats/charts` (FR-006, FR-007).
+ * Selector de rango de fechas para `/stats/insights` (FR-006, FR-007).
  *
  * Compone dos `app-input-date` sobre un `FormGroup` propio y una fila de
  * presets. El estado del rango vive aquí, no en el padre: el padre sólo recibe
@@ -51,8 +51,8 @@ export class StatsDateRange {
 
     from = input.required<LocalDate>();
     to = input.required<LocalDate>();
-    maxDays = input<number>(STATS_CHARTS_MAX_RANGE_DAYS);
-    presets = input<readonly StatsDateRangePreset[]>(STATS_CHARTS_RANGE_PRESETS);
+    maxDays = input<number>(STATS_INSIGHTS_MAX_RANGE_DAYS);
+    presets = input<readonly StatsDateRangePreset[]>(STATS_INSIGHTS_RANGE_PRESETS);
     isDisabled = input<boolean>(false);
 
     /** Se emite sólo con un rango válido (o corregido). */

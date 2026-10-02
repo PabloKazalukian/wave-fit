@@ -3,6 +3,14 @@ import type { LocalDate } from '../local-date.interface';
 /**
  * Respuestas de wave-fit-api para el namespace `stats-charts`.
  *
+ * **Este archivo conserva el nombre `stats-charts` a propósito.** La feature se
+ * renombró a `stats-insights` (ver `sdd/stats-insights/spec.md`, Correction 11),
+ * pero `StatsChartsInput` y el namespace `stats-charts` son contrato del backend
+ * ya desplegado, que el frontend no posee: renombrarlos exigiría un cambio
+ * coordinado en `wave-fit-api`. El disagreement de nombres es deliberado y
+ * delimita la frontera de la API — todo lo que está por encima de este archivo es
+ * `stats-insights` (`StatsInsightsQueryInput` es el alias local del mismo input).
+ *
  * A diferencia de `stats-api.interface.ts` (snapshots pre-computados por el
  * worker), estas seis queries se agregan **on demand** para el rango pedido.
  * Los campos vienen tal cual los expone presentation/entities/*.output.ts

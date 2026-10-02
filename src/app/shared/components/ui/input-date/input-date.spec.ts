@@ -4,7 +4,7 @@ import { InputDate } from './input-date';
 import { DateService } from '../../../../core/services/date.service';
 import type { LocalDate } from '../../../interfaces/local-date.interface';
 
-describe('InputDate (TEST-001, TEST-002)', () => {
+describe('InputDate (TEST-001, TEST-002, TEST-025)', () => {
     const TODAY = '2026-09-01';
     const SELECTED = '2026-09-15';
 
@@ -274,6 +274,54 @@ describe('InputDate (TEST-001, TEST-002)', () => {
             fixture.detectChanges();
 
             expect(day(TODAY)!.classList).toContain('is-today');
+        });
+    });
+
+    describe('day hover (TEST-025)', () => {
+        it('tints an enabled, non-selected day on hover', () => {
+            build(SELECTED);
+            trigger().click();
+            fixture.detectChanges();
+
+            expect(day('2026-09-22')!.classList).toContain('hover:bg-accent/70');
+        });
+
+        it('does not tint the selected day, whose fill is the current value', () => {
+            build(SELECTED);
+            trigger().click();
+            fixture.detectChanges();
+
+            expect(day(SELECTED)!.classList).toContain('bg-primary');
+            expect(day(SELECTED)!.classList).not.toContain('hover:bg-accent/70');
+        });
+
+        it('tints today when it is not the selected day', () => {
+            build(SELECTED);
+            trigger().click();
+            fixture.detectChanges();
+
+            expect(day(TODAY)!.classList).toContain('hover:bg-accent/70');
+        });
+
+        it('neutralizes the hover on a disabled day', () => {
+            build(SELECTED);
+            fixture.componentRef.setInput('min', '2026-09-10');
+            fixture.detectChanges();
+            trigger().click();
+            fixture.detectChanges();
+
+            // Tailwind aplica :hover a <button disabled> en algunos navegadores:
+            // sin esta neutralización un día bloqueado parecería seleccionable.
+            expect(day('2026-09-05')!.classList).toContain('disabled:hover:bg-transparent');
+            expect(day('2026-09-05')!.classList).not.toContain('hover:bg-accent/70');
+        });
+
+        it('animates the day color instead of snapping', () => {
+            build(SELECTED);
+            trigger().click();
+            fixture.detectChanges();
+
+            expect(day('2026-09-22')!.classList).toContain('transition-colors');
         });
     });
 

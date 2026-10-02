@@ -1,4 +1,4 @@
-# Plan: Stats charts — date-range analytics page (`/stats/charts`)
+# Plan: Stats charts — date-range analytics page (`/stats/insights`)
 
 ## Context
 
@@ -19,7 +19,7 @@ nothing else; its fixes — the shared theme, `app-stats-section`, `app-stats-ch
 and the `highcharts-chart` containment rule in `styles.css` — are exactly the
 assets this feature builds on.
 
-The Spec is `sdd/stats-charts/spec.md` (FR-001..FR-021, BR-003/004/005,
+The Spec is `sdd/stats-insights/spec.md` (FR-001..FR-021, BR-003/004/005,
 NFR-001..NFR-010, TEST-001..TEST-022, AC-001..AC-012). This Plan implements it.
 
 Two components were already scaffolded with `ng g c` and are Angular 20 CLI stubs
@@ -32,9 +32,24 @@ ng g c shared/components/widgets/stats/stats-date-range  # app-stats-date-range 
 
 ## Status
 
-> Not started. The Spec is written; no implementation code exists beyond the two
-> CLI stubs. This Plan is written before the code, per the
-> [Engineering Charter](../../engineering/charter.md).
+> **Delivered on `feat/stats-charts` (unpushed).** Phases 0–7 implemented;
+> 676 unit tests green, `lint` / `typecheck` / `build` pass. Report:
+> [`../../reports/stats-charts-range.md`](../../reports/stats-charts-range.md).
+>
+> Two items are **not** closed:
+>
+> 1. The visual pass in Phase 7 / Validation was not performed. AC-006
+>    (NFR-004 containment) and AC-007 (NFR-005 label rotation) are the only
+>    acceptance criteria without evidence, and e2e cannot produce it
+>    (`e2e/auth.setup.ts` uses placeholder credentials).
+> 2. The 120-day boundary is the conservative reading of an ambiguous backend
+>    description; see the corresponding Decision below. Open for `wave-fit-api`,
+>    blocked nothing.
+>
+> Three Spec corrections were resolved during delivery and are recorded in
+> their source-of-truth Specs: the FR-006/FR-007 out-of-order contradiction, the
+> `dd/MM/yyyy` vs `toDisplayString()` contradiction (Correction 8), and the
+> refetch precedence defect behind AC-005.
 
 ## Decisions
 
@@ -51,9 +66,9 @@ ng g c shared/components/widgets/stats/stats-date-range  # app-stats-date-range 
   `loadChildren` + `stats.routes.ts` is what every other multi-route feature in
   the app already does (`exercises`, `plans`, `routines`, `my-week`, `user`). A
   flat `path: 'stats/charts'` entry would be one line instead of five but would
-  leave `/stats/charts` with no real parent, and the page↔dashboard relationship
+  leave `/stats/insights` with no real parent, and the page↔dashboard relationship
   (entry button, back link) would be convention rather than routing. The header
-  needs **no** change: `isActive()` compares with `startsWith`, so `/stats/charts`
+  needs **no** change: `isActive()` compares with `startsWith`, so `/stats/insights`
   keeps `/stats` highlighted.
 
 - **Two components, not one.** The calendar popover is a generic date control
@@ -90,7 +105,7 @@ ng g c shared/components/widgets/stats/stats-date-range  # app-stats-date-range 
   (FR-007 originally listed `from > to` as a rejection case while FR-006
   required correcting it); FR-007, TEST-004 and AC-003 were aligned to FR-006.
 
-- **`maxDays` is a single exported constant**, `STATS_CHARTS_MAX_RANGE_DAYS`, read
+- **`maxDays` is a single exported constant**, `STATS_INSIGHTS_MAX_RANGE_DAYS`, read
   by the widget, the state and the tests. A literal `120` in a template is how
   the backend limit and the frontend limit silently drift apart.
 
@@ -103,7 +118,7 @@ ng g c shared/components/widgets/stats/stats-date-range  # app-stats-date-range 
   `wave-fit-api`; it does not block any task.**
 
 - **Cancellation is structural, not bookkeeping.** Each section's state is one
-  `BehaviorSubject<StatsChartsQueryInput>` consumed through `switchMap`, so
+  `BehaviorSubject<StatsInsightsQueryInput>` consumed through `switchMap`, so
   `applyRange()` is a single `next()` and a late response for a superseded range
   physically cannot reach `data`. The alternative — tracking and unsubscribing
   `Subscription`s per section — is the same code with more states to get wrong.
@@ -158,7 +173,7 @@ ng g c shared/components/widgets/stats/stats-date-range  # app-stats-date-range 
   they belong to another spec. Because the alias is `string`, this is hygiene,
   not a breaking change.
 
-- **`StatsChartsService` is a new class beside `StatsService`, not an extension
+- **`StatsInsightsService` is a new class beside `StatsService`, not an extension
   of it.** Six more getters would double `StatsService`'s surface and contradict
   the `/stats` spec's "four getters" contract. Both classes live in the existing
   `core/services/stats/` folder: the repo has one folder per **route group**
@@ -213,7 +228,7 @@ covers, and validates before moving on.
 
 ### Phase 0 — Spec and Plan (done)
 
-- `sdd/stats-charts/spec.md` written.
+- `sdd/stats-insights/spec.md` written.
 - `sdd/README.md` index row; cross-reference in `sdd/stats/spec.md` `Context`.
 - This Plan.
 
@@ -236,10 +251,10 @@ covers, and validates before moving on.
 
 - `shared/interfaces/api/stats-charts-api.interface.ts`: `StatsChartsInput` and
   the six API shapes exactly as the backend returns them.
-- `shared/interfaces/stats-charts.interface.ts`: the six VM families,
+- `shared/interfaces/stats-insights.interface.ts`: the six VM families,
   `LocalDateRange`, `StatsDateRangePreset`, the four range constants, the three
-  mapper-cap constants, `StatsChartsSection`.
-- `core/apollo/stats-charts.queries.ts`: the six `gql` constants, each selecting
+  mapper-cap constants, `StatsInsightsSection`.
+- `core/apollo/stats-insights.queries.ts`: the six `gql` constants, each selecting
   **exactly** the fields the backend exposes — a missing field fails the whole
   query.
 - No tests (constants and interfaces). `stats.interface.spec.ts` exists as
@@ -248,7 +263,7 @@ covers, and validates before moving on.
 
 ### Phase 3 — Mapping layer (pure, unit-tested)
 
-- `shared/wrappers/stats-charts.wrapper.ts`: six API→VM functions.
+- `shared/wrappers/stats-insights.wrapper.ts`: six API→VM functions.
   `category.toLowerCase()` with an `'unknown'` fallback (BR-004); `muscle`
   verbatim + `label` translated; `lastTrainedAt` ISO → `LocalDate` via
   `apiDateTimeToLocalDate`; every nullable numeric kept `null`; non-null metrics
@@ -259,19 +274,19 @@ covers, and validates before moving on.
   `MULTI_SERIES_CHART_HEIGHT`, `DIVERGING_BAR_CHART_HEIGHT`,
   `TREND_LABEL_COLORS`, `DELOAD_POINT_COLOR`, `formatWeekKey`, `formatKcal`,
   `formatSignedPercent`. Everything existing is reused unchanged.
-- `shared/utils/stats-charts-chart.mapper.ts`: the seven builders plus
+- `shared/utils/stats-insights-chart.mapper.ts`: the seven builders plus
   `selectTop1RmExercises`, `selectTopVolumeExercises`, `weekCategories`. Pure,
   no input mutation, `null` on empty input.
 - Tests: **TEST-007**, **TEST-009**, **TEST-010**, **TEST-011**..**TEST-017**.
 
 ### Phase 4 — Service and State
 
-- `core/services/stats/stats-charts.service.ts`: six one-liner getters mirroring
+- `core/services/stats/stats-insights.service.ts`: six one-liner getters mirroring
   `StatsService` — `apollo.query` with `variables: { input }`,
   `fetchPolicy: 'network-only'`, `handleGraphqlError`, then the wrapper. No
   `forkJoin`, no optional legs (unlike `/stats`'s `getTopRoutines`).
-- `core/services/stats/stats-charts.state.ts`: `from`/`to`/`timezone` signals;
-  one `BehaviorSubject<StatsChartsQueryInput>` per section through `switchMap`;
+- `core/services/stats/stats-insights.state.ts`: `from`/`to`/`timezone` signals;
+  one `BehaviorSubject<StatsInsightsQueryInput>` per section through `switchMap`;
   `load()`, `applyRange(range)`, `retry(section)`.
 - Tests: **TEST-008**, **TEST-018**, **TEST-019**.
 
@@ -298,10 +313,10 @@ covers, and validates before moving on.
 ### Phase 6 — Page and navigation
 
 - `src/app/pages/stats/stats.routes.ts`: `STATS_ROUTES` with `''` → `StatsPage`
-  and `'charts'` → `StatsChartsPage`, both lazy.
+  and `'insights'` → `StatsInsightsPage`, both lazy.
 - `src/app/app.routes.ts`: `stats` → `loadChildren` + `canActivate: [authGuard]`.
 - `src/app/pages/stats/stats.html`: entry `app-btn` in the hero.
-- `src/app/pages/stats/stats-charts/stats-charts.{ts,html}`: the thin
+- `src/app/pages/stats/stats-insights/stats-insights.{ts,html}`: the thin
   orchestrator — 6 sections, `sectionEmpty` / `sectionRefreshing` helpers reused
   from `/stats`, back `app-text-link`, global error notification, the two `<ul>`
   detail lists, and the calories note.
@@ -309,20 +324,23 @@ covers, and validates before moving on.
 
 ### Phase 7 — Validation and documentation
 
-- Run the gates below.
-- Visual pass on an authenticated `/stats/charts` (the only check that proves
-  NFR-004 containment and NFR-005 label rotation across 7 charts).
-- `documents/engineering/date-handling.md` (new) + its `README.md` row.
+- Run the gates below. — **done**: 676 SUCCESS, lint/typecheck/build pass.
+- Visual pass on an authenticated `/stats/insights` (the only check that proves
+  NFR-004 containment and NFR-005 label rotation across 7 charts). —
+  **not done**, see `Status`; it needs a real session.
+- `documents/engineering/date-handling.md` (new) + its `README.md` row. — **done**
 - `documents/design/ui-conventions.md` §1: add the missing `bg-background1`
-  (`#151A16`) and `bg-background5` (`#367C4D`) rows.
+  (`#151A16`) and `bg-background5` (`#367C4D`) rows. — **done**
 - `documents/design/ui-components.md` §3: add `app-input-date`, note that it
-  does not replace `app-input [type]="'date'"]` yet.
-- `documents/engineering/architecture.md` §3 folder tree and §5 service table.
+  does not replace `app-input [type]="'date'"]` yet. — **done**
+- `documents/engineering/architecture.md` §3 folder tree and §5 service table. —
+  **done**
 - `sdd/stats/spec.md`: correct FR-001 and the Architecture tree for the route
-  restructuring (Correction 7).
-- `sdd/stats-charts/spec.md`: annotate each `TEST-xxx` with ✅ and its spec file,
-  matching how `sdd/stats/spec.md` marks delivered tests.
-- `documents/reports/stats-charts-range.md` (new) once delivered.
+  restructuring (Correction 7). — **done**
+- `sdd/stats-insights/spec.md`: annotate each `TEST-xxx` with ✅ and its spec file,
+  matching how `sdd/stats/spec.md` marks delivered tests. — **done**, plus
+  Correction 8 (`dd/MM/yyyy` vs `toDisplayString()`) and the AC-005 refetch note.
+- `documents/reports/stats-charts-range.md` (new) once delivered. — **done**
 
 ## Validation
 
@@ -337,7 +355,7 @@ covers, and validates before moving on.
 - `npx prettier --check` on the touched files only — repo-wide there is
   pre-existing debt (138 files on `format:check`, 225 on `.`) that this change
   neither creates nor fixes.
-- **Visual pass on an authenticated `/stats/charts`** — 6 cards, 7 charts, first
+- **Visual pass on an authenticated `/stats/insights`** — 6 cards, 7 charts, first
   skeleton then inline spinner with the previous chart kept, range change,
   invalid-range message, one section failing while the other five render, and
   no chart past its card. Required: two defects on this branch were found only by

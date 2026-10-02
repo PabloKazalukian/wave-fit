@@ -1,5 +1,5 @@
 import type { Options } from 'highcharts';
-import type { TrendLabelVM } from '../interfaces/stats-charts.interface';
+import type { TrendLabelVM } from '../interfaces/stats-insights.interface';
 
 /**
  * Paleta y estilo base de los gráficos de estadísticas.
@@ -33,7 +33,7 @@ export const LONG_LABEL_CHART_HEIGHT = 300;
 /** Alto del gráfico de adherencia semanal (línea, categorías dd/MM). */
 export const ADHERENCE_CHART_HEIGHT = 240;
 
-/** Gráficos semanales de /stats/charts: el eje X usa etiquetas W## sin rotar. */
+/** Gráficos semanales de /stats/insights: el eje X usa etiquetas W## sin rotar. */
 export const WEEKLY_CHART_HEIGHT = 240;
 
 /** Gráfico de 1RM por ejercicio: línea con leyenda, hasta 6 series. */

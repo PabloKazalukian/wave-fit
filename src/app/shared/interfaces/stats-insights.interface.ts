@@ -7,11 +7,11 @@ import type { StatsCategory } from './stats.interface';
 export type { LocalDateRange } from './local-date.interface';
 
 /**
- * El Spec llama `StatsChartsQueryInput` al input que el state emite y que las
+ * El Spec llama `StatsInsightsQueryInput` al input que el state emite y que las
  * seis queries reciben; la forma en sí se declara junto a la API. El alias deja
  * explícito que son el mismo tipo y no dos contratos.
  */
-export type StatsChartsQueryInput = StatsChartsInput;
+export type StatsInsightsQueryInput = StatsChartsInput;
 
 export interface StatsDateRangePreset {
     label: string; // product language, p. ej. "Últimos 30 días"
@@ -19,18 +19,18 @@ export interface StatsDateRangePreset {
 }
 
 /** Espeja el límite del backend; el widget, el state y los tests leen esta misma constante. */
-export const STATS_CHARTS_MAX_RANGE_DAYS = 120;
+export const STATS_INSIGHTS_MAX_RANGE_DAYS = 120;
 
-export const STATS_CHARTS_DEFAULT_RANGE_DAYS = 30;
+export const STATS_INSIGHTS_DEFAULT_RANGE_DAYS = 30;
 
-export const STATS_CHARTS_RANGE_PRESETS: readonly StatsDateRangePreset[] = [
+export const STATS_INSIGHTS_RANGE_PRESETS: readonly StatsDateRangePreset[] = [
     { label: 'Últimos 7 días', days: 7 },
     { label: 'Últimos 30 días', days: 30 },
     { label: 'Últimos 90 días', days: 90 },
     { label: 'Últimos 120 días', days: 120 },
 ];
 
-export type StatsChartsSection =
+export type StatsInsightsSection =
     | 'oneRm'
     | 'volume'
     | 'volumeTotal'
@@ -38,13 +38,26 @@ export type StatsChartsSection =
     | 'forgottenMuscles'
     | 'exerciseTrend';
 
+/**
+ * Una opción del selector "¿qué querés graficar?" (FR-022).
+ *
+ * `section` **es** la clave del query: el select es de una sola elección, así que
+ * no hay traducción entre "lo que el usuario eligió" y "la sección que se
+ * consulta". `label` es product language y es el mismo string que usa el título
+ * de la card, para que el dropdown y el encabezado no puedan divergir.
+ */
+export interface StatsInsightsMetricOption {
+    section: StatsInsightsSection;
+    label: string;
+}
+
 // Caps del mapper — política de forma de dato, no preferencia del usuario.
 
-export const STATS_CHARTS_MAX_1RM_SERIES = 6;
+export const STATS_INSIGHTS_MAX_1RM_SERIES = 6;
 
-export const STATS_CHARTS_MAX_VOLUME_SERIES = 8;
+export const STATS_INSIGHTS_MAX_VOLUME_SERIES = 8;
 
-export const STATS_CHARTS_OTHERS_SERIES_NAME = 'Otros';
+export const STATS_INSIGHTS_OTHERS_SERIES_NAME = 'Otros';
 
 // 1RM — espeja la API; los nulls se preservan, nunca se coercean a 0.
 

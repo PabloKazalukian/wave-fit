@@ -19,7 +19,7 @@ import {
     wrapperStatsVolumeWeeklyToVM,
     wrapperVolumeTotalWeekApiToVM,
     wrapperVolumeWeekApiToVM,
-} from './stats-charts.wrapper';
+} from './stats-insights.wrapper';
 
 const TZ = 'America/Argentina/Buenos_Aires';
 
@@ -40,7 +40,7 @@ const oneRm = (overrides: Partial<OneRmExerciseAPI> = {}): OneRmExerciseAPI => (
     ...overrides,
 });
 
-describe('stats-charts.wrapper (TEST-009)', () => {
+describe('stats-insights.wrapper (TEST-009)', () => {
     describe('category', () => {
         it('lowercases an UPPERCASE API category (BR-004)', () => {
             const vm = wrapperOneRmExerciseApiToVM(oneRm({ category: 'LEGS_FRONT' }));
@@ -228,7 +228,7 @@ describe('stats-charts.wrapper (TEST-009)', () => {
     });
 });
 
-describe('stats-charts.wrapper forgotten muscles (TEST-010)', () => {
+describe('stats-insights.wrapper forgotten muscles (TEST-010)', () => {
     it('converts an ISO DateTime to a LocalDate in the user timezone', () => {
         const api: ForgottenMuscleAPI = {
             muscle: 'chest',

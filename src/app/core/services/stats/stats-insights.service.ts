@@ -10,7 +10,7 @@ import {
     GET_STATS_FORGOTTEN_MUSCLES,
     GET_STATS_VOLUME_TOTAL_WEEKLY,
     GET_STATS_VOLUME_WEEKLY,
-} from '../../apollo/stats-charts.queries';
+} from '../../apollo/stats-insights.queries';
 import {
     CaloriesWeekAPI,
     ExerciseTrendAPI,
@@ -24,10 +24,10 @@ import {
     ExerciseTrendVM,
     ForgottenMuscleVM,
     OneRmExerciseVM,
-    StatsChartsQueryInput,
+    StatsInsightsQueryInput,
     VolumeTotalWeekVM,
     VolumeWeekVM,
-} from '../../../shared/interfaces/stats-charts.interface';
+} from '../../../shared/interfaces/stats-insights.interface';
 import {
     wrapperStats1RmWeeklyToVM,
     wrapperStatsCaloriesWeeklyToVM,
@@ -35,7 +35,7 @@ import {
     wrapperStatsForgottenMusclesToVM,
     wrapperStatsVolumeTotalWeeklyToVM,
     wrapperStatsVolumeWeeklyToVM,
-} from '../../../shared/wrappers/stats-charts.wrapper';
+} from '../../../shared/wrappers/stats-insights.wrapper';
 
 /**
  * Seis getters de una línea cada uno, al estilo de `StatsService`.
@@ -46,11 +46,11 @@ import {
  * `forkJoin` ni patas opcionales — cada sección se carga y falla por separado.
  */
 @Injectable({ providedIn: 'root' })
-export class StatsChartsService {
+export class StatsInsightsService {
     private readonly apollo = inject(Apollo);
     private readonly authSvc = inject(AuthService);
 
-    getOneRmWeekly(input: StatsChartsQueryInput): Observable<OneRmExerciseVM[]> {
+    getOneRmWeekly(input: StatsInsightsQueryInput): Observable<OneRmExerciseVM[]> {
         return this.apollo
             .query<{ getStats1RmWeekly: OneRmExerciseAPI[] }>({
                 query: GET_STATS_1RM_WEEKLY,
@@ -63,7 +63,7 @@ export class StatsChartsService {
             );
     }
 
-    getVolumeWeekly(input: StatsChartsQueryInput): Observable<VolumeWeekVM[]> {
+    getVolumeWeekly(input: StatsInsightsQueryInput): Observable<VolumeWeekVM[]> {
         return this.apollo
             .query<{ getStatsVolumeWeekly: VolumeWeekAPI[] }>({
                 query: GET_STATS_VOLUME_WEEKLY,
@@ -76,7 +76,7 @@ export class StatsChartsService {
             );
     }
 
-    getVolumeTotalWeekly(input: StatsChartsQueryInput): Observable<VolumeTotalWeekVM[]> {
+    getVolumeTotalWeekly(input: StatsInsightsQueryInput): Observable<VolumeTotalWeekVM[]> {
         return this.apollo
             .query<{ getStatsVolumeTotalWeekly: VolumeTotalWeekAPI[] }>({
                 query: GET_STATS_VOLUME_TOTAL_WEEKLY,
@@ -91,7 +91,7 @@ export class StatsChartsService {
             );
     }
 
-    getCaloriesWeekly(input: StatsChartsQueryInput): Observable<CaloriesWeekVM[]> {
+    getCaloriesWeekly(input: StatsInsightsQueryInput): Observable<CaloriesWeekVM[]> {
         return this.apollo
             .query<{ getStatsCaloriesWeekly: CaloriesWeekAPI[] }>({
                 query: GET_STATS_CALORIES_WEEKLY,
@@ -104,7 +104,7 @@ export class StatsChartsService {
             );
     }
 
-    getForgottenMuscles(input: StatsChartsQueryInput): Observable<ForgottenMuscleVM[]> {
+    getForgottenMuscles(input: StatsInsightsQueryInput): Observable<ForgottenMuscleVM[]> {
         return this.apollo
             .query<{ getStatsForgottenMuscles: ForgottenMuscleAPI[] }>({
                 query: GET_STATS_FORGOTTEN_MUSCLES,
@@ -117,7 +117,7 @@ export class StatsChartsService {
             );
     }
 
-    getExerciseTrend(input: StatsChartsQueryInput): Observable<ExerciseTrendVM[]> {
+    getExerciseTrend(input: StatsInsightsQueryInput): Observable<ExerciseTrendVM[]> {
         return this.apollo
             .query<{ getStatsExerciseTrend: ExerciseTrendAPI[] }>({
                 query: GET_STATS_EXERCISE_TREND,

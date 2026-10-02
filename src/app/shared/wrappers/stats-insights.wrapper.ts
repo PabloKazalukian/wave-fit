@@ -23,7 +23,7 @@ import {
     VolumeWeekExerciseVM,
     VolumeWeekMuscleVM,
     VolumeWeekVM,
-} from '../interfaces/stats-charts.interface';
+} from '../interfaces/stats-insights.interface';
 
 /**
  * API → VM del namespace `stats-charts`.

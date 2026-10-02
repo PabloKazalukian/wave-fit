@@ -10,8 +10,8 @@
 > [`stats-routine-name-resolution/plan.md`](../plans/stats-routine-name-resolution/plan.md).
 >
 > This report covers the `/stats` **dashboard** work only. It is unrelated to
-> `/stats/charts`, the date-range page specced in
-> [`sdd/stats-charts/spec.md`](../../sdd/stats-charts/spec.md) and planned in
+> `/stats/insights`, the date-range page specced in
+> [`sdd/stats-insights/spec.md`](../../sdd/stats-insights/spec.md) and planned in
 > [`documents/plans/stats-charts-range/plan.md`](../plans/stats-charts-range/plan.md),
 > which reuses the theme, card shell and chart wrapper fixed here.
 

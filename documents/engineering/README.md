@@ -7,6 +7,7 @@ Stable engineering rules and system references for the WaveFit frontend.
 | [charter.md](charter.md)                   | Engineering Charter — Spec-Anchored Development methodology, source-of-truth rules, lifecycle, test-first, docs/change/language rules |
 | [architecture.md](architecture.md)         | Stable high-level architecture (layers, folders, services, WorkoutStore, PWA, auth)                                                   |
 | [coding-standards.md](coding-standards.md) | Source-code conventions (naming, TS/Angular, LocalDate, semantic HTML, RxJS/Signals)                                                  |
+| [date-handling.md](date-handling.md)       | Date rules (LocalDate vs display `Date`, sanctioned conversions, range validation, week parsing, formatting, zone-pinned tests)       |
 | [testing.md](testing.md)                   | Testing strategy (Karma+Jasmine unit, Playwright e2e, test-first)                                                                     |
 | [git-workflow.md](git-workflow.md)         | Branch strategy, commits, PRs, main rules                                                                                             |
 | [ci-cd.md](ci-cd.md)                       | Build/quality gates and deployment (current status)                                                                                   |

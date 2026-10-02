@@ -1,0 +1,18 @@
+<app-stats-section
+  [title]="title()"
+  [subtitle]="subtitle()"
+  [loading]="loadingShell()"
+  [refreshing]="refreshing()"
+  [error]="error()"
+  [empty]="empty()"
+  [emptyMessage]="emptyMessage()"
+  (retry)="retry.emit()"
+>
+  @for (chart of charts(); track $index) {
+    @if (chart()) {
+      <app-stats-chart [options]="chart()" />
+    }
+  }
+
+  <ng-content select="[cardExtras]" />
+</app-stats-section>

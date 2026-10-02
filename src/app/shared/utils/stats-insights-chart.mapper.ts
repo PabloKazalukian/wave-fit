@@ -11,12 +11,12 @@ import {
     ExerciseTrendVM,
     ForgottenMuscleVM,
     OneRmExerciseVM,
-    STATS_CHARTS_MAX_1RM_SERIES,
-    STATS_CHARTS_MAX_VOLUME_SERIES,
-    STATS_CHARTS_OTHERS_SERIES_NAME,
+    STATS_INSIGHTS_MAX_1RM_SERIES,
+    STATS_INSIGHTS_MAX_VOLUME_SERIES,
+    STATS_INSIGHTS_OTHERS_SERIES_NAME,
     VolumeTotalWeekVM,
     VolumeWeekVM,
-} from '../interfaces/stats-charts.interface';
+} from '../interfaces/stats-insights.interface';
 import {
     DELOAD_POINT_COLOR,
     DIVERGING_BAR_CHART_HEIGHT,
@@ -124,7 +124,7 @@ function oneRmTooltip(this: Point): string {
 export function buildOneRmWeeklyChartOptions(exercises: OneRmExerciseVM[]): Options | null {
     if (exercises.length === 0) return null;
 
-    const selected = selectTop1RmExercises(exercises, STATS_CHARTS_MAX_1RM_SERIES);
+    const selected = selectTop1RmExercises(exercises, STATS_INSIGHTS_MAX_1RM_SERIES);
     const weekKeys = weekCategories(selected.flatMap((e) => e.weeks.map((w) => w.weekKey)));
 
     const series: SeriesLineOptions[] = selected.map((exercise) => {
@@ -228,7 +228,7 @@ function volumeTooltip(this: Point): string {
 export function buildVolumeByExerciseChartOptions(weeks: VolumeWeekVM[]): Options | null {
     if (weeks.length === 0) return null;
 
-    const selection = selectTopVolumeExercises(weeks, STATS_CHARTS_MAX_VOLUME_SERIES);
+    const selection = selectTopVolumeExercises(weeks, STATS_INSIGHTS_MAX_VOLUME_SERIES);
     const weekKeys = volumeWeekKeys(weeks);
 
     const series: SeriesColumnOptions[] = selection.keptIds.map((id) => ({
@@ -243,7 +243,7 @@ export function buildVolumeByExerciseChartOptions(weeks: VolumeWeekVM[]): Option
     if (selection.otherIds.length > 0) {
         series.push({
             type: 'column',
-            name: STATS_CHARTS_OTHERS_SERIES_NAME,
+            name: STATS_INSIGHTS_OTHERS_SERIES_NAME,
             stack: VOLUME_STACK,
             data: weeks.map((week) => ({
                 name: week.weekKey,

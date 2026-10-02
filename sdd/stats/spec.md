@@ -17,13 +17,15 @@ worker/Lambda. Backend resolvers live in `stats.resolver.ts`, response shapes in
 Visualization uses **Highcharts** (highcharts + highcharts-angular v5), a new
 project dependency approved for this feature.
 
-> **Related feature:** `/stats/charts` is a **separate** page, not an extension
+> **Related feature:** `/stats/insights` is a **separate** page, not an extension
 > of this one. It aggregates the raw training history on demand over a
 > **user-selected date range** through six other queries, whereas the four
 > queries below are **unparameterized** worker snapshots. See
-> [stats-charts](../stats-charts/spec.md). The two pages share the Highcharts
+> [stats-insights](../stats-insights/spec.md). The two pages share the Highcharts
 > theme, the card shell (`app-stats-section`) and the chart wrapper
 > (`app-stats-chart`), but have independent services, state and data contracts.
+> (That feature was specced as `stats-charts` at `/stats/charts` and was renamed
+> to `stats-insights`; its backend input type is still `StatsChartsInput`.)
 
 ## Requirements
 
@@ -32,6 +34,15 @@ project dependency approved for this feature.
 - **FR-001** `/stats` is a top-level route protected by `authGuard` (BR-005),
   loaded lazily, reachable from the header **user dropdown** (desktop + mobile)
   next to "Mi Historial".
+
+    > **Correction 7 (route restructuring).** `/stats` is no longer a leaf route.
+    > It is registered as `loadChildren` over `pages/stats/stats.routes.ts`, which
+    > maps `''` to this dashboard and `'insights'` to `/stats/insights` (owned by
+    > `sdd/stats-insights/spec.md`). `authGuard` stays on the parent entry, so both
+    > children are protected by one guard. The header needs no change:
+    > `isActive()` compares with `startsWith`, so `/stats/insights` keeps `/stats`
+    > highlighted. No requirement in this Spec changes behaviourally.
+
 - **FR-002** `StatsService` exposes four getters that run `network-only`
   (NFR-001) and normalize failures through `handleGraphqlError`:
   `getTopExercises`, `getTopRoutines`, `getPersonalRecords`, `getAdherence`.
@@ -151,10 +162,18 @@ unaffected and each still resolves from one request.
 UI tree:
 
 ```
-/stats → Stats (app-stats) — thin orchestrator (state → options via mappers)
- └── StatsSection (app-stats-section) — card shell: skeleton / empty / error+retry / content
-       └── StatsChart (app-stats-chart) — generic <highcharts-chart> wrapper (theme applied)
+/stats → StatsRoutes (pages/stats/stats.routes.ts, authGuard on the parent in app.routes.ts)
+  ├── '' → Stats (app-stats) — thin orchestrator (state → options via mappers)
+  │    └── StatsSection (app-stats-section) — card shell: skeleton / empty / error+retry / content
+  │         └── StatsChart (app-stats-chart) — generic <highcharts-chart> wrapper (theme applied)
+  └── 'insights' → StatsInsights (app-stats-insights) — range-parameterized page
+       (owned by sdd/stats-insights/spec.md; reuses StatsSection and StatsChart,
+       adds the `refreshing` and `subtitle` inputs to StatsSection)
 ```
+
+> **Correction 7.** The tree above is the delivered shape. `StatsSection` gained
+> two inputs (`refreshing`, `subtitle`) for the charts page; its four-state
+> precedence is unchanged.
 
 - `Stats` owns no query/persistence logic: it reads `StatsState` signals,
   starts `load()` on `ngOnInit`, maps VM → options through the pure mappers, and

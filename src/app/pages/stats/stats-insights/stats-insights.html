@@ -1,6 +1,6 @@
 <section class="container px-4 py-4 max-w-2xl mx-auto mt-8 pb-12">
   @if (notification(); as alert) {
-    <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-full max-w-sm">
+    <div class="fixed top-20 left-1/2 -translate-y-1/2 z-[60] w-full max-w-sm">
       <app-notification
         [message]="alert.message"
         [type]="alert.type"
@@ -13,41 +13,43 @@
   <div class="bg-background2 py-8 rounded-2xl px-4 flex flex-col gap-3 mb-6">
     <h1 class="text-4xl font-bold text-center text-primary">Explorar por rango</h1>
     <p class="text-text2 text-center text-sm leading-relaxed">
-      Cómo cambió tu entrenamiento entre dos fechas. Las seis lecturas se calculan al momento.
+      Elegí una lectura, ajustá el rango y apretá "Ver gráficas". Sólo se calcula lo que pedís.
     </p>
     <app-text-link class="mx-auto" [text]="'Volver a Mis Estadísticas'" [routerLink]="'/stats'">
     </app-text-link>
   </div>
 
-  <app-stats-date-range
-    class="block mb-6"
-    [from]="range().from"
-    [to]="range().to"
-    (rangeChange)="onRangeChange($event)"
-  />
+  <div class="bg-background2 rounded-2xl p-5 mb-6">
+    <app-stats-insights-controls
+      [options]="metricOptions"
+      [from]="seedRange().from"
+      [to]="seedRange().to"
+      [isRunning]="isRunning()"
+      (run)="onRun($event)"
+    />
+  </div>
 
-  <div class="flex flex-col gap-6">
-    @for (card of cards; track card.section) {
-      <app-stats-section
-        [title]="card.title"
-        [subtitle]="rangeLabel()"
-        [loading]="card.loading()"
-        [refreshing]="card.refreshing()"
-        [error]="entries[card.section]().error"
-        [empty]="card.empty()"
-        [emptyMessage]="card.emptyMessage"
-        (retry)="retry(card.section)"
-      >
-        @for (chart of card.charts; track $index) {
-          @if (chart()) {
-            <app-stats-chart [options]="chart()" />
-          }
-        }
-
+  @if (visibleCard(); as card) {
+    <app-stats-insights-card
+      [title]="card.title"
+      [subtitle]="rangeLabel()"
+      [emptyMessage]="card.emptyMessage"
+      [charts]="card.charts"
+      [loading]="isRunning()"
+      [hasData]="hasData(card.section)"
+      [empty]="isEmpty(card.section)"
+      [error]="errorFor(card.section)"
+      (retry)="retry(card.section)"
+    >
+      <!-- El `cardExtras` va en un elemento propio, no dentro del `@switch`: la
+           proyección `[cardExtras]` matchea contra los nodos de primer nivel del
+           contenido, y un `@switch` es uno de ellos. Con el atributo puesto
+           adentro, el selector no matchea nada y las listas desaparecen. -->
+      <div cardExtras class="flex flex-col gap-3">
         @switch (card.section) {
           @case ('calories') {
-            <!-- El backend no estima las calorías de rutina: decirlo evita que
-                 la serie faltante se lea como un bug del frontend (FR-015). -->
+            <!-- El backend no estima las calorías de rutina: decirlo evita que la
+                 serie faltante se lea como un bug del frontend (FR-015). -->
             <p class="text-xs text-text2">
               Las calorías de rutina no están calculadas por el servidor; solo se muestran sesiones
               extra.
@@ -97,7 +99,7 @@
             }
           }
         }
-      </app-stats-section>
-    }
-  </div>
+      </div>
+    </app-stats-insights-card>
+  }
 </section>

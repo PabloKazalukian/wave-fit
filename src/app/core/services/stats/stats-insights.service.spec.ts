@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Apollo } from 'apollo-angular';
 import { Observable, of, throwError } from 'rxjs';
-import { StatsChartsService } from './stats-charts.service';
+import { StatsInsightsService } from './stats-insights.service';
 import { AuthService } from '../auth/auth.service';
 import {
     CaloriesWeekAPI,
@@ -11,15 +11,15 @@ import {
     VolumeTotalWeekAPI,
     VolumeWeekAPI,
 } from '../../../shared/interfaces/api/stats-charts-api.interface';
-import type { StatsChartsQueryInput } from '../../../shared/interfaces/stats-charts.interface';
+import type { StatsInsightsQueryInput } from '../../../shared/interfaces/stats-insights.interface';
 
 type Observed<T> = T extends Observable<infer U> ? U : never;
 
-describe('StatsChartsService (TEST-008)', () => {
-    let service: StatsChartsService;
+describe('StatsInsightsService (TEST-008)', () => {
+    let service: StatsInsightsService;
     let apollo: { query: jasmine.Spy };
 
-    const input: StatsChartsQueryInput = {
+    const input: StatsInsightsQueryInput = {
         from: '2026-08-02',
         to: '2026-09-01',
         timezone: 'America/Argentina/Buenos_Aires',
@@ -90,13 +90,13 @@ describe('StatsChartsService (TEST-008)', () => {
 
         TestBed.configureTestingModule({
             providers: [
-                StatsChartsService,
+                StatsInsightsService,
                 { provide: Apollo, useValue: apollo },
                 { provide: AuthService, useValue: {} },
             ],
         });
 
-        service = TestBed.inject(StatsChartsService);
+        service = TestBed.inject(StatsInsightsService);
     });
 
     describe('query shape', () => {
@@ -105,7 +105,7 @@ describe('StatsChartsService (TEST-008)', () => {
         // un array de funciones distintas se inferiría como unión y `.subscribe`
         // dejaría de ser invocable.
         interface GetterCase {
-            call: (i: StatsChartsQueryInput) => Observable<unknown>;
+            call: (i: StatsInsightsQueryInput) => Observable<unknown>;
             field: string;
             payload: unknown[];
         }

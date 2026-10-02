@@ -84,7 +84,7 @@ describe('stats-chart.theme', () => {
     });
 });
 
-describe('stats-chart.theme — /stats/charts additions (TEST-007)', () => {
+describe('stats-chart.theme — /stats/insights additions (TEST-007)', () => {
     describe('formatWeekKey', () => {
         it('reduces an ISO week key to its W## label', () => {
             expect(formatWeekKey('2026-W40')).toBe('W40');

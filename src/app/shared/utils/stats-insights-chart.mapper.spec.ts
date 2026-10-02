@@ -10,18 +10,18 @@ import {
     selectTop1RmExercises,
     selectTopVolumeExercises,
     weekCategories,
-} from './stats-charts-chart.mapper';
+} from './stats-insights-chart.mapper';
 import {
     CaloriesWeekVM,
     ExerciseTrendVM,
     ForgottenMuscleVM,
     OneRmExerciseVM,
-    STATS_CHARTS_MAX_1RM_SERIES,
-    STATS_CHARTS_MAX_VOLUME_SERIES,
-    STATS_CHARTS_OTHERS_SERIES_NAME,
+    STATS_INSIGHTS_MAX_1RM_SERIES,
+    STATS_INSIGHTS_MAX_VOLUME_SERIES,
+    STATS_INSIGHTS_OTHERS_SERIES_NAME,
     VolumeTotalWeekVM,
     VolumeWeekVM,
-} from '../interfaces/stats-charts.interface';
+} from '../interfaces/stats-insights.interface';
 import type { StatsCategory } from '../interfaces/stats.interface';
 import { DELOAD_POINT_COLOR, TREND_LABEL_COLORS } from './stats-chart.theme';
 
@@ -126,14 +126,14 @@ describe('buildOneRmWeeklyChartOptions (TEST-011)', () => {
         ).toBe(false);
     });
 
-    it('selects at most STATS_CHARTS_MAX_1RM_SERIES series', () => {
-        const many = Array.from({ length: STATS_CHARTS_MAX_1RM_SERIES + 2 }, (_, i) =>
+    it('selects at most STATS_INSIGHTS_MAX_1RM_SERIES series', () => {
+        const many = Array.from({ length: STATS_INSIGHTS_MAX_1RM_SERIES + 2 }, (_, i) =>
             oneRmExercise(`e${i}`, `Ejercicio ${i}`, [oneRmWeek('2026-W40', 100 + i)]),
         );
 
         const options = buildOneRmWeeklyChartOptions(many);
 
-        expect(seriesOf(options!).length).toBe(STATS_CHARTS_MAX_1RM_SERIES);
+        expect(seriesOf(options!).length).toBe(STATS_INSIGHTS_MAX_1RM_SERIES);
     });
 
     it('ranks by participating weeks and breaks ties by name', () => {
@@ -204,7 +204,7 @@ describe('volume mappers (TEST-012)', () => {
         });
 
         it('returns no otherIds when everything fits under the limit', () => {
-            const selection = selectTopVolumeExercises(weeks, STATS_CHARTS_MAX_VOLUME_SERIES);
+            const selection = selectTopVolumeExercises(weeks, STATS_INSIGHTS_MAX_VOLUME_SERIES);
 
             expect(selection.otherIds).toEqual([]);
         });
@@ -223,16 +223,16 @@ describe('volume mappers (TEST-012)', () => {
             const options = buildVolumeByExerciseChartOptions(manyExercises);
             const series = seriesOf(options!);
 
-            expect(series.length).toBe(STATS_CHARTS_MAX_VOLUME_SERIES + 1);
+            expect(series.length).toBe(STATS_INSIGHTS_MAX_VOLUME_SERIES + 1);
             expect(series.every((s) => s.stack === 'volume')).toBeTrue();
-            expect(series[series.length - 1].name).toBe(STATS_CHARTS_OTHERS_SERIES_NAME);
+            expect(series[series.length - 1].name).toBe(STATS_INSIGHTS_OTHERS_SERIES_NAME);
         });
 
         it('adds no "Otros" series when every exercise fits under the cap', () => {
             const options = buildVolumeByExerciseChartOptions(weeks);
             const series = seriesOf(options!);
 
-            expect(series.map((s) => s.name)).not.toContain(STATS_CHARTS_OTHERS_SERIES_NAME);
+            expect(series.map((s) => s.name)).not.toContain(STATS_INSIGHTS_OTHERS_SERIES_NAME);
             expect(series.length).toBe(3);
         });
 

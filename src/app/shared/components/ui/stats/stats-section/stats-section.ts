@@ -36,7 +36,7 @@ export class StatsSection {
 
     /**
      * Segunda línea del header. `/stats` usa `computedAt` porque sus datos son un
-     * snapshot; `/stats/charts` son queries on demand sin timestamp, así que
+     * snapshot; `/stats/insights` son queries on demand sin timestamp, así que
      * muestra el rango seleccionado en su lugar (por eso no hay `computedAt`
      * allí, y por eso esta card no inventa una hora de "actualización").
      */
