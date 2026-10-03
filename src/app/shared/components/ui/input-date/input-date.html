@@ -1,0 +1,96 @@
+<div class="relative flex flex-col gap-2 w-full">
+  @if (label()) {
+    <span class="font-semibold text-white text-sm">{{ label() }}</span>
+  }
+
+  <button
+    type="button"
+    [attr.aria-expanded]="open()"
+    [attr.aria-label]="open() ? 'Cerrar calendario' : 'Abrir calendario'"
+    [disabled]="isDisabled()"
+    (click)="toggle()"
+    [ngClass]="{
+      'border-error': showError(),
+      'border-primary': !showError(),
+      'opacity-50 cursor-not-allowed': isDisabled(),
+    }"
+    class="h-10 flex items-center justify-between gap-2 px-3 bg-background2 rounded-lg border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+  >
+    <span class="value-display text-sm" [ngClass]="hasValue() ? 'text-primary' : 'text-text2'">
+      {{ displayValue() }}
+    </span>
+    <span class="text-text2 text-xs" aria-hidden="true">▾</span>
+  </button>
+
+  @if (showError()) {
+    <div class="text-error text-sm">Fecha inválida</div>
+  }
+
+  @if (open()) {
+    <div
+      class="calendar-popover absolute z-10 mt-1 w-[19rem] bg-background1 border border-surface/20 rounded-xl p-3 shadow-lg"
+      role="dialog"
+      aria-label="Calendario"
+    >
+      <div class="flex items-center justify-between mb-2">
+        <button
+          type="button"
+          data-nav="prev"
+          aria-label="Mes anterior"
+          (click)="shiftMonth(-1)"
+          class="w-8 h-8 rounded-lg bg-background2 text-text2 hover:text-primary"
+        >
+          ‹
+        </button>
+        <span class="text-sm font-semibold text-white">{{ monthLabel() }}</span>
+        <button
+          type="button"
+          data-nav="next"
+          aria-label="Mes siguiente"
+          (click)="shiftMonth(1)"
+          class="w-8 h-8 rounded-lg bg-background2 text-text2 hover:text-primary"
+        >
+          ›
+        </button>
+      </div>
+
+      <div class="grid grid-cols-7 gap-1 mb-1" aria-hidden="true">
+        @for (weekday of weekdayLabels; track $index) {
+          <span class="weekday text-center text-xs text-text2">{{ weekday }}</span>
+        }
+      </div>
+
+      <div class="grid grid-cols-7 gap-1">
+        @for (day of days(); track day.localDate) {
+          <!-- FR-025: el hover no pisa el relleno del día seleccionado —ese
+               relleno *es* el valor actual del campo— ni el de un día
+               bloqueado, que Tailwind también estiliza con :hover por estar
+               `disabled` en algunos navegadores. -->
+          <button
+            type="button"
+            [attr.data-date]="day.localDate"
+            [attr.aria-label]="day.localDate"
+            [disabled]="day.isDisabled"
+            [tabindex]="day.isDisabled ? -1 : 0"
+            (click)="select(day)"
+            [ngClass]="{
+              'is-today': day.isToday,
+              'is-selected': day.isSelected,
+              'bg-primary text-background': day.isSelected,
+              'bg-primaryDark': day.isToday && !day.isSelected,
+              'bg-background2': !day.isSelected && !day.isToday,
+              'text-text3': !day.isSelected && !day.isToday,
+              'opacity-40 cursor-not-allowed': day.isDisabled,
+              'opacity-30': !day.inMonth && !day.isSelected && !day.isToday,
+              'hover:bg-accent/70': !day.isDisabled && !day.isSelected,
+              'disabled:hover:bg-transparent': day.isDisabled,
+            }"
+            class="h-8 rounded-lg text-sm text-center transition-colors"
+          >
+            {{ day.dayNumber }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

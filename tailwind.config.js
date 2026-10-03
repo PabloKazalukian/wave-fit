@@ -177,6 +177,10 @@ module.exports = {
         'bg-text2/25',
         'text-text3/30',
         'hover:bg-accent/25',
+        // Calendar day hover (FR-025, ui-conventions.md §1.1)
+        'hover:bg-accent/70',
+        'disabled:hover:bg-transparent',
+        'transition-colors',
         'hover:scale-110',
     ],
     theme: {

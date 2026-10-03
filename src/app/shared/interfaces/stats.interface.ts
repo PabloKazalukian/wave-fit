@@ -1,5 +1,5 @@
 import type { ExerciseCategory } from './exercise.interface';
-import type { LocalDate } from './api/stats-api.interface';
+import type { LocalDate } from './local-date.interface';
 
 export type StatsCategory = ExerciseCategory | 'unknown';
 

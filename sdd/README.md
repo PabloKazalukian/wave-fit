@@ -48,20 +48,21 @@ Use explicit, stable identifiers:
 
 ## Specs
 
-| Feature             | Spec                                         | Routes                                                 |
-| ------------------- | -------------------------------------------- | ------------------------------------------------------ |
-| Authentication      | [auth](auth/spec.md)                         | `/auth/*`                                              |
-| Exercises           | [exercises](exercises/spec.md)               | `/exercises`                                           |
-| Routines            | [routines](routines/spec.md)                 | `/routines/show/:id`                                   |
-| Plans (template)    | [plans](plans/spec.md)                       | `/plans`, `/plans/create`                              |
-| Tracking (week-log) | [tracking](tracking/spec.md)                 | `/my-week`, `/my-week/success`, `/user/trackings*`     |
-| Day-log             | [day-log](day-log/spec.md)                   | `/my-day`, `/my-day/success`, `/tracking-day/show/:id` |
-| Extra sessions      | [extra-session](extra-session/spec.md)       | (dialogs/widgets)                                      |
-| Coach AI            | [coach](coach/spec.md)                       | `/coach`                                               |
-| Stats dashboard     | [stats](stats/spec.md)                       | `/stats`                                               |
-| User profile        | [user-profile](user-profile/spec.md)         | `/user`, `/user/profile`                               |
-| Training history    | [training-history](training-history/spec.md) | `/user/history`                                        |
-| PWA / offline       | [pwa-offline](pwa-offline/spec.md)           | (whole app)                                            |
+| Feature                | Spec                                         | Routes                                                 |
+| ---------------------- | -------------------------------------------- | ------------------------------------------------------ |
+| Authentication         | [auth](auth/spec.md)                         | `/auth/*`                                              |
+| Exercises              | [exercises](exercises/spec.md)               | `/exercises`                                           |
+| Routines               | [routines](routines/spec.md)                 | `/routines/show/:id`                                   |
+| Plans (template)       | [plans](plans/spec.md)                       | `/plans`, `/plans/create`                              |
+| Tracking (week-log)    | [tracking](tracking/spec.md)                 | `/my-week`, `/my-week/success`, `/user/trackings*`     |
+| Day-log                | [day-log](day-log/spec.md)                   | `/my-day`, `/my-day/success`, `/tracking-day/show/:id` |
+| Extra sessions         | [extra-session](extra-session/spec.md)       | (dialogs/widgets)                                      |
+| Coach AI               | [coach](coach/spec.md)                       | `/coach`                                               |
+| Stats dashboard        | [stats](stats/spec.md)                       | `/stats`                                               |
+| Stats insights (range) | [stats-insights](stats-insights/spec.md)     | `/stats/insights`                                      |
+| User profile           | [user-profile](user-profile/spec.md)         | `/user`, `/user/profile`                               |
+| Training history       | [training-history](training-history/spec.md) | `/user/history`                                        |
+| PWA / offline          | [pwa-offline](pwa-offline/spec.md)           | (whole app)                                            |
 
 ---
 

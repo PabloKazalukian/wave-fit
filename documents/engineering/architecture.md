@@ -80,13 +80,20 @@ src/app/
 │   ├── my-week/         # Week-log training (+ success/)
 │   ├── plans/           # Plans list (+ create/)
 │   ├── routines/        # (+ show/:id)
-│   ├── stats/           # Read-only stats dashboard (Highcharts: top exercises/routines, PRs, adherence)
+│   ├── stats/           # Read-only stats (Highcharts), routed by stats.routes.ts
+│   │   ├── stats.routes.ts        # '' → dashboard, 'insights' → insights page
+│   │   ├── stats-insights/         # Date-range analytics page (/stats/insights)
 │   ├── tracking-day/    # (+ show/)
 │   ├── trackings/       # list, show/:id
 │   └── user/            # profile, history
 ├── shared/
 │   ├── animations/
-│   ├── components/      # feature widgets (page building blocks) + ui (dumb)
+│   ├── components/
+│   │   ├── ui/          # dumb controls (btn, select, input-date, stats-section, …)
+│   │   └── widgets/     # feature widgets (page building blocks)
+│   │       └── stats/   # stats-date-range, stats-chart,
+│   │                    # stats-insights-controls (the input chain),
+│   │                    # stats-insights-card (one card per section)
 │   ├── interfaces/      # *.interface.ts (+ api/, input*.ts)
 │   ├── pipes/
 │   ├── utils/
@@ -124,14 +131,14 @@ It exposes `hasActive`, `isWeekLogActive`, `isDayLogActive`, and `mode: 'week' |
 
 Services are grouped under `core/services/<feature>/` and classified by complexity:
 
-| Complexity | Pattern                        | Services                                                                                                                                                    |
-| ---------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **High**   | Domain + API + Storage + State | `PlanTrackingService`, `PlanDayService`                                                                                                                     |
-| **High**   | Domain + API + State           | `UserProfileService`                                                                                                                                        |
-| **Medium** | API + Storage + State          | `PlansService`                                                                                                                                              |
-| **Medium** | API + State                    | `ExtraSessionService`, `WorkoutStateService` (+ `DayWorkoutStore`), `CoachService` (API + State + Storage), `ActiveTrackingService` (+ `ActiveTrackingApi`) |
-| **Low**    | API + Service                  | `ExercisesService`, `RoutinesService`, `AuthService`, `TrainingHistoryService`, `StatsService` (+ `StatsState` read-only per-section signals)                          |
-| **Infra**  | Support                        | `NetworkStatusService`, `SyncQueueService`, `IndexedDbStorageService`, `DateService`, `WarmupService`                                                       |
+| Complexity | Pattern                        | Services                                                                                                                                                                                                            |
+| ---------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **High**   | Domain + API + Storage + State | `PlanTrackingService`, `PlanDayService`                                                                                                                                                                             |
+| **High**   | Domain + API + State           | `UserProfileService`                                                                                                                                                                                                |
+| **Medium** | API + Storage + State          | `PlansService`                                                                                                                                                                                                      |
+| **Medium** | API + State                    | `ExtraSessionService`, `WorkoutStateService` (+ `DayWorkoutStore`), `CoachService` (API + State + Storage), `ActiveTrackingService` (+ `ActiveTrackingApi`)                                                         |
+| **Low**    | API + Service                  | `ExercisesService`, `RoutinesService`, `AuthService`, `TrainingHistoryService`, `StatsService` (+ `StatsState` read-only per-section signals), `StatsInsightsService` (+ `StatsInsightsState`, range-parameterized) |
+| **Infra**  | Support                        | `NetworkStatusService`, `SyncQueueService`, `IndexedDbStorageService`, `DateService`, `WarmupService`                                                                                                               |
 
 ### Folder layout (current)
 
@@ -145,7 +152,9 @@ core/services/
 ├── network/         # network-status.service.ts
 ├── plans/           # plans.service.ts, day-plan-state.service.ts, api/, storage/
 ├── routines/        # routines.service.ts, api/routines.api.ts
-├── stats/           # stats.service.ts (4 network-only getters), stats.state.ts (per-section signals)
+├── stats/           # stats.service.ts (4 network-only getters), stats.state.ts (per-section signals),
+│                    # stats-insights.service.ts (6 range-parameterized getters),
+│                    # stats-insights.state.ts (one switchMap per section, run(section, range))
 ├── storage/         # indexed-db.service.ts (Dexie)
 ├── sync/            # sync-queue.service.ts, sync.types.ts
 ├── trackings/       # plan-tracking.service.ts / .domain.ts / .state.ts,

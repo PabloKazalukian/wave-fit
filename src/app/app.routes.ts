@@ -19,7 +19,7 @@ export const routes: Routes = [
     },
     {
         path: 'stats',
-        loadComponent: () => import('./pages/stats/stats').then((m) => m.StatsPage),
+        loadChildren: () => import('./pages/stats/stats.routes').then((m) => m.STATS_ROUTES),
         canActivate: [authGuard],
     },
     {

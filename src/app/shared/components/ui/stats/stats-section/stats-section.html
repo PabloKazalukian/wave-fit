@@ -1,6 +1,15 @@
 <section class="bg-background2 rounded-2xl p-5 w-full flex flex-col gap-4">
   <header class="flex flex-col gap-1">
-    <h2 class="text-xl font-bold text-primary">{{ title() }}</h2>
+    <div class="flex items-center gap-2">
+      <h2 class="text-xl font-bold text-primary">{{ title() }}</h2>
+      <!-- Refetch con datos en pantalla: acompaña el header, no reemplaza el chart. -->
+      @if (refreshing()) {
+        <app-loading color="primary" size="sm"></app-loading>
+      }
+    </div>
+    @if (subtitle()) {
+      <p class="subtitle text-xs text-text2">{{ subtitle() }}</p>
+    }
     @if (computedAt()) {
       <p class="text-xs text-text2">Actualizado el {{ formatDateTime(computedAt()!) }}</p>
     }

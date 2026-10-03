@@ -11,6 +11,7 @@ import {
 import { StatsSection as StatsSectionComponent } from '../../shared/components/ui/stats/stats-section/stats-section';
 import { StatsChart } from '../../shared/components/widgets/stats/stats-chart/stats-chart';
 import { Notification } from '../../shared/components/ui/notification/notification';
+import { BtnComponent } from '../../shared/components/ui/btn/btn';
 import { ExerciseCategoryPipe } from '../../shared/pipes/exercise-category.pipe';
 import { formatLocalDateShort, formatWeight } from '../../shared/utils/stats-chart.theme';
 
@@ -22,7 +23,7 @@ interface RecordRow {
 @Component({
     selector: 'app-stats-page',
     standalone: true,
-    imports: [StatsSectionComponent, StatsChart, Notification, ExerciseCategoryPipe],
+    imports: [StatsSectionComponent, StatsChart, Notification, ExerciseCategoryPipe, BtnComponent],
     templateUrl: './stats.html',
     styles: ``,
 })

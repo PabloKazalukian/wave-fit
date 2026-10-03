@@ -1,0 +1,33 @@
+<div class="flex flex-col gap-4 w-full">
+  <app-select
+    [label]="metricLabel"
+    [text]="metricPlaceholder"
+    [options]="selectOptions()"
+    [control]="metricControl"
+    [showClear]="true"
+    (clearValue)="metricControl.setValue(null)"
+  />
+
+  <app-stats-date-range
+    [from]="from()"
+    [to]="to()"
+    [isDisabled]="isRunning()"
+    (rangeChange)="onRangeChange($event)"
+  />
+
+  <div class="flex items-center gap-3">
+    <app-btn
+      class="w-auto px-6"
+      [text]="runText"
+      [size]="'sm'"
+      [variant]="'raised'"
+      [color]="'primary'"
+      [isDisabled]="!canRun()"
+      [dataTest]="'run-charts'"
+      (click)="submit()"
+    />
+    @if (isRunning()) {
+      <app-spinner class="w-4 shrink-0" />
+    }
+  </div>
+</div>

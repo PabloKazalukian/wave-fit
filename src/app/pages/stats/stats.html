@@ -1,4 +1,4 @@
-<section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+<section class="container px-4 py-4 max-w-2xl mx-auto mt-8 pb-12">
   @if (notification()) {
     <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-full max-w-sm">
       <app-notification
@@ -15,6 +15,18 @@
     <p class="text-text2 text-center text-sm leading-relaxed">
       Resumen de tu progreso de entrenamiento.
     </p>
+    <!-- Entrada a la analítica por rango: son datos distintos (agregación on
+         demand, no snapshots), así que es una página hermana y no una vista
+         más de este dashboard (FR-002). -->
+    <app-btn
+      class="mt-2"
+      [text]="'Explorar por rango de fechas'"
+      [variant]="'raised'"
+      [size]="'md'"
+      [color]="'primary'"
+      [showIcon]="true"
+      [routerLink]="'/stats/insights'"
+    />
   </section>
 
   <div class="flex flex-col gap-6">
