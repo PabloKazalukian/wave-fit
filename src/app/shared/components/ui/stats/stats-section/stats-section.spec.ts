@@ -5,7 +5,9 @@ import { StatsSection } from './stats-section';
 /** Host con contenido proyectado: sin él no se puede probar que `<ng-content>` sobrevive. */
 @Component({
     imports: [StatsSection],
-    template: `<app-stats-section [refreshing]="refreshing()" [loading]="loading()"><p class="projected">contenido real</p></app-stats-section>`,
+    template: `<app-stats-section [refreshing]="refreshing()" [loading]="loading()"
+        ><p class="projected">contenido real</p></app-stats-section
+    >`,
 })
 class Host {
     refreshing = signal(false);
