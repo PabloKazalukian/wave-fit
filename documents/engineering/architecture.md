@@ -81,7 +81,7 @@ src/app/
 │   ├── plans/           # Plans list (+ create/)
 │   ├── routines/        # (+ show/:id)
 │   ├── stats/           # Read-only stats (Highcharts), routed by stats.routes.ts
-│   │   ├── stats.routes.ts        # '' → dashboard, 'charts' → charts page
+│   │   ├── stats.routes.ts        # '' → dashboard, 'insights' → insights page
 │   │   ├── stats-insights/         # Date-range analytics page (/stats/insights)
 │   ├── tracking-day/    # (+ show/)
 │   ├── trackings/       # list, show/:id

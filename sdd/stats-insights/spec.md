@@ -95,7 +95,7 @@ match the repo conventions:
 
 - **FR-001 Route.** `/stats` becomes a `loadChildren` route
   (`STATS_ROUTES` in `src/app/pages/stats/stats.routes.ts`) with two children:
-  `''` → the existing `StatsPage`, `'charts'` → the new `StatsInsightsPage`.
+  `''` → the existing `StatsPage`, `'insights'` → the new `StatsInsightsPage`.
   Both are lazy (`loadComponent`) and the parent carries
   `canActivate: [authGuard]` (BR-005). `/stats/insights` is a child of `/stats`,
   not a flat sibling path.

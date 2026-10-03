@@ -172,7 +172,7 @@ UI tree:
 ```
 
 > **Correction 7.** The tree above is the delivered shape. `StatsSection` gained
-> two inputs (`refreshing`, `subtitle`) for the charts page; its four-state
+> two inputs (`refreshing`, `subtitle`) for the insights page; its four-state
 > precedence is unchanged.
 
 - `Stats` owns no query/persistence logic: it reads `StatsState` signals,
