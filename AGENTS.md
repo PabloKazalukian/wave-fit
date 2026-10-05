@@ -108,6 +108,18 @@ npx prettier --check .   # formatting (no npm script; .prettierrc configured)
 E2E uses Playwright (`@playwright/test`) — see `documents/engineering/testing.md`.
 Before touching templates, read `documents/design/ui-conventions.md` and `documents/design/ui-components.md`.
 
+## Agent Execution Boundaries
+
+- Every command an agent runs must stay **inside the repository working tree**.
+  Never read, write, or delete anything outside the project directory, and never
+  request user permission for a path outside it.
+- Scratch space, throwaway clones, and verification checkouts belong in the
+  gitignored `tmp/` directory at the repository root (already ignored via `/tmp`
+  in `.gitignore`), so they cannot pollute `git status`.
+- This applies to temporary files, log/output redirection, and cleanup steps.
+  If a task appears to require an external path, it must be redesigned to work
+  in-tree rather than escalated.
+
 ## Repository Map
 
 - `src/` — application code (`src/app/core`, `src/app/pages`, `src/app/shared`)
