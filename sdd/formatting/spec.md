@@ -47,15 +47,15 @@ configurations. It does not cover `e2e/`, `documents/`, `sdd/`, `public/`,
 `--end-of-line auto` to exclude the line-ending noise, the real formatting debt
 on `main` is **25 files**:
 
-| Category                   | Count | Cause                                                            |
-| -------------------------- | ----: | ---------------------------------------------------------------- |
-| Markdown                   |    11 | table column widths not normalized                               |
+| Category                   | Count | Cause                                                                         |
+| -------------------------- | ----: | ----------------------------------------------------------------------------- |
+| Markdown                   |    11 | table column widths not normalized                                            |
 | JSON                       |     6 | 2-space indentation against the 4-space policy (`.vscode/`, `tsconfig*.json`) |
-| JSON (`.opencode/`)        |     2 | 2-space indentation; excluded by FR-005                          |
-| TypeScript (`e2e/`)        |     3 | 2-space indentation; `e2e/` was never formatted                  |
-| YAML (`.github/workflows`) |     1 | not covered by the gate                                          |
-| Web manifest               |     1 | not covered by the gate                                          |
-| `.prettierrc`              |     1 | its own indentation                                              |
+| JSON (`.opencode/`)        |     2 | 2-space indentation; excluded by FR-005                                       |
+| TypeScript (`e2e/`)        |     3 | 2-space indentation; `e2e/` was never formatted                               |
+| YAML (`.github/workflows`) |     1 | not covered by the gate                                                       |
+| Web manifest               |     1 | not covered by the gate                                                       |
+| `.prettierrc`              |     1 | its own indentation                                                           |
 
 **Zero** of these are under `src/`: the application sources are already compliant
 with the effective configuration. `AGENTS.md` nevertheless advertises
@@ -254,11 +254,11 @@ the defect in place.
 
 | File                                        | Change                                                                                          |
 | ------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `.gitattributes`                            | **new** — `* text=auto eol=lf`, followed by `git add --renormalize .` (FR-003)                 |
+| `.gitattributes`                            | **new** — `* text=auto eol=lf`, followed by `git add --renormalize .` (FR-003)                  |
 | `package.json`                              | `prettier` key expanded per FR-002; `format:check` → `prettier --check .`; `format:write` added |
 | `.prettierrc`                               | **deleted** (FR-001)                                                                            |
-| `.prettierignore`                           | adds `package-lock.json`, `.opencode/package.json`, `documents/legacy/`, Playwright output   |
-| 23 files listed below                       | 22 formatted + `.prettierrc` deleted (FR-006)                                                  |
+| `.prettierignore`                           | adds `package-lock.json`, `.opencode/package.json`, `documents/legacy/`, Playwright output      |
+| 23 files listed below                       | 22 formatted + `.prettierrc` deleted (FR-006)                                                   |
 | `documents/engineering/ci-cd.md`            | real scope and `printWidth` (FR-008)                                                            |
 | `documents/engineering/coding-standards.md` | single config, EOL policy, scripts (FR-008)                                                     |
 | `AGENTS.md`                                 | `npm run format:check` as the formatting gate (FR-008)                                          |

@@ -16,13 +16,13 @@ must pass CI or it is rejected).
 
 Spec and plan first, then the pipeline, with local validation of every gate.
 
-| Commit (feature/ci-cd) | Content |
-| ---------------------- | ------- |
-| `e747409` | `sdd/ci-cd/spec.md`, `documents/plans/ci-cd/plan.md`, `typecheck` npm script |
-| `cc9d113` | Lint debt cleanup (~88 pre-existing ESLint errors → 0) and one-time Prettier format of `src/**` + tooling configs |
-| `577e149` | `.github/workflows/ci.yml` (4 jobs) + `format:check` npm script |
-| `0b4c30e` | Spec/plan updated to the Prettier decision; engineering docs reflect the committed pipeline; plan marked historical |
-| `40e5c40` | `package-lock.json` sync for `npm ci` (chokidar@5/readdirp@5 incident, see §4) |
+| Commit (feature/ci-cd) | Content                                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `e747409`              | `sdd/ci-cd/spec.md`, `documents/plans/ci-cd/plan.md`, `typecheck` npm script                                        |
+| `cc9d113`              | Lint debt cleanup (~88 pre-existing ESLint errors → 0) and one-time Prettier format of `src/**` + tooling configs   |
+| `577e149`              | `.github/workflows/ci.yml` (4 jobs) + `format:check` npm script                                                     |
+| `0b4c30e`              | Spec/plan updated to the Prettier decision; engineering docs reflect the committed pipeline; plan marked historical |
+| `40e5c40`              | `package-lock.json` sync for `npm ci` (chokidar@5/readdirp@5 incident, see §4)                                      |
 
 Supporting work on `main`:
 
@@ -36,12 +36,12 @@ Supporting work on `main`:
 - Four parallel jobs on `ubuntu-latest`, each: checkout → setup-node (Node 20,
   npm cache) → `npm ci` → gate.
 
-| Job | Command | Notes |
-| --- | ------- | ----- |
-| `lint` | `npm run lint` + `npm run format:check` | ESLint + Prettier (scoped to `src/**` + root tooling configs) |
-| `typecheck` | `npm run typecheck` | `tsc --noEmit -p tsconfig.app.json` |
-| `unit` | `npm run test:ci` | Karma + Jasmine, ChromeHeadless |
-| `build` | `npm run build` | Angular prod build + Workbox precache |
+| Job         | Command                                 | Notes                                                         |
+| ----------- | --------------------------------------- | ------------------------------------------------------------- |
+| `lint`      | `npm run lint` + `npm run format:check` | ESLint + Prettier (scoped to `src/**` + root tooling configs) |
+| `typecheck` | `npm run typecheck`                     | `tsc --noEmit -p tsconfig.app.json`                           |
+| `unit`      | `npm run test:ci`                       | Karma + Jasmine, ChromeHeadless                               |
+| `build`     | `npm run build`                         | Angular prod build + Workbox precache                         |
 
 - `permissions: contents: read`; `concurrency` with `cancel-in-progress`;
   no secrets; no deployment (Vercel Git integration owns deploys).
@@ -50,13 +50,13 @@ Supporting work on `main`:
 
 All gates ran green on `feature/ci-cd`:
 
-| Gate | Result |
-| ---- | ------ |
-| `npm run lint` | ✅ All files pass linting |
-| `npm run format:check` | ✅ All matched files use Prettier code style |
-| `npm run typecheck` | ✅ |
-| `npm run test:ci` | ✅ 360/360 specs |
-| `npm run build` | ✅ (warning: initial bundle 846.87 kB > 500 kB budget — non-blocking) |
+| Gate                   | Result                                                                |
+| ---------------------- | --------------------------------------------------------------------- |
+| `npm run lint`         | ✅ All files pass linting                                             |
+| `npm run format:check` | ✅ All matched files use Prettier code style                          |
+| `npm run typecheck`    | ✅                                                                    |
+| `npm run test:ci`      | ✅ 360/360 specs                                                      |
+| `npm run build`        | ✅ (warning: initial bundle 846.87 kB > 500 kB budget — non-blocking) |
 
 Deferred until CI runs on GitHub: the same checks as required checks on the PR
 and the fail-blocks-merge behavior.

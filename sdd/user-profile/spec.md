@@ -12,8 +12,8 @@ The user profile stores body data, preferences, and longitudinal entries (streng
 - **FR-002** `UserProfileService` auto-initializes when a user authenticates: on auth change it calls `initUserProfile` and stores the result in the state.
 - **FR-003** `fetchUserProfile()` and `initUserProfile()` load profile + sub-records and map them via `wrapperProfileContextToDomain(api)` (the GraphQL `UserProfileContextAPI` response). **Note:** the spec previously referenced `wrapperProfileUserToDomain` for this path; that wrapper is only used by `updateProfile`, not by the initial load.
 - **FR-004** ~~`updateUserProfile(input, failedSteps)` splits the update across sub-records~~ **NOT IMPLEMENTED as described.** The actual implementation provides:
-  - `completeBasicSetup({ profile, goals, schedule })` — splits across 3 sub-records (perfil, objetivos, horario) with `failedSteps` aggregation. Used only by the coach `FormUserProfile` widget.
-  - Independent per-section methods (no `failedSteps` aggregation): `updateProfile`, `updateSchedule`, `updateTrainingPreference`, `updateGoals`, `updateHealthConstraints`, `updateResource`, `createStrengthMetric`, `createWeightLog`. Each fires a single mutation independently; failures are reported via `console.error` or notification, not via `failedSteps`.
+    - `completeBasicSetup({ profile, goals, schedule })` — splits across 3 sub-records (perfil, objetivos, horario) with `failedSteps` aggregation. Used only by the coach `FormUserProfile` widget.
+    - Independent per-section methods (no `failedSteps` aggregation): `updateProfile`, `updateSchedule`, `updateTrainingPreference`, `updateGoals`, `updateHealthConstraints`, `updateResource`, `createStrengthMetric`, `createWeightLog`. Each fires a single mutation independently; failures are reported via `console.error` or notification, not via `failedSteps`.
 - **FR-005** `updateProfile(input)` merges the result into the current state (`{ ...current, ...result }`).
 - **FR-006** `DistributionDays` (`week_log`/`day_log`) is exposed; `distributionToLogMode` maps it to `LogMode` (`week`/`day`) — see day-log BR-010 (default only, not a lock).
 - **FR-007** ~~Clearing the user (`logout`) resets the profile state to `null`.~~ **Partial:** `resetMyProfile()` exists and nulls the state, but the automatic reset on logout does NOT fire because `clearSession()` (called by `logout()`) never emits on `userIdSubject`, so the `effect()` that watches `authService.user$` does not trigger.
@@ -48,6 +48,7 @@ UserProfileService (core/services/user/user-profile.service.ts)          — fac
 ```
 
 Widgets:
+
 - `shared/components/widgets/users/profile/user-profile`
 - `shared/components/widgets/users/profile/weight`
 - `shared/components/widgets/users/profile/strength-metrics`

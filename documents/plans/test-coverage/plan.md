@@ -9,23 +9,23 @@
 
 The Specs already acknowledge this state:
 
-- `sdd/routines/spec.md` — *"Existing spec files are either broken
+- `sdd/routines/spec.md` — _"Existing spec files are either broken
   (`routines.spec.ts` imports nonexistent `./routines`; `routines-api.service.spec.ts`
   can't resolve dependencies) or trivial smoke tests. `routine-form.spec.ts` expects
-  navigation to `['/routines/create']` while the component navigates to `['/routines']`."*
-- `sdd/tracking/spec.md` — *"All existing tracking spec files are trivial 'should create'
-  smoke tests. `plan-tracking.spec.ts` is broken (imports nonexistent class)."* Known
+  navigation to `['/routines/create']` while the component navigates to `['/routines']`."_
+- `sdd/tracking/spec.md` — _"All existing tracking spec files are trivial 'should create'
+  smoke tests. `plan-tracking.spec.ts` is broken (imports nonexistent class)."_ Known
   issues also note wrong `describe()` titles in `tracking-week.spec.ts` (`RoutineScheduler`)
   and `tracking-workout.spec.ts` (`RoutineTrackingExercise`).
-- `sdd/user-profile/spec.md` — *"The existing `user-profile.spec.ts` is broken — it imports
+- `sdd/user-profile/spec.md` — _"The existing `user-profile.spec.ts` is broken — it imports
   `UserProfile` from `./user-profile` which does not exist (the real export is
   `UserProfileService` from `./user-profile.service`). All other widget spec files are
-  trivial 'should create' smoke tests."* TEST-002 (`method doesn't exist as described`)
+  trivial 'should create' smoke tests."_ TEST-002 (`method doesn't exist as described`)
   and TEST-005 (`behavior itself is broken — see FR-007`) are struck through.
 - `sdd/training-history/spec.md` — same broken-import pattern; no `history.spec.ts`.
-- `sdd/pwa-offline/spec.md` — Known issues: *"No unit tests for any PWA/offline components"*.
-- `documents/plans/day-log-create-workout/plan.md` — *"`npm test` is currently blocked by
-  pre-existing stale scaffold specs unrelated to this change."*
+- `sdd/pwa-offline/spec.md` — Known issues: _"No unit tests for any PWA/offline components"_.
+- `documents/plans/day-log-create-workout/plan.md` — _"`npm test` is currently blocked by
+  pre-existing stale scaffold specs unrelated to this change."_
 
 `TEST-xxx` scenarios marked `~~...~~ **NOT IMPLEMENTED**`: routines (5), tracking (6),
 user-profile (5), training-history (2).

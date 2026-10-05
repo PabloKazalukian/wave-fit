@@ -53,13 +53,13 @@ Spec: `sdd/ci-cd/spec.md`.
 - **T5** Add `.github/workflows/ci.yml` with the four parallel jobs (decisions
   above).
 - **T6** Documentation update (after validation):
-  - `documents/engineering/ci-cd.md` — replace the "no committed CI pipeline"
-    status with the committed workflow (triggers, job list, required checks,
-    branch-protection note); keep gate order and Vercel deployment section.
-  - `documents/engineering/git-workflow.md` — remove the "no committed CI
-    pipeline yet" note (Section 3) and record that required checks on `main`
-    must pass before merge (Section 5).
-  - Mark this Plan as Historical / Non-Authoritative.
+    - `documents/engineering/ci-cd.md` — replace the "no committed CI pipeline"
+      status with the committed workflow (triggers, job list, required checks,
+      branch-protection note); keep gate order and Vercel deployment section.
+    - `documents/engineering/git-workflow.md` — remove the "no committed CI
+      pipeline yet" note (Section 3) and record that required checks on `main`
+      must pass before merge (Section 5).
+    - Mark this Plan as Historical / Non-Authoritative.
 - **T7** (deferred until requested) Push `feature/ci-cd`, open the PR, and
   validate TEST-006/TEST-007 on GitHub (all jobs green; failing-check blocks
   merge).

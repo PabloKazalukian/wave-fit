@@ -130,7 +130,7 @@ Services are grouped under `core/services/<feature>/` and classified by complexi
 | **High**   | Domain + API + State           | `UserProfileService`                                                                                                                                        |
 | **Medium** | API + Storage + State          | `PlansService`                                                                                                                                              |
 | **Medium** | API + State                    | `ExtraSessionService`, `WorkoutStateService` (+ `DayWorkoutStore`), `CoachService` (API + State + Storage), `ActiveTrackingService` (+ `ActiveTrackingApi`) |
-| **Low**    | API + Service                  | `ExercisesService`, `RoutinesService`, `AuthService`, `TrainingHistoryService`, `StatsService` (+ `StatsState` read-only per-section signals)                          |
+| **Low**    | API + Service                  | `ExercisesService`, `RoutinesService`, `AuthService`, `TrainingHistoryService`, `StatsService` (+ `StatsState` read-only per-section signals)               |
 | **Infra**  | Support                        | `NetworkStatusService`, `SyncQueueService`, `IndexedDbStorageService`, `DateService`, `WarmupService`                                                       |
 
 ### Folder layout (current)

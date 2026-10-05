@@ -56,7 +56,7 @@ repository:
    `.prettierrc` is deleted rather than reconciled, because a configuration file
    Prettier never reads cannot be corrected into authority.
 2. **Behavior preservation:** every option that affects output is pinned to its
-   *current effective value*, so FR-002 changes no existing file. Verified
+   _current effective value_, so FR-002 changes no existing file. Verified
    empirically before planning: a `tabWidth: 4` in `package.json` overrides
    `indent_size = 8` in `.editorconfig`, and `proseWrap: "preserve"` keeps Markdown
    prose unwrapped at `printWidth: 100`.
@@ -79,11 +79,11 @@ repository:
 9. **Fresh-checkout validation stays in-tree.** The clean checkout required by
    TEST-002 is made with `git clone --local . tmp/fresh`, inside the gitignored
    `tmp/` directory. Verification checkouts must not be created outside the
-   project (`AGENTS.md` → *Agent Execution Boundaries*).
+   project (`AGENTS.md` → _Agent Execution Boundaries_).
 
 ## Tasks
 
-- **T0** *(done — clarification)* Correct `sdd/formatting/spec.md` per items 1-6
+- **T0** _(done — clarification)_ Correct `sdd/formatting/spec.md` per items 1-6
   above. Validate: the Spec is self-consistent and every figure is re-measurable.
 - **T1** Write this Plan.
 - **T2** Test-first baseline: record the pre-change state so the remediation can be
@@ -122,18 +122,18 @@ repository:
   pre-change defect is only reproducible from a clean checkout, so this task is
   where FR-003 is actually proven.
 - **T11** Documentation, after validation (FR-008, Charter §7):
-  - `documents/engineering/ci-cd.md` — real scope and `printWidth: 100`; stop
-    citing `.prettierrc`.
-  - `documents/engineering/coding-standards.md` §8 — single configuration,
-    explicit `endOfLine: "lf"`, the `.gitattributes` policy, and the
-    `format:check` / `format:write` scripts; drop the "shadowed/ignored"
-    description and the claim that no `format` script exists.
-  - `AGENTS.md` — list `npm run format:check` as the formatting gate.
-  - `sdd/ci-cd/spec.md` — Architecture and TEST-002 defer to
-    `sdd/formatting/spec.md` for the gate scope.
+    - `documents/engineering/ci-cd.md` — real scope and `printWidth: 100`; stop
+      citing `.prettierrc`.
+    - `documents/engineering/coding-standards.md` §8 — single configuration,
+      explicit `endOfLine: "lf"`, the `.gitattributes` policy, and the
+      `format:check` / `format:write` scripts; drop the "shadowed/ignored"
+      description and the claim that no `format` script exists.
+    - `AGENTS.md` — list `npm run format:check` as the formatting gate.
+    - `sdd/ci-cd/spec.md` — Architecture and TEST-002 defer to
+      `sdd/formatting/spec.md` for the gate scope.
 - **T12** Index the new Spec in `sdd/README.md`, then mark this Plan as
   Historical / Non-Authoritative.
-- **T13** *(deferred until requested)* Push and open the PR; validate TEST-009
+- **T13** _(deferred until requested)_ Push and open the PR; validate TEST-009
   (the CI `lint` job's `format:check` step) on GitHub.
 
 ## Validation
