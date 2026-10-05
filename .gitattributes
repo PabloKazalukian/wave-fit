@@ -1,0 +1,17 @@
+# Normalize line endings in the repository, not in each developer's environment.
+# Git stores LF in every blob; without this file a Windows checkout with
+# core.autocrlf=true produces CRLF in the working tree, which makes the Prettier
+# gate (endOfLine: "lf") fail on files that are correct in Git.
+# See sdd/formatting/spec.md (FR-003).
+* text=auto eol=lf
+
+# Binary assets must never be touched by the eol conversion.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

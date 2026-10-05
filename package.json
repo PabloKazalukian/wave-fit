@@ -12,16 +12,33 @@
         "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
         "lint": "ng lint",
         "typecheck": "tsc --noEmit -p tsconfig.app.json",
-        "format:check": "prettier --check \"src/**/*.{ts,js,html,scss,css}\" \"eslint.config.js\" \"playwright.config.ts\" \"tailwind.config.js\" \"postcss.config.js\" \"workbox-config.js\""
+        "format:check": "prettier --check .",
+        "format:write": "prettier --write ."
     },
     "prettier": {
         "printWidth": 100,
         "singleQuote": true,
+        "arrowParens": "always",
+        "bracketSameLine": false,
+        "endOfLine": "lf",
+        "tabWidth": 4,
+        "useTabs": false,
+        "proseWrap": "preserve",
         "overrides": [
             {
                 "files": "*.html",
                 "options": {
-                    "parser": "angular"
+                    "parser": "angular",
+                    "tabWidth": 2
+                }
+            },
+            {
+                "files": [
+                    "*.css",
+                    "*.scss"
+                ],
+                "options": {
+                    "tabWidth": 2
                 }
             }
         ]
