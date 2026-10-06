@@ -5,6 +5,11 @@ import {
     buildTopRoutinesChartOptions,
 } from './stats-chart.mapper';
 import {
+    ADHERENCE_CHART_HEIGHT,
+    LONG_LABEL_CHART_HEIGHT,
+    ROTATED_LABEL_MARGIN_BOTTOM,
+} from './stats-chart.theme';
+import {
     AdherenceWeekVM,
     PersonalRecordVM,
     StatsCategory,
@@ -14,6 +19,11 @@ import {
 import type { XAxisOptions, YAxisOptions } from 'highcharts';
 
 type YData = { y: number }[];
+
+interface SeriesShape {
+    type?: string;
+    data: YData;
+}
 
 const chest = 'chest' as StatsCategory;
 const legs = 'legs' as StatsCategory;
@@ -93,18 +103,25 @@ const weekVms: AdherenceWeekVM[] = [
 
 describe('stats-chart.mapper', () => {
     describe('buildTopExercisesChartOptions', () => {
-        it('builds a horizontal bar chart with exercise names and volumes', () => {
+        it('builds a vertical column chart with exercise names and volumes', () => {
             const options = buildTopExercisesChartOptions(exerciseVms);
 
             expect(options).not.toBeNull();
-            expect(options?.chart?.type).toBe('bar');
+            expect(options?.chart?.type).toBe('column');
+            expect((options?.series?.[0] as SeriesShape).type).toBe('column');
             expect((options?.xAxis as XAxisOptions)?.categories).toEqual([
                 'Press banca',
                 'Sentadilla',
             ]);
-            expect((options?.series?.[0] as { data: YData }).data.map((p) => p.y)).toEqual([
-                1200, 800,
-            ]);
+            expect((options?.series?.[0] as SeriesShape).data.map((p) => p.y)).toEqual([1200, 800]);
+        });
+
+        it('rotates the x-axis labels and reserves bottom margin for them', () => {
+            const options = buildTopExercisesChartOptions(exerciseVms);
+
+            expect((options?.xAxis as XAxisOptions)?.labels?.rotation).toBe(-45);
+            expect(options?.chart?.marginBottom).toBe(ROTATED_LABEL_MARGIN_BOTTOM);
+            expect(options?.chart?.height).toBe(LONG_LABEL_CHART_HEIGHT);
         });
 
         it('caps the chart at 10 exercises', () => {
@@ -133,10 +150,17 @@ describe('stats-chart.mapper', () => {
 
             expect(options).not.toBeNull();
             expect(options?.chart?.type).toBe('column');
+            expect((options?.series?.[0] as SeriesShape).type).toBe('column');
             expect((options?.yAxis as YAxisOptions)?.max).toBe(100);
-            expect((options?.series?.[0] as { data: YData }).data.map((p) => p.y)).toEqual([
-                93, 80,
-            ]);
+            expect((options?.series?.[0] as SeriesShape).data.map((p) => p.y)).toEqual([93, 80]);
+        });
+
+        it('rotates the x-axis labels and reserves bottom margin for them', () => {
+            const options = buildTopRoutinesChartOptions(routineVms);
+
+            expect((options?.xAxis as XAxisOptions)?.labels?.rotation).toBe(-45);
+            expect(options?.chart?.marginBottom).toBe(ROTATED_LABEL_MARGIN_BOTTOM);
+            expect(options?.chart?.height).toBe(LONG_LABEL_CHART_HEIGHT);
         });
 
         it('returns null for empty input', () => {
@@ -150,9 +174,18 @@ describe('stats-chart.mapper', () => {
 
             expect(options).not.toBeNull();
             expect(options?.chart?.type).toBe('column');
+            expect((options?.series?.[0] as SeriesShape).type).toBe('column');
             const point = (options?.series?.[0] as { data: { y: number; new: boolean }[] }).data[0];
             expect(point.y).toBe(100);
             expect(point.new).toBe(true);
+        });
+
+        it('rotates the x-axis labels and reserves bottom margin for them', () => {
+            const options = buildPersonalRecordsChartOptions(recordVms);
+
+            expect((options?.xAxis as XAxisOptions)?.labels?.rotation).toBe(-45);
+            expect(options?.chart?.marginBottom).toBe(ROTATED_LABEL_MARGIN_BOTTOM);
+            expect(options?.chart?.height).toBe(LONG_LABEL_CHART_HEIGHT);
         });
 
         it('returns null for empty input', () => {
@@ -166,12 +199,19 @@ describe('stats-chart.mapper', () => {
 
             expect(options).not.toBeNull();
             expect(options?.chart?.type).toBe('line');
+            expect((options?.series?.[0] as SeriesShape).type).toBe('line');
             expect((options?.xAxis as XAxisOptions)?.categories).toEqual(['14/09', '21/09']);
             expect((options?.yAxis as YAxisOptions)?.min).toBe(0);
             expect((options?.yAxis as YAxisOptions)?.max).toBe(100);
-            expect((options?.series?.[0] as { data: YData }).data.map((p) => p.y)).toEqual([
-                71, 100,
-            ]);
+            expect((options?.series?.[0] as SeriesShape).data.map((p) => p.y)).toEqual([71, 100]);
+        });
+
+        it('keeps the short dd/MM labels unrotated and the original height', () => {
+            const options = buildAdherenceChartOptions(weekVms);
+
+            expect((options?.xAxis as XAxisOptions)?.labels?.rotation).toBe(0);
+            expect(options?.chart?.marginBottom).toBe(0);
+            expect(options?.chart?.height).toBe(ADHERENCE_CHART_HEIGHT);
         });
 
         it('returns null for empty input', () => {

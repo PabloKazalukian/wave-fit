@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of } from 'rxjs';
 import { handleGraphqlError } from '../../../shared/utils/handle-graphql-error';
 import { AuthService } from '../auth/auth.service';
+import { RoutinesService } from '../routines/routines.service';
 import {
     GET_ADHERENCE,
     GET_PERSONAL_RECORDS,
@@ -22,6 +23,7 @@ import {
     TopRoutinesVM,
 } from '../../../shared/interfaces/stats.interface';
 import {
+    resolveRoutineNames,
     wrapperAdherenceApiToVM,
     wrapperPersonalRecordsApiToVM,
     wrapperTopExercisesApiToVM,
@@ -32,6 +34,7 @@ import {
 export class StatsService {
     private readonly apollo = inject(Apollo);
     private readonly authSvc = inject(AuthService);
+    private readonly routinesSvc = inject(RoutinesService);
 
     getTopExercises(): Observable<TopExercisesVM> {
         return this.apollo
@@ -46,15 +49,20 @@ export class StatsService {
     }
 
     getTopRoutines(): Observable<TopRoutinesVM> {
-        return this.apollo
-            .query<{ getTopRoutines: TopRoutinesStatsAPI }>({
-                query: GET_TOP_ROUTINES,
-                fetchPolicy: 'network-only',
-            })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map((res) => wrapperTopRoutinesApiToVM(res.data!.getTopRoutines)),
-            );
+        return forkJoin({
+            stats: this.apollo
+                .query<{ getTopRoutines: TopRoutinesStatsAPI }>({
+                    query: GET_TOP_ROUTINES,
+                    fetchPolicy: 'network-only',
+                })
+                .pipe(handleGraphqlError(this.authSvc)),
+            plans: this.routinesSvc.getRoutinesPlans().pipe(catchError(() => of(undefined))),
+        }).pipe(
+            map(({ stats, plans }) => {
+                const vm = wrapperTopRoutinesApiToVM(stats.data!.getTopRoutines);
+                return { ...vm, routines: resolveRoutineNames(vm.routines, plans) };
+            }),
+        );
     }
 
     getPersonalRecords(): Observable<PersonalRecordsVM> {

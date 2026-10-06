@@ -136,6 +136,43 @@ Numeric stepper.
 <app-input-number [label]="'Peso kg'" [control]="weightKgControl"></app-input-number>
 ```
 
+### `app-input-date`
+
+Calendar date picker. **Preferred control for new date fields.**
+
+| Input         | Values                                      | Default |
+| ------------- | ------------------------------------------- | ------- |
+| `control`     | `FormControl<LocalDate \| null>` (required) | —       |
+| `label`       | field label                                 | `''`    |
+| `min` / `max` | selectable bounds (`LocalDate`)             | `null`  |
+| `placeholder` | placeholder text                            | `''`    |
+
+```html
+<app-input-date [label]="'Desde'" [control]="fromControl"></app-input-date>
+```
+
+The trigger is a button with `aria-expanded`; the grid is a labelled `role="grid"`.
+Days outside `[min, max]` are disabled and not focusable. Month navigation is
+chevron buttons. The calendar renders on `bg-background1`, cells on
+`bg-background2`, selected/today on `primary` / `primaryDark`, weekday header
+`text-text2 text-xs`, day numbers `text-text3`, `rounded-xl` shell / `rounded-lg`
+cells.
+
+An enabled day tints on hover with `bg-accent/70` and `transition-colors`. The
+**selected** day does not tint (its fill is the field's current value) and a
+**disabled** day gets `disabled:hover:bg-transparent`, since Tailwind applies
+`:hover` to `<button disabled>` in some browsers. See `ui-conventions.md` §1.1
+for why `accent` is allowed in this one place.
+
+Internally it works on display-only `Date`s and converts back to `LocalDate`
+**before** any comparison or emission (BR-003). It never writes to `control` on
+its own — only a user selection does.
+
+> **Does not replace `app-input [type]="'date'"]`.** Four existing call sites
+> (profile birthdate, strength-metrics, weight, coach form) still use the native
+> date input. Migrating them is a separate change. Use `app-input-date` for new
+> fields; do not add new `[type]="'date'"` call sites.
+
 ### `app-input-search` (pending)
 
 Preferred component for search fields. **Currently a stub — not implemented and not used.**

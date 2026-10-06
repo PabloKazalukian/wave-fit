@@ -1,16 +1,13 @@
 import { Injectable } from '@angular/core';
-import { addDays, format, isEqual, parseISO } from 'date-fns';
+import { addDays, differenceInCalendarDays, format, isEqual, isValid, parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
+import type { LocalDate, LocalDateRange } from '../../shared/interfaces/local-date.interface';
+import { isoWeekStartLocalDateFromKey } from '../../shared/utils/date.utils';
 
-/**
- * LocalDate = string "yyyy-MM-dd"
- * Representa un día calendario sin ambigüedad de timezone.
- *
- * ✅ Usar para: comunicación con el backend, comparaciones de negocio
- * ❌ No usar: new Date("yyyy-MM-dd"), toISOString() para fechas de dominio
- */
-export type LocalDate = string;
+export type { LocalDate, LocalDateRange };
+
+const LOCAL_DATE_SHAPE = /^\d{4}-\d{2}-\d{2}$/;
 
 export interface DayWithString {
     day: string;
@@ -134,5 +131,56 @@ export class DateService {
         const start = this.todayLocalDate(timezone);
         const end = this.addDaysToLocalDate(start, 6);
         return { start, end };
+    }
+
+    /**
+     * Valida que un string sea un LocalDate real: no basta con la forma
+     * "yyyy-MM-dd", el día tiene que existir en el calendario.
+     *
+     * Ejemplo: isValidLocalDate("2026-02-30") → false
+     */
+    isValidLocalDate(value: string | null | undefined): boolean {
+        if (typeof value !== 'string' || !LOCAL_DATE_SHAPE.test(value)) {
+            return false;
+        }
+        const parsed = parseISO(value);
+        return isValid(parsed) && format(parsed, 'yyyy-MM-dd') === value;
+    }
+
+    /**
+     * Diferencia en días calendario entre dos LocalDates, con signo.
+     * Positiva cuando `to` es posterior a `from`, negativa cuando es anterior,
+     * cero cuando son el mismo día (no cuenta ambos extremos).
+     *
+     * Ejemplo: daysBetween("2026-01-01", "2026-01-02") → 1
+     */
+    daysBetween(from: LocalDate, to: LocalDate): number {
+        return differenceInCalendarDays(parseISO(to), parseISO(from));
+    }
+
+    /**
+     * Rango de los últimos N días hasta hoy, inclusive.
+     * El rango cubre N - 1 días de diferencia: lastNDays(30) → 29 días.
+     *
+     * Ejemplo: lastNDays(30) → { from: "hoy-29", to: "hoy" }
+     */
+    lastNDays(days: number, timezone?: string): LocalDateRange {
+        const to = this.todayLocalDate(timezone);
+        const from = this.addDaysToLocalDate(to, -(days - 1));
+        return { from, to };
+    }
+
+    /**
+     * Lunes de una semana ISO a partir de su weekKey ("2026-W40" → "2026-09-28").
+     *
+     * El weekKey viene del backend: solo se parsea, nunca se deriva del rango.
+     * Devuelve null ante una clave mal formada o ante una semana ISO que el año
+     * no tiene (por ejemplo "2025-W53", porque 2025 tiene 52 semanas ISO).
+     *
+     * Delega en la función pura porque los mappers de charts la necesitan para
+     * el tooltip y no pueden inyectar este servicio.
+     */
+    isoWeekStartLocalDate(weekKey: string): LocalDate | null {
+        return isoWeekStartLocalDateFromKey(weekKey);
     }
 }

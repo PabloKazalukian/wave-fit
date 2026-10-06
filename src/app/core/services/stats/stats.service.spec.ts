@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Apollo } from 'apollo-angular';
 import { Observable, of, throwError } from 'rxjs';
 import { StatsService } from './stats.service';
+import { RoutinesService } from '../routines/routines.service';
 import {
     PersonalRecordVM,
     StatsCategory,
@@ -19,6 +20,7 @@ type Observed<T> = T extends Observable<infer U> ? U : never;
 describe('StatsService (TEST-001..004)', () => {
     let service: StatsService;
     let apollo: { query: jasmine.Spy };
+    let routinesService: { getRoutinesPlans: jasmine.Spy };
 
     const exercisesApi: TopExercisesStatsAPI = {
         id: 'te-1',
@@ -46,6 +48,22 @@ describe('StatsService (TEST-001..004)', () => {
                 rank: 1,
                 planId: 'p-1',
                 name: 'Push Pull Legs',
+                totalWeeks: 4,
+                totalSessions: 12,
+                adherenceRate: 93,
+            },
+        ],
+    };
+
+    const routinesUnknownApi: TopRoutinesStatsAPI = {
+        id: 'tr-1',
+        userId: 'u-1',
+        computedAt: '2026-09-20T10:05:00.000Z',
+        routines: [
+            {
+                rank: 1,
+                planId: 'p-1',
+                name: 'Desconocido',
                 totalWeeks: 4,
                 totalSessions: 12,
                 adherenceRate: 93,
@@ -93,9 +111,16 @@ describe('StatsService (TEST-001..004)', () => {
         apollo = {
             query: jasmine.createSpy('apollo.query').and.returnValue(of({ data: null })),
         };
+        routinesService = {
+            getRoutinesPlans: jasmine.createSpy('getRoutinesPlans').and.returnValue(of([])),
+        };
 
         TestBed.configureTestingModule({
-            providers: [StatsService, { provide: Apollo, useValue: apollo }],
+            providers: [
+                StatsService,
+                { provide: Apollo, useValue: apollo },
+                { provide: RoutinesService, useValue: routinesService },
+            ],
         });
 
         service = TestBed.inject(StatsService);
@@ -128,6 +153,52 @@ describe('StatsService (TEST-001..004)', () => {
 
         expect(apollo.query.calls.mostRecent().args[0].fetchPolicy).toBe('network-only');
         expect(result!.routines[0].adherenceRate).toBe(93);
+    });
+
+    it('getTopRoutines replaces an unresolved snapshot name with the live plan name', () => {
+        apollo.query.and.returnValue(of({ data: { getTopRoutines: routinesUnknownApi } }));
+        routinesService.getRoutinesPlans.and.returnValue(
+            of([{ id: 'p-1', name: 'Push Pull Legs' }]),
+        );
+        let result: Observed<ReturnType<typeof service.getTopRoutines>> | undefined;
+
+        service.getTopRoutines().subscribe((res) => (result = res));
+
+        expect(result!.routines[0].name).toBe('Push Pull Legs');
+    });
+
+    it('getTopRoutines keeps the snapshot name when the plans catalog is empty', () => {
+        apollo.query.and.returnValue(of({ data: { getTopRoutines: routinesUnknownApi } }));
+        routinesService.getRoutinesPlans.and.returnValue(of([]));
+        let result: Observed<ReturnType<typeof service.getTopRoutines>> | undefined;
+
+        service.getTopRoutines().subscribe((res) => (result = res));
+
+        expect(result!.routines[0].name).toBe('Desconocido');
+    });
+
+    it('getTopRoutines degrades to snapshot names when the plans query fails', () => {
+        apollo.query.and.returnValue(of({ data: { getTopRoutines: routinesUnknownApi } }));
+        routinesService.getRoutinesPlans.and.returnValue(throwError(() => new Error('boom')));
+        let result: Observed<ReturnType<typeof service.getTopRoutines>> | undefined;
+        let error: unknown = null;
+
+        service.getTopRoutines().subscribe({
+            next: (res) => (result = res),
+            error: (err) => (error = err),
+        });
+
+        expect(error).toBeNull();
+        expect(result!.routines[0].name).toBe('Desconocido');
+    });
+
+    it('getTopRoutines still surfaces the stats error when the stats query fails', () => {
+        apollo.query.and.returnValue(throwError(() => new Error('stats boom')));
+        let error: unknown = null;
+
+        service.getTopRoutines().subscribe({ error: (err) => (error = err) });
+
+        expect(error).toBeTruthy();
     });
 
     it('getPersonalRecords requests network-only and maps the wrapper output', () => {

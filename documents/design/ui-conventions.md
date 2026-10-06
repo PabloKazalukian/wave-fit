@@ -14,35 +14,58 @@ All values were surveyed from the real repository code (Tailwind config + templa
 
 Original hex values from `tailwind.config.js`. Each color has a defined **action role**. Using them outside that role is considered a bug.
 
-| Color                | Hex                               | Action role                                                                              | Real repo examples                                                           |
-| -------------------- | --------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| **primary**          | `#50C878`                         | Main CTA / brand / "move forward" action / loadings                                      | "Explore plans", "Continue", "Save" (step), global focus ring (`styles.css`) |
-| **primaryDark**      | `#2B6D41`                         | Definite finalize of a flow                                                              | "Save" in `workout-edition`, `routine-exercise-form`                         |
-| **primary2/3/Light** | `#66D18A` / `#3CA15E` / `#A1E6BE` | Soft text/background brand variants                                                      | titles `text-primary2/3`, backgrounds `bg-primary/10`                        |
-| **secondary**        | `#4472B4`                         | Secondary/informative actions, supporting navigation, "secondary" loadings               | support buttons in `plans.html`, `tracking-workout`                          |
-| **accent**           | `#F5C623`                         | **Highlight a new, alternative or "free/extra" feature**                                 | Coach AI card, "Start workout" (free), set-edit buttons                      |
-| **confirm**          | `#C83A6E`                         | Confirm an important decision / success screen                                           | "Confirm plan" (`coach-manage-with-plan`), `success.html`                    |
-| **error**            | `#ba1a1a`                         | **Only destructive or lossy actions** (delete, clear, discard changes) or error messages | "Delete plan", "Cancel" in forms, error messages                             |
-| **success**          | `#4CAF50`                         | Confirmed positive result (after successful save)                                        | success states                                                               |
-| **warning**          | `#D66F6F`                         | Non-blocking warnings                                                                    | notices                                                                      |
-| **text**             | `#2F2F2F`                         | Neutral: use with `variant="ghost"` for hierarchy-free "Cancel"                          | secondary "Close" / "Cancel"                                                 |
+| Color                | Hex                               | Action role                                                                                                                      | Real repo examples                                                                  |
+| -------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **primary**          | `#50C878`                         | Main CTA / brand / "move forward" action / loadings                                                                              | "Explore plans", "Continue", "Save" (step), global focus ring (`styles.css`)        |
+| **primaryDark**      | `#2B6D41`                         | Definite finalize of a flow                                                                                                      | "Save" in `workout-edition`, `routine-exercise-form`                                |
+| **primary2/3/Light** | `#66D18A` / `#3CA15E` / `#A1E6BE` | Soft text/background brand variants                                                                                              | titles `text-primary2/3`, backgrounds `bg-primary/10`                               |
+| **secondary**        | `#4472B4`                         | Secondary/informative actions, supporting navigation, "secondary" loadings                                                       | support buttons in `plans.html`, `tracking-workout`                                 |
+| **accent**           | `#F5C623`                         | **Highlight a new, alternative or "free/extra" feature**. One documented exception: the hover tint on a calendar day cell (§1.1) | Coach AI card, "Start workout" (free), set-edit buttons, `app-input-date` day hover |
+| **confirm**          | `#C83A6E`                         | Confirm an important decision / success screen                                                                                   | "Confirm plan" (`coach-manage-with-plan`), `success.html`                           |
+| **error**            | `#ba1a1a`                         | **Only destructive or lossy actions** (delete, clear, discard changes) or error messages                                         | "Delete plan", "Cancel" in forms, error messages                                    |
+| **success**          | `#4CAF50`                         | Confirmed positive result (after successful save)                                                                                | success states                                                                      |
+| **warning**          | `#D66F6F`                         | Non-blocking warnings                                                                                                            | notices                                                                             |
+| **text**             | `#2F2F2F`                         | Neutral: use with `variant="ghost"` for hierarchy-free "Cancel"                                                                  | secondary "Close" / "Cancel"                                                        |
 
 ### Background / container colors
 
 | Class            | Hex       | Use                                                              |
 | ---------------- | --------- | ---------------------------------------------------------------- |
 | `bg-background`  | `#121212` | Global app background                                            |
+| `bg-background1` | `#151A16` | Floating surface **above** cards: popovers, dropdowns, calendars |
 | `bg-background2` | `#151C17` | **Card/block background (most used)**                            |
 | `bg-background3` | `#1C2F22` | Inner background (notification headers, etc.)                    |
 | `bg-background4` | `#295538` | Secondary card border/background (`border-2 border-background4`) |
+| `bg-background5` | `#367C4D` | Accent background for selected/active cells inside a surface     |
 | `bg-surface`     | `#2b322c` | Neutral surfaces                                                 |
 | `text-text2`     | `#adadad` | **Standard paragraph text (most used)**                          |
 | `text-white`     | `#ffffff` | Text on colored backgrounds                                      |
 
+### 1.1 Documented exception: `accent` as a hover tint
+
+`app-input-date` tints a day cell with `bg-accent/70` on hover. This is the one
+place `accent` is used outside its action role, and it is allowed because:
+
+- it is a **transient affordance** on a cell inside an already-open popover, not
+  an action: nothing is committed by hovering, and the day is only chosen on click.
+- it carries **no meaning of its own**. It is not "new feature", not "free", not
+  "extra". A reader who never sees the fill learns nothing from it.
+- it never appears on a page, a button, a chart, or a chart data point.
+
+Two states are excluded from the hover, because hover must not overwrite what the
+user needs to read:
+
+- the **selected** day keeps its own fill (`bg-primary`) — that fill _is_ the
+  current value of the field.
+- a **disabled** day gets `disabled:hover:bg-transparent`, so a blocked day cannot
+  look selectable.
+
+Rationale: `sdd/stats-insights/spec.md` Correction 10 (FR-025).
+
 ### Hard color rules
 
 - Do **NOT** use `error` for a non-destructive action (nor `primary` for destructive ones).
-- Do **NOT** use `accent` as a page's main CTA; it is reserved to highlight new/alternative features.
+- Do **NOT** use `accent` as a page's main CTA; it is reserved to highlight new/alternative features. The only exception is the calendar day hover in §1.1.
 - Do **NOT** invent colors: only the tokens from `tailwind.config.js` + `white`.
 - Keep a single dominant action color per view (the "current primary").
 
