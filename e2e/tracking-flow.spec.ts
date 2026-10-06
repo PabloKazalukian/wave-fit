@@ -8,7 +8,10 @@ test.describe('Tracking Flow - Weekly Routine Initialization', () => {
         await page.goto('/home');
     });
 
-    test('should complete the full flow to start a weekly routine', async ({ page, browserName }, testInfo) => {
+    test('should complete the full flow to start a weekly routine', async ({
+        page,
+        browserName,
+    }, testInfo) => {
         test.setTimeout(60000); // Increase timeout for the full flow
         // 1. Handle Home Screen branching
         // We wait for the tracking status to load. Since it's async, we check for both buttons.
@@ -62,10 +65,10 @@ test.describe('Tracking Flow - Weekly Routine Initialization', () => {
         // Final action: Start the routine
         console.log('E2E_STEP: CLICK_START_ROUTINE');
         await startRoutineBtn.click({ force: true });
- 
+
         // 5. Handle potential redirect or error dialog
         console.log('E2E_STEP: WAITING_FOR_MYWEEK_OR_ERROR');
-        
+
         const errorDialog = page.getByText(/rutina semanal activa/i);
         const goToMyWeekBtn = page.getByTestId('ir-a-mi-semana');
 
@@ -73,9 +76,11 @@ test.describe('Tracking Flow - Weekly Routine Initialization', () => {
             await Promise.race([
                 page.waitForURL(/.*my-week/, { timeout: 10000 }),
                 errorDialog.waitFor({ state: 'visible', timeout: 10000 }).then(async () => {
-                   console.log('E2E_INFO: Routine already active dialog found. Navigating to My Week.');
-                   await goToMyWeekBtn.click({ force: true });
-                })
+                    console.log(
+                        'E2E_INFO: Routine already active dialog found. Navigating to My Week.',
+                    );
+                    await goToMyWeekBtn.click({ force: true });
+                }),
             ]);
         } catch (e) {
             console.log('E2E_INFO: Navigation race finished or timed out. URL:', page.url());
@@ -126,13 +131,13 @@ test.describe('Tracking Flow - Weekly Routine Initialization', () => {
         console.log('User ID:', cacheData.userId);
         console.log('Key:', cacheData.storageKey);
         console.log('Data:', JSON.stringify(cacheData.originalData, null, 2));
-        
+
         // 6. Reload and verify behavior
         console.log('E2E_STEP: RELOADING_PAGE_POST_DELETE');
         await page.reload();
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(3000); // Wait for re-fetch and write
-        
+
         console.log('E2E_STEP: CHECKING_CACHE_POST_RELOAD');
         const storageKey = cacheData.storageKey as string;
         const newCacheData = await page.evaluate((key) => {

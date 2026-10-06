@@ -42,6 +42,7 @@ RoutinesService (core/services/routines/routines.service.ts)     — cache + orc
 ```
 
 Widgets:
+
 - `shared/components/widgets/plans/routine-form` (selector `app-routine-plan-form` — lives under `widgets/plans/`, not `widgets/routines/`)
 - `shared/components/widgets/routines/routine-list-box` (and `routine-exercises/`)
 - `shared/components/widgets/routines/routine-exercise-form`
@@ -50,6 +51,7 @@ Widgets:
 - `shared/components/widgets/users/routines-used` (dead widget — not referenced by any other file)
 
 **Known widget issues:**
+
 - `DaysRoutineProgress` has a trailing dot in its selector (`'app-days-routine-progress.'`) — it cannot match the `<app-days-routine-progress>` element; the component likely never renders.
 - `RoutineListBoxFacade`/`RoutineExerciseFormFacade` use `state.routinaDay()` (typo for "routineDay").
 

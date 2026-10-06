@@ -14,34 +14,34 @@ WaveFit is a PWA with progressive caching and offline-first writes. The whole ap
 - **FR-002** Runtime caching strategy: cache-first for static assets (images, fonts); network-first (with offline fallback) for GraphQL and navigation requests.
 - **FR-003** `IndexedDB` (`WaveFitDB`) stores defined in `IndexedDbStorageService`: `graphqlCache`, `pendingMutations`, `authUser`, `exercises`, `routines`, `plans`, `tracking`, `dayLogs`. **Note:** `profile` and `extra-session catalogs` stores do NOT exist — `profile` data lives in `authUser` under key `'current'`, and extra-session catalogs are held only in memory (`BehaviorSubject`).
 - **FR-004** `SyncQueueService` queues pending writes when offline. The interface is `PendingMutation` (not `SyncOp`):
-  ```ts
-  interface PendingMutation {
-      id: string;           // UUID
-      operationName: string; // e.g. 'CreateExercise', 'UpdateWeekLogDay'
-      variables: any;
-      status: 'pending' | 'syncing' | 'failed';
-      createdAt: number;
-      retryCount?: number;  // max 3
-  }
-  ```
-  Replays in FIFO order on reconnect.
+    ```ts
+    interface PendingMutation {
+        id: string; // UUID
+        operationName: string; // e.g. 'CreateExercise', 'UpdateWeekLogDay'
+        variables: any;
+        status: 'pending' | 'syncing' | 'failed';
+        createdAt: number;
+        retryCount?: number; // max 3
+    }
+    ```
+    Replays in FIFO order on reconnect.
 - **FR-005** Per-feature offline handlers registered via `registerHandler()`:
-  - ✅ `CreateExercise` → exercises service
-  - ✅ `CreateRoutineDay` → routines service
-  - ✅ `CreateRoutinePlan` → plans service
-  - ❌ `CreateDayLog` → **NOT IMPLEMENTED** (`PlanDayDomainService.createDayLog()` always calls API directly)
-  - ✅ `UpdateWeekLogDay` → plan-tracking domain
-  - ⚠️ `UpdateDayLog` → **PARTIAL** (handler registered; only used in `updateExercises()` path)
-  - ❌ `UpdateDayLogStatus` → **NOT IMPLEMENTED** (`setRestDay()` always calls API directly)
-  - ❌ `AssignRoutineToDayLog` → **NOT IMPLEMENTED** (`createWorkoutWithRoutine()` always calls API directly)
-  - ❌ `RemoveWorkoutSessionFromDayLog` → **NOT IMPLEMENTED** (`removeWorkoutSession()` always calls API directly)
-  - ❌ `RemoveExtraSessionFromDayLog` → **NOT IMPLEMENTED** (`removeExtraSession()` always calls API directly)
-  - ❌ Extra-session mutations → **NOT IMPLEMENTED** for offline
+    - ✅ `CreateExercise` → exercises service
+    - ✅ `CreateRoutineDay` → routines service
+    - ✅ `CreateRoutinePlan` → plans service
+    - ❌ `CreateDayLog` → **NOT IMPLEMENTED** (`PlanDayDomainService.createDayLog()` always calls API directly)
+    - ✅ `UpdateWeekLogDay` → plan-tracking domain
+    - ⚠️ `UpdateDayLog` → **PARTIAL** (handler registered; only used in `updateExercises()` path)
+    - ❌ `UpdateDayLogStatus` → **NOT IMPLEMENTED** (`setRestDay()` always calls API directly)
+    - ❌ `AssignRoutineToDayLog` → **NOT IMPLEMENTED** (`createWorkoutWithRoutine()` always calls API directly)
+    - ❌ `RemoveWorkoutSessionFromDayLog` → **NOT IMPLEMENTED** (`removeWorkoutSession()` always calls API directly)
+    - ❌ `RemoveExtraSessionFromDayLog` → **NOT IMPLEMENTED** (`removeExtraSession()` always calls API directly)
+    - ❌ Extra-session mutations → **NOT IMPLEMENTED** for offline
 - **FR-006** `NetworkStatusService` provides `isOnline` signal used by widgets to toggle offline indicators. Listens to `window.addEventListener('online'/'offline')`. Implements `OnDestroy` for cleanup.
 - **FR-007** API writes use a **binary online/offline decision** (not the `localFirst` pattern originally spec'd):
-  - If online → call API directly, update local state on success.
-  - If offline → save to sync queue + update local state optimistically.
-  - **No API-failure fallback when online:** if the user is online but the API call fails (server error, timeout), the mutation is lost — it is NOT enqueued to the sync queue.
+    - If online → call API directly, update local state on success.
+    - If offline → save to sync queue + update local state optimistically.
+    - **No API-failure fallback when online:** if the user is online but the API call fails (server error, timeout), the mutation is lost — it is NOT enqueued to the sync queue.
 - **FR-008** PWA install prompt: **NOT IMPLEMENTED.** No `beforeinstallprompt` event listener exists anywhere. Offline banner: **IMPLEMENTED** — yellow banner in header with text "Trabajando sin conexión (Offline)" and wifi-off SVG icon.
 - **FR-009** Background sync replays queue in FIFO order (`pending.sort((a, b) => a.createdAt - b.createdAt)`), removing successful ops; failed ops remain and retry on next reconnect (max 3 retries). **Note:** no UI notification for permanently failed sync ops — only `console.error`. The service worker listens for `sync` events with tag `'sync-mutations'` and posts `PROCESS_SYNC_QUEUE` to clients, but the primary trigger is `NetworkStatusService.isOnline()` via an Angular `effect()`.
 

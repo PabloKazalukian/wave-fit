@@ -26,18 +26,18 @@ A GitHub Actions workflow (`ci.yml`) runs on:
 The workflow runs these gates as **separate, parallel jobs**, all required for a
 green run:
 
-| Job        | Command                     | Purpose                                  |
-| ---------- | --------------------------- | ---------------------------------------- |
-| `lint`     | `npm run lint` + `npm run format:check` | ESLint + formatted code (Prettier, scoped) |
-| `typecheck`| `npm run typecheck`         | Type/contract verification               |
-| `unit`     | `npm run test:ci`           | Karma + Jasmine, headless                |
-| `build`    | `npm run build`             | Production build + Workbox service worker precache |
+| Job         | Command                                 | Purpose                                                          |
+| ----------- | --------------------------------------- | ---------------------------------------------------------------- |
+| `lint`      | `npm run lint` + `npm run format:check` | ESLint + formatted code (Prettier scope per the formatting Spec) |
+| `typecheck` | `npm run typecheck`                     | Type/contract verification                                       |
+| `unit`      | `npm run test:ci`                       | Karma + Jasmine, headless                                        |
+| `build`     | `npm run build`                         | Production build + Workbox service worker precache               |
 
 ### FR-003 — Failed gate blocks merge
 
 If any required job fails, the pull request **cannot be merged**. Enforcement:
 
-- the workflow exposes each job as a *required status check*;
+- the workflow exposes each job as a _required status check_;
 - branch protection on `main` marks those checks as required (configured in
   GitHub repository Settings; branch-protection rules are **not** versioned).
 
@@ -87,9 +87,10 @@ project references), so a bare `tsc --noEmit` checks nothing. The `typecheck`
 script therefore targets the application project explicitly:
 `tsc --noEmit -p tsconfig.app.json`.
 
-Prettier is applied only to the **application and tooling sources** (`src/**` and
-the root tooling configs listed by the `format:check` script), not to
-documentation or generated artifacts.
+The Prettier scope is **not** defined by this Spec. `format:check` covers the
+whole repository except the paths excluded in `.prettierignore`; that contract is
+owned by [`sdd/formatting/spec.md`](../formatting/spec.md), which supersedes any
+scope asserted here.
 
 ## Files
 
@@ -103,14 +104,14 @@ test-first contract for this change; they run locally (T) until the pipeline
 itself is live (see deferred scenarios).
 
 - **TEST-001** — `npm run lint` passes locally.
-- **TEST-002** — `npm run format:check` passes locally (Prettier scoped to `src/**`
-  and root tooling configs).
+- **TEST-002** — `npm run format:check` passes locally (scope defined by
+  [`sdd/formatting/spec.md`](../formatting/spec.md)).
 - **TEST-003** — `npm run typecheck` passes locally.
 - **TEST-004** — `npm run test:ci` passes locally (Karma + ChromeHeadless).
 - **TEST-005** — `npm run build` passes locally (production build + Workbox).
-- **TEST-006** — *Deferred (runs only on GitHub):* a pull request to `main`
+- **TEST-006** — _Deferred (runs only on GitHub):_ a pull request to `main`
   triggers the workflow and all four jobs report success.
-- **TEST-007** — *Deferred (runs only on GitHub):* a failing job makes the
+- **TEST-007** — _Deferred (runs only on GitHub):_ a failing job makes the
   corresponding required check fail, blocking the merge.
 
 ## Acceptance Criteria

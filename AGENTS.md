@@ -94,19 +94,35 @@ Spec
 
 ## Validation
 
-Quality gates are local (no CI pipeline committed yet — see
-`documents/engineering/ci-cd.md`).
+A committed CI pipeline runs the quality gates on every pull request to `main`
+and on every push to `main` (`.github/workflows/ci.yml` — see
+`documents/engineering/ci-cd.md`). The same commands are the local gates:
 
 ```bash
-npm start        # dev server, http://localhost:4200
-npm run lint     # ESLint
-npm test         # unit tests (Karma + Jasmine)
-npm run build    # production build + Workbox PWA service worker
-npx prettier --check .   # formatting (no npm script; .prettierrc configured)
+npm start              # dev server, http://localhost:4200
+npm run lint           # ESLint
+npm run format:check   # formatting (Prettier, whole repository)
+npm run typecheck      # tsc --noEmit
+npm run test:ci        # unit tests (Karma + ChromeHeadless)
+npm run build          # production build + Workbox PWA service worker
 ```
 
-E2E uses Playwright (`@playwright/test`) — see `documents/engineering/testing.md`.
+`npm test` runs the unit tests in watch mode for local development.
+E2E uses Playwright (`@playwright/test`) and is not part of CI — see
+`documents/engineering/testing.md`.
 Before touching templates, read `documents/design/ui-conventions.md` and `documents/design/ui-components.md`.
+
+## Agent Execution Boundaries
+
+- Every command an agent runs must stay **inside the repository working tree**.
+  Never read, write, or delete anything outside the project directory, and never
+  request user permission for a path outside it.
+- Scratch space, throwaway clones, and verification checkouts belong in the
+  gitignored `tmp/` directory at the repository root (already ignored via `/tmp`
+  in `.gitignore`), so they cannot pollute `git status`.
+- This applies to temporary files, log/output redirection, and cleanup steps.
+  If a task appears to require an external path, it must be redesigned to work
+  in-tree rather than escalated.
 
 ## Repository Map
 

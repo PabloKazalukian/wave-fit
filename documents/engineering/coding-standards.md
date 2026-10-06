@@ -144,8 +144,10 @@ Rules:
 
 ## 8. Formatting and Imports
 
-- **Prettier**: `printWidth: 100`, `singleQuote: true` — configured via the **`prettier` key in `package.json`** (this is the config Prettier actually resolves, confirmed with `prettier --find-config-path`). The repository's `.prettierrc` file (`printWidth: 140`, `tabWidth: 4`) exists but is **shadowed/ignored** because Prettier resolves `package.json` first; treat it as obsolete.
-- Run `npx prettier --write .` before finalizing changes; there is **no** `format` npm script. Run `npm run lint` after implementing.
+- **Prettier**: declared **exactly once**, in the `prettier` key of `package.json` (confirmed with `prettier --find-config-path`).
+- The configuration declares every option that affects output — `printWidth: 100`, `singleQuote: true`, `arrowParens: "always"`, `bracketSameLine: false`, `endOfLine: "lf"`, `tabWidth: 4`, `useTabs: false`, `proseWrap: "preserve"`, plus `tabWidth: 2` for `*.html`, `*.scss`, and `*.css`. Formatting therefore does **not** depend on `.editorconfig`, which remains for editors only (`insert_final_newline`, `trim_trailing_whitespace`, `quote_type`).
+- **Line endings**: `.gitattributes` declares `* text=auto eol=lf`, so the working tree is LF on every platform and the gate is platform-independent.
+- Run `npm run format:write` to fix and `npm run format:check` to verify. The gate covers the whole repository except the generated, archived, and tool-owned paths in `.prettierignore`. Run `npm run lint` after implementing.
 - Keep imports explicit and ordered: Angular core → rxjs → project modules → local.
 - Do not add comments to code unless they carry real value (per current repo style, avoid gratuitous comments).
 
