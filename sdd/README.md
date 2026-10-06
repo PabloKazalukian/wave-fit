@@ -62,6 +62,7 @@ Use explicit, stable identifiers:
 | User profile        | [user-profile](user-profile/spec.md)         | `/user`, `/user/profile`                               |
 | Training history    | [training-history](training-history/spec.md) | `/user/history`                                        |
 | PWA / offline       | [pwa-offline](pwa-offline/spec.md)           | (whole app)                                            |
+| CI/CD pipeline      | [ci-cd](ci-cd/spec.md)                       | (repository-wide)                                      |
 | Code formatting     | [formatting](formatting/spec.md)             | (repository-wide)                                      |
 
 ---

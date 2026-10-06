@@ -144,7 +144,7 @@ Rules:
 
 ## 8. Formatting and Imports
 
-- **Prettier**: configured **only** in the `prettier` key of `package.json` (confirmed with `prettier --find-config-path`). There is no `.prettierrc`: Prettier resolves `package.json` first, so a second config file would be silently inert.
+- **Prettier**: declared **exactly once**, in the `prettier` key of `package.json` (confirmed with `prettier --find-config-path`).
 - The configuration declares every option that affects output — `printWidth: 100`, `singleQuote: true`, `arrowParens: "always"`, `bracketSameLine: false`, `endOfLine: "lf"`, `tabWidth: 4`, `useTabs: false`, `proseWrap: "preserve"`, plus `tabWidth: 2` for `*.html`, `*.scss`, and `*.css`. Formatting therefore does **not** depend on `.editorconfig`, which remains for editors only (`insert_final_newline`, `trim_trailing_whitespace`, `quote_type`).
 - **Line endings**: `.gitattributes` declares `* text=auto eol=lf`, so the working tree is LF on every platform and the gate is platform-independent.
 - Run `npm run format:write` to fix and `npm run format:check` to verify. The gate covers the whole repository except the generated, archived, and tool-owned paths in `.prettierignore`. Run `npm run lint` after implementing.
