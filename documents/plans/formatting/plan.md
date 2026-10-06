@@ -1,7 +1,9 @@
 # Plan: Code Formatting & Style Gates
 
-> **Status: Active.** Implementation not started. Spec: `sdd/formatting/spec.md`.
-> On completion this Plan is marked **Historical / Non-Authoritative**
+> **Status: Historical / Non-Authoritative.** Implemented on
+> `feature/formatting-spec` (T0-T12). Spec: `sdd/formatting/spec.md`, which is
+> authoritative for the formatting contract alongside the Code. T13 (push and
+> PR, TEST-009) was deferred and was not part of this Plan's completion
 > (`documents/engineering/git-workflow.md` §6).
 
 ## Context
