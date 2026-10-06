@@ -102,7 +102,7 @@ npm start        # dev server, http://localhost:4200
 npm run lint     # ESLint
 npm test         # unit tests (Karma + Jasmine)
 npm run build    # production build + Workbox PWA service worker
-npx prettier --check .   # formatting (no npm script; .prettierrc configured)
+npm run format:check   # formatting (Prettier, whole repository)
 ```
 
 E2E uses Playwright (`@playwright/test`) — see `documents/engineering/testing.md`.

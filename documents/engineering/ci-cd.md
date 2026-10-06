@@ -8,14 +8,14 @@ A **GitHub Actions pipeline** is committed at `.github/workflows/ci.yml`. It run
 
 ## 1. Quality Gates
 
-| Gate         | Command                | Notes                                                                                                    |
-| ------------ | ---------------------- | -------------------------------------------------------------------------------------------------------- |
-| Lint         | `npm run lint`         | Angular ESLint (`ng lint`)                                                                               |
-| Format check | `npm run format:check` | Prettier scoped to `src/**` + root tooling configs (`.prettierrc`, `printWidth: 140`)                    |
-| Type check   | `npm run typecheck`    | `tsc --noEmit -p tsconfig.app.json` (root `tsconfig.json` is solution-style)                             |
-| Unit tests   | `npm run test:ci`      | Karma + Jasmine, headless (`ng test --watch=false --browsers=ChromeHeadless`); `npm test` for watch mode |
-| E2E tests    | `npx playwright test`  | Playwright (`/e2e`) — not part of CI; requires a live backend and a gitignored `e2e/.auth` state         |
-| Build        | `npm run build`        | `ng build` + `workbox injectManifest`                                                                    |
+| Gate         | Command                | Notes                                                                                                                                              |
+| ------------ | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lint         | `npm run lint`         | Angular ESLint (`ng lint`)                                                                                                                         |
+| Format check | `npm run format:check` | Prettier over the whole repository minus the `.prettierignore` exclusions (`printWidth: 100`; see [formatting spec](../../sdd/formatting/spec.md)) |
+| Type check   | `npm run typecheck`    | `tsc --noEmit -p tsconfig.app.json` (root `tsconfig.json` is solution-style)                                                                       |
+| Unit tests   | `npm run test:ci`      | Karma + Jasmine, headless (`ng test --watch=false --browsers=ChromeHeadless`); `npm test` for watch mode                                           |
+| E2E tests    | `npx playwright test`  | Playwright (`/e2e`) — not part of CI; requires a live backend and a gitignored `e2e/.auth` state                                                   |
+| Build        | `npm run build`        | `ng build` + `workbox injectManifest`                                                                                                              |
 
 ---
 
