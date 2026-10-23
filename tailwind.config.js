@@ -250,6 +250,14 @@ module.exports = {
                 accentDark: '#7C6511',
                 accentHover: '#C79E1B',
 
+                // === GOAL (purple) ===
+                goal: '#9B5DE5',
+                goal2: '#AF7AF0',
+                goal3: '#7C34D2',
+                goalLight: '#E2D4F8',
+                goalDark: '#411E78',
+                goalHover: '#7C34D2',
+
                 // === SUCCESS (verde estándar) ===
                 success: '#4CAF50',
                 success2: '#6BC770',
