@@ -137,17 +137,6 @@ export class TrainingHistoryCalendar {
         return day.type === CalendarDayType.WEEK_LOG;
     }
 
-    isClickable(day: CalendarDay): boolean {
-        if (day.type === CalendarDayType.WEEK_LOG) {
-            if (!day.weekLogReference?.id) return false;
-            return day.status !== TrainingStatus.REST || !!day.extraSessions?.length;
-        }
-        if (day.type === CalendarDayType.DAY_LOG) {
-            return !!day.dayLogId || !!day.extraSessions?.length;
-        }
-        return false;
-    }
-
     isComplete(day: CalendarDay): boolean {
         return day.status?.toUpperCase() === 'COMPLETE';
     }
@@ -179,12 +168,10 @@ export class TrainingHistoryCalendar {
             const isFirst = !prevDay || !this.isWeekLog(prevDay);
             const isLast = dayNum >= totalDays || !nextDay || !this.isWeekLog(nextDay);
             const rounded = isFirst ? 'rounded-l-full' : isLast ? 'rounded-r-full' : '';
-            const cursor = this.isClickable(day) ? ' cursor-pointer hover:bg-accent/25' : '';
-            return `${base} bg-accent/15 ${rounded}${cursor}${selected}`;
+            return `${base} bg-accent/15 ${rounded} cursor-pointer hover:bg-accent/25${selected}`;
         }
 
-        const dayCursor = this.isClickable(day) ? ' cursor-pointer hover:bg-white/5' : '';
-        return `${base}${dayCursor}${selected}`;
+        return `${base} cursor-pointer hover:bg-white/5${selected}`;
     }
 
     getDayClasses(day: CalendarDay): string {
@@ -211,11 +198,17 @@ export class TrainingHistoryCalendar {
             return `${base} border border-accent/40 text-accent/60 font-medium hover:scale-110`;
         }
 
+        // Day-log vacío/pendiente de completar: se muestra como un día
+        // "pendiente" dentro de un week-log, con relleno redondeado.
+        if (this.isPending(day)) {
+            return `${base} bg-text2/20 text-accent/40 font-medium hover:scale-110`;
+        }
+
         if (this.isNone(day)) {
             return `${base} text-text3/30`;
         }
 
-        return `${base} text-text2 hover:bg-white/5 cursor-default`;
+        return `${base} text-text2 hover:bg-white/5`;
     }
 
     getDayNumber(day: CalendarDay): number {

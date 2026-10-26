@@ -1,6 +1,6 @@
 import { Component, Input, ContentChild, input, AfterContentInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Params, RouterModule } from '@angular/router';
 import { IconComponent } from '../icon/icon';
 
 const VALID_COLORS = [
@@ -38,6 +38,7 @@ export class BtnComponent implements AfterContentInit {
         | 'ghostColor' = 'basic';
     @Input() color = 'primary';
     @Input() routerLink?: string;
+    @Input() queryParams?: Params;
     @Input() buttonType: 'button' | 'submit' | 'reset' = 'button';
     @Input() size: 'sm' | 'md' = 'sm';
     @Input() fragment?: string;

@@ -175,6 +175,9 @@ module.exports = {
         'text-accent',
         'bg-success',
         'bg-text2/25',
+        'bg-text2/40',
+        'bg-text2/20',
+        'text-accent/40',
         'text-text3/30',
         'hover:bg-accent/25',
         // Calendar day hover (FR-025, ui-conventions.md §1.1)

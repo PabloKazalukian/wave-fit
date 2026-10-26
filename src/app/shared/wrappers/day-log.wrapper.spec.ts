@@ -1,11 +1,14 @@
 import {
+    DayLogDeferredAPI,
     RemoveWorkoutSessionFromDayLogResultAPI,
     UpdateDayLogResultAPI,
 } from '../interfaces/api/day-log-api.interface';
 import { Exercise, ExerciseCategory } from '../interfaces/exercise.interface';
 import {
     apiDateToLocalDate,
+    deferredDateToLocalDate,
     wrapperDayLogApiToVM,
+    wrapperDayLogDeferredApiToVM,
     wrapperDayLogSummaryApiToVM,
     wrapperRemoveWorkoutSessionFromDayLogApiToVM,
     wrapperUpdateDayLogApiToVM,
@@ -60,6 +63,72 @@ describe('apiDateToLocalDate (TEST-001)', () => {
             status: 'pending',
         });
         expect(vm.date).toBe('2026-04-30');
+    });
+});
+
+describe('deferred deferred-day wrapper', () => {
+    const withTimezone = (timeZone: string) => {
+        const resolved = new Intl.DateTimeFormat('en-US', { timeZone }).resolvedOptions();
+        spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions').and.returnValue(resolved);
+    };
+
+    it('keeps a plain yyyy-MM-dd date without timezone conversion', () => {
+        withTimezone('America/Argentina/Buenos_Aires');
+        expect(deferredDateToLocalDate('2026-10-15')).toBe('2026-10-15');
+    });
+
+    it('converts an ISO date when the backend sends one', () => {
+        withTimezone('America/Argentina/Buenos_Aires');
+        expect(deferredDateToLocalDate('2026-10-15T02:30:00.000Z')).toBe('2026-10-14');
+    });
+
+    it('maps the created day-log with empty exercises and extra sessions', () => {
+        const payload: DayLogDeferredAPI = {
+            id: 'day-1',
+            userId: 'user-1',
+            date: '2026-10-15',
+            status: 'pending',
+            active: false,
+            completed: false,
+            notes: 'nota',
+            workoutSessionId: 'ws-1',
+            routineDayId: 'rd-1',
+            planId: 'plan-1',
+        };
+
+        const vm = wrapperDayLogDeferredApiToVM(payload);
+
+        expect(vm).toEqual(
+            jasmine.objectContaining({
+                id: 'day-1',
+                userId: 'user-1',
+                date: '2026-10-15',
+                status: 'pending',
+                active: false,
+                completed: false,
+                notes: 'nota',
+                workoutSessionId: 'ws-1',
+                routineDayId: 'rd-1',
+                planId: 'plan-1',
+            }),
+        );
+        expect(vm.exercises).toEqual([]);
+        expect(vm.extraSessionIds).toEqual([]);
+    });
+
+    it('normalizes missing optional fields', () => {
+        const vm = wrapperDayLogDeferredApiToVM({
+            id: 'day-1',
+            date: '2026-10-15',
+            status: 'pending',
+            active: false,
+            completed: false,
+        });
+
+        expect(vm.userId).toBe('');
+        expect(vm.workoutSessionId).toBeUndefined();
+        expect(vm.routineDayId).toBeNull();
+        expect(vm.planId).toBeNull();
     });
 });
 

@@ -94,6 +94,14 @@ export class PlanDayService {
         );
     }
 
+    /**
+     * Crea un day-log diferido (fecha pasada) sin persistirlo en el contenedor
+     * activo. La fecha la valida el backend.
+     */
+    createDayLogDeferred(date: LocalDate): Observable<DayLogVM | null> {
+        return this.domain.createDayLogDeferred(date);
+    }
+
     reloadDayLog(): Observable<DayLogVM | null> {
         const userId = this.authService.user()?.id ?? this.state.userId();
         this.state.userId.set(userId);

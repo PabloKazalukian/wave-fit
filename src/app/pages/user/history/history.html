@@ -1,4 +1,15 @@
 <section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  @if (notification(); as notice) {
+    <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] w-full max-w-sm">
+      <app-notification
+        [message]="notice.message"
+        [type]="notice.type"
+        [duration]="4000"
+        (closeOuput)="notification.set(null)"
+      ></app-notification>
+    </div>
+  }
+
   <header class="flex items-center justify-between mb-6">
     <h1 class="text-xl font-bold text-text1 flex items-center gap-2">
       <lucide-icon
@@ -23,6 +34,23 @@
     (nextMonth)="nextMonth()"
     (reload)="reloadMonth()"
   ></app-training-history-calendar>
+
+  @if (isEmptySelection()) {
+    <div class="mt-4" data-test="history-empty-day">
+      <app-info-card [lines]="emptyDayInfo"></app-info-card>
+    </div>
+    <div class="mt-4">
+      <app-btn
+        [text]="creatingDeferred() ? 'Creando...' : 'Agregar día'"
+        [isDisabled]="creatingDeferred()"
+        variant="raised"
+        color="primary"
+        size="md"
+        dataTest="history-add-deferred"
+        (click)="addDeferredDay()"
+      ></app-btn>
+    </div>
+  }
 
   <app-training-history-day-preview
     [preview]="preview()"
