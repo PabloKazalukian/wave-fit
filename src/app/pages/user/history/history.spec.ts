@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { History } from './history';
 import { TrainingHistoryService } from '../../../core/services/training-history/training-history.service';
 import { PlanTrackingService } from '../../../core/services/trackings/plan-tracking.service';
@@ -105,7 +105,7 @@ describe('History', () => {
 
     beforeEach(async () => {
         planTrackingSvc = jasmine.createSpyObj('PlanTrackingService', ['findById']);
-        planDaySvc = jasmine.createSpyObj('PlanDayService', ['findById']);
+        planDaySvc = jasmine.createSpyObj('PlanDayService', ['findById', 'createDayLogDeferred']);
         exerciseSvc = jasmine.createSpyObj('ExercisesService', ['getExercises']);
         trainingHistorySvc = jasmine.createSpyObj('TrainingHistoryService', [
             'getTrainingCalendar',
@@ -194,7 +194,7 @@ describe('History', () => {
             expect(qs('[data-test="history-preview"]')).toBeNull();
         });
 
-        it('does not open a preview for a rest week-log day', () => {
+        it('selects a rest week-log day without opening a preview or offering a deferred day', () => {
             component.calendarDays.set([
                 { ...weekLogDay, date: '2026-02-04', status: TrainingStatus.REST },
             ]);
@@ -204,8 +204,10 @@ describe('History', () => {
             tile!.click();
             fixture.detectChanges();
 
+            expect(component.selectedDate()).toBe('2026-02-04');
             expect(planTrackingSvc.findById).not.toHaveBeenCalled();
             expect(qs('[data-test="history-preview"]')).toBeNull();
+            expect(qs('[data-test="history-add-deferred"]')).toBeNull();
         });
 
         it('shows an error state and retries when the week fetch fails', () => {
@@ -370,7 +372,7 @@ describe('History', () => {
             expect(cta!.textContent).toContain('Ver día');
         });
 
-        it('does not open a preview when the day-log has no exercises', () => {
+        it('opens an empty preview for a day-log with no exercises (FR-008)', () => {
             planDaySvc.findById.and.returnValue(of({ ...dayLog(), exercises: [] }));
 
             const tile = qs('[data-date="2026-02-03"]');
@@ -378,7 +380,10 @@ describe('History', () => {
             fixture.detectChanges();
 
             expect(planDaySvc.findById).toHaveBeenCalledWith('day-1');
-            expect(qs('[data-test="history-preview"]')).toBeNull();
+            const preview = qs('[data-test="history-preview"]');
+            expect(preview).toBeTruthy();
+            expect(preview!.textContent).toContain('No hay ejercicios registrados');
+            expect(preview!.textContent).toContain('Editar día');
         });
 
         it('renders extra sessions after the exercises (FR-011)', () => {
@@ -425,10 +430,12 @@ describe('History', () => {
             expect(preview).toBeTruthy();
             expect(preview.textContent).toContain('Running');
             expect(preview.querySelector('a')).toBeNull();
+            expect(qs('[data-test="history-empty-day"]')).toBeNull();
+            expect(qs('[data-test="history-add-deferred"]')).toBeNull();
         });
     });
 
-    it('clicking an empty day closes an open preview', () => {
+    it('selects an empty day, closes an open preview and offers the deferred-day button', () => {
         planTrackingSvc.findById.and.returnValue(
             of(
                 weekTracking([
@@ -453,7 +460,202 @@ describe('History', () => {
 
         qs('[data-date="2026-02-07"]')!.click();
         fixture.detectChanges();
+
+        expect(component.selectedDate()).toBe('2026-02-07');
         expect(qs('[data-test="history-preview"]')).toBeNull();
+
+        const info = qs('[data-test="history-empty-day"]');
+        expect(info).toBeTruthy();
+        expect(info!.querySelectorAll('li').length).toBe(2);
+        expect(info!.textContent).toContain('No hay datos en este día');
+        expect(info!.textContent).toContain('forma diferida');
+
+        const button = qs('[data-test="history-add-deferred"]');
+        expect(button).toBeTruthy();
+        expect(button!.tagName).toBe('BUTTON');
+        expect(button!.textContent).toContain('Agregar día');
+        expect(
+            info!.compareDocumentPosition(button!) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+    });
+
+    it('jumps to the padding day month and selects that day', () => {
+        component.calendarDays.set([]);
+        fixture.detectChanges();
+
+        qs('[data-date="2026-01-31"]')!.click();
+        fixture.detectChanges();
+
+        expect(trainingHistorySvc.getTrainingCalendar).toHaveBeenCalledWith(2026, 0);
+        expect(component.currentYear()).toBe(2026);
+        expect(component.currentMonth()).toBe(0);
+        expect(component.selectedDate()).toBe('2026-01-31');
+        expect(qs('[data-test="history-empty-day"]')).toBeTruthy();
+        expect(qs('[data-test="history-add-deferred"]')).toBeTruthy();
+    });
+
+    it('renders the deferred-day button below the calendar', () => {
+        component.calendarDays.set([
+            { date: '2026-02-07', type: CalendarDayType.DAY_LOG, status: TrainingStatus.NONE },
+        ]);
+        fixture.detectChanges();
+
+        qs('[data-date="2026-02-07"]')!.click();
+        fixture.detectChanges();
+
+        const calendar = qs('app-training-history-calendar')!;
+        const button = qs('[data-test="history-add-deferred"]')!;
+        expect(
+            calendar.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+    });
+
+    describe('deferred day creation', () => {
+        const emptyDay: CalendarDay = {
+            date: '2026-02-07',
+            type: CalendarDayType.DAY_LOG,
+            status: TrainingStatus.NONE,
+        };
+
+        const createdDayLog = (): DayLogVM => ({
+            id: 'new-1',
+            userId: 'u1',
+            date: '2026-02-07',
+            exercises: [],
+            extraSessionIds: [],
+            status: 'pending',
+            active: false,
+            completed: false,
+        });
+
+        beforeEach(() => {
+            component.calendarDays.set([emptyDay]);
+            fixture.detectChanges();
+            qs('[data-date="2026-02-07"]')!.click();
+            fixture.detectChanges();
+        });
+
+        it('creates the day, notifies, reloads the calendar and selects the created day', () => {
+            const created = createdDayLog();
+            planDaySvc.createDayLogDeferred.and.returnValue(of(created));
+            planDaySvc.findById.and.returnValue(of(created));
+            trainingHistorySvc.getTrainingCalendar.and.callFake((year: number, month: number) =>
+                of({
+                    year,
+                    month,
+                    days: [
+                        {
+                            ...emptyDay,
+                            dayLogId: created.id,
+                            status: TrainingStatus.PENDING,
+                        },
+                    ],
+                }),
+            );
+            const callsBefore = trainingHistorySvc.getTrainingCalendar.calls.count();
+
+            qs('[data-test="history-add-deferred"]')!.click();
+            fixture.detectChanges();
+
+            expect(planDaySvc.createDayLogDeferred).toHaveBeenCalledWith('2026-02-07');
+            expect(trainingHistorySvc.getTrainingCalendar.calls.count()).toBe(callsBefore + 1);
+            expect(fixture.nativeElement.textContent).toContain('Día creado correctamente');
+            expect(component.selectedDate()).toBe('2026-02-07');
+
+            const preview = qs('[data-test="history-preview"]')!;
+            expect(preview).toBeTruthy();
+            expect(preview.textContent).toContain('No hay ejercicios registrados');
+            expect(qs('[data-test="history-add-deferred"]')).toBeNull();
+            expect(qs('[data-test="history-empty-day"]')).toBeNull();
+
+            const edit = qs('[data-test="history-edit-day"]')!;
+            expect(edit.getAttribute('href')).toBe(
+                '/user/history/deferred?date=2026-02-07&id=new-1',
+            );
+        });
+
+        it('uses the created id when the reloaded calendar does not include it yet', () => {
+            const created = createdDayLog();
+            planDaySvc.createDayLogDeferred.and.returnValue(of(created));
+            planDaySvc.findById.and.returnValue(of(created));
+            trainingHistorySvc.getTrainingCalendar.and.callFake((year: number, month: number) =>
+                of({ year, month, days: [emptyDay] }),
+            );
+
+            qs('[data-test="history-add-deferred"]')!.click();
+            fixture.detectChanges();
+
+            expect(component.selectedDay()?.dayLogId).toBe('new-1');
+            expect(qs('[data-test="history-preview"]')).toBeTruthy();
+            expect(qs('[data-test="history-edit-day"]')!.getAttribute('href')).toBe(
+                '/user/history/deferred?date=2026-02-07&id=new-1',
+            );
+        });
+
+        it('shows an error notification and re-enables the button when creation fails', () => {
+            planDaySvc.createDayLogDeferred.and.returnValue(throwError(() => new Error('nope')));
+            const callsBefore = trainingHistorySvc.getTrainingCalendar.calls.count();
+
+            qs('[data-test="history-add-deferred"]')!.click();
+            fixture.detectChanges();
+
+            expect(fixture.nativeElement.textContent).toContain('No se pudo crear el día');
+            expect(trainingHistorySvc.getTrainingCalendar.calls.count()).toBe(callsBefore);
+
+            const button = qs('[data-test="history-add-deferred"]') as HTMLButtonElement;
+            expect(button).toBeTruthy();
+            expect(button.disabled).toBeFalse();
+            expect(button.textContent).toContain('Agregar día');
+        });
+
+        it('does not offer the creation CTA for today or future dates', () => {
+            component.currentYear.set(2999);
+            component.currentMonth.set(11);
+            component.calendarDays.set([
+                {
+                    date: '2999-12-31',
+                    type: CalendarDayType.DAY_LOG,
+                    status: TrainingStatus.NONE,
+                },
+            ]);
+            fixture.detectChanges();
+
+            qs('[data-date="2999-12-31"]')!.click();
+            fixture.detectChanges();
+
+            expect(component.selectedDate()).toBe('2999-12-31');
+            expect(qs('[data-test="history-empty-day"]')).toBeNull();
+            expect(qs('[data-test="history-add-deferred"]')).toBeNull();
+        });
+    });
+
+    it('deselects when clicking the selected empty day again', () => {
+        component.calendarDays.set([
+            { date: '2026-02-07', type: CalendarDayType.DAY_LOG, status: TrainingStatus.NONE },
+        ]);
+        fixture.detectChanges();
+
+        qs('[data-date="2026-02-07"]')!.click();
+        fixture.detectChanges();
+        expect(component.selectedDate()).toBe('2026-02-07');
+
+        qs('[data-date="2026-02-07"]')!.click();
+        fixture.detectChanges();
+
+        expect(component.selectedDate()).toBeNull();
+        expect(qs('[data-test="history-add-deferred"]')).toBeNull();
+    });
+
+    it('does not offer a deferred day for a day-log that already exists', () => {
+        component.calendarDays.set([dayLogDay]);
+        planDaySvc.findById.and.returnValue(of(dayLog()));
+        fixture.detectChanges();
+
+        qs('[data-date="2026-02-03"]')!.click();
+        fixture.detectChanges();
+
+        expect(component.selectedDate()).toBe('2026-02-03');
+        expect(qs('[data-test="history-add-deferred"]')).toBeNull();
     });
 
     describe('month navigation', () => {

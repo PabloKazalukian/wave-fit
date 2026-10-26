@@ -4,6 +4,7 @@ import {
     ActiveTrackingAPI,
     ActiveWeekAPI,
     DayLogAPI,
+    DayLogDeferredAPI,
     DayLogSummaryAPI,
     AssignRoutineToDayLogResultAPI,
     RemoveExtraSessionFromDayLogResultAPI,
@@ -24,6 +25,32 @@ import { Exercise } from '../interfaces/exercise.interface';
 export function apiDateToLocalDate(isoString: string): string {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     return formatInTimeZone(new Date(isoString), timezone, 'yyyy-MM-dd');
+}
+
+/**
+ * CreateDayLogDeferred devuelve `date` ya como LocalDate ("yyyy-MM-dd"), a
+ * diferencia del resto de las respuestas del backend que usan ISO de Mongo.
+ * Acepta ambos formatos para no desfasar el día por la conversión de timezone.
+ */
+export function deferredDateToLocalDate(value: string): string {
+    return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : apiDateToLocalDate(value);
+}
+
+export function wrapperDayLogDeferredApiToVM(payload: DayLogDeferredAPI): DayLogVM {
+    return {
+        id: payload.id,
+        userId: payload.userId ?? '',
+        date: deferredDateToLocalDate(payload.date),
+        planId: payload.planId ?? null,
+        routineDayId: payload.routineDayId ?? null,
+        workoutSessionId: payload.workoutSessionId ?? undefined,
+        exercises: [],
+        extraSessionIds: [],
+        status: payload.status,
+        active: payload.active,
+        completed: payload.completed,
+        notes: payload.notes,
+    };
 }
 
 export function wrapperDayLogApiToVM(payload: DayLogAPI, allExercises: Exercise[]): DayLogVM {

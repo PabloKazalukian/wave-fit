@@ -150,6 +150,14 @@ export class PlanDayDomainService {
         );
     }
 
+    /**
+     * Crea un day-log diferido (fecha pasada) sin tocar el state, el storage
+     * local ni el tracking activo. Solo devuelve el registro creado.
+     */
+    createDayLogDeferred(date: LocalDate): Observable<DayLogVM | null> {
+        return this.api.createDayLogDeferred({ date });
+    }
+
     createWorkout(date: LocalDate): Observable<DayLogVM | null> {
         const dayLog = this.state.getDayLogValue();
         if (!dayLog) return of(null);

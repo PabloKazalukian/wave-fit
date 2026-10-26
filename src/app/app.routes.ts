@@ -64,6 +64,14 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/user/history/history').then((m) => m.History),
             },
             {
+                path: 'history/deferred',
+                loadComponent: () =>
+                    import('./pages/user/history/day-deferred/day-deferred').then(
+                        (m) => m.DayDeferred,
+                    ),
+                canActivate: [authGuard],
+            },
+            {
                 path: 'tracking/day/:id',
                 loadComponent: () => import('./pages/tracking-day/show/show').then((m) => m.Show),
             },

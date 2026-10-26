@@ -20,6 +20,7 @@ describe('PlanDayService', () => {
     let dayLog$: BehaviorSubject<DayLogVM | null>;
     let domain: {
         createDayLog: jasmine.Spy;
+        createDayLogDeferred: jasmine.Spy;
         createWorkout: jasmine.Spy;
         createWorkoutWithRoutine: jasmine.Spy;
         setRestDay: jasmine.Spy;
@@ -88,6 +89,7 @@ describe('PlanDayService', () => {
 
         domain = {
             createDayLog: jasmine.createSpy('createDayLog'),
+            createDayLogDeferred: jasmine.createSpy('createDayLogDeferred'),
             createWorkout: jasmine.createSpy('createWorkout'),
             createWorkoutWithRoutine: jasmine.createSpy('createWorkoutWithRoutine'),
             setRestDay: jasmine.createSpy('setRestDay'),
@@ -144,6 +146,19 @@ describe('PlanDayService', () => {
         expect(domain.createDayLog).toHaveBeenCalledWith('plan-1', '2026-05-01', 'rd-1');
         expect(state.setDayLog).toHaveBeenCalledWith(day);
         expect(storage.setDayLogStorage).toHaveBeenCalledWith(day, day.userId);
+        expect(result).toEqual(day);
+    });
+
+    it('createDayLogDeferred delegates without persisting into the active container', () => {
+        const day = buildDayLog({ active: false, completed: false });
+        domain.createDayLogDeferred.and.returnValue(of(day));
+
+        let result: DayLogVM | null | undefined;
+        service.createDayLogDeferred('2026-05-01').subscribe((res) => (result = res));
+
+        expect(domain.createDayLogDeferred).toHaveBeenCalledWith('2026-05-01');
+        expect(state.setDayLog).not.toHaveBeenCalled();
+        expect(storage.setDayLogStorage).not.toHaveBeenCalled();
         expect(result).toEqual(day);
     });
 

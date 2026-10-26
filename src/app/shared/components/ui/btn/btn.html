@@ -1,6 +1,7 @@
 @if (routerLink && !isDisabled) {
   <a
     [routerLink]="routerLink"
+    [queryParams]="queryParams"
     [fragment]="fragment"
     [class]="'block ' + classList"
     [attr.data-test]="dataTest"

@@ -75,6 +75,20 @@
         </ul>
       </section>
     }
+
+    @if (p.kind === CalendarDayType.DAY_LOG && p.id) {
+      <footer class="mt-4 pt-4 border-t border-background4 flex justify-end">
+        <app-btn
+          text="Editar día"
+          variant="outline"
+          color="primary"
+          size="sm"
+          [routerLink]="'/user/history/deferred'"
+          [queryParams]="editDayQueryParams(p)"
+          dataTest="history-edit-day"
+        ></app-btn>
+      </footer>
+    }
   </section>
 } @else if (loading()) {
   <section class="mt-4 pt-3 border-t border-background4" aria-label="Cargando detalle del día">

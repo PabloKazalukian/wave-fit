@@ -52,8 +52,8 @@
       @for (day of calendarGrid(); track day.date) {
         <div
           [class]="getWrapperClasses(day)"
-          [attr.role]="isClickable(day) ? 'button' : null"
-          [attr.tabindex]="isClickable(day) ? 0 : -1"
+          role="button"
+          tabindex="0"
           [attr.aria-label]="getDayAriaLabel(day)"
           [attr.aria-selected]="selectedDate() === day.date"
           [attr.data-date]="day.date"
@@ -78,7 +78,7 @@
         </div>
         <div class="flex items-center gap-1.5">
           <span class="w-3.5 h-3.5 rounded-full border border-accent bg-accent/15"></span>
-          <span class="text-xs text-text2">Semana de entrenamiento</span>
+          <span class="text-xs text-text2">Semana/Dia de entrenamiento</span>
         </div>
         <div class="flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-primary"></span>

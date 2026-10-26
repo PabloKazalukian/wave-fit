@@ -13,8 +13,10 @@ import {
 import { DayLogVM, DayLogSummaryVM } from '../../../../../shared/interfaces/day-log.interface';
 import {
     AssignRoutineToDayLogResultAPI,
+    CreateDayLogDeferredInput,
     CreateDayLogInput,
     DayLogAPI,
+    DayLogDeferredAPI,
     DayLogSummaryAPI,
     RemoveExtraSessionFromDayLogResultAPI,
     RemoveWorkoutSessionFromDayLogResultAPI,
@@ -27,6 +29,7 @@ import {
     patchDayLog,
     wrapperAssignRoutineToDayLogApiToVM,
     wrapperDayLogApiToVM,
+    wrapperDayLogDeferredApiToVM,
     wrapperDayLogSummaryApiToVM,
     wrapperRemoveExtraSessionFromDayLogApiToVM,
     wrapperRemoveWorkoutSessionFromDayLogApiToVM,
@@ -38,6 +41,7 @@ import {
     ACTIVE_DAY_LOG,
     ASSIGN_ROUTINE_TO_DAY_LOG,
     CREATE_DAY_LOG,
+    CREATE_DAY_LOG_DEFERRED,
     DAY_LOGS,
     FIND_DAY_LOG_BY_ID,
     REMOVE_DAY_LOG,
@@ -105,6 +109,22 @@ export class PlanDayApi {
                     ),
             ),
         );
+    }
+
+    createDayLogDeferred(payload: CreateDayLogDeferredInput): Observable<DayLogVM | null> {
+        return this.apollo
+            .mutate<{ createDayLogDeferred: DayLogDeferredAPI }>({
+                mutation: CREATE_DAY_LOG_DEFERRED,
+                variables: { input: payload },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    data?.createDayLogDeferred
+                        ? wrapperDayLogDeferredApiToVM(data.createDayLogDeferred)
+                        : null,
+                ),
+            );
     }
 
     updateDayLog(payload: UpdateDayLogInput): Observable<DayLogVM | null> {

@@ -116,6 +116,66 @@ describe('TrainingHistoryCalendar', () => {
         expect(qs('[data-date="2026-02-03"]')!.getAttribute('role')).toBe('button');
     });
 
+    it('makes every day of the displayed month selectable with a pointer cursor', () => {
+        fixture.componentRef.setInput('days', [
+            {
+                date: '2026-02-04',
+                type: CalendarDayType.WEEK_LOG,
+                status: TrainingStatus.REST,
+                weekLogReference: { ...weekLogDay.weekLogReference! },
+            },
+            { date: '2026-02-07', type: CalendarDayType.DAY_LOG, status: TrainingStatus.NONE },
+            {
+                date: '2026-02-08',
+                type: CalendarDayType.DAY_LOG,
+                status: TrainingStatus.COMPLETE,
+                dayLogId: 'day-2',
+            },
+        ]);
+        fixture.detectChanges();
+
+        for (const date of ['2026-02-04', '2026-02-07', '2026-02-08']) {
+            const tile = qs(`[data-date="${date}"]`)!;
+            expect(tile.getAttribute('role')).toBe('button');
+            expect(tile.getAttribute('tabindex')).toBe('0');
+            expect(tile.classList.contains('cursor-pointer')).toBe(true);
+        }
+    });
+
+    it('makes padding days selectable so the page can jump to their month', () => {
+        const spy = jasmine.createSpy('daySelected');
+        component.daySelected.subscribe(spy);
+
+        const previousMonthDay = qs('[data-date="2026-01-31"]')!;
+        const nextMonthDay = qs('[data-date="2026-03-01"]')!;
+
+        expect(previousMonthDay.getAttribute('role')).toBe('button');
+        expect(previousMonthDay.classList.contains('cursor-pointer')).toBe(true);
+        expect(nextMonthDay.getAttribute('role')).toBe('button');
+        expect(nextMonthDay.classList.contains('cursor-pointer')).toBe(true);
+
+        previousMonthDay.click();
+
+        expect(spy).toHaveBeenCalledWith(jasmine.objectContaining({ date: '2026-01-31' }));
+    });
+
+    it('fills a pending day-log tile with the pending rounded color (FR-001)', () => {
+        fixture.componentRef.setInput('days', [
+            {
+                date: '2026-02-05',
+                type: CalendarDayType.DAY_LOG,
+                status: TrainingStatus.PENDING,
+                dayLogId: 'day-3',
+            },
+        ]);
+        fixture.detectChanges();
+
+        const dayCircle = qs('[data-date="2026-02-05"]')!.firstElementChild as HTMLElement;
+        expect(dayCircle.classList.contains('rounded-full')).toBe(true);
+        expect(dayCircle.classList.contains('bg-text2/20')).toBe(true);
+        expect(dayCircle.classList.contains('text-accent/40')).toBe(true);
+    });
+
     it('makes a REST week-log day with extras clickable (FR-011)', () => {
         fixture.componentRef.setInput('days', [
             {

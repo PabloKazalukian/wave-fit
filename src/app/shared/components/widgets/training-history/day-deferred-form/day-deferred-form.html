@@ -1,0 +1,125 @@
+<section
+  class="bg-background2 border-2 border-background4 rounded-2xl p-5"
+  aria-label="Formulario de día diferido"
+  data-test="day-deferred-form"
+>
+  @if (loading()) {
+    <div class="flex items-center justify-center py-8">
+      <app-loading color="primary" size="md" />
+    </div>
+  } @else if (error()) {
+    <div class="flex flex-col items-center justify-center gap-3 py-6">
+      <p class="text-sm text-text2 text-center">No se pudo cargar el día.</p>
+      <button
+        class="px-4 py-2 text-sm font-medium rounded-lg border border-primary text-primary hover:bg-primary/10 transition-colors"
+        data-test="day-deferred-retry"
+        (click)="retry.emit()"
+      >
+        Reintentar
+      </button>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-5">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs text-text2 font-medium uppercase tracking-widest" for="deferred-date">
+          Fecha
+        </label>
+        <input
+          id="deferred-date"
+          class="w-full bg-background3 border-2 border-background4 rounded-lg px-3 py-2 text-text1"
+          type="text"
+          [value]="displayDate()"
+          readonly
+        />
+        @if (resolvedDate()) {
+          <span class="text-xs text-text3">{{ resolvedDate() }}</span>
+        }
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1">
+          <label
+            class="text-xs text-text2 font-medium uppercase tracking-widest"
+            for="deferred-status"
+          >
+            Estado
+          </label>
+          <input
+            id="deferred-status"
+            class="w-full bg-background3 border-2 border-background4 rounded-lg px-3 py-2 text-text1"
+            type="text"
+            [value]="statusLabel()"
+            readonly
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label
+            class="text-xs text-text2 font-medium uppercase tracking-widest"
+            for="deferred-completed"
+          >
+            Completado
+          </label>
+          <input
+            id="deferred-completed"
+            class="w-full bg-background3 border-2 border-background4 rounded-lg px-3 py-2 text-text1"
+            type="text"
+            [value]="completedLabel()"
+            readonly
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label
+          class="text-xs text-text2 font-medium uppercase tracking-widest"
+          for="deferred-notes"
+        >
+          Notas
+        </label>
+        <textarea
+          id="deferred-notes"
+          class="w-full bg-background3 border-2 border-background4 rounded-lg px-3 py-2 text-text1 resize-none"
+          rows="3"
+          [value]="dayLog()?.notes ?? ''"
+          readonly
+        ></textarea>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <span class="text-xs text-text2 font-medium uppercase tracking-widest">Ejercicios</span>
+        @if (exercises().length > 0) {
+          <ul class="flex flex-col gap-2">
+            @for (exercise of exercises(); track exercise.exerciseId) {
+              <li
+                class="bg-background3 border border-background4 rounded-lg px-3 py-2 flex items-center justify-between gap-3"
+              >
+                <span class="text-sm font-semibold text-text1">{{ exercise.name }}</span>
+                <span class="text-xs text-text3">{{ exercise.series }} series</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="text-sm text-text3 italic">Sin ejercicios</p>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <span class="text-xs text-text2 font-medium uppercase tracking-widest">Sesiones extra</span>
+        <p class="text-sm text-text1">
+          @if (extraSessionCount() > 0) {
+            {{ extraSessionCount() }}
+            {{ extraSessionCount() === 1 ? 'sesión extra' : 'sesiones extra' }}
+          } @else {
+            <span class="text-text3 italic">Sin sesiones extra</span>
+          }
+        </p>
+      </div>
+
+      @if (!dayLog()) {
+        <p class="text-xs text-text3 italic">
+          Vista de demostración: no hay datos cargados para este día.
+        </p>
+      }
+    </div>
+  }
+</section>

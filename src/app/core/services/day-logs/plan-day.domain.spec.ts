@@ -21,6 +21,7 @@ describe('PlanDayDomainService', () => {
     let dayLog: DayLogVM | null;
     let api: {
         createDayLog: jasmine.Spy;
+        createDayLogDeferred: jasmine.Spy;
         updateDayLog: jasmine.Spy;
         updateDayLogStatus: jasmine.Spy;
         assignRoutineToDayLog: jasmine.Spy;
@@ -54,6 +55,7 @@ describe('PlanDayDomainService', () => {
 
         api = {
             createDayLog: jasmine.createSpy('createDayLog'),
+            createDayLogDeferred: jasmine.createSpy('createDayLogDeferred'),
             updateDayLog: jasmine.createSpy('updateDayLog'),
             updateDayLogStatus: jasmine.createSpy('updateDayLogStatus'),
             assignRoutineToDayLog: jasmine.createSpy('assignRoutineToDayLog'),
@@ -157,6 +159,27 @@ describe('PlanDayDomainService', () => {
                 active: true,
                 status: 'pending',
             });
+        });
+    });
+
+    describe('createDayLogDeferred', () => {
+        it('creates a past day-log without touching state, storage or active tracking', () => {
+            const created = buildDayLog({
+                id: 'day-2',
+                date: '2026-04-15',
+                active: false,
+                completed: false,
+            });
+            api.createDayLogDeferred.and.returnValue(of(created));
+
+            let result: DayLogVM | null | undefined;
+            service.createDayLogDeferred('2026-04-15').subscribe((res) => (result = res));
+
+            expect(api.createDayLogDeferred).toHaveBeenCalledWith({ date: '2026-04-15' });
+            expect(result).toEqual(created);
+            expect(state.setDayLog).not.toHaveBeenCalled();
+            expect(storage.setDayLogStorage).not.toHaveBeenCalled();
+            expect(activeTracking.markDayActive).not.toHaveBeenCalled();
         });
     });
 

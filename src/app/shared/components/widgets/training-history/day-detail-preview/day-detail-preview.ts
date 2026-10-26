@@ -1,4 +1,5 @@
 import { Component, inject, input, output } from '@angular/core';
+import { Params } from '@angular/router';
 import { DateService } from '../../../../../core/services/date.service';
 import { CalendarDayType, DayPreview } from '../../../../interfaces/training-history.interface';
 import { ExtraSessionDisciplineConfig } from '../../../../interfaces/extra-session.interface';
@@ -34,5 +35,9 @@ export class TrainingHistoryDayPreview {
         return preview.kind === CalendarDayType.WEEK_LOG
             ? `/user/trackings/${preview.id}`
             : `/user/tracking/day/${preview.id}`;
+    }
+
+    editDayQueryParams(preview: DayPreview): Params {
+        return { date: preview.date, id: preview.id };
     }
 }

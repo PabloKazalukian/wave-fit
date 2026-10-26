@@ -83,6 +83,23 @@ export const CREATE_DAY_LOG = gql`
     }
 `;
 
+export const CREATE_DAY_LOG_DEFERRED = gql`
+    mutation CreateDayLogDeferred($input: CreateDayLogDeferredInput!) {
+        createDayLogDeferred(input: $input) {
+            id
+            userId
+            date
+            status
+            active
+            completed
+            notes
+            workoutSessionId
+            routineDayId
+            planId
+        }
+    }
+`;
+
 export const UPDATE_DAY_LOG = gql`
     mutation UpdateDayLog($input: UpdateDayLogInput!) {
         updateDayLog(input: $input) {

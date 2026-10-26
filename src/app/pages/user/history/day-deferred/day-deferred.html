@@ -1,0 +1,30 @@
+<section class="container px-4 py-4 max-w-lg mx-auto mt-8 pb-12">
+  <div class="mb-4">
+    <app-text-link
+      [text]="'Volver al historial'"
+      [routerLink]="'/user/history'"
+      [color]="'primary'"
+    ></app-text-link>
+  </div>
+
+  <header class="mb-6">
+    <h1 class="text-xl font-bold text-text1 flex items-center gap-2">
+      <lucide-icon
+        [img]="CalendarIcon"
+        [strokeWidth]="2"
+        size="24"
+        class="text-primary"
+      ></lucide-icon>
+      Día diferido
+    </h1>
+    <p class="text-sm text-text2 mt-1">Datos del día seleccionado.</p>
+  </header>
+
+  <app-day-deferred-form
+    [date]="date()"
+    [dayLog]="dayLog()"
+    [loading]="loading()"
+    [error]="error()"
+    (retry)="retry()"
+  ></app-day-deferred-form>
+</section>

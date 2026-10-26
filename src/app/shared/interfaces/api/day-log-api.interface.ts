@@ -27,6 +27,32 @@ export interface UpdateDayLogInput {
     extraSession?: CreateExtraSessionWithoutWsInput;
 }
 
+/** Payload para crear un DayLog diferido. date es LocalDate; timezone opcional. */
+export interface CreateDayLogDeferredInput {
+    date: LocalDate; // "yyyy-MM-dd"; must be a past date
+    timezone?: string; // IANA; backend default when omitted
+    planId?: string;
+    routineDayId?: string;
+    notes?: string;
+}
+
+/**
+ * Respuesta de CreateDayLogDeferred. date ya viene como LocalDate
+ * ("yyyy-MM-dd"), no como ISO de Mongo. workoutSessionId siempre tiene valor.
+ */
+export interface DayLogDeferredAPI {
+    id: string;
+    userId?: string;
+    date: LocalDate;
+    status: DayStatusAPI;
+    active: boolean;
+    completed: boolean;
+    notes?: string;
+    workoutSessionId?: string;
+    routineDayId?: string | null;
+    planId?: string | null;
+}
+
 /** Respuesta completa de API para un DayLog (CreateDayLog / DayLog). Fechas ISO de Mongo. */
 export interface DayLogAPI {
     id: string;

@@ -94,6 +94,38 @@ describe('TrainingHistoryDayPreview', () => {
         expect(cta!.textContent).toContain('Ver día');
     });
 
+    it('renders "Editar día" for a day-log preview and links to the deferred page (FR-008)', () => {
+        fixture.componentRef.setInput('preview', preview(CalendarDayType.DAY_LOG, 'day-1'));
+        fixture.detectChanges();
+
+        const edit = qs('[data-test="history-edit-day"]');
+        expect(edit).toBeTruthy();
+        expect(edit!.textContent).toContain('Editar día');
+        expect(edit!.getAttribute('href')).toBe('/user/history/deferred?date=2026-02-02&id=day-1');
+    });
+
+    it('does not render "Editar día" for a week preview', () => {
+        fixture.componentRef.setInput('preview', preview(CalendarDayType.WEEK_LOG, 'week-1'));
+        fixture.detectChanges();
+
+        expect(qs('[data-test="history-edit-day"]')).toBeNull();
+    });
+
+    it('shows the empty placeholder for a day-log without exercises', () => {
+        fixture.componentRef.setInput('preview', {
+            kind: CalendarDayType.DAY_LOG,
+            id: 'day-1',
+            date: '2026-02-02',
+            exercises: [],
+            extraSessions: [],
+        });
+        fixture.detectChanges();
+
+        const panel = qs('[data-test="history-preview"]')!;
+        expect(panel.textContent).toContain('No hay ejercicios registrados');
+        expect(qs('[data-test="history-edit-day"]')).toBeTruthy();
+    });
+
     it('shows a raised "Ver mi semana" CTA next to "Ver semana" for the active week', () => {
         fixture.componentRef.setInput(
             'preview',

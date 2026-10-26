@@ -35,6 +35,8 @@ The day-log is the **single-day** tracking container (TRACKING branch). Unlike t
 - The day-log is **flat**: single `workoutSessionId`/`exercises[]` at root; do not nest `days[]`.
 - Deleting a workout or extra session happens **from the day-log container** (BR-009).
 - `CreateDayLogInput` always requires `timezone`.
+- `CreateDayLogDeferredInput` requires a past `date`; `timezone` is optional (backend default).
+- Deferred creation (FR-013) must not write container state, local storage or active tracking.
 - ActiveTracking fields (`hasActive`,`type`,`week?`,`day?`) are the start-up source of truth.
 
 ## Architecture
@@ -48,6 +50,19 @@ PlanDayService (core/services/day-logs/plan-day.service.ts)   — facade
 ├── PlanDayApi (plan-day/api/plan-day.api.ts)                — GraphQL (day-log.queries)
 └── PlanDayStorage (plan-day/storage/plan-day.storage.ts)    — local persistence
 ```
+
+Deferred creation path (FR-013):
+
+```
+PlanDayService.createDayLogDeferred(date)
+└── PlanDayDomainService.createDayLogDeferred(date)
+    └── PlanDayApi.createDayLogDeferred({ date }) → CREATE_DAY_LOG_DEFERRED
+```
+
+Unlike `createDayLog`, this path does not persist into the container state,
+local storage or active tracking. The response is mapped by
+`wrapperDayLogDeferredApiToVM`, which keeps `date` as `yyyy-MM-dd` when the
+backend already sends a LocalDate (and still handles an ISO value defensively).
 
 Pages: `/my-day` (`MyDay`) → `TrackingDayComponent` (title card, `WorkoutDayStats`, extra-session, status switch), `/my-day/success` (`Success`). History: `/user/trackings` list + show page (week-log and day-log both rendered).
 
@@ -99,6 +114,25 @@ export interface CreateDayLogInput {
     routineDayId?: string;
     notes?: string;
 }
+export interface CreateDayLogDeferredInput {
+    date: LocalDate; // "yyyy-MM-dd"; must be a past date
+    timezone?: string; // IANA; backend default when omitted
+    planId?: string;
+    routineDayId?: string;
+    notes?: string;
+}
+export interface DayLogDeferredAPI {
+    id: string;
+    userId?: string;
+    date: LocalDate; // already "yyyy-MM-dd" (not Mongo ISO)
+    status: DayStatusAPI;
+    active: boolean;
+    completed: boolean;
+    notes?: string;
+    workoutSessionId?: string; // always present on deferred creation
+    routineDayId?: string | null;
+    planId?: string | null;
+}
 export interface UpdateDayLogInput {
     id: string;
     timezone?: string; // IANA, required when the day has no WS yet
@@ -138,6 +172,8 @@ src/app/shared/wrappers/day-log.wrapper.ts
 src/app/pages/my-day/  (+ success/)
 src/app/pages/tracking-day/show/   (DayLog read-only show)
 src/app/pages/trackings/  (week-log list, show/)
+src/app/pages/user/history/day-deferred/   (deferred day-log demo page)
+src/app/shared/components/widgets/training-history/day-deferred-form/   (read-only demo form)
 src/app/shared/components/widgets/users/daily-tracking/   (DayLog summary list)
 ```
 
@@ -149,7 +185,10 @@ src/app/shared/components/widgets/users/daily-tracking/   (DayLog summary list)
 - **TEST-004** `removeWorkoutSessionFromDayLog` empties the flat session (id + status).
 - **TEST-005** Completing the day-log flips `active`/`completed` and redirects to success.
 - **TEST-006** `DayWorkoutStore` satisfies the `WorkoutStore` contract for day mode.
+- **FR-013** Any authenticated user (no admin role) can create an empty (deferred) day-log from the history calendar. `PlanDayService.createDayLogDeferred(date)` calls `PlanDayApi.createDayLogDeferred({ date })` → GraphQL mutation `createDayLogDeferred(input: CreateDayLogDeferredInput!)`. The backend rejects today/future dates and returns the created day-log with `date` as `yyyy-MM-dd`, `active: false`, `completed: false` and `workoutSessionId` **always present** (the backend creates the workout session). The call does not modify the active day-log state, local storage or active tracking; the facade/domain only return the created VM. `timezone` is optional (backend default `America/Argentina/Buenos_Aires`), as are `planId`, `routineDayId` and `notes`. On success the history page shows a notification, reloads the calendar month and opens the new day's empty preview; on failure it shows an error notification. The deferred page `/user/history/deferred?date=<LocalDate>&id=<dayLogId>` loads the day-log by id and renders a read-only demo form (date, status, completed, notes, exercises, extra sessions); persistence from that page is out of scope for this iteration.
 - **TEST-007** `createWorkout` sends `status:'complete'` + `workoutSession.status:COMPLETE` (with mapped exercises, no `completed`), stores the returned day-log and toggles the loading flag.
+- **TEST-008** `createDayLogDeferred` sends `{ date }` through domain → API and does **not** call `setDayLog`, `setDayLogStorage` or `markDayActive`; the wrapper keeps `yyyy-MM-dd` without timezone conversion and normalizes optional fields. ✅
+- **TEST-009** The deferred page loads the day-log by `id` and renders the demo labels; `date`-only renders the empty form; missing/invalid date, null result and fetch errors are handled. ✅
 
 ## Acceptance Criteria
 
