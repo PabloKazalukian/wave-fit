@@ -250,7 +250,7 @@ module.exports = {
                 accentDark: '#7C6511',
                 accentHover: '#C79E1B',
 
-                // === GOAL (purple) ===
+                // === GOAL (violeta) ===
                 goal: '#9B5DE5',
                 goal2: '#AF7AF0',
                 goal3: '#7C34D2',
