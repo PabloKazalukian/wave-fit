@@ -10,7 +10,7 @@ import { ActiveTrackingService } from '../../../../../core/services/trackings/ac
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class TrackingWorkoutFacade {
     destroyRef = inject(DestroyRef);
     exerciseSvc = inject(ExercisesService);

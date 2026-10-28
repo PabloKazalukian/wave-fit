@@ -273,6 +273,11 @@ export class PlanDayService {
         return this.domain.completeDayLog(complete);
     }
 
+    /** Obtiene el day-log value actual desde el state. */
+    getCurrentDayLogValue(): DayLogVM | null {
+        return this.state.getDayLogValue();
+    }
+
     removeDayLog(id: string): Observable<boolean> {
         return this.domain.removeDayLog(id);
     }

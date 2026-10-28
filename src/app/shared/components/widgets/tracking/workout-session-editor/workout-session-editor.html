@@ -1,0 +1,55 @@
+@if (loading()) {
+  <div class="flex justify-center items-center">
+    <div class="h-24 w-24">
+      <app-loading></app-loading>
+    </div>
+  </div>
+} @else {
+  <section class="p-4">
+    <header class="mb-4">
+      <h2 class="text-xl font-bold">
+        {{
+          editorContext().containerType === 'DEFERRED_DAY_LOG'
+            ? 'Editor de Sesión de Día-Log Diferido'
+            : 'Editor de Día dentro de Semana'
+        }}
+      </h2>
+      <p class="text-text2 text-sm">
+        {{
+          editorContext().containerType === 'DEFERRED_DAY_LOG'
+            ? 'Edita la sesión de entrenamiento y los datos asociados de un day-log diferido existente.'
+            : 'Edita la sesión de un día dentro de un week-log, preservando el parent week-log.'
+        }}
+      </p>
+    </header>
+
+    <div class="bg-background rounded-2xl shadow-md p-6">
+      <!-- Sección de Ejercicios -->
+      <div class="mb-6">
+        <app-exercise-selector></app-exercise-selector>
+      </div>
+
+      <!-- Formulario de Edición de Workout -->
+      <app-workout-edition (save)="onSave()" (close)="closeDialog()"></app-workout-edition>
+    </div>
+
+    <!-- Formulario de Sesiones Extras -->
+    <!-- <app-extra-session-form
+      (saveES)="onExtraSessionSave()"
+      (cancelES)="onExtraSessionCancel()"
+    ></app-extra-session-form> -->
+
+    <!-- Acciones -->
+    <div class="mt-6 flex gap-4">
+      <app-btn color="secondary" (click)="closeDialog()"> Cancelar </app-btn>
+
+      <app-btn color="primary" (click)="onCompleteDay()">
+        @if (loading()) {
+          Completando día...
+        } @else {
+          Complete Day
+        }
+      </app-btn>
+    </div>
+  </section>
+}

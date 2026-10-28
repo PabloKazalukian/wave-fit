@@ -9,22 +9,17 @@
 
   <header class="mb-6">
     <h1 class="text-xl font-bold text-text1 flex items-center gap-2">
-      <lucide-icon
-        [img]="CalendarIcon"
-        [strokeWidth]="2"
-        size="24"
-        class="text-primary"
-      ></lucide-icon>
-      Día diferido
+      <lucide-icon strokeWidth="2" size="24" class="text-primary"></lucide-icon>
+      {{ containerType() === 'DEFERRED_DAY_LOG' ? 'Día diferido' : 'Día de semana' }}
     </h1>
     <p class="text-sm text-text2 mt-1">Datos del día seleccionado.</p>
   </header>
 
-  <app-day-deferred-form
-    [date]="date()"
-    [dayLog]="dayLog()"
-    [loading]="loading()"
-    [error]="error()"
-    (retry)="retry()"
-  ></app-day-deferred-form>
+  <!-- WorkoutSessionEditor compositado según contexto -->
+  <app-workout-session-editor
+    [editorContext]="editorContext()"
+    (save)="onSave()"
+    (close)="closeDialog()"
+    (completeDay)="onCompleteDay()"
+  ></app-workout-session-editor>
 </section>
