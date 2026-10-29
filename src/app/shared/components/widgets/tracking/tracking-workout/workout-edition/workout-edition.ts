@@ -1,65 +1,33 @@
-import { Component, inject, OnInit, effect, signal } from '@angular/core';
-import { TrackingWorkoutFacade } from '../tracking-workout.facade';
+import { Component, Input, Output, OnInit, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BtnComponent } from '../../../../ui/btn/btn';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { IconComponent } from '../../../../ui/icon/icon';
 import { DialogComponent } from '../../../../ui/dialog/dialog';
-import { ExerciseSelector } from '../../../exercises/exercise-selector/exercise-selector';
-import {
-    ExercisePerformanceVM,
-    WorkoutSessionVM,
-} from '../../../../../interfaces/tracking.interface';
+import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../../interfaces/tracking.interface';
+import { BtnComponent } from '../../../../ui/btn/btn';
 
 interface SetsFormVM {
     reps: number;
     weights?: number;
 }
+
 @Component({
     selector: 'app-workout-edition',
-    imports: [
-        CommonModule,
-        BtnComponent,
-        ReactiveFormsModule,
-        IconComponent,
-        DialogComponent,
-        ExerciseSelector,
-    ],
     standalone: true,
+    imports: [CommonModule, ReactiveFormsModule, IconComponent, DialogComponent, BtnComponent],
     templateUrl: './workout-edition.html',
-    styles: ``,
 })
 export class WorkoutEdition implements OnInit {
-    facade = inject(TrackingWorkoutFacade);
+    @Input() workoutSession!: WorkoutSessionVM;
+    @Input() exercises: ExercisePerformanceVM[] = [];
+    @Output() saveWorkoutSession = new EventEmitter<WorkoutSessionVM>();
+    @Output() closeEdition = new EventEmitter<void>();
+
     workoutForm!: FormGroup;
     isDialogOpen = signal<boolean>(false);
 
     constructor() {
-        effect(() => {
-            const exercises = this.facade.exercisesSelected();
-            if (this.workoutForm) {
-                const currentExerciseIds = exercises.map((e) => e.exerciseId);
-                const formArray = this.exerciseFormArray;
-
-                // Remove exercises that were unselected
-                for (let i = formArray.length - 1; i >= 0; i--) {
-                    const id = formArray.at(i).get('exerciseId')?.value;
-                    if (!currentExerciseIds.includes(id)) {
-                        formArray.removeAt(i);
-                    }
-                }
-
-                // Add new selected exercises
-                const formExIds: string[] = formArray.value.map(
-                    (fe: ExercisePerformanceVM) => fe.exerciseId,
-                );
-                exercises.forEach((ex) => {
-                    if (!formExIds.includes(ex.exerciseId)) {
-                        this.addExerciseToForm(ex);
-                    }
-                });
-            }
-        });
+        // Removed facade-dependent effect from constructor
     }
 
     ngOnInit(): void {
@@ -67,8 +35,7 @@ export class WorkoutEdition implements OnInit {
     }
 
     initForm() {
-        const exercises = this.facade.exercisesSelected();
-        const exerciseGroups = exercises.map((ex) => this.createExerciseFormGroup(ex));
+        const exerciseGroups = this.exercises.map((ex) => this.createExerciseFormGroup(ex));
 
         this.workoutForm = new FormGroup({
             exercises: new FormArray(exerciseGroups),
@@ -89,10 +56,6 @@ export class WorkoutEdition implements OnInit {
                 }),
             ),
         });
-    }
-
-    addExerciseToForm(ex: ExercisePerformanceVM): void {
-        this.exerciseFormArray.push(this.createExerciseFormGroup(ex));
     }
     get exerciseFormArray(): FormArray {
         return this.workoutForm.get('exercises') as FormArray;
@@ -122,9 +85,10 @@ export class WorkoutEdition implements OnInit {
 
     removeExercise(index: number): void {
         const id = this.exerciseFormArray.at(index).get('exerciseId')?.value;
-        const currentExercises = this.facade.exercisesSelected();
-        const updated = currentExercises.filter((e) => e.exerciseId !== id);
-        this.facade.store.updateExercises(updated);
+        const updated = this.exercises.filter((e) => e.exerciseId !== id);
+        this.exercises = updated;
+        // Emit updated exercises via output instead of facade store
+        // Parent/orchestrator will handle the save
     }
 
     openDialog(): void {
@@ -133,11 +97,13 @@ export class WorkoutEdition implements OnInit {
 
     closeDialog(): void {
         this.isDialogOpen.set(false);
+        this.closeEdition.emit();
     }
 
     onSave(): void {
         const formValue = this.workoutForm.value;
-        const currentWorkout = this.facade.workoutVM();
+        const currentWorkout = this.workoutSession;
+
         if (!currentWorkout) return;
 
         // Use the forms value directly but merge from the source facade items
@@ -147,9 +113,6 @@ export class WorkoutEdition implements OnInit {
                 const existingEx: ExercisePerformanceVM | undefined = currentWorkout.exercises.find(
                     (ex: ExercisePerformanceVM) => ex.exerciseId === fe.exerciseId,
                 );
-                const sourceEx: ExercisePerformanceVM | undefined = this.facade
-                    .exercisesSelected()
-                    .find((ex) => ex.exerciseId === fe.exerciseId);
 
                 const mappedSets: { reps: number; weights: number }[] = fe.sets.map(
                     (s: SetsFormVM) => ({
@@ -159,7 +122,7 @@ export class WorkoutEdition implements OnInit {
                 );
 
                 return {
-                    ...(existingEx || sourceEx), // Keep original properties like category, muscle, etc.
+                    ...(existingEx), // Keep original properties like category, muscle, etc.
                     sets: mappedSets,
                     series: mappedSets.length, // Always sync series with actual sets count
                 };
@@ -172,6 +135,6 @@ export class WorkoutEdition implements OnInit {
             status: 'complete', // Explicitly return to complete
         };
 
-        this.facade.updateWorkoutSession(updatedWorkout);
+        this.saveWorkoutSession.emit(updatedWorkout);
     }
 }
