@@ -75,6 +75,14 @@ export class ExtraSessionForm implements OnInit {
         return this.extraSessionForm.get('notes') as FormControl<string>;
     }
 
+    getDisciplineConfig(): { key: string; label: string } | null {
+        const category = this.categoryControl.value;
+        if (!category) return null;
+        const config = this.catalog()
+            .find((c) => c.category === category);
+        return config || null;
+    }
+
     onSave(): void {
         this.extraSessionForm.markAllAsTouched();
         if (this.extraSessionForm.invalid) return;
