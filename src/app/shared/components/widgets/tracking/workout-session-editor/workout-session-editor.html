@@ -25,19 +25,20 @@
 
     <div class="bg-background rounded-2xl shadow-md p-6">
       <!-- Sección de Ejercicios -->
-      <div class="mb-6">
-        <app-exercise-selector></app-exercise-selector>
-      </div>
+      <!-- TODO: ExerciseSelector no implementado - placeholder pending -->
+      <app-exercise-selector></app-exercise-selector>
 
       <!-- Formulario de Edición de Workout -->
       <app-workout-edition (save)="onSave()" (close)="closeDialog()"></app-workout-edition>
     </div>
 
     <!-- Formulario de Sesiones Extras -->
-    <!-- <app-extra-session-form
+    <!-- TODO: ExtraSessionForm no implementado - placeholder pending -->
+    <!-- El formulario renderiza "Sin ejercicios" hasta su implementación -->
+    <app-extra-session-form
       (saveES)="onExtraSessionSave()"
       (cancelES)="onExtraSessionCancel()"
-    ></app-extra-session-form> -->
+    ></app-extra-session-form>
 
     <!-- Acciones -->
     <div class="mt-6 flex gap-4">

@@ -124,6 +124,24 @@ Before touching templates, read `documents/design/ui-conventions.md` and `docume
   If a task appears to require an external path, it must be redesigned to work
   in-tree rather than escalated.
 
+## PowerShell Command Syntax Note
+
+⚠️ **Important**: This project runs on **Windows PowerShell**, **not** bash/Linux.
+
+- **Do NOT use `&&`** as a command separator. PowerShell does not recognize `&&` as a valid instruction separator (unlike bash/Linux).
+- **Error example**: `git add -A && git commit -m "msg"` → `El token '&&' no es un separador de instrucciones válido`
+- **Correct approach**: Execute commands separately, or use `;` to separate on the same line if needed.
+- **Preferred**: Run each command as a distinct shell invocation.
+
+```powershell
+# ✅ Correcto - commands run separately
+git add -A
+git commit -m "mensaje"
+
+# ❌ Incorrecto - && no es válido en PowerShell
+git add -A && git commit -m "mensaje"
+```
+
 ## Repository Map
 
 - `src/` — application code (`src/app/core`, `src/app/pages`, `src/app/shared`)

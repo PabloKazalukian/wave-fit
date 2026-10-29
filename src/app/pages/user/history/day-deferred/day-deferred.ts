@@ -40,26 +40,37 @@ export class DayDeferred implements OnInit {
     readonly editorContext = this.ctxSvc.getContext;
 
     ngOnInit() {
-        const params = this.route.snapshot.queryParamMap;
-        const date = params.get('date');
-        const id = params.get('id');
+        const queryParams = this.route.snapshot.queryParamMap;
+        const routeParams = this.route.snapshot.paramMap;
+
+        const date = queryParams.get('date');
+        const id = queryParams.get('id');
+        const weekLogId = routeParams.get('weekLogId');
+        const dayOrderStr = routeParams.get('dayOrder');
+        const dayOrder = dayOrderStr ? Number(dayOrderStr) : undefined;
 
         this.date.set(date ?? null);
 
-        // Determinar contexto basado en el ID proporcionado
-        // Lógica: si id es un day-log ID conocido, es DL;
-        // si hay weekLogReference, es WL day
+        // Detectar contexto basado en los parámetros de la ruta y query params
+        // Prioridad: id (DL) > weekLogId + dayOrder (WL) > solo date (DL vacío)
         if (id) {
-            // Por ahora assumimos day-log diferido; el WorkoutSessionEditor
-            // determinará el contexto exacto basado en el tipo de ID
+            // Contexto: Day-Log diferido (DL)
             this.ctxSvc.setContext({
                 containerType: 'DEFERRED_DAY_LOG',
                 containerId: id,
-                dayOrder: undefined,
+                dayOrder,
                 weekLogId: undefined,
             });
+        } else if (weekLogId && dayOrder !== undefined) {
+            // Contexto: Día dentro de week-log (WL)
+            this.ctxSvc.setContext({
+                containerType: 'WEEK_LOG_DAY',
+                containerId: undefined,
+                dayOrder,
+                weekLogId,
+            });
         } else {
-            // Sin ID: formulario para nuevo día diferido
+            // Sin ID relevante: formulario vacío para nuevo día diferido (DL)
             this.ctxSvc.setContext({
                 containerType: 'DEFERRED_DAY_LOG',
                 containerId: undefined,
