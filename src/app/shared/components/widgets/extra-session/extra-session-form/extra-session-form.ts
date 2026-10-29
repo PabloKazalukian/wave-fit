@@ -1,17 +1,12 @@
-import { Component, inject, OnInit, signal, effect, output, DestroyRef } from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import {
     ExtraSessionFormType,
     ExtraSessionService,
 } from '../../../../../core/services/extra-session/extra-session.service';
-import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { SelectType } from '../../../../../shared/interfaces/input.interface';
-import {
-    ExtraSessionCategory,
-    ExtraSessionDisciplineConfig,
-} from '../../../../../shared/interfaces/extra-session.interface';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Loading } from '../../../ui/loading/loading';
 import { ExtraSessionCreate } from '../extra-session-create/extra-session-create';
@@ -24,12 +19,21 @@ import { catchError, of, tap } from 'rxjs';
     templateUrl: './extra-session-form.html',
 })
 export class ExtraSessionForm implements OnInit {
-    destroyRef = inject(DestroyRef);
+    @Output() saveExtraSession = new EventEmitter<ExtraSessionFormType>();
+    @Output() cancelExtraSession = new EventEmitter<void>();
+    @Output() categoryClear = new EventEmitter<void>();
+    @Output() disciplineClear = new EventEmitter<void>();
 
-    closed = output<void>();
+    @Input() selectedDate!: string;
+    @Input() initialExtras!: any[] | undefined;
+
+    constructor() {
+        // Removed store-dependent effect from constructor
+    }
 
     service = inject(ExtraSessionService);
-    private store = inject(WORKOUT_STORE);
+
+    @Input() disciplineOptions: SelectType[] = [];
 
     loading = signal<boolean>(false);
 
@@ -37,38 +41,13 @@ export class ExtraSessionForm implements OnInit {
 
     extraSessionForm: FormGroup<ExtraSessionFormType> = this.service.extraSessionForm;
 
-    categories: SelectType[] = [
-        { name: 'Cardio', value: ExtraSessionCategory.CARDIO },
-        { name: 'Fuerza', value: ExtraSessionCategory.STRENGTH },
-        { name: 'Deporte', value: ExtraSessionCategory.SPORT },
-        { name: 'Bienestar', value: ExtraSessionCategory.MIND_BODY },
-    ];
-
-    disciplineOptions = signal<SelectType[]>([]);
-
-    getDisciplineConfig(): ExtraSessionDisciplineConfig | null {
-        return this.catalog().find((c) => c.key === this.disciplineControl.value) || null;
-    }
-
-    constructor() {
-        effect(() => {
-            const workoutSession = this.store.workoutSession();
-            if (workoutSession?.extras?.length) {
-                this.service.loadByWorkoutSession(workoutSession.extras);
-            }
-            this.resetForm();
-        });
-    }
-
     ngOnInit() {
         this.service.loadCatalog();
 
         this.extraSessionForm.get('category')?.valueChanges.subscribe((category) => {
-            this.disciplineOptions.set(
-                this.catalog()
-                    .filter((c) => c.category === category)
-                    .map((c) => ({ name: c.label, value: c.key })),
-            );
+            this.disciplineOptions = this.catalog()
+                .filter((c) => c.category === category)
+                .map((c) => ({ name: c.label, value: c.key }));
         });
     }
 
@@ -96,14 +75,14 @@ export class ExtraSessionForm implements OnInit {
         return this.extraSessionForm.get('notes') as FormControl<string>;
     }
 
-    save(): void {
+    onSave(): void {
         this.extraSessionForm.markAllAsTouched();
         if (this.extraSessionForm.invalid) return;
 
         this.loading.set(true);
         this.service
             .create({
-                date: this.store.selectedDate()!, // ✅ LocalDate del timezone del usuario
+                date: this.selectedDate!, // ✅ LocalDate del timezone del usuario
                 discipline: this.disciplineControl.value,
                 duration: this.durationControl.value,
                 intensityLevel: this.intensityLevelControl.value,
@@ -111,7 +90,7 @@ export class ExtraSessionForm implements OnInit {
                 notes: this.notesControl.value,
             })
             .pipe(
-                takeUntilDestroyed(this.destroyRef),
+                takeUntilDestroyed(),
                 tap(() => this.loading.set(true)),
                 catchError(() => {
                     this.loading.set(false);
@@ -121,7 +100,7 @@ export class ExtraSessionForm implements OnInit {
             .subscribe({
                 next: () => {
                     this.loading.set(false);
-                    this.closed.emit();
+                    this.saveExtraSession.emit();
                 },
                 error: (err) => console.error(err),
             });
@@ -130,17 +109,21 @@ export class ExtraSessionForm implements OnInit {
     onCategoryClear(): void {
         this.categoryControl.setValue('');
         this.disciplineControl.setValue('');
-        this.disciplineOptions.set([]);
-        this.closed.emit();
+        this.disciplineOptions = [];
+        this.categoryClear.emit();
+    }
+
+    onCancel(): void {
+        this.cancelExtraSession.emit();
     }
 
     onDisciplineClear(): void {
         this.disciplineControl.setValue('');
+        this.disciplineClear.emit();
     }
 
     resetForm(): void {
         this.categoryControl.setValue('');
         this.disciplineControl.setValue('');
-        this.disciplineOptions.set([]);
     }
 }

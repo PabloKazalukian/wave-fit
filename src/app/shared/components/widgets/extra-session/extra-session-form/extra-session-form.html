@@ -8,6 +8,11 @@
   <form
     class="p-4 bg-background rounded-2xl shadow-md flex flex-col gap-4"
     [formGroup]="extraSessionForm"
+    [selectedDate]="selectedDate"
+    (save)="onSave()"
+    (cancel)="onCancel()"
+    (categoryClear)="onCategoryClear()"
+    (disciplineClear)="onDisciplineClear()"
   >
     <header class="mb-2">
       <h3 class="text-xl text-accent font-bold">Actividades Extras</h3>
@@ -29,7 +34,7 @@
       @if (categoryControl.value) {
         <app-select
           [text]="'Selecciona la disciplina'"
-          [options]="disciplineOptions()"
+          [options]="disciplineOptions"
           [control]="disciplineControl"
           (clearValue)="onDisciplineClear()"
           [showClear]="true"
@@ -40,7 +45,7 @@
         <app-extra-session-create
           [config]="getDisciplineConfig()!"
           (cancelES)="onCategoryClear()"
-          (saveES)="save()"
+          (saveES)="onSave()"
         ></app-extra-session-create>
       }
     </section>

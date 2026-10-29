@@ -1,13 +1,10 @@
-import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { startWith } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { wrapperExerciseAPItoVM } from '../../../../wrappers/exercises.wrapper';
-import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 import { UserProfileService } from '../../../../../core/services/user/user-profile.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { options } from '../../../../interfaces/input.interface';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
@@ -31,10 +28,10 @@ import { ExerciseCreate } from '../exercise-create/exercise-create';
         trigger('fadeAnimation', [
             transition(':enter', [
                 style({ opacity: 0, transform: 'translateY(10px)' }),
-                animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+                animate('300ms ease-out', style({ opacity: 1, translateY: '0' })),
             ]),
             transition(':leave', [
-                animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' })),
+                animate('200ms ease-in', style({ opacity: 0, translateY: '-10px' })),
             ]),
         ]),
     ],
@@ -42,20 +39,27 @@ import { ExerciseCreate } from '../exercise-create/exercise-create';
 export class ExerciseSelector {
     exercisesSvc = inject(ExercisesService);
     userProfileSvc = inject(UserProfileService);
-    store = inject(WORKOUT_STORE);
     destroyRef = inject(DestroyRef);
+
+    @Input() exercises: ExercisePerformanceVM[] = [];
+    @Input() selectedExercises: ExercisePerformanceVM[] = [];
+    @Input() set favoritesOnly(value: boolean) {
+        this._favoritesOnly.set(value);
+    }
+    get favoritesOnly() {
+        return this._favoritesOnly();
+    }
+
+    private _favoritesOnly = signal(false);
+
+    @Output() toggleExerciseChange = new EventEmitter<ExercisePerformanceVM>();
+    @Output() exercisesSelectedChange = new EventEmitter<ExercisePerformanceVM[]>();
+    @Output() categoryToggle = new EventEmitter<string>();
+    @Output() favoritesFilterToggle = new EventEmitter<void>();
 
     searchControl = new FormControl('', { nonNullable: true });
     categoryControl = new FormControl('', { nonNullable: true });
-    options = options;
-
-    search = toSignal(this.searchControl.valueChanges, { initialValue: '' });
-    category = toSignal(
-        this.categoryControl.valueChanges.pipe(startWith(this.categoryControl.value)),
-        { initialValue: this.categoryControl.value },
-    );
     showCreateForm = signal(false);
-    favoritesOnly = signal(false);
     pendingFavoriteIds = signal<Set<string>>(new Set());
 
     toggleCreateForm() {
@@ -72,13 +76,14 @@ export class ExerciseSelector {
             });
     }
 
-    exercises = computed(() => wrapperExerciseAPItoVM(this.exercisesSvc.exercises()));
+    // Renamed from 'exercises' to 'allExercises' to avoid conflict with @Input()
+    allExercises = computed(() => wrapperExerciseAPItoVM(this.exercisesSvc.exercises()));
 
     filteredExercises = computed(() => {
-        const search = this.search().toLowerCase();
-        const category = this.category();
-        const favoritesOnly = this.favoritesOnly();
-        const all = this.exercises();
+        const search = this.searchControl.value?.toLowerCase() || '';
+        const category = this.categoryControl.value;
+        const favoritesOnly = this.favoritesOnly;
+        const all = this.allExercises();
 
         return all.filter((ex) => {
             const matchesSearch = ex.name.toLowerCase().includes(search);
@@ -89,8 +94,10 @@ export class ExerciseSelector {
     });
 
     constructor() {
+        // Removed store-dependent effect; exercises loaded via exercisesSvc directly
+        // Keep existing effect if needed for initial load
         effect(() => {
-            const ex = this.exercises();
+            const ex = this.allExercises();
             if (ex === null || ex.length === 0) {
                 this.exercisesSvc
                     .getExercises()
@@ -100,29 +107,22 @@ export class ExerciseSelector {
         });
     }
 
-    readonly exercisesSelected = this.store.exercises;
-
     toggleExercise(ex: ExercisePerformanceVM) {
-        const exists = this.exercisesSelected()?.some((e) => e.exerciseId === ex.exerciseId);
-        if (exists) {
-            this.store.updateExercises(
-                this.exercisesSelected()?.filter((e) => e.exerciseId !== ex.exerciseId) || [],
-            );
-        } else {
-            this.store.updateExercises([...(this.exercisesSelected() || []), ex]);
-        }
+        this.toggleExerciseChange.emit(ex);
     }
 
     toggleCategory(category: string) {
-        if (this.category() === category) {
+        if (this.categoryControl.value === category) {
             this.categoryControl.setValue('');
         } else {
             this.categoryControl.setValue(category);
         }
+        this.categoryToggle.emit(category);
     }
 
     toggleFavoritesFilter() {
-        this.favoritesOnly.set(!this.favoritesOnly());
+        this._favoritesOnly.update((prev) => !prev);
+        this.favoritesFilterToggle.emit();
     }
 
     isFavoritePending(exerciseId: string): boolean {
@@ -160,6 +160,6 @@ export class ExerciseSelector {
     }
 
     isSelected(ex: ExercisePerformanceVM): boolean {
-        return this.exercisesSelected()?.some((e) => e.exerciseId === ex.exerciseId) || false;
+        return this.selectedExercises.some((e) => e.exerciseId === ex.exerciseId) || false;
     }
 }
