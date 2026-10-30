@@ -51,6 +51,19 @@ export class WorkoutSessionEditor {
     }
 
     private loadSession(ctx: EditorContext): void {
+        // PRIORITY: Use workoutSession input data first (from day-deferred WORKOUT_STORE)
+        // Only fall back to API fetching if no input data is available
+        const inputWk = this.workoutSession();
+
+        if (inputWk && inputWk.id) {
+            // Input data already available from store - use it directly
+            this.exercises.set(inputWk.exercises || []);
+            this.selectedDate.set(inputWk.date);
+            this.loading.set(false);
+            return;
+        }
+
+        // FALLBACK: Fetch from API since no input data available
         if (ctx.containerType === 'DEFERRED_DAY_LOG') {
             if (ctx.containerId) {
                 this.loading.set(true);
