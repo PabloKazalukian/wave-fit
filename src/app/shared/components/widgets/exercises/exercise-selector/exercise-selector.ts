@@ -1,10 +1,23 @@
-import { Component, Input, Output, EventEmitter, computed, DestroyRef, effect, inject, signal } from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    computed,
+    DestroyRef,
+    effect,
+    inject,
+    signal,
+} from '@angular/core';
 import { ExercisePerformanceVM } from '../../../../interfaces/tracking.interface';
 import { ExercisesService } from '../../../../../core/services/exercises/exercises.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { startWith } from 'rxjs';
 import { wrapperExerciseAPItoVM } from '../../../../wrappers/exercises.wrapper';
+import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 import { UserProfileService } from '../../../../../core/services/user/user-profile.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { options } from '../../../../interfaces/input.interface';
 import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ExerciseCategoryPipe } from '../../../../pipes/exercise-category.pipe';
@@ -28,7 +41,7 @@ import { ExerciseCreate } from '../exercise-create/exercise-create';
         trigger('fadeAnimation', [
             transition(':enter', [
                 style({ opacity: 0, transform: 'translateY(10px)' }),
-                animate('300ms ease-out', style({ opacity: 1, translateY: '0' })),
+                animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
             ]),
             transition(':leave', [
                 animate('200ms ease-in', style({ opacity: 0, translateY: '-10px' })),
@@ -39,18 +52,13 @@ import { ExerciseCreate } from '../exercise-create/exercise-create';
 export class ExerciseSelector {
     exercisesSvc = inject(ExercisesService);
     userProfileSvc = inject(UserProfileService);
+    store = inject(WORKOUT_STORE);
     destroyRef = inject(DestroyRef);
 
     @Input() exercises: ExercisePerformanceVM[] = [];
-    @Input() selectedExercises: ExercisePerformanceVM[] = [];
-    @Input() set favoritesOnly(value: boolean) {
-        this._favoritesOnly.set(value);
-    }
-    get favoritesOnly() {
-        return this._favoritesOnly();
-    }
+    @Input() selectedExercises?: ExercisePerformanceVM[];
 
-    private _favoritesOnly = signal(false);
+    readonly favoritesOnly = signal(false);
 
     @Output() toggleExerciseChange = new EventEmitter<ExercisePerformanceVM>();
     @Output() exercisesSelectedChange = new EventEmitter<ExercisePerformanceVM[]>();
@@ -59,6 +67,13 @@ export class ExerciseSelector {
 
     searchControl = new FormControl('', { nonNullable: true });
     categoryControl = new FormControl('', { nonNullable: true });
+    options = options;
+
+    search = toSignal(this.searchControl.valueChanges, { initialValue: '' });
+    category = toSignal(
+        this.categoryControl.valueChanges.pipe(startWith(this.categoryControl.value)),
+        { initialValue: this.categoryControl.value },
+    );
     showCreateForm = signal(false);
     pendingFavoriteIds = signal<Set<string>>(new Set());
 
@@ -76,14 +91,13 @@ export class ExerciseSelector {
             });
     }
 
-    // Renamed from 'exercises' to 'allExercises' to avoid conflict with @Input()
     allExercises = computed(() => wrapperExerciseAPItoVM(this.exercisesSvc.exercises()));
 
     filteredExercises = computed(() => {
-        const search = this.searchControl.value?.toLowerCase() || '';
-        const category = this.categoryControl.value;
-        const favoritesOnly = this.favoritesOnly;
-        const all = this.allExercises();
+        const search = this.search().toLowerCase();
+        const category = this.category();
+        const favoritesOnly = this.favoritesOnly();
+        const all = this.exercises?.length ? this.exercises : this.allExercises();
 
         return all.filter((ex) => {
             const matchesSearch = ex.name.toLowerCase().includes(search);
@@ -94,8 +108,6 @@ export class ExerciseSelector {
     });
 
     constructor() {
-        // Removed store-dependent effect; exercises loaded via exercisesSvc directly
-        // Keep existing effect if needed for initial load
         effect(() => {
             const ex = this.allExercises();
             if (ex === null || ex.length === 0) {
@@ -107,12 +119,31 @@ export class ExerciseSelector {
         });
     }
 
+    readonly exercisesSelected = this.store.exercises;
+
+    get currentSelected(): ExercisePerformanceVM[] {
+        return this.selectedExercises !== undefined
+            ? this.selectedExercises
+            : (this.exercisesSelected() ?? []);
+    }
+
     toggleExercise(ex: ExercisePerformanceVM) {
+        const current = this.currentSelected;
+        const exists = current.some((e) => e.exerciseId === ex.exerciseId);
+        const updated = exists
+            ? current.filter((e) => e.exerciseId !== ex.exerciseId)
+            : [...current, ex];
+
+        if (this.selectedExercises === undefined) {
+            this.store.updateExercises(updated);
+        }
+
         this.toggleExerciseChange.emit(ex);
+        this.exercisesSelectedChange.emit(updated);
     }
 
     toggleCategory(category: string) {
-        if (this.categoryControl.value === category) {
+        if (this.category() === category) {
             this.categoryControl.setValue('');
         } else {
             this.categoryControl.setValue(category);
@@ -121,7 +152,7 @@ export class ExerciseSelector {
     }
 
     toggleFavoritesFilter() {
-        this._favoritesOnly.update((prev) => !prev);
+        this.favoritesOnly.update((prev) => !prev);
         this.favoritesFilterToggle.emit();
     }
 
@@ -160,6 +191,6 @@ export class ExerciseSelector {
     }
 
     isSelected(ex: ExercisePerformanceVM): boolean {
-        return this.selectedExercises.some((e) => e.exerciseId === ex.exerciseId) || false;
+        return this.currentSelected.some((e) => e.exerciseId === ex.exerciseId);
     }
 }

@@ -1,9 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { EditorContext } from '../../../../core/services/editor-context/editor-context.interface';
 import { EditorContextService } from '../../../../core/services/editor-context/editor-context.service';
 import { WORKOUT_STORE } from '../../../../core/services/workouts/workout-store.interface';
 import { TextLink } from '../../../../shared/components/ui/text-link/text-link';
-import { LucideAngularModule } from 'lucide-angular';
+import { Calendar, LucideAngularModule } from 'lucide-angular';
 import { WorkoutSessionEditor } from '../../../../shared/components/widgets/tracking/workout-session-editor/workout-session-editor';
 
 @Component({
@@ -14,6 +15,7 @@ import { WorkoutSessionEditor } from '../../../../shared/components/widgets/trac
     styles: ``,
 })
 export class DayDeferred implements OnInit {
+    readonly CalendarIcon = Calendar;
     private readonly route = inject(ActivatedRoute);
     private readonly ctxSvc = inject(EditorContextService);
     private readonly store = inject(WORKOUT_STORE);
@@ -36,8 +38,13 @@ export class DayDeferred implements OnInit {
     readonly selectedDate = this.store.selectedDate;
     readonly exercisesSelected = this.store.exercises;
 
-    /** Contexto de edición computed desde los query params */
-    readonly editorContext = this.ctxSvc.getContext;
+    /** Contexto de edición computed desde los query params y el contexto */
+    readonly editorContext = computed<EditorContext>(() => ({
+        containerType: this.containerType(),
+        containerId: this.containerId() ?? undefined,
+        dayOrder: this.dayOrder() ?? undefined,
+        weekLogId: this.weekLogId() ?? undefined,
+    }));
 
     ngOnInit() {
         const queryParams = this.route.snapshot.queryParamMap;
@@ -55,6 +62,10 @@ export class DayDeferred implements OnInit {
         // Prioridad: id (DL) > weekLogId + dayOrder (WL) > solo date (DL vacío)
         if (id) {
             // Contexto: Day-Log diferido (DL)
+            this.containerType.set('DEFERRED_DAY_LOG');
+            this.containerId.set(id);
+            this.dayOrder.set(dayOrder ?? null);
+            this.weekLogId.set(null);
             this.ctxSvc.setContext({
                 containerType: 'DEFERRED_DAY_LOG',
                 containerId: id,
@@ -63,6 +74,10 @@ export class DayDeferred implements OnInit {
             });
         } else if (weekLogId && dayOrder !== undefined) {
             // Contexto: Día dentro de week-log (WL)
+            this.containerType.set('WEEK_LOG_DAY');
+            this.containerId.set(null);
+            this.dayOrder.set(dayOrder);
+            this.weekLogId.set(weekLogId);
             this.ctxSvc.setContext({
                 containerType: 'WEEK_LOG_DAY',
                 containerId: undefined,
@@ -71,6 +86,10 @@ export class DayDeferred implements OnInit {
             });
         } else {
             // Sin ID relevante: formulario vacío para nuevo día diferido (DL)
+            this.containerType.set('DEFERRED_DAY_LOG');
+            this.containerId.set(null);
+            this.dayOrder.set(null);
+            this.weekLogId.set(null);
             this.ctxSvc.setContext({
                 containerType: 'DEFERRED_DAY_LOG',
                 containerId: undefined,

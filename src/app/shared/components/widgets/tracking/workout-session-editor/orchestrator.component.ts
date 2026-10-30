@@ -2,13 +2,12 @@ import { Component, input, output, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TrackingWorkoutFacade } from '../tracking-workout/tracking-workout.facade';
 import { ReactiveFormsModule } from '@angular/forms';
-import { BtnComponent } from '../../../ui/btn/btn';
 import { ExerciseSelector } from '../../exercises/exercise-selector/exercise-selector';
 import { WorkoutEdition } from '../tracking-workout/workout-edition/workout-edition';
-import { Loading } from '../../../ui/loading/loading';
 import { ExtraSessionForm } from '../../extra-session/extra-session-form/extra-session-form';
 import { EditorContext } from '../../../../../core/services/editor-context/editor-context.interface';
 import { EditorContextService } from '../../../../../core/services/editor-context/editor-context.service';
+import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 
 @Component({
     selector: 'app-orchestrator',
@@ -16,29 +15,39 @@ import { EditorContextService } from '../../../../../core/services/editor-contex
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        BtnComponent,
         ExerciseSelector,
         WorkoutEdition,
-        Loading,
         ExtraSessionForm,
     ],
     template: `
-        <!-- ExerciseSelector: receives exercises via inputs, emits selections -->
-        <app-exercise-selector
-            [exercises]="exercises"
-            [selectedExercises]="selectedExercises"
-        ></app-exercise-selector>
+        <section class="flex flex-col gap-6">
+            <!-- ExerciseSelector: receives exercises via inputs, emits selections -->
+            <app-exercise-selector
+                [exercises]="exercises()"
+                [selectedExercises]="selectedExercises"
+                (toggleExerciseChange)="onToggleExercise($event)"
+                (exercisesSelectedChange)="onExercisesSelectedChange($event)"
+                (categoryToggle)="onCategoryToggle()"
+                (favoritesFilterToggle)="onFavoritesFilterToggle()"
+            ></app-exercise-selector>
 
-        <!-- ExtraSessionForm: receives selectedDate, emits save/cancel -->
-        <app-extra-session-form
-            [selectedDate]="selectedDate"
-        ></app-extra-session-form>
+            <!-- WorkoutEdition: receives workoutSession and exercises via inputs -->
+            @if (workoutSession()) {
+                <app-workout-edition
+                    [workoutSession]="workoutSession()!"
+                    [exercises]="selectedExercises"
+                    (saveWorkoutSession)="onWorkoutSave($event)"
+                    (closeEdition)="onClose()"
+                ></app-workout-edition>
+            }
 
-        <!-- WorkoutEdition: receives workoutSession and exercises via inputs -->
-        <app-workout-edition
-            [workoutSession]="workoutSession"
-            [exercises]="exercises"
-        ></app-workout-edition>
+            <!-- ExtraSessionForm: receives selectedDate, emits save/cancel -->
+            <app-extra-session-form
+                [selectedDate]="selectedDate()"
+                (saveExtraSession)="onExtraSessionSave()"
+                (cancelExtraSession)="onExtraSessionCancel()"
+            ></app-extra-session-form>
+        </section>
     `,
     styles: ``,
 })
@@ -49,75 +58,63 @@ export class OrchestratorComponent {
     facade = inject(TrackingWorkoutFacade);
 
     // Inputs - provided by parent based on context
-    exercises = input<any[]>([]);
-    workoutSession = input<any>({});
+    exercises = input<ExercisePerformanceVM[]>([]);
+    workoutSession = input<WorkoutSessionVM | null>(null);
     selectedDate = input<string>('');
 
     // Outputs - emitted to parent
-    saveOutput = output<void>();
+    saveOutput = output<WorkoutSessionVM>();
     closeOutput = output<void>();
 
     // Internal selected exercises state
-    selectedExercises: any[] = [];
+    selectedExercises: ExercisePerformanceVM[] = [];
 
     constructor() {
         effect(() => {
             this.ctxSvc.setContext(this.editorContext());
-            // Load session data based on context - simplified
-            // The parent (WorkoutSessionEditor) handles the actual data loading
-            // based on containerType in onSave/onCompleteDay
-            this.selectedExercises = this.exercises() || [];
+            this.selectedExercises = [...(this.exercises() || [])];
         });
     }
 
     // ----- ExerciseSelector output handlers -----
 
-    onToggleExercise(ex: any) {
-        const exists = this.selectedExercises?.some((e) => e.exerciseId === ex.exerciseId);
+    onToggleExercise(ex: ExercisePerformanceVM) {
+        const exists = this.selectedExercises.some((e) => e.exerciseId === ex.exerciseId);
         if (exists) {
-            this.selectedExercises = this.selectedExercises?.filter((e) => e.exerciseId !== ex.exerciseId) || [];
+            this.selectedExercises = this.selectedExercises.filter(
+                (e) => e.exerciseId !== ex.exerciseId,
+            );
         } else {
-            this.selectedExercises = [...(this.selectedExercises || []), ex];
+            this.selectedExercises = [...this.selectedExercises, ex];
         }
     }
 
-    onExercisesSelectedChange(exercises: any[]) {
+    onExercisesSelectedChange(exercises: ExercisePerformanceVM[]) {
         this.selectedExercises = exercises || [];
     }
 
-    onCategoryToggle(category: string) {
-        if (this.selectedExercises?.some((e) => e.category === category)) {
-            this.selectedExercises = this.selectedExercises?.filter((e) => e.category !== category) || [];
-        }
+    onCategoryToggle() {
+        // Handled by exercise selector internal filter
     }
 
     onFavoritesFilterToggle() {
-        // Managed by component internal state
+        // Handled by exercise selector internal state
     }
 
     // ----- ExtraSessionForm output handlers -----
 
     onExtraSessionSave() {
-        this.saveOutput.emit();
+        // Extra session creation is dispatched by ExtraSessionForm
     }
 
     onExtraSessionCancel() {
         this.closeOutput.emit();
     }
 
-    onCategoryClear() {
-        // Clear category filter
-    }
-
-    onDisciplineClear() {
-        // Clear discipline selection
-    }
-
     // ----- WorkoutEdition output handlers -----
 
-    onWorkoutSave() {
-        // Delegate to parent WorkoutSessionEditor for API calls
-        this.saveOutput.emit();
+    onWorkoutSave(workout: WorkoutSessionVM) {
+        this.saveOutput.emit(workout);
     }
 
     onClose() {

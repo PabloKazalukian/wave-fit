@@ -82,21 +82,22 @@ export class EditorContextService {
 
         this.loading.set(true);
 
-        this.planDayService.completeDayLog(true).pipe(
-            finalize(() => this.loading.set(false)),
-        ).subscribe({
-            next: (res) => {
-                if (res) {
-                    // State cleanup already handled by domain service:
-                    // storage removed, dayLog set to null, activeTracking cleared
-                    console.log('Deferred day-log completed successfully');
-                    // TODO: Navegar a /my-day/success
-                    // this.router.navigate(['/my-day/success']);
-                }
-            },
-            error: (err) => {
-                console.error('Error completing deferred day-log:', err);
-            },
-        });
+        this.planDayService
+            .completeDayLog(true)
+            .pipe(finalize(() => this.loading.set(false)))
+            .subscribe({
+                next: (res) => {
+                    if (res) {
+                        // State cleanup already handled by domain service:
+                        // storage removed, dayLog set to null, activeTracking cleared
+                        console.log('Deferred day-log completed successfully');
+                        // TODO: Navegar a /my-day/success
+                        // this.router.navigate(['/my-day/success']);
+                    }
+                },
+                error: (err) => {
+                    console.error('Error completing deferred day-log:', err);
+                },
+            });
     }
 }

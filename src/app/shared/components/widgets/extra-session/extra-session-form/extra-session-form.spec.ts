@@ -41,7 +41,7 @@ describe('ExtraSessionForm', () => {
         component.caloriesControl.setValue(100);
         component.notesControl.setValue('Salí a correr 5k');
 
-        component.save();
+        component.onSave();
 
         expect(service.create).toHaveBeenCalledWith(
             jasmine.objectContaining({ notes: 'Salí a correr 5k' }),

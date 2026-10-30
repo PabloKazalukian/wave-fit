@@ -3,6 +3,7 @@
 ## Context
 
 This feature extends the deferred day-log editing capability to support editing a workout session (WS) from both:
+
 - **Day-Log (DL)**: A standalone day-log container (`/user/history/deferred?date=...&id=<dayLogId>`)
 - **Week-Log (WL)**: A day within a week-log container (`/user/history/week-log-day/:weekId/:dayOrder`)
 
@@ -53,14 +54,15 @@ DayDeferred (page)
 ├── EditorContextService (holds containerType, containerId, dayOrder?, weekLogId)
 │   └── Used by WorkoutSessionEditor to determine which API to call
 └── WorkoutSessionEditor (composite component)
-    ├── ExerciseSelector (reusable, not yet implemented)
-    ├── WorkoutEdition (reusable, handles WS save/close)
-    └── ExtraSessionForm (reusable, not yet implemented)
-        └── Emits saveES / cancelES events
+    └── OrchestratorComponent (orchestrates reusable widgets via @Input/@Output)
+        ├── ExerciseSelector (reusable, exercise selection)
+        ├── WorkoutEdition (reusable, handles WS sets/reps edition)
+        └── ExtraSessionForm (reusable, extra session creation)
+            └── Emits saveExtraSession / cancelExtraSession events
 
 Mutations:
-- DL: PlanDayService → PlanDayDomainService → PlanDayApi.updateDayLog (UpdateDayLogInput)
-  - Returns updated DayLogVM; no state/storage writes
+- DL: PlanDayService → PlanDayDomainService → PlanDayApi.updateWorkoutSession (WorkoutSessionVM)
+  - Returns updated WorkoutSessionVM; no state/storage writes
 - WL: PlanTrackingService.findById → resolves week → day workout session
   - onSave: facade update via store (local-only, no parent week-log mutation needed unless backend supports it)
   - onCompleteDay: TODO for backend completion of WL day
@@ -73,17 +75,15 @@ sdd/add-deferred-day/spec.md: this document (properties, constraints, architectu
 documents/plans/add-deferred-day/plan.md: implementation plan (tasks, validation)
 
 Modified (existing):
-- src/app/pages/user/history/day-deferred/day-deferred.ts — context detection, setEditorContext
+- src/app/pages/user/history/day-deferred/day-deferred.ts — context detection, setEditorContext, containerType signal update
 - src/app/pages/user/history/day-deferred/day-deferred.html — header/CTA based on containerType
-- src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.ts — onSave/onCompleteDay for both contexts
-- src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.html — labeling based on containerType
+- src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.ts — data loading, onSave/onCompleteDay branching, output events
+- src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.html — context labeling, header, loading indicator, orchestrator host
+- src/app/shared/components/widgets/tracking/workout-session-editor/orchestrator.component.ts — coordination of ExerciseSelector, WorkoutEdition, ExtraSessionForm with proper signals & event bindings
+- src/app/shared/components/widgets/tracking/tracking-workout/workout-edition/workout-edition.html — cleanup legacy selector dialog
 - src/app/core/services/editor-context/editor-context.interface.ts — already has required fields, no change needed
 - src/app/core/services/editor-context/editor-context.service.ts — already has loadDeferredDayLogSession and loadWeekLogDaySession, no change needed
 - src/app/shared/components/widgets/tracking/tracking-workout/tracking-workout.facade.ts — already has updateWorkoutSession, no change needed
-
-Not Yet Implemented (referenced dependencies):
-- src/app/shared/components/widgets/tracking/exercises/exercise-selector/exercise-selector.ts — placeholder, not implemented
-- src/app/shared/components/widgets/tracking/extra-session/extra-session-form/extra-session-form.ts — placeholder, not implemented
 ```
 
 ## Tests

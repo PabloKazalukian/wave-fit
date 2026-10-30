@@ -1,10 +1,50 @@
-<!-- OrchestratorComponent manages the three reusable components:
-     - ExerciseSelector (data-driven via @Input/@Output)
-     - ExtraSessionForm (data-driven via @Input/@Output)
-     - WorkoutEdition (data-driven via @Input/@Output)
-     
-     The orchestrator decides data source based on editorContext:
-     - ACTIVE mode: data from facade/store
-     - DEFERRED_DAY_LOG / WEEK_LOG_DAY mode: individual WS data (not store)
--->
-<app-orchestrator></app-orchestrator>
+@if (loading()) {
+  <div class="flex items-center justify-center p-8">
+    <div class="h-24 w-24">
+      <app-loading></app-loading>
+    </div>
+  </div>
+} @else {
+  <section class="p-4">
+    <header class="mb-4">
+      <h2 class="text-xl font-bold">
+        {{
+          editorContext().containerType === 'DEFERRED_DAY_LOG'
+            ? 'Editor de Sesión de Día-Log Diferido'
+            : 'Editor de Día dentro de Semana'
+        }}
+      </h2>
+      <p class="text-text2 text-sm">
+        {{
+          editorContext().containerType === 'DEFERRED_DAY_LOG'
+            ? 'Edita la sesión de entrenamiento y los datos asociados de un day-log diferido existente.'
+            : 'Edita la sesión de un día dentro de un week-log, preservando el parent week-log.'
+        }}
+      </p>
+    </header>
+
+    <div class="bg-background rounded-2xl shadow-md p-6">
+      <app-orchestrator
+        [editorContext]="editorContext()"
+        [workoutSession]="workoutSession()"
+        [exercises]="exercises()"
+        [selectedDate]="selectedDate()"
+        (saveOutput)="onSave($event)"
+        (closeOutput)="closeDialog()"
+      ></app-orchestrator>
+    </div>
+
+    <!-- Acciones -->
+    <div class="mt-6 flex gap-4">
+      <app-btn color="secondary" (click)="closeDialog()"> Cancelar </app-btn>
+
+      <app-btn color="primary" (click)="onCompleteDay()">
+        @if (loading()) {
+          Completando día...
+        } @else {
+          Complete Day
+        }
+      </app-btn>
+    </div>
+  </section>
+}

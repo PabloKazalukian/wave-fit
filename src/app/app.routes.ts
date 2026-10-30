@@ -2,29 +2,29 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth-guard';
 
 export const routes: Routes = [
-  {
-    path: 'home',
-    loadComponent: () => import('./pages/home/home').then((m) => m.Home),
-    canActivate: [authGuard],
-  },
-  {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full',
-  },
-  {
-    path: 'coach',
-    loadComponent: () => import('./pages/coach/coach').then((m) => m.Coach),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'stats',
-    loadChildren: () => import('./pages/stats/stats.routes').then((m) => m.STATS_ROUTES),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'auth',
-    loadChildren: () => import('./pages/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+    {
+        path: 'home',
+        loadComponent: () => import('./pages/home/home').then((m) => m.Home),
+        canActivate: [authGuard],
+    },
+    {
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full',
+    },
+    {
+        path: 'coach',
+        loadComponent: () => import('./pages/coach/coach').then((m) => m.Coach),
+        canActivate: [authGuard],
+    },
+    {
+        path: 'stats',
+        loadChildren: () => import('./pages/stats/stats.routes').then((m) => m.STATS_ROUTES),
+        canActivate: [authGuard],
+    },
+    {
+        path: 'auth',
+        loadChildren: () => import('./pages/auth/auth.routes').then((m) => m.AUTH_ROUTES),
     },
     {
         path: 'exercise',

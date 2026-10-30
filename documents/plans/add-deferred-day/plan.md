@@ -3,6 +3,7 @@
 ## Context
 
 This plan organizes the implementation of extending the deferred day-log editing capability to support editing a workout session (WS) from both:
+
 - **Day-Log (DL)**: A standalone day-log container
 - **Week-Log (WL)**: A day within a week-log container
 
@@ -13,23 +14,23 @@ This feature does NOT use the active-tracking architecture with state/storage (u
 ## Target behaviour
 
 1. **Context Detection** (`day-deferred.ts`):
-   - If route param `id` is present → `DEFERRED_DAY_LOG` context → load day-log by ID
-   - If route params `weekLogId` + `dayOrder` are present → `WEEK_LOG_DAY` context → load week and resolve day's WS
-   - If only `date` is present → empty form for new deferred day
+    - If route param `id` is present → `DEFERRED_DAY_LOG` context → load day-log by ID
+    - If route params `weekLogId` + `dayOrder` are present → `WEEK_LOG_DAY` context → load week and resolve day's WS
+    - If only `date` is present → empty form for new deferred day
 
 2. **Editor Context** (`editor-context.service.ts`):
-   - Holds `containerType`, `containerId`, `dayOrder`, `weekLogId`
-   - Used by `WorkoutSessionEditor` to determine API path
+    - Holds `containerType`, `containerId`, `dayOrder`, `weekLogId`
+    - Used by `WorkoutSessionEditor` to determine API path
 
 3. **API Mutations**:
-   - **DL**: `PlanDayService.updateDayLog(id, input)` → returns updated DayLogVM; no state/storage writes
-   - **WL**: `PlanTrackingService.findById(weekLogId)` → resolve week → `store.updateWorkoutSession(date, workout)` — local-only, no parent week-log mutation (TODO for backend)
+    - **DL**: `PlanDayService.updateDayLog(id, input)` → returns updated DayLogVM; no state/storage writes
+    - **WL**: `PlanTrackingService.findById(weekLogId)` → resolve week → `store.updateWorkoutSession(date, workout)` — local-only, no parent week-log mutation (TODO for backend)
 
 4. **Actions**:
-   - `onSave`: Save workout session using appropriate API for context
-   - `onCompleteDay`:
-     - DL → `EditorContextService.completeDeferredDayLog()` (flips `completed: true, active: false`)
-     - WL → TODO (pending backend dependency, AC-014)
+    - `onSave`: Save workout session using appropriate API for context
+    - `onCompleteDay`:
+        - DL → `EditorContextService.completeDeferredDayLog()` (flips `completed: true, active: false`)
+        - WL → TODO (pending backend dependency, AC-014)
 
 ## Decisions
 
@@ -40,83 +41,118 @@ This feature does NOT use the active-tracking architecture with state/storage (u
 
 ## Changes
 
-- `src/app/pages/user/history/day-deferred/day-deferred.ts` — add context detection in `ngOnInit`, call `EditorContextService.setContext()`
+- `src/app/pages/user/history/day-deferred/day-deferred.ts` — add context detection in `ngOnInit`, call `EditorContextService.setContext()`, update `containerType` signal
 - `src/app/pages/user/history/day-deferred/day-deferred.html` — update header and CTA text to use `containerType()` conditional rendering
-- `src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.ts` — branch `onSave()` and `onCompleteDay()` on `editorContext().containerType`
-- `src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.html` — update labeling to show context-appropriate text
-- `sdd/add-deferred-day/spec.md`: new SDD documenting the feature specification
+- `src/app/shared/components/widgets/tracking/workout-session-editor/orchestrator.component.ts` — fix template signal calls `exercises()`, `workoutSession()!`, `selectedDate()`; bind all `@Output` events of subcomponents (`ExerciseSelector`, `WorkoutEdition`, `ExtraSessionForm`); emit `WorkoutSessionVM` via `saveOutput`
+- `src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.ts` — declare outputs (`save`, `close`, `completeDay`); load session data reactively based on `editorContext`; implement `onSave(workout)` resolving circular delegation via DL/WL mutations; implement `onCompleteDay()`
+- `src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.html` — restore loading spinner, context header/subtitles, action buttons (Cancelar, Complete Day); pass input signals and bind events to `<app-orchestrator>`
+- `src/app/shared/components/widgets/tracking/tracking-workout/workout-edition/workout-edition.html` — remove broken legacy dialog with `app-exercise-selector` to fix template build error
+- `src/app/shared/components/widgets/extra-session/extra-session-form/extra-session-form.spec.ts` — fix call to `onSave()`
+- `sdd/add-deferred-day/spec.md`: updated SDD documenting the feature specification
 
 ## Tasks
 
 ### T1 — Context Detection and Editor Context Setup
 
-**Files**: `src/app/pages/user/history/day-deferred/day-deferred.ts`
+**Files**: `src/app/pages/user/history/day-deferred/day-deferred.ts`, `day-deferred.html`
 
 Steps:
 
 1. Update `ngOnInit` in `DayDeferred` to detect context from route params:
-   - T1.1: If route param `id` is present → set `containerType = 'DEFERRED_DAY_LOG'`, set `containerId = id`
-   - T1.2: If route params `weekLogId` + `dayOrder` are present → set `containerType = 'WEEK_LOG_DAY'`, set those values
-   - T1.3: If only `date` is present → set `containerType = 'DEFERRED_DAY_LOG'` (empty form)
+    - T1.1: If route param `id` is present → set `containerType = 'DEFERRED_DAY_LOG'`, set `containerId = id`
+    - T1.2: If route params `weekLogId` + `dayOrder` are present → set `containerType = 'WEEK_LOG_DAY'`, set those values
+    - T1.3: If only `date` is present → set `containerType = 'DEFERRED_DAY_LOG'` (empty form)
+    - T1.4: Update `this.containerType.set(...)` explicitly so `day-deferred.html` reflects the current context
 2. Call `EditorContextService.setContext(ctx)` with the computed context object
 3. Verify `editor-context.interface.ts` has all required fields (`containerType`, `containerId?`, `dayOrder?`, `weekLogId?`)
-4. Update `day-deferred.html` to display header text based on `containerType()`:
-   - T1.4a: `<h1>` text: "Día diferido" vs "Día de semana"
-   - T1.4b: Subtitle/description text conditional based on container type
+4. Verify `day-deferred.html` binds `<app-workout-session-editor>` outputs `(save)`, `(close)`, and `(completeDay)`.
 
-### T2 — API Mutation for DL (onSave)
+### T2 — Fix Template Compilation Errors in Dependencies
+
+**Files**: `src/app/shared/components/widgets/tracking/tracking-workout/workout-edition/workout-edition.html`, `src/app/shared/components/widgets/extra-session/extra-session-form/extra-session-form.spec.ts`
+
+Steps:
+
+1. In `workout-edition.html`: remove the leftover `<app-dialog>` containing `<app-exercise-selector>` (lines 132-154) which causes Angular compiler errors TS2339 / NG8002 (methods and selector not part of `WorkoutEdition`). `ExerciseSelector` is managed by `OrchestratorComponent`.
+2. In `extra-session-form.spec.ts`: fix `component.save()` → `component.onSave()`.
+3. Verify `npx ng build` progresses past dependency errors.
+
+### T3 — Refactor and Connect OrchestratorComponent
+
+**Files**: `src/app/shared/components/widgets/tracking/workout-session-editor/orchestrator.component.ts`
+
+Steps:
+
+1. Fix template signal calls:
+    - `[exercises]="exercises()"`
+    - `[selectedDate]="selectedDate()"`
+    - `[workoutSession]="workoutSession()!"`
+2. Connect all `@Output` event bindings:
+    - `<app-exercise-selector>`:
+        - `(toggleExerciseChange)="onToggleExercise($event)"`
+        - `(exercisesSelectedChange)="onExercisesSelectedChange($event)"`
+        - `(categoryToggle)="onCategoryToggle($event)"`
+        - `(favoritesFilterToggle)="onFavoritesFilterToggle()"`
+    - `<app-workout-edition>`:
+        - `[exercises]="selectedExercises"`
+        - `(saveWorkoutSession)="onWorkoutSave($event)"`
+        - `(closeEdition)="onClose()"`
+    - `<app-extra-session-form>`:
+        - `(saveExtraSession)="onExtraSessionSave()"`
+        - `(cancelExtraSession)="onExtraSessionCancel()"`
+3. Update `saveOutput` to emit the modified workout: `saveOutput = output<WorkoutSessionVM>()`.
+4. In `onWorkoutSave(workout: WorkoutSessionVM)`: emit `this.saveOutput.emit(workout)` to parent `WorkoutSessionEditor`.
+5. In `effect()`: sync `selectedExercises` with incoming `exercises()` input.
+
+### T4 — Connect WorkoutSessionEditor Template & Shell
+
+**Files**: `src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.html`
+
+Steps:
+
+1. Restore loading state: `@if (loading()) { <app-loading></app-loading> } @else { ... }`.
+2. Restore context-aware header and subtitle:
+    - Header title: "Editor de Sesión de Día-Log Diferido" vs "Editor de Día dentro de Semana" based on `editorContext().containerType`.
+    - Subtitle text tailored to DL vs WL.
+3. Embed `<app-orchestrator>` passing all required and data inputs:
+    - `[editorContext]="editorContext()"`
+    - `[workoutSession]="workoutSession()"`
+    - `[exercises]="exercises()"`
+    - `[selectedDate]="selectedDate()"`
+    - `(saveOutput)="onSave($event)"`
+    - `(closeOutput)="closeDialog()"`
+4. Restore action footer:
+    - "Cancelar" button calling `closeDialog()`
+    - "Complete Day" button calling `onCompleteDay()` with loading status indicator.
+
+### T5 — Implement Reactive Data Loading & Saving in WorkoutSessionEditor
 
 **Files**: `src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.ts`
 
 Steps:
 
-1. In `onSave()`, read `editorContext().containerType`
-2. If `DEFERRED_DAY_LOG`:
-   - T2.2a: Get current workout session from store: `this.facade.workoutVM()`
-   - T2.2b: Build `UpdateDayLogInput` with updated exercises, status, notes from form
-   - T2.2c: Call `PlanDayService.updateDayLog(containerId, input)` — subscribe, handle success (notify, reload calendar), error (error notification)
-   - T2.2d: Map response with `wrapperUpdateDayLogApiToVM`, keep date as `yyyy-MM-dd`
-3. If `WEEK_LOG_DAY`:
-   - T2.3a: Call `this.facade.updateWorkoutSession(updatedWorkout)` — local store update only
-   - T2.3b: Add comment BR-020: "local-only, no parent week-log mutation"
-   - T2.3c: TODO comment for when backend supports partial WL day updates (AC-014)
-
-### T3 — API Mutation for WL (onSave)
-
-**Files**: `src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.ts`
-
-Steps:
-
-1. Same `onSave()` function, branch on `containerType`
-2. For `WEEK_LOG_DAY`: the existing `this.facade.updateWorkoutSession(updatedWorkout)` call already handles local store update
-3. Add BR-020 documentation reference in the onSave method comment block, noting this is local-only per the business rules
-
-### T4 — onCompleteDay for Both Contexts
-
-**Files**: `workout-session-editor.ts`, `editor-context.service.ts`
-
-Steps:
-
-1. In `WorkoutSessionEditor.onCompleteDay()`:
-   - T4.1a: If `DEFERRED_DAY_LOG`: call `this.ctxSvc.completeDeferredDayLog()` (already implemented in the service — flips `completed: true, active: false`)
-   - T4.1b: If `WEEK_LOG_DAY`: add TODO log message, no backend operation yet (AC-014)
-2. Verify `EditorContextService.completeDeferredDayLog()` handles correctly:
-   - T4.2a: Check it flips `completed: true, active: false` and clears state/storage as documented
-   - T4.2b: No changes needed if service already complete (verify from day-log spec implementation)
-
-### T5 — Header and CTA Text Updates
-
-**Files**: `src/app/pages/user/history/day-deferred/day-deferred.html`
-
-Steps:
-
-1. Update header `<h1>` to use `containerType()` for display:
-   - T5.1a: "Día diferido" when `containerType() === 'DEFERRED_DAY_LOG'`
-   - T5.1b: "Día de semana" when `containerType() === 'WEEK_LOG_DAY'`
-2. Update subtitle/p element text:
-   - T5.2a: DL → "Edita la sesión de entrenamiento y los datos asociados de un day-log diferido existente."
-   - T5.2b: WL → "Edita la sesión de un día dentro de un week-log, preservando el parent week-log."
-3. Ensure Complete Day button text/emission is appropriate for both contexts
+1. Declare component outputs:
+    - `save = output<void>()`
+    - `close = output<void>()`
+    - `completeDay = output<void>()`
+2. Add internal state signals:
+    - `loading = signal(false)`
+    - `workoutSession = signal<WorkoutSessionVM | null>(null)`
+    - `exercises = signal<ExercisePerformanceVM[]>([])`
+    - `selectedDate = signal<string>('')`
+3. Implement session data loading in `effect()` when `editorContext()` changes:
+    - If `DEFERRED_DAY_LOG` with `containerId`: load via `planDaySvc.findById(containerId)`, map `DayLogVM` to `WorkoutSessionVM`.
+    - If `DEFERRED_DAY_LOG` without `containerId`: initialize empty `WorkoutSessionVM`.
+    - If `WEEK_LOG_DAY`: load week via `planTrackingSvc.findById(weekLogId)`, resolve day by `dayOrder`.
+4. Resolve circular delegation on `onSave(updatedWorkout: WorkoutSessionVM)`:
+    - DL (`DEFERRED_DAY_LOG`): call `this.planDaySvc.updateWorkoutSession(updatedWorkout)` (mutation only, no active tracking state modification per BR-019/BR-020).
+    - WL (`WEEK_LOG_DAY`): call `this.facade.updateWorkoutSession(updatedWorkout)` (local store update only, BR-020).
+    - Emit `this.save.emit()`.
+5. Implement `onCompleteDay()`:
+    - DL: call `this.ctxSvc.completeDeferredDayLog()`, emit `this.completeDay.emit()`.
+    - WL: log pending backend dependency (AC-014), emit `this.completeDay.emit()`.
+6. Implement `closeDialog()`:
+    - Set `isDialogOpen.set(false)`, emit `this.close.emit()`.
 
 ### T6 — Not Implemented Dependencies Documentation
 
@@ -125,12 +161,12 @@ Steps:
 Steps:
 
 1. Document that `ExerciseSelector` and `ExtraSessionForm` are pending implementation
-   - T6.1: Create a tracking issue or note in the repo README
-   - T6.2: Reference that their specs/plans will be created separately
+    - T6.1: Create a tracking issue or note in the repo README
+    - T6.2: Reference that their specs/plans will be created separately
 2. Add TODO comments in `workout-session-editor.html` where these components are used
-   - T6.3: Indicate they're placeholders for now, form renders with "Sin ejercicios" placeholder
+    - T6.3: Indicate they're placeholders for now, form renders with "Sin ejercicios" placeholder
 3. Create high-level dependency map
-   - T6.4: Show which components depend on which, prioritize for future specs/plans
+    - T6.4: Show which components depend on which, prioritize for future specs/plans
 
 ### T7 — Validation Gates
 
@@ -139,19 +175,19 @@ Steps:
 1. `npm run typecheck` — ensure type safety for new context handling and branching logic
 2. `npm run lint` — ensure code style consistency across the modified files
 3. `npm run test:ci` — run existing tests, add new spec tests for:
-   - T7.3a: Context detection in DayDeferred (all 3 param scenarios)
-   - T7.3b: onSave branching for DL vs WL
-   - T7.3c: onCompleteDay behavior per context
-   - T7.3d: No state/storage modifications
-   - Ensure existing tests still pass (764/764 from calendar-deferred-day validation)
+    - T7.3a: Context detection in DayDeferred (all 3 param scenarios)
+    - T7.3b: onSave branching for DL vs WL
+    - T7.3c: onCompleteDay behavior per context
+    - T7.3d: No state/storage modifications
+    - Ensure existing tests still pass (764/764 from calendar-deferred-day validation)
 4. `npm run build` — verify bundle budget (pre-existing warning acceptable if only new warnings related to this feature are added)
 5. Manual acceptance criteria verification:
-   - T7.5.1: DL route `/user/history/deferred?date=...&id=...` loads day-log form
-   - T7.5.2: WL route `/user/history/week-log-day/:weekId/:dayOrder` loads week-log day editing
-   - T7.5.3: `onSave` works for both DL and WL contexts using appropriate API mutation
-   - T7.5.4: `onCompleteDay` flips status appropriately: DL → completed/active: false; WL → TODO
-   - T7.5.5: No active-tracking state modifications when editing a deferred day
-   - T7.5.6: Quality gates pass
+    - T7.5.1: DL route `/user/history/deferred?date=...&id=...` loads day-log form
+    - T7.5.2: WL route `/user/history/week-log-day/:weekId/:dayOrder` loads week-log day editing
+    - T7.5.3: `onSave` works for both DL and WL contexts using appropriate API mutation
+    - T7.5.4: `onCompleteDay` flips status appropriately: DL → completed/active: false; WL → TODO
+    - T7.5.5: No active-tracking state modifications when editing a deferred day
+    - T7.5.6: Quality gates pass
 
 ## Validation gates
 

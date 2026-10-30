@@ -1,9 +1,10 @@
 import { Component, Input, Output, OnInit, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormArray, FormControl } from '@angular/forms';
-import { IconComponent } from '../../../../ui/icon/icon';
-import { DialogComponent } from '../../../../ui/dialog/dialog';
-import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../../interfaces/tracking.interface';
+import {
+    ExercisePerformanceVM,
+    WorkoutSessionVM,
+} from '../../../../../interfaces/tracking.interface';
 import { BtnComponent } from '../../../../ui/btn/btn';
 
 interface SetsFormVM {
@@ -14,7 +15,7 @@ interface SetsFormVM {
 @Component({
     selector: 'app-workout-edition',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, IconComponent, DialogComponent, BtnComponent],
+    imports: [CommonModule, ReactiveFormsModule, BtnComponent],
     templateUrl: './workout-edition.html',
 })
 export class WorkoutEdition implements OnInit {
@@ -122,7 +123,7 @@ export class WorkoutEdition implements OnInit {
                 );
 
                 return {
-                    ...(existingEx), // Keep original properties like category, muscle, etc.
+                    ...existingEx, // Keep original properties like category, muscle, etc.
                     sets: mappedSets,
                     series: mappedSets.length, // Always sync series with actual sets count
                 };
