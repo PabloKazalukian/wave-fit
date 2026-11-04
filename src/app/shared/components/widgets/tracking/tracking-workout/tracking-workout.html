@@ -10,7 +10,11 @@
     <header>
       <p class="mb-2">
         <span class="text-text2 text-sm">Fecha de Rutina:</span>
-        {{ this.facade.workoutVM()?.date | date: 'dd/MM/yyyy' : 'UTC' }}
+        @if (this.facade.workoutVM()) {
+          {{ this.facade.workoutVM()?.date | date: 'dd/MM/yyyy' : 'UTC' }}
+        } @else {
+          <span class="text-text2">Sin datos de sesión</span>
+        }
       </p>
     </header>
     <app-workout-day-stats [workout]="this.facade.workoutVM()"></app-workout-day-stats>

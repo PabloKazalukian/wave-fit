@@ -29,6 +29,7 @@ export class WorkoutEdition implements OnInit {
 
     constructor() {
         // Removed facade-dependent effect from constructor
+        console.log(this.workoutSession);
     }
 
     ngOnInit(): void {
