@@ -15,6 +15,7 @@ import { WorkoutCompleteList } from './workout-complete-list/workout-complete-li
 import { WorkoutEdition } from './workout-edition/workout-edition';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ExtraSessionContent } from '../../extra-session/extra-session-content/extra-session-content';
+import { ExtraSessionForm } from '../../extra-session/extra-session-form/extra-session-form';
 import { WorkoutDayStats } from './workout-day-stats/workout-day-stats';
 
 @Component({
@@ -31,6 +32,7 @@ import { WorkoutDayStats } from './workout-day-stats/workout-day-stats';
         WorkoutCompleteList,
         WorkoutEdition,
         ExtraSessionContent,
+        ExtraSessionForm,
         WorkoutDayStats,
     ],
     providers: [TrackingWorkoutFacade],

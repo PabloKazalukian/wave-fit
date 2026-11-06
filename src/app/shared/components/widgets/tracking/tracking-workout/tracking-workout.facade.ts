@@ -51,6 +51,7 @@ export class TrackingWorkoutFacade {
 
     exercisesTracking = signal<ExercisePerformanceVM[]>([]);
     loading = this.store.loadingWorkoutCreation;
+    showExtraSessionDialog = signal(false);
 
     validateWorkout(): boolean {
         if (
