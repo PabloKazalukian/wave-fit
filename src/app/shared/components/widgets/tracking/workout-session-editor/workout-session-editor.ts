@@ -1,139 +1,117 @@
-import { Component, input, output, signal, effect, inject } from '@angular/core';
+import { Component, input, output, signal, inject, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { finalize } from 'rxjs/operators';
+import { ReactiveFormsModule } from '@angular/forms';
 import { EditorContext } from '../../../../../core/services/editor-context/editor-context.interface';
 import { EditorContextService } from '../../../../../core/services/editor-context/editor-context.service';
-import { PlanDayService } from '../../../../../core/services/day-logs/plan-day.service';
-import { PlanTrackingService } from '../../../../../core/services/trackings/plan-tracking.service';
-import { TrackingWorkoutFacade } from '../tracking-workout/tracking-workout.facade';
+import { ExercisePerformanceVM, WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 import {
-    ExercisePerformanceVM,
-    StatusWorkoutSession,
-    WorkoutSessionVM,
-} from '../../../../interfaces/tracking.interface';
+    CreateExtraSessionForm,
+    ExtraSession,
+    ExtraSessionDisciplineConfig,
+} from '../../../../interfaces/extra-session.interface';
 import { BtnComponent } from '../../../ui/btn/btn';
 import { Loading } from '../../../ui/loading/loading';
-import { OrchestratorComponent } from './orchestrator.component';
+import { DialogComponent } from '../../../ui/dialog/dialog';
+import { IconComponent } from '../../../ui/icon/icon';
+import { ExerciseSelector } from '../../exercises/exercise-selector/exercise-selector';
+import { WorkoutEdition } from '../tracking-workout/workout-edition/workout-edition';
+import { ExtraSessionForm } from '../../extra-session/extra-session-form/extra-session-form';
+import { ExtraSessionCard } from '../../extra-session/extra-session-content/extra-session-card/extra-session-card';
+
+// Raw form value emitted by ExtraSessionForm (not FormControls)
+interface ExtraSessionFormValue {
+    category: string;
+    discipline: string;
+    workoutSessionId: string;
+    date: Date;
+    duration: number;
+    intensityLevel: number;
+    calories: number;
+    notes: string;
+}
 
 @Component({
     selector: 'app-workout-session-editor',
     standalone: true,
-    imports: [CommonModule, OrchestratorComponent, Loading, BtnComponent],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        Loading,
+        BtnComponent,
+        DialogComponent,
+        IconComponent,
+        ExerciseSelector,
+        WorkoutEdition,
+        ExtraSessionForm,
+        ExtraSessionCard,
+    ],
     templateUrl: './workout-session-editor.html',
     styles: ``,
 })
-export class WorkoutSessionEditor {
+export class WorkoutSessionEditor implements OnChanges {
+    // --- Inputs (all data provided by parent DayDeferred) ---
     editorContext = input.required<EditorContext>();
+    workoutSession = input<WorkoutSessionVM | null>(null);
+    exercises = input<ExercisePerformanceVM[]>([]);
+    selectedDate = input<string>('');
+    extraSessions = input<ExtraSession[]>([]);
+    disciplines = input<ExtraSessionDisciplineConfig[]>([]);
 
-    // Outputs - emitted to parent DayDeferred
-    save = output<void>();
+    // --- Outputs (emitted to parent DayDeferred for mutation routing) ---
+    save = output<WorkoutSessionVM>();
+    extraSessionSave = output<CreateExtraSessionForm>();
+    extraSessionUpdate = output<{
+        id: string;
+        duration: number;
+        intensityLevel: number;
+        calories?: number;
+        notes?: string;
+    }>();
+    extraSessionDelete = output<string>();
     closeEditor = output<void>();
     completeDay = output<void>();
 
     private ctxSvc = inject(EditorContextService);
-    private planDaySvc = inject(PlanDayService);
-    private planTrackingSvc = inject(PlanTrackingService);
-    private facade = inject(TrackingWorkoutFacade);
 
+    // --- Local UI state only (no service writes here) ---
     loading = signal(false);
     isDialogOpen = signal(false);
+    isExerciseSelectorOpen = signal(false);
+    isExtraSessionOpen = signal(false);
 
-    workoutSession = signal<WorkoutSessionVM | null>(null);
-    exercises = signal<ExercisePerformanceVM[]>([]);
-    selectedDate = signal<string>('');
+    selectedExercises = signal<ExercisePerformanceVM[]>([]);
 
-    constructor() {
-        effect(() => {
-            const ctx = this.editorContext();
-            this.ctxSvc.setContext(ctx);
-            this.loadSession(ctx);
-        });
-    }
+    // Exercises exposed to ExerciseSelector (empty = selector loads all from service)
+    allExercises = signal<ExercisePerformanceVM[]>([]);
 
-    private loadSession(ctx: EditorContext): void {
-        // PRIORITY: Use workoutSession input data first (from day-deferred WORKOUT_STORE)
-        // Only fall back to API fetching if no input data is available
-        const inputWk = this.workoutSession();
-
-        if (inputWk && inputWk.id) {
-            // Input data already available from store - use it directly
-            this.exercises.set(inputWk.exercises || []);
-            this.selectedDate.set(inputWk.date);
-            this.loading.set(false);
-            return;
+    ngOnChanges(changes: SimpleChanges): void {
+        // Keep ctxSvc in sync (called once per distinct context, not in a loop)
+        if (changes['editorContext']) {
+            this.ctxSvc.setContext(this.editorContext());
         }
 
-        // FALLBACK: Fetch from API since no input data available
-        if (ctx.containerType === 'DEFERRED_DAY_LOG') {
-            if (ctx.containerId) {
-                this.loading.set(true);
-                this.planDaySvc
-                    .findById(ctx.containerId)
-                    .pipe(finalize(() => this.loading.set(false)))
-                    .subscribe({
-                        next: (dayLog) => {
-                            if (dayLog) {
-                                const ws: WorkoutSessionVM = {
-                                    id: dayLog.workoutSessionId || dayLog.id,
-                                    date: dayLog.date,
-                                    exercises: dayLog.exercises || [],
-                                    status: (dayLog.status === 'complete'
-                                        ? 'complete'
-                                        : 'not_started') as StatusWorkoutSession,
-                                    notes: dayLog.notes,
-                                };
-                                this.workoutSession.set(ws);
-                                this.exercises.set(ws.exercises);
-                                this.selectedDate.set(dayLog.date);
-                            } else {
-                                this.resetSession();
-                            }
-                        },
-                        error: (err) => {
-                            console.error('Error loading deferred day-log:', err);
-                            this.resetSession();
-                        },
-                    });
-            } else {
-                this.resetSession();
-            }
-        } else if (ctx.containerType === 'WEEK_LOG_DAY') {
-            if (ctx.weekLogId && ctx.dayOrder !== undefined) {
-                this.loading.set(true);
-                this.planTrackingSvc
-                    .findById(ctx.weekLogId)
-                    .pipe(finalize(() => this.loading.set(false)))
-                    .subscribe({
-                        next: (tracking) => {
-                            const ws = tracking?.workouts?.[ctx.dayOrder!];
-                            if (ws) {
-                                this.workoutSession.set(ws);
-                                this.exercises.set(ws.exercises || []);
-                                this.selectedDate.set(ws.date);
-                            } else {
-                                this.resetSession();
-                            }
-                        },
-                        error: (err) => {
-                            console.error('Error loading week-log day:', err);
-                            this.resetSession();
-                        },
-                    });
-            } else {
-                this.resetSession();
-            }
+        // Initialize selectedExercises from exercises input when it changes
+        if (changes['exercises']) {
+            this.selectedExercises.set([...(this.exercises() ?? [])]);
         }
     }
 
-    private resetSession(date = ''): void {
-        this.workoutSession.set({
-            id: '',
-            date,
-            exercises: [],
-            status: 'not_started',
-        });
-        this.exercises.set([]);
-        this.selectedDate.set(date);
+    // ----- Dialog handlers -----
+
+    openExerciseSelector(): void {
+        this.isExerciseSelectorOpen.set(true);
+    }
+
+    closeExerciseSelector(): void {
+        this.isExerciseSelectorOpen.set(false);
+    }
+
+    openExtraSession(): void {
+        this.isExtraSessionOpen.set(true);
+    }
+
+    closeExtraSession(): void {
+        this.isExtraSessionOpen.set(false);
     }
 
     openDialog(): void {
@@ -145,39 +123,68 @@ export class WorkoutSessionEditor {
         this.closeEditor.emit();
     }
 
-    onSave(updatedWorkout?: WorkoutSessionVM): void {
-        const ctx = this.editorContext();
-        const workout = updatedWorkout || this.workoutSession();
-        if (!workout) return;
+    // ----- ExerciseSelector output handlers -----
 
-        if (ctx.containerType === 'DEFERRED_DAY_LOG') {
-            // T2: DL API mutation (PlanDayApi.updateWorkoutSession via PlanDayService)
-            // Mutación directa, sin tocar estado de active tracking ni storage (BR-019, BR-020)
-            this.planDaySvc.updateWorkoutSession(workout);
-            this.workoutSession.set(workout);
-            this.exercises.set(workout.exercises || []);
-            this.save.emit();
-            this.closeDialog();
-        } else if (ctx.containerType === 'WEEK_LOG_DAY') {
-            // T3: WL store update via facade (local-only, BR-020)
-            this.facade.updateWorkoutSession(workout);
-            this.workoutSession.set(workout);
-            this.exercises.set(workout.exercises || []);
-            this.save.emit();
-            this.closeDialog();
-        }
+    onToggleExercise(ex: ExercisePerformanceVM): void {
+        this.selectedExercises.update((current) => {
+            const exists = current.some((e) => e.exerciseId === ex.exerciseId);
+            return exists
+                ? current.filter((e) => e.exerciseId !== ex.exerciseId)
+                : [...current, ex];
+        });
     }
 
+    onExercisesSelectedChange(exercises: ExercisePerformanceVM[]): void {
+        this.selectedExercises.set(exercises ?? []);
+    }
+
+    // ----- WorkoutEdition output handler -----
+    // Emits save output upward; parent DayDeferred routes to correct mutation.
+
+    onWorkoutSave(workout: WorkoutSessionVM): void {
+        this.save.emit(workout);
+    }
+
+    // ----- ExtraSessionForm output handler -----
+    // Converts the raw form value and emits extraSessionSave upward.
+    // Parent DayDeferred routes to correct service (deferred-safe).
+
+    onExtraSessionSave(event: unknown): void {
+        const formValue = event as ExtraSessionFormValue;
+
+        const extraSession: CreateExtraSessionForm = {
+            date:
+                formValue.date instanceof Date
+                    ? formValue.date.toISOString().split('T')[0]
+                    : (formValue.date as string),
+            discipline: formValue.discipline,
+            duration: formValue.duration,
+            intensityLevel: formValue.intensityLevel,
+            calories: formValue.calories,
+            notes: formValue.notes,
+        };
+
+        this.extraSessionSave.emit(extraSession);
+        this.closeExtraSession();
+    }
+
+    onExtraSessionUpdate(data: {
+        id: string;
+        duration: number;
+        intensityLevel: number;
+        calories?: number;
+        notes?: string;
+    }): void {
+        this.extraSessionUpdate.emit(data);
+    }
+
+    onExtraSessionDelete(id: string): void {
+        this.extraSessionDelete.emit(id);
+    }
+
+    // ----- Complete Day -----
+
     onCompleteDay(): void {
-        const ctx = this.editorContext();
-        if (ctx.containerType === 'DEFERRED_DAY_LOG') {
-            this.ctxSvc.completeDeferredDayLog();
-            this.completeDay.emit();
-        } else if (ctx.containerType === 'WEEK_LOG_DAY') {
-            console.log('Completing week-log day - pending backend dependency (AC-014)');
-            // TODO: Cuando backend esté disponible, invocar operación de completion de week-log day
-            // Que complete solo el día sin afectar parent week-log ni otros días (BR-009, BR-017)
-            this.completeDay.emit();
-        }
+        this.completeDay.emit();
     }
 }

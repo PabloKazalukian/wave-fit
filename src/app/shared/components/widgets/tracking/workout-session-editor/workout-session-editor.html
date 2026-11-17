@@ -5,46 +5,129 @@
     </div>
   </div>
 } @else {
-  <section class="p-4">
-    <header class="mb-4">
-      <h2 class="text-xl font-bold">
-        {{
-          editorContext().containerType === 'DEFERRED_DAY_LOG'
-            ? 'Editor de Sesión de Día Diferido'
-            : 'Editor de Día dentro de Semana'
-        }}
-      </h2>
-      <p class="text-text2 text-sm">
-        {{
-          editorContext().containerType === 'DEFERRED_DAY_LOG'
-            ? 'Edita la sesión de entrenamiento y los datos asociados de un dia diferido existente.'
-            : 'Edita la sesión de un día dentro de un week-log, preservando el parent week-log.'
-        }}
-      </p>
-    </header>
+  <section class="flex flex-col gap-4">
+    <!-- WorkoutEdition: shows loaded workout session -->
+    @if (workoutSession()) {
+      <app-workout-edition
+        [workoutSession]="workoutSession()!"
+        [exercises]="selectedExercises()"
+        (saveWorkoutSession)="onWorkoutSave($event)"
+      ></app-workout-edition>
+    } @else {
+      <div class="text-center py-8 text-text2 bg-background rounded-lg border border-border">
+        Sin ejercicios
+      </div>
+    }
 
-    <div class="bg-background rounded-2xl shadow-md p-6">
-      <app-orchestrator
-        [editorContext]="editorContext()"
-        [workoutSession]="workoutSession()"
-        [exercises]="exercises()"
-        [selectedDate]="selectedDate()"
-        (saveOutput)="onSave($event)"
-        (closeOutput)="closeDialog()"
-      ></app-orchestrator>
-    </div>
-
-    <!-- Acciones -->
-    <div class="mt-6 flex gap-4">
-      <app-btn color="secondary" (click)="closeDialog()"> Cancelar </app-btn>
-
-      <app-btn color="primary" (click)="onCompleteDay()">
-        @if (loading()) {
-          Completando día...
-        } @else {
-          Complete Day
-        }
+    <!-- Action buttons to open dialogs -->
+    <aside class="mt-4 space-y-2">
+      <!-- Add Exercise button + Dialog -->
+      <app-btn
+        [text]="'Agregar ejercicio'"
+        [variant]="'stroked'"
+        [color]="'primary'"
+        [size]="'md'"
+        (click)="openExerciseSelector()"
+        [showIcon]="true"
+      >
+        <app-icon>
+          <div class="h-5 w-5">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </div>
+        </app-icon>
       </app-btn>
+
+      <app-dialog
+        [isOpen]="isExerciseSelectorOpen()"
+        (closed)="closeExerciseSelector()"
+        [title]="'Selector de ejercicios'"
+        [closeOnBackdrop]="true"
+      >
+        <app-exercise-selector
+          [exercises]="allExercises()"
+          [selectedExercises]="selectedExercises()"
+          (toggleExerciseChange)="onToggleExercise($event)"
+          (exercisesSelectedChange)="onExercisesSelectedChange($event)"
+        ></app-exercise-selector>
+        <div class="mt-4 flex justify-end">
+          <app-btn
+            [text]="'Finalizar'"
+            [variant]="'raised'"
+            [color]="'primaryDark'"
+            (click)="closeExerciseSelector()"
+          ></app-btn>
+        </div>
+      </app-dialog>
+
+      <!-- Add Extra Session button + Dialog -->
+      <app-btn
+        [text]="'Agregar actividad extra'"
+        [variant]="'strokedColor'"
+        [color]="'accent3'"
+        [size]="'md'"
+        (click)="openExtraSession()"
+        [showIcon]="true"
+      >
+        <app-icon>
+          <div class="h-5 w-5">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+          </div>
+        </app-icon>
+      </app-btn>
+
+      <app-dialog
+        [isOpen]="isExtraSessionOpen()"
+        (closed)="closeExtraSession()"
+        [title]="'Agregar actividad extra'"
+        [closeOnBackdrop]="true"
+      >
+        <app-extra-session-form
+          [selectedDate]="selectedDate()"
+          (saveExtraSession)="onExtraSessionSave($event)"
+          (cancelExtraSession)="closeExtraSession()"
+        ></app-extra-session-form>
+      </app-dialog>
+    </aside>
+
+    <!-- Extra Sessions List (view, edit inline, delete) -->
+    @if (extraSessions().length > 0) {
+      <section
+        class="flex flex-col gap-3 mt-4 p-4 border border-background2 rounded-2xl bg-background3"
+      >
+        <h3 class="text-xl text-accent font-medium">Sesiones extra registradas</h3>
+        @for (session of extraSessions(); track session.id) {
+          <app-extra-session-card
+            [session]="session"
+            [disciplines]="disciplines()"
+            (delete)="onExtraSessionDelete($event)"
+            (save)="onExtraSessionUpdate($event)"
+          ></app-extra-session-card>
+        }
+      </section>
+    }
+
+    <!-- Acciones del editor -->
+    <div class="mt-6 flex gap-4">
+      <app-btn color="secondary" (click)="closeDialog()">Cancelar</app-btn>
+      <app-btn color="primary" (click)="onCompleteDay()">Complete Day</app-btn>
     </div>
   </section>
 }

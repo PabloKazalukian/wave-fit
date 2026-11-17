@@ -17,14 +17,35 @@
       ></lucide-icon>
       {{ containerType() === 'DEFERRED_DAY_LOG' ? 'Día diferido' : 'Día de semana' }}
     </h1>
-    <p class="text-sm text-text2 mt-1">Datos del día seleccionado.</p>
+    <p class="text-sm text-text2 mt-1">Edita la sesión de entrenamiento del día seleccionado.</p>
   </header>
 
-  <!-- WorkoutSessionEditor compositado según contexto -->
-  <app-workout-session-editor
-    [editorContext]="editorContext()"
-    (save)="onSave()"
-    (closeEditor)="closeDialog()"
-    (completeDay)="onCompleteDay()"
-  ></app-workout-session-editor>
+  @if (loading()) {
+    <div class="flex items-center justify-center p-8">
+      <div class="h-24 w-24">
+        <app-loading></app-loading>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+      {{ error() }}
+    </div>
+  } @else {
+    <div class="bg-background rounded-2xl shadow-md p-6">
+      <app-workout-session-editor
+        [editorContext]="editorContext()"
+        [workoutSession]="workoutSession()"
+        [exercises]="exercises()"
+        [selectedDate]="selectedDate()"
+        [extraSessions]="extraSessions()"
+        [disciplines]="catalog()"
+        (save)="onSave($event)"
+        (extraSessionSave)="onExtraSessionSave($event)"
+        (extraSessionUpdate)="onExtraSessionUpdate($event)"
+        (extraSessionDelete)="onExtraSessionDelete($event)"
+        (closeEditor)="onCloseEditor()"
+        (completeDay)="onCompleteDay()"
+      ></app-workout-session-editor>
+    </div>
+  }
 </section>

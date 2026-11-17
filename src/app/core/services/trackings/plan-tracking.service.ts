@@ -270,6 +270,26 @@ export class PlanTrackingService {
         );
     }
 
+    /**
+     * Actualiza una extra-session de un día de week-log diferido (histórico).
+     * No toca el state activo ni storage (BR-019, BR-020).
+     */
+    updateExtraSessionDeferred(
+        weekLogId: string,
+        dayOrder: number,
+        extraSession: CreateExtraSessionForm,
+    ): Observable<unknown> {
+        return this.domain.updateExtraSessionDeferred(weekLogId, dayOrder, extraSession);
+    }
+
+    /**
+     * Elimina una extra-session de un día de week-log diferido (histórico).
+     * No toca el state activo ni storage (BR-019, BR-020).
+     */
+    removeExtraSessionDeferred(date: LocalDate, extraSessionId: string): Observable<unknown> {
+        return this.domain.removeExtraSessionDeferred(date, extraSessionId);
+    }
+
     updateWorkoutStatus(date: LocalDate, status: StatusWorkoutSession) {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return;

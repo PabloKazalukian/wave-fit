@@ -20,7 +20,7 @@ The training history is a calendar view that lists completed/pending training da
 - **FR-010** When the preview shows a `WEEK_LOG` day whose parent week is active (`DayPreview.active`), an extra CTA "Ver mi semana" (raised, primary) is rendered next to "Ver semana"; both navigate to `/user/trackings/:id`. Non-active weeks keep only "Ver semana".
 - **FR-011** The preview renders each day's extra sessions at the end of the workout-session exercise list, **read-only**, using the shared `extra-session-show` widget (no edit/delete). Discipline labels are resolved from the `extraSessionCatalog` cache (`ExtraSessionService.catalog$` / `loadCatalog`), which the page loads once. An empty `DayPreview.id` (extras-only day-log without a `dayLogId`) hides the header CTA instead of building a broken link.
 - **FR-012** A selected past date (strictly before today in the user timezone) with no `dayLogId` and no `weekLogReference` offers the "Agregar día" button below the calendar. Clicking it calls `PlanDayService.createDayLogDeferred(date)` immediately (no navigation), disables the button while pending, shows a success or error notification, reloads the current month from the backend and re-selects the created date. The created day opens in the preview in its empty state (FR-008) and the creation CTA disappears. Today and future dates do not show the CTA.
-- **FR-013** The deferred edit page `/user/history/deferred?date=<LocalDate>&id=<dayLogId>` loads the day-log by id and renders a read-only demo form with simple labels (date, status, completed, notes, exercises, extra sessions). It also works with only `date` (no day-log loaded). Persisting changes from this page is out of scope for this iteration.
+- **FR-013** The deferred edit page `/user/history/deferred` allows editing past training sessions for both `DEFERRED_DAY_LOG` (`?date=<LocalDate>&id=<dayLogId>`) and `WEEK_LOG_DAY` (`/user/history/deferred/:weekLogId/:dayOrder?date=<LocalDate>`). It loads the day data, renders the decoupled `WorkoutSessionEditor` coordinator, and manages workout sessions and extra sessions (create, inline edit, delete via `ExtraSessionCard`). Writes are deferred-safe: `DEFERRED_DAY_LOG` updates route to `PlanDayService.updateWorkoutSession`, `PlanDayService.updateExtraSessionDeferred`, and `PlanDayService.removeExtraSessionDeferred`; `WEEK_LOG_DAY` updates route to `PlanDayService.updateWorkoutSession`, `PlanTrackingService.updateExtraSessionDeferred`, and `PlanTrackingService.removeExtraSessionDeferred`. Neither path mutates active tracking state, active day-log state, or local storage. Context state is cleared on page destruction (`EditorContextService.clearContext`).
 
 ### BR
 
@@ -52,7 +52,11 @@ The page is a **thin orchestrator** (see `documents/engineering/coding-standards
  └── TrainingHistoryDayPreview (app-training-history-day-preview) — day detail panel, CTA, edit action, detail loading/error/retry
 
 /user/history/deferred → DayDeferred (app-day-deferred) — deferred edit page
- └── DayDeferredForm (app-day-deferred-form) — read-only demo form (date, status, completed, notes, exercises, extra sessions)
+ └── WorkoutSessionEditor (app-workout-session-editor) — decoupled coordinator
+      ├── WorkoutEdition (app-workout-edition) — exercise set/rep editor
+      ├── ExerciseSelector (app-exercise-selector) — catalog picker
+      ├── ExtraSessionForm (app-extra-session-form) — add extra activity modal
+      └── ExtraSessionCard (app-extra-session-card) — list, inline edit, delete extra sessions
 ```
 
 - `TrainingHistoryCalendar` receives `days`, `year`, `month` (0-based),

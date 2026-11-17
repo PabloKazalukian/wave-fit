@@ -192,6 +192,26 @@ export class PlanDayService {
             .subscribe();
     }
 
+    /**
+     * Actualiza una extra-session en un day-log diferido (histórico).
+     * No escribe en el state activo ni en storage (BR-019, BR-020).
+     * Solo se llama desde el flujo deferred (DayDeferred page).
+     */
+    updateExtraSessionDeferred(
+        dayLogId: string,
+        extraSession: CreateExtraSessionForm,
+    ): Observable<DayLogVM | null> {
+        return this.domain.updateExtraSessionDeferred(dayLogId, extraSession);
+    }
+
+    /**
+     * Elimina una extra-session de un day-log diferido (histórico).
+     * No escribe en el state activo ni en storage (BR-019, BR-020).
+     */
+    removeExtraSessionDeferred(extraSessionId: string): Observable<DayLogVM | null> {
+        return this.domain.removeExtraSessionDeferred(extraSessionId);
+    }
+
     get getWorkouts(): Observable<WorkoutSessionVM[]> {
         return this.state.dayLog$.pipe(
             filter((dayLog) => !!dayLog),
