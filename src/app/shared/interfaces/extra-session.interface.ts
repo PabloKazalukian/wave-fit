@@ -35,6 +35,18 @@ export interface CreateExtraSessionForm {
     notes?: string;
 }
 
+/** Raw value emitted by `ExtraSessionForm`; parents convert it to `CreateExtraSessionForm`. */
+export interface ExtraSessionFormValue {
+    category: string;
+    discipline: string;
+    workoutSessionId: string;
+    date: Date;
+    duration: number;
+    intensityLevel: number;
+    calories: number;
+    notes: string;
+}
+
 export interface UpdateExtraSessionInput {
     id: string;
     discipline?: string;

@@ -177,19 +177,57 @@ export class PlanDayService {
         this.state.updateDayLog((d) => ({ ...d, status: status as DayLogVM['status'] }));
     }
 
-    updateWorkoutSession(workout: WorkoutSessionVM): void {
-        this.domain
-            .updateWorkoutSession(workout)
-            ?.pipe(
-                takeUntilDestroyed(this.destroyRef),
-                finalize(() => {
-                    const dayLog = this.state.getDayLogValue();
-                    if (dayLog) {
-                        this.state.updateDayLog((d) => ({ ...d, exercises: workout.exercises }));
-                    }
-                }),
-            )
-            .subscribe();
+    /**
+     * Persists a full workout session in the active day-log. The mutation is
+     * UpdateDayLog with the active day-log id (D1).
+     */
+    updateWorkoutSession(
+        workout: WorkoutSessionVM,
+        options: { updateActiveState?: boolean } = {},
+    ): Observable<WorkoutSessionVM | null> {
+        const updateActiveState = options.updateActiveState ?? true;
+
+        return this.domain.updateWorkoutSession(workout).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            tap((res) => {
+                if (!updateActiveState || !res) return;
+                const dayLog = this.state.getDayLogValue();
+                if (dayLog) {
+                    this.state.updateDayLog((d) => ({ ...d, exercises: res.exercises }));
+                }
+            }),
+        );
+    }
+
+    /**
+     * Persists a full workout session in a deferred day-log using the route id.
+     * It never reads or writes the active day-log state or local storage.
+     */
+    updateWorkoutSessionDeferred(
+        dayLogId: string,
+        workout: WorkoutSessionVM,
+    ): Observable<DayLogVM | null> {
+        return this.domain.updateWorkoutSessionDeferred(dayLogId, workout);
+    }
+
+    /**
+     * Actualiza una extra-session en un day-log diferido (histórico).
+     * No escribe en el state activo ni en storage (BR-019, BR-020).
+     * Solo se llama desde el flujo deferred (DayDeferred page).
+     */
+    updateExtraSessionDeferred(
+        dayLogId: string,
+        extraSession: CreateExtraSessionForm,
+    ): Observable<DayLogVM | null> {
+        return this.domain.updateExtraSessionDeferred(dayLogId, extraSession);
+    }
+
+    /**
+     * Elimina una extra-session de un day-log diferido (histórico).
+     * No escribe en el state activo ni en storage (BR-019, BR-020).
+     */
+    removeExtraSessionDeferred(extraSessionId: string): Observable<DayLogVM | null> {
+        return this.domain.removeExtraSessionDeferred(extraSessionId);
     }
 
     get getWorkouts(): Observable<WorkoutSessionVM[]> {

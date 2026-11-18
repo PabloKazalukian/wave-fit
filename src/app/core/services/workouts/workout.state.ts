@@ -8,7 +8,7 @@ import {
 } from '../../../shared/interfaces/tracking.interface';
 import { PlanTrackingService } from '../trackings/plan-tracking.service';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { take } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { DateService } from '../date.service';
 import { WorkoutStore } from './workout-store.interface';
 
@@ -97,8 +97,8 @@ export class WorkoutStateService implements WorkoutStore {
         this.trackingSvc.updateWorkoutStatus(date, status);
     }
 
-    updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): void {
-        this.trackingSvc.updateWorkoutSession(date, workout);
+    updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): Observable<unknown> {
+        return this.trackingSvc.updateWorkoutSession(date, workout);
     }
 
     removeWorkoutSession(date: LocalDate, id: string) {

@@ -32,6 +32,7 @@ import {
     CreateDayLogInput,
     UpdateDayLogInput,
 } from '../../../shared/interfaces/api/day-log-api.interface';
+import { UpdateWorkoutSessionInput } from '../../../shared/interfaces/api/tracking-api.interface';
 import { wrapperExercisePerformanceVMToApi } from '../../../shared/wrappers/tracking.wrapper';
 
 @Injectable({
@@ -315,8 +316,88 @@ export class PlanDayDomainService {
         );
     }
 
+    private toWorkoutSessionInput(workout: WorkoutSessionVM): UpdateWorkoutSessionInput {
+        return {
+            id: workout.id,
+            date: workout.date,
+            exercises: wrapperExercisePerformanceVMToApi(workout.exercises),
+            status: workout.status,
+            notes: workout.notes,
+        };
+    }
+
+    /**
+     * Active day-log: the target id comes from the active day-log state. The
+     * mutation is UpdateDayLog because UpdateWorkoutSession requires a week-log.
+     */
     updateWorkoutSession(workout: WorkoutSessionVM): Observable<WorkoutSessionVM | null> {
-        return this.api.updateWorkoutSession(workout);
+        const dayLog = this.state.getDayLogValue();
+        if (!dayLog) return of(null);
+
+        return this.api
+            .updateDayLog({
+                id: dayLog.id,
+                workoutSession: this.toWorkoutSessionInput(workout),
+            })
+            .pipe(
+                map((res) =>
+                    res
+                        ? {
+                              ...workout,
+                              id: res.workoutSessionId ?? workout.id,
+                              exercises: res.exercises ?? workout.exercises,
+                          }
+                        : null,
+                ),
+            );
+    }
+
+    /**
+     * Deferred day-log: the target id comes from the route, never from the
+     * active state, and the result is not merged into the active day-log.
+     */
+    updateWorkoutSessionDeferred(
+        dayLogId: string,
+        workout: WorkoutSessionVM,
+    ): Observable<DayLogVM | null> {
+        return this.api.updateDayLogDeferred({
+            id: dayLogId,
+            workoutSession: this.toWorkoutSessionInput(workout),
+        });
+    }
+
+    /**
+     * Actualiza una extra-session de un day-log diferido (histórico).
+     * A diferencia de `updateExtraSession`, no lee ni escribe el state activo.
+     * Se usa exclusivamente en el flujo deferred (BR-019, BR-020).
+     */
+    updateExtraSessionDeferred(
+        dayLogId: string,
+        extraSession: CreateExtraSessionForm,
+    ): Observable<DayLogVM | null> {
+        const payload: UpdateDayLogInput = {
+            id: dayLogId,
+            extraSession: {
+                date: extraSession.date,
+                discipline: extraSession.discipline,
+                duration: extraSession.duration,
+                intensityLevel: extraSession.intensityLevel,
+                calories: extraSession.calories,
+                notes: extraSession.notes,
+            },
+        };
+
+        return this.api.updateDayLog(payload);
+    }
+
+    /**
+     * Elimina una extra-session de un day-log diferido (histórico).
+     * Usa la mutation específica para day-logs `active: false`; el resolver de
+     * `removeExtraSessionFromDayLog` solo encuentra day-logs activos. No toca el
+     * state activo ni storage local.
+     */
+    removeExtraSessionDeferred(extraSessionId: string): Observable<DayLogVM | null> {
+        return this.api.removeExtraSessionFromDeferredDayLog(extraSessionId);
     }
 
     removeWorkoutSession(workoutSessionId: string): Observable<DayLogVM | null> {

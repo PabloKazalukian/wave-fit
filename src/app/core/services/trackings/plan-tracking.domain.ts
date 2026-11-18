@@ -249,6 +249,48 @@ export class PlanTrackingDomainService {
         return this.api.removeExtraSession(date, extraSessionId);
     }
 
+    /**
+     * Actualiza una extra-session de un día de week-log diferido (histórico).
+     * No requiere que el tracking esté en el state activo.
+     */
+    updateExtraSessionDeferred(
+        weekLogId: string,
+        dayOrder: number,
+        extraSession: CreateExtraSessionForm,
+    ): Observable<WeekLogDayVM | null | undefined> {
+        const payload: UpdateWeekLogDayUnifiedInput = {
+            id: weekLogId,
+            timezone: this.dateService.getUserTimezone(),
+            days: [
+                {
+                    order: dayOrder + 1,
+                    isRest: false,
+                    extraSession: {
+                        date: extraSession.date,
+                        discipline: extraSession.discipline,
+                        duration: extraSession.duration,
+                        intensityLevel: extraSession.intensityLevel,
+                        calories: extraSession.calories,
+                        notes: extraSession.notes,
+                    },
+                },
+            ],
+        };
+
+        return this.api.updateTrackingDay(payload);
+    }
+
+    /**
+     * Elimina una extra-session de un día de week-log diferido (histórico).
+     * No requiere que el tracking esté en el state activo ni toca state.
+     */
+    removeExtraSessionDeferred(
+        date: LocalDate,
+        extraSessionId: string,
+    ): Observable<WeekLogDayVM | null | undefined> {
+        return this.api.removeExtraSession(date, extraSessionId);
+    }
+
     updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM) {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return;

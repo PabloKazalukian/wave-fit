@@ -154,7 +154,7 @@ describe('ExtraSessionService', () => {
     });
 
     describe('remove (TEST-003)', () => {
-        it('routes to PlanDayService when the day-log is active', () => {
+        it('routes to PlanDayService with the extra-session id when the day-log is active', () => {
             activeSvc.isDayLogActive.and.returnValue(true);
             planDaySvc.removeExtraSession.and.returnValue(of({ id: 'day-1' }));
 

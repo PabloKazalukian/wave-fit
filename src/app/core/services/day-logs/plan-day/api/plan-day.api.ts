@@ -19,6 +19,7 @@ import {
     DayLogDeferredAPI,
     DayLogSummaryAPI,
     RemoveExtraSessionFromDayLogResultAPI,
+    RemoveExtraSessionFromDeferredDayLogResultAPI,
     RemoveWorkoutSessionFromDayLogResultAPI,
     UpdateDayLogInput,
     UpdateDayLogResultAPI,
@@ -32,6 +33,7 @@ import {
     wrapperDayLogDeferredApiToVM,
     wrapperDayLogSummaryApiToVM,
     wrapperRemoveExtraSessionFromDayLogApiToVM,
+    wrapperRemoveExtraSessionFromDeferredDayLogApiToVM,
     wrapperRemoveWorkoutSessionFromDayLogApiToVM,
     wrapperUpdateDayLogApiToVM,
     wrapperUpdateDayLogStatusApiToVM,
@@ -46,6 +48,7 @@ import {
     FIND_DAY_LOG_BY_ID,
     REMOVE_DAY_LOG,
     REMOVE_EXTRA_SESSION_FROM_DAY_LOG,
+    REMOVE_EXTRA_SESSION_FROM_DEFERRED_DAY_LOG,
     REMOVE_WORKOUT_SESSION_FROM_DAY_LOG,
     UPDATE_DAY_LOG,
     UPDATE_DAY_LOG_STATUS,
@@ -128,24 +131,37 @@ export class PlanDayApi {
     }
 
     updateDayLog(payload: UpdateDayLogInput): Observable<DayLogVM | null> {
-        console.log(payload);
+        return this.mutateUpdateDayLog(payload).pipe(
+            map(({ data }) =>
+                patchDayLog(this.state.getDayLogValue(), this.mapUpdateDayLogResult(data)),
+            ),
+        );
+    }
+
+    /**
+     * Same mutation as `updateDayLog`, but the result is built only from the
+     * server response. Deferred callers must never read or patch the active
+     * day-log state (BR-019, BR-020).
+     */
+    updateDayLogDeferred(payload: UpdateDayLogInput): Observable<DayLogVM | null> {
+        return this.mutateUpdateDayLog(payload).pipe(
+            map(({ data }) => patchDayLog(null, this.mapUpdateDayLogResult(data))),
+        );
+    }
+
+    private mutateUpdateDayLog(payload: UpdateDayLogInput) {
         return this.apollo
             .mutate<{ updateDayLog: UpdateDayLogResultAPI }>({
                 mutation: UPDATE_DAY_LOG,
                 variables: { input: payload },
             })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map(({ data }) =>
-                    patchDayLog(
-                        this.state.getDayLogValue(),
-                        wrapperUpdateDayLogApiToVM(
-                            data?.updateDayLog ?? null,
-                            this.exerciseSvc.exercises(),
-                        ),
-                    ),
-                ),
-            );
+            .pipe(handleGraphqlError(this.authSvc));
+    }
+
+    private mapUpdateDayLogResult(
+        data: { updateDayLog: UpdateDayLogResultAPI } | null | undefined,
+    ) {
+        return wrapperUpdateDayLogApiToVM(data?.updateDayLog ?? null, this.exerciseSvc.exercises());
     }
 
     updateWorkoutSession(workout: WorkoutSessionVM): Observable<WorkoutSessionVM | null> {
@@ -254,6 +270,31 @@ export class PlanDayApi {
                         this.state.getDayLogValue(),
                         wrapperRemoveExtraSessionFromDayLogApiToVM(
                             data?.removeExtraSessionFromDayLog ?? null,
+                        ),
+                    ),
+                ),
+            );
+    }
+
+    /**
+     * Deferred day-logs are `active: false`; the active-only resolver behind
+     * `removeExtraSessionFromDayLog` cannot find them. Never merge into active state here.
+     */
+    removeExtraSessionFromDeferredDayLog(extraSessionId: string): Observable<DayLogVM | null> {
+        return this.apollo
+            .mutate<{
+                removeExtraSessionFromDeferredDayLog: RemoveExtraSessionFromDeferredDayLogResultAPI;
+            }>({
+                mutation: REMOVE_EXTRA_SESSION_FROM_DEFERRED_DAY_LOG,
+                variables: { extraSessionId },
+            })
+            .pipe(
+                handleGraphqlError(this.authSvc),
+                map(({ data }) =>
+                    patchDayLog(
+                        null,
+                        wrapperRemoveExtraSessionFromDeferredDayLogApiToVM(
+                            data?.removeExtraSessionFromDeferredDayLog ?? null,
                         ),
                     ),
                 ),

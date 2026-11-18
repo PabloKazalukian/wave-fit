@@ -8,6 +8,7 @@ import {
     DayLogSummaryAPI,
     AssignRoutineToDayLogResultAPI,
     RemoveExtraSessionFromDayLogResultAPI,
+    RemoveExtraSessionFromDeferredDayLogResultAPI,
     RemoveWorkoutSessionFromDayLogResultAPI,
     UpdateDayLogResultAPI,
     UpdateDayLogStatusResultAPI,
@@ -181,6 +182,20 @@ export function wrapperRemoveExtraSessionFromDayLogApiToVM(
     return {
         id: payload.id,
         extraSessionIds: payload.extraSessionIds ?? [],
+    };
+}
+
+/** RemoveExtraSessionFromDeferredDayLog → day-log sin exercises */
+export function wrapperRemoveExtraSessionFromDeferredDayLogApiToVM(
+    payload: RemoveExtraSessionFromDeferredDayLogResultAPI | null,
+): Partial<DayLogVM> {
+    if (!payload) return {};
+    return {
+        id: payload.id,
+        active: payload.active,
+        completed: payload.completed,
+        status: payload.status,
+        extraSessionIds: payload.extraSessionIds,
     };
 }
 

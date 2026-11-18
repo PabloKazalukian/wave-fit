@@ -4,10 +4,10 @@
 
 This feature extends the deferred day-log editing capability to support editing a workout session (WS) from both:
 
-- **Day-Log (DL)**: A standalone day-log container (`/user/history/deferred?date=...&id=<dayLogId>`)
-- **Week-Log (WL)**: A day within a week-log container (`/user/history/week-log-day/:weekId/:dayOrder`)
+- **Day-Log (DL)**: a standalone day-log container, reached by `/user/history/deferred?date=<LocalDate>&id=<dayLogId>` or `/user/deferred-day-log/:id`
+- **Week-Log (WL)**: a day within a week-log container, reached by `/user/week-log-day/:weekId/:dayOrder?date=<LocalDate>`
 
-The route `http://localhost:4200/user/history/deferred?date=2026-10-08&id=6adfd36e55dca9e5b80a2547` should work for editing a day from either a day-log or a week-log.
+The route `http://localhost:4200/user/history/deferred?date=2026-10-08&id=6adfd36e55dca9e5b80a2547` opens the DL editor. Context detection reads `id` and `weekId` (alias `weekLogId`) from path params with query-param fallback (FR-018).
 
 The parent component `DayDeferred` (in `day-deferred.ts`) must execute the changes for the DL or WL day. The `WorkoutSessionEditor` (in `workout-session-editor.ts`) must edit the WS within either context, using reusable components (`extra-session` and `exercise-selector`).
 
@@ -17,16 +17,18 @@ The parent component `DayDeferred` (in `day-deferred.ts`) must execute the chang
 
 ### FR: Functionality
 
-- **FR-014** The deferred page `/user/history/deferred?date=<LocalDate>&id=<dayLogId>` loads a day-log by `id` and renders a read-only demo form. It also works with only `date` (no `id`), rendering an empty form.
-- **FR-015** The same route structure can represent a week-log day when accessed via `/user/history/week-log-day/:weekId/:dayOrder`. The page must detect the context and switch between DL and WL editing mode.
-- **FR-016** The `WorkoutSessionEditor` can edit a workout session within a deferred day-log or within a week-log day, using the same reusable components (`ExerciseSelector`, `ExtraSessionForm`, `WorkoutEdition`).
+- **FR-014** The deferred page `/user/history/deferred?date=<LocalDate>&id=<dayLogId>` loads a day-log by `id` and renders `WorkoutSessionEditor` to edit its workout session and extra sessions. It also works with only `date` (no `id`), rendering an empty editor.
+- **FR-015** The same page handles a week-log day at `/user/week-log-day/:weekId/:dayOrder`. It detects the context from route/query params and switches between DL and WL editing mode.
+- **FR-016** The `WorkoutSessionEditor` can edit a workout session within a deferred day-log or within a week-log day, using the same reusable components (`ExerciseSelector`, `ExtraSessionForm`, `ExtraSessionCard`, `WorkoutEdition`). The components are shared with the active flow; they do not own container-specific writes.
 - **FR-017** The `onCompleteDay` action in `DayDeferred` flips the day status appropriately: `completed: true, active: false` for DL; pending status for WL (with TODO for backend completion).
-- **FR-018** The editor context (`EditorContext`) is computed from the route query params: if `id` is a day-log ID → `DEFERRED_DAY_LOG`; if `weekLogId` and `dayOrder` are present → `WEEK_LOG_DAY`.
+- **FR-018** The editor context (`EditorContext`) is computed from route params with query-param fallback: `id` (path param on `/user/deferred-day-log/:id`, or query param) → `DEFERRED_DAY_LOG`; `weekId` / `weekLogId` plus `dayOrder` → `WEEK_LOG_DAY`. Otherwise it defaults to `DEFERRED_DAY_LOG` with an empty editor.
+- **FR-019** Extra-session writes from the deferred page target the edited container explicitly: DL uses the loaded day-log / workout-session id and WL uses the route `weekId`. `ExtraSessionForm` only validates and emits `saveExtraSession`; the owning page performs the mutation. No deferred write infers its target from `ActiveTracking`, and no active-day write is performed.
+- **FR-020** Save failures on the deferred page are surfaced to the user; a mutation is never silently ignored.
 
 ### BR: Business Rules
 
 - **BR-019** No active-tracking state is modified when editing a deferred day. The day-log or week-log container state is not persisted or changed.
-- **BR-020** Mutations for DL use the day-log API (`PlanDayApi.updateDayLog` / `createWorkout`), while mutations for WL use the plan-tracking API (`PlanTrackingService`).
+- **BR-020** Mutations are selected by container, not by the active tracking mode: DL uses the day-log API (`PlanDayApi.updateDayLog` with `{ id, workoutSession }` for WS edits and `{ id, extraSession }` for extra-session creates; `extraSessionId` for extra-session deletion), WL uses the week-log API (`WorkoutApi.updateWorkoutSession(workout, weekLogId)` for WS edits and the deferred plan-tracking methods for extra sessions). DL never calls `UpdateWorkoutSession`.
 - **BR-021** The `date` query param is always a `LocalDate` in `yyyy-MM-dd` format. The `id` param, when present, is a day-log ID. The `weekLogId` and `dayOrder` are derived from the route params for WL context.
 - **BR-022** The wrapper for API responses keeps `date` as `yyyy-MM-dd` (no timezone conversion), since the backend already sends LocalDate for deferred days.
 
@@ -40,17 +42,17 @@ The parent component `DayDeferred` (in `day-deferred.ts`) must execute the chang
 
 - The day-log deferred creation path must not write container state, local storage or active tracking (already established in day-log spec FR-013).
 - The WL day editing path must use `PlanTrackingService.findById` to load the week and resolve the day's workout session.
-- The exercise-selector and extra-session form components are **not yet implemented** — they are referenced as dependencies but marked with TODO/placeholder status.
-- The `DayDeferred` must work with only `date` query param (empty demo form) or with both `date` + `id` (day-log) or `date` + `weekLogId` + `dayOrder` (week-log).
+- The reusable editor components already exist and are shared by the active and deferred flows; the deferred page must not introduce active-state dependencies into them.
+- The `DayDeferred` must work with only `date` (empty editor), `date` + `id` (DL), `/user/deferred-day-log/:id` (DL path param), or `weekId` / `weekLogId` + `dayOrder` (WL).
 
 ## Architecture
 
 ```
 DayDeferred (page)
-├── Activates route: reads date, id, weekLogId, dayOrder from query/route params
+├── Activates route: reads date, id, weekId/weekLogId, dayOrder from query/route params
 │   ├── If id exists → context = DEFERRED_DAY_LOG → setEditorContext(DEFERRED_DAY_LOG, id)
-│   ├── If weekLogId + dayOrder exist → context = WEEK_LOG_DAY → setEditorContext(WEEK_LOG_DAY, weekLogId, dayOrder)
-│   └── Otherwise → context = DEFERRED_DAY_LOG (empty form)
+│   ├── If weekId/weekLogId + dayOrder exist → context = WEEK_LOG_DAY → setEditorContext(WEEK_LOG_DAY, weekLogId, dayOrder)
+│   └── Otherwise → context = DEFERRED_DAY_LOG (empty editor)
 ├── EditorContextService (holds containerType, containerId, dayOrder?, weekLogId)
 │   └── Used by WorkoutSessionEditor to determine which API to call
 └── WorkoutSessionEditor (composite component)
@@ -61,10 +63,15 @@ DayDeferred (page)
             └── Emits saveExtraSession / cancelExtraSession events
 
 Mutations:
-- DL: PlanDayService → PlanDayDomainService → PlanDayApi.updateWorkoutSession (WorkoutSessionVM)
-  - Returns updated WorkoutSessionVM; no state/storage writes
+- DL WS: PlanDayService.updateWorkoutSession(workout, { updateActiveState: false })
+  → PlanDayDomainService → PlanDayApi.updateDayLog({ id, workoutSession })
+  - Persists the full WS (id, exercises, status); no state/storage writes
+- DL extra sessions: PlanDayService.{updateExtraSessionDeferred,removeExtraSessionDeferred}
+  → PlanDayApi with the explicit day-log id for creates (`UpdateDayLogInput.id`) and the
+  extra-session id for deferred deletions (`RemoveExtraSessionFromDeferredDayLog($extraSessionId)`)
 - WL: PlanTrackingService.findById → resolves week → day workout session
-  - onSave: facade update via store (local-only, no parent week-log mutation needed unless backend supports it)
+  - onSave: WorkoutApi.updateWorkoutSession(workout, weekLogId) with the id from the route context (no store/active-state write)
+  - Extra sessions: PlanTrackingService.{updateExtraSessionDeferred,removeExtraSessionDeferred} with the route week-log id
   - onCompleteDay: TODO for backend completion of WL day
 ```
 
@@ -79,7 +86,7 @@ Modified (existing):
 - src/app/pages/user/history/day-deferred/day-deferred.html — header/CTA based on containerType
 - src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.ts — data loading, onSave/onCompleteDay branching, output events
 - src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.html — context labeling, header, loading indicator, orchestrator host
-- src/app/shared/components/widgets/tracking/workout-session-editor/orchestrator.component.ts — coordination of ExerciseSelector, WorkoutEdition, ExtraSessionForm with proper signals & event bindings
+- src/app/shared/components/widgets/tracking/workout-session-editor/workout-session-editor.html — coordination of ExerciseSelector, WorkoutEdition, ExtraSessionForm and ExtraSessionCard with signals & event bindings
 - src/app/shared/components/widgets/tracking/tracking-workout/workout-edition/workout-edition.html — cleanup legacy selector dialog
 - src/app/core/services/editor-context/editor-context.interface.ts — already has required fields, no change needed
 - src/app/core/services/editor-context/editor-context.service.ts — already has loadDeferredDayLogSession and loadWeekLogDaySession, no change needed
@@ -88,21 +95,24 @@ Modified (existing):
 
 ## Tests
 
-- **TEST-xxx**: Context detection in DayDeferred ngOnInit with all param combinations (id only, weekLogId+dayOrder only, only date)
-- **TEST-xxx**: onSave() branching logic for DEFERRED_DAY_LOG vs WEEK_LOG_DAY
-- **TEST-xxx**: onCompleteDay() correct behavior per containerType
-- **TEST-xxx**: No state/storage modifications (BR-019) when editing deferred day
-- **TEST-xxx**: Header text switches between DL and WL contexts
-- **Existing tests**: `npm run test:ci` must maintain 764/764 passing (pre-existing coverage)
+- **TEST-001** Context detection in `DayDeferred.ngOnInit` for `id` query param, `/user/deferred-day-log/:id`, `weekId` / `weekLogId` + `dayOrder`, and date-only (FR-015, FR-018).
+- **TEST-002** `onSave` branching: DL calls `updateDayLog({ id, workoutSession })` and WL calls `WorkoutApi.updateWorkoutSession(workout, weekLogId)` (FR-014, BR-020).
+- **TEST-003** Deferred extra-session writes use the explicit container id and never create the extra-session on the active day (FR-019).
+- **TEST-004** `onCompleteDay` correct behavior per `containerType` (FR-017).
+- **TEST-005** No active-tracking state, active day-log state or local storage write occurs when editing a deferred day (BR-019, NFR-003).
+- **TEST-006** Header text switches between DL and WL contexts.
+- **TEST-007** A failed save is surfaced in the editor (FR-020).
 
 ## Acceptance Criteria
 
-- [ ] The deferred page `/user/history/deferred?date=...&id=...` loads a day-log and renders the read-only demo form with date, status, completed, notes, exercises, extra sessions.
-- [ ] The same route with only `date` renders an empty demo form ("Sin ejercicios").
-- [ ] The route `/user/history/week-log-day/:weekId/:dayOrder` loads the week-log day and allows WS editing via the same `WorkoutSessionEditor`.
-- [ ] The header and CTA text switch between "Día diferido" / "Editor de Sesión de Día-Log Diferido" and "Día de semana" / "Editor de Día dentro de Semana" based on context.
-- [ ] The `onSave` action works for both DL and WL contexts, using the appropriate API mutation (DL: `updateDayLog`; WL: local store update, TODO for backend).
+- [ ] The deferred page `/user/history/deferred?date=...&id=...` loads a day-log and renders `WorkoutSessionEditor` with its exercises and extra sessions.
+- [ ] The same route with only `date` renders an empty editor ("Sin ejercicios").
+- [ ] The route `/user/week-log-day/:weekId/:dayOrder` loads the week-log day and allows WS editing via the same `WorkoutSessionEditor`.
+- [ ] The header text switches between "Día diferido" (DL) and "Día de semana" (WL) based on context.
+- [ ] The `onSave` action works for both DL and WL contexts, using the appropriate API mutation (DL: `updateDayLog`; WL: `updateWorkoutSession` with the route `weekLogId`).
 - [ ] The `onCompleteDay` action flips the day status appropriately: DL → `completed: true, active: false`; WL → pending (TODO for backend).
-- [ ] No active-tracking state (`setDayLog`, `markDayActive`, etc.) is modified when editing a deferred day.
-- [ ] The exercise-selector and extra-session form are referenced as dependencies; their implementation is tracked in a separate spec/plan.
-- [ ] All quality gates pass: `npm run typecheck`, `npm run lint`, `npm run test:ci`, `npm run build`.
+- [ ] No active-tracking state, active day-log state or local storage is modified when editing a deferred day.
+- [ ] Adding an extra-session in a deferred day creates it only in that deferred container; the active day remains unchanged.
+- [x] Deleting an extra-session from a deferred day sends `extraSessionId` through `RemoveExtraSessionFromDeferredDayLog` and does not write to the active container.
+- [ ] Save failures are visible in the editor.
+- [ ] All quality gates pass: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run test:ci`, `npm run build`.

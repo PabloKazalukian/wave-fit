@@ -28,6 +28,11 @@ export class EditorContextService {
         return this.context;
     }
 
+    /** Limpiar el contexto al abandonar la página (llamado en ngOnDestroy). */
+    clearContext(): void {
+        this.context = {} as EditorContext;
+    }
+
     /** Determina si el contexto es de día-log diferido. */
     isDeferredDayLog(): boolean {
         return this.context.containerType === 'DEFERRED_DAY_LOG';

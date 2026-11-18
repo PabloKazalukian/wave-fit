@@ -78,7 +78,9 @@ describe('WorkoutStateService (TEST-006)', () => {
             setRestDay: jasmine.createSpy('setRestDay').and.returnValue(of(null)),
             setRemoveAllExercises: jasmine.createSpy('setRemoveAllExercises'),
             updateWorkoutStatus: jasmine.createSpy('updateWorkoutStatus'),
-            updateWorkoutSession: jasmine.createSpy('updateWorkoutSession'),
+            updateWorkoutSession: jasmine
+                .createSpy('updateWorkoutSession')
+                .and.returnValue(of(buildWorkout())),
             removeWorkoutSession: jasmine
                 .createSpy('removeWorkoutSession')
                 .and.returnValue(of(true)),

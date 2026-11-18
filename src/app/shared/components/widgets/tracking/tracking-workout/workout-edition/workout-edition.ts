@@ -1,4 +1,13 @@
-import { Component, Input, Output, OnInit, EventEmitter, signal } from '@angular/core';
+﻿import {
+    Component,
+    Input,
+    Output,
+    OnInit,
+    OnChanges,
+    SimpleChanges,
+    EventEmitter,
+    signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormArray, FormControl } from '@angular/forms';
 import {
@@ -18,22 +27,28 @@ interface SetsFormVM {
     imports: [CommonModule, ReactiveFormsModule, BtnComponent],
     templateUrl: './workout-edition.html',
 })
-export class WorkoutEdition implements OnInit {
+export class WorkoutEdition implements OnInit, OnChanges {
     @Input() workoutSession!: WorkoutSessionVM;
     @Input() exercises: ExercisePerformanceVM[] = [];
     @Output() saveWorkoutSession = new EventEmitter<WorkoutSessionVM>();
     @Output() closeEdition = new EventEmitter<void>();
+    @Output() exercisesChange = new EventEmitter<ExercisePerformanceVM[]>();
 
     workoutForm!: FormGroup;
     isDialogOpen = signal<boolean>(false);
 
     constructor() {
-        // Removed facade-dependent effect from constructor
         console.log(this.workoutSession);
     }
 
     ngOnInit(): void {
         this.initForm();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['exercises'] && this.workoutForm) {
+            this.initForm();
+        }
     }
 
     initForm() {
@@ -88,9 +103,8 @@ export class WorkoutEdition implements OnInit {
     removeExercise(index: number): void {
         const id = this.exerciseFormArray.at(index).get('exerciseId')?.value;
         const updated = this.exercises.filter((e) => e.exerciseId !== id);
-        this.exercises = updated;
-        // Emit updated exercises via output instead of facade store
-        // Parent/orchestrator will handle the save
+        this.exercisesChange.emit(updated);
+        this.initForm();
     }
 
     openDialog(): void {
@@ -108,8 +122,6 @@ export class WorkoutEdition implements OnInit {
 
         if (!currentWorkout) return;
 
-        // Use the forms value directly but merge from the source facade items
-        // Since we allow adding new exercises from the selector, we MUST use formValue.exercises as the base.
         const updatedExercises: ExercisePerformanceVM[] = formValue.exercises.map(
             (fe: ExercisePerformanceVM) => {
                 const existingEx: ExercisePerformanceVM | undefined = currentWorkout.exercises.find(
@@ -123,10 +135,14 @@ export class WorkoutEdition implements OnInit {
                     }),
                 );
 
+                // Always include form values (exerciseId, name, usesWeight) then override with existing for extra props
                 return {
-                    ...existingEx, // Keep original properties like category, muscle, etc.
+                    exerciseId: fe.exerciseId,
+                    name: fe.name,
+                    usesWeight: fe.usesWeight,
+                    ...existingEx, // Override with existing: category, muscle, etc.
                     sets: mappedSets,
-                    series: mappedSets.length, // Always sync series with actual sets count
+                    series: mappedSets.length,
                 };
             },
         );
@@ -134,7 +150,7 @@ export class WorkoutEdition implements OnInit {
         const updatedWorkout: WorkoutSessionVM = {
             ...currentWorkout,
             exercises: updatedExercises,
-            status: 'complete', // Explicitly return to complete
+            status: 'complete',
         };
 
         this.saveWorkoutSession.emit(updatedWorkout);

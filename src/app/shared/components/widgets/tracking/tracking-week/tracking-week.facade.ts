@@ -5,6 +5,8 @@ import { PlanTrackingService } from '../../../../../core/services/trackings/plan
 import { WorkoutStateService } from '../../../../../core/services/workouts/workout.state';
 import { StatusWorkoutSessionEnum, TrackingVM } from '../../../../interfaces/tracking.interface';
 import { PlansApiService } from '../../../../../core/services/plans/api/plans.api';
+import { ExtraSessionService } from '../../../../../core/services/extra-session/extra-session.service';
+import { ExtraSessionFormValue } from '../../../../interfaces/extra-session.interface';
 import { catchError, map, of, switchMap } from 'rxjs';
 
 @Injectable()
@@ -14,6 +16,7 @@ export class TrackingWeekFacade {
     private readonly state = inject(WorkoutStateService);
     private readonly trackingSvc = inject(PlanTrackingService);
     private readonly planApi = inject(PlansApiService);
+    private readonly extraSessionSvc = inject(ExtraSessionService);
 
     showExtraSessionDialog = signal(false);
 
@@ -83,5 +86,16 @@ export class TrackingWeekFacade {
 
     updateTracking(tracking: TrackingVM | null) {
         this.tracking.set(tracking);
+    }
+
+    /** Active-owner of extra-session creation (T5): the shared form only emits. */
+    createExtraSession(value: ExtraSessionFormValue): void {
+        this.extraSessionSvc
+            .create(this.extraSessionSvc.toCreateInput(value))
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => this.showExtraSessionDialog.set(false),
+                error: (err) => console.error('[TrackingWeek] Error saving extra session:', err),
+            });
     }
 }

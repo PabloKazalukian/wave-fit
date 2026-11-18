@@ -1,6 +1,6 @@
 import { signal, Signal } from '@angular/core';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { DayLogVM } from '../../../shared/interfaces/day-log.interface';
 import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session.interface';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
@@ -26,6 +26,7 @@ describe('PlanDayService', () => {
         setRestDay: jasmine.Spy;
         updateExercises: jasmine.Spy;
         updateWorkoutSession: jasmine.Spy;
+        updateWorkoutSessionDeferred: jasmine.Spy;
         completeDayLog: jasmine.Spy;
         removeWorkoutSession: jasmine.Spy;
         removeExtraSession: jasmine.Spy;
@@ -95,6 +96,7 @@ describe('PlanDayService', () => {
             setRestDay: jasmine.createSpy('setRestDay'),
             updateExercises: jasmine.createSpy('updateExercises'),
             updateWorkoutSession: jasmine.createSpy('updateWorkoutSession'),
+            updateWorkoutSessionDeferred: jasmine.createSpy('updateWorkoutSessionDeferred'),
             completeDayLog: jasmine.createSpy('completeDayLog'),
             removeWorkoutSession: jasmine.createSpy('removeWorkoutSession'),
             removeExtraSession: jasmine.createSpy('removeExtraSession'),
@@ -236,10 +238,45 @@ describe('PlanDayService', () => {
         state.getDayLogValue.and.returnValue(day);
         domain.updateWorkoutSession.and.returnValue(of({ ...workout, exercises: [exercise] }));
 
-        service.updateWorkoutSession(workout);
+        service.updateWorkoutSession(workout).subscribe();
 
         expect(domain.updateWorkoutSession).toHaveBeenCalledWith(workout);
         expect(state.updateDayLog).toHaveBeenCalledTimes(1);
+    });
+
+    it('updateWorkoutSession skips the active state refresh when updateActiveState is false', () => {
+        state.getDayLogValue.and.returnValue(buildDayLog());
+        domain.updateWorkoutSession.and.returnValue(of(workout));
+
+        service.updateWorkoutSession(workout, { updateActiveState: false }).subscribe();
+
+        expect(domain.updateWorkoutSession).toHaveBeenCalledWith(workout);
+        expect(state.updateDayLog).not.toHaveBeenCalled();
+    });
+
+    it('updateWorkoutSession exposes the mutation error without refreshing the active state', () => {
+        state.getDayLogValue.and.returnValue(buildDayLog());
+        domain.updateWorkoutSession.and.returnValue(throwError(() => new Error('network')));
+        const onError = jasmine.createSpy('onError');
+
+        service.updateWorkoutSession(workout).subscribe({ error: onError });
+
+        expect(onError).toHaveBeenCalled();
+        expect(state.updateDayLog).not.toHaveBeenCalled();
+    });
+
+    it('updateWorkoutSessionDeferred delegates without touching active state or storage', () => {
+        state.getDayLogValue.calls.reset();
+        domain.updateWorkoutSessionDeferred.and.returnValue(
+            of(buildDayLog({ id: 'deferred-day' })),
+        );
+
+        service.updateWorkoutSessionDeferred('deferred-day', workout).subscribe();
+
+        expect(domain.updateWorkoutSessionDeferred).toHaveBeenCalledWith('deferred-day', workout);
+        expect(state.getDayLogValue).not.toHaveBeenCalled();
+        expect(state.updateDayLog).not.toHaveBeenCalled();
+        expect(storage.setDayLogStorage).not.toHaveBeenCalled();
     });
 
     it('getWorkout maps the day status to the workout status', () => {

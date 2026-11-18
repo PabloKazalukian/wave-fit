@@ -2,7 +2,7 @@
 
 ## Context
 
-The training history is a calendar view that lists completed/pending training days across week-logs and day-logs. It lives under `/user/history`. Calendar and preview data are read-only; the only write action is creating a **deferred day-log** for a past day with no container (FR-012).
+The training history is a calendar view that lists completed/pending training days across week-logs and day-logs. It lives under `/user/history`. Calendar and preview data are read-only; writes are limited to creating a **deferred day-log** for a past day with no container (FR-012) and editing an existing deferred day through `WorkoutSessionEditor` (FR-013).
 
 ## Requirements
 
@@ -20,7 +20,7 @@ The training history is a calendar view that lists completed/pending training da
 - **FR-010** When the preview shows a `WEEK_LOG` day whose parent week is active (`DayPreview.active`), an extra CTA "Ver mi semana" (raised, primary) is rendered next to "Ver semana"; both navigate to `/user/trackings/:id`. Non-active weeks keep only "Ver semana".
 - **FR-011** The preview renders each day's extra sessions at the end of the workout-session exercise list, **read-only**, using the shared `extra-session-show` widget (no edit/delete). Discipline labels are resolved from the `extraSessionCatalog` cache (`ExtraSessionService.catalog$` / `loadCatalog`), which the page loads once. An empty `DayPreview.id` (extras-only day-log without a `dayLogId`) hides the header CTA instead of building a broken link.
 - **FR-012** A selected past date (strictly before today in the user timezone) with no `dayLogId` and no `weekLogReference` offers the "Agregar día" button below the calendar. Clicking it calls `PlanDayService.createDayLogDeferred(date)` immediately (no navigation), disables the button while pending, shows a success or error notification, reloads the current month from the backend and re-selects the created date. The created day opens in the preview in its empty state (FR-008) and the creation CTA disappears. Today and future dates do not show the CTA.
-- **FR-013** The deferred edit page `/user/history/deferred?date=<LocalDate>&id=<dayLogId>` loads the day-log by id and renders a read-only demo form with simple labels (date, status, completed, notes, exercises, extra sessions). It also works with only `date` (no day-log loaded). Persisting changes from this page is out of scope for this iteration.
+- **FR-013** The deferred edit page allows editing past training sessions for both `DEFERRED_DAY_LOG` (`/user/history/deferred?date=<LocalDate>&id=<dayLogId>` or `/user/deferred-day-log/:id`) and `WEEK_LOG_DAY` (`/user/week-log-day/:weekId/:dayOrder?date=<LocalDate>`). It loads the day data, renders the decoupled `WorkoutSessionEditor` coordinator, and manages workout sessions and extra sessions (create, inline edit, delete via `ExtraSessionCard`). Writes are deferred-safe and selected by container, not by `ActiveTracking`: `DEFERRED_DAY_LOG` workout updates persist through `updateDayLog({ id, workoutSession })` via `PlanDayService.updateWorkoutSession(workout, { updateActiveState: false })`, extra-session updates/deletions use `PlanDayService.updateExtraSessionDeferred` / `removeExtraSessionDeferred` with the explicit loaded day-log id for creates and the extra-session id for deletions (`RemoveExtraSessionFromDayLog($extraSessionId)`); `WEEK_LOG_DAY` workout updates route to `WorkoutApi.updateWorkoutSession(workout, weekLogId)` using the week-log id from the route, and extra-session updates/deletions use `PlanTrackingService.updateExtraSessionDeferred` / `removeExtraSessionDeferred`. A workout without an id is rejected before any mutation and surfaces an error. Neither path mutates active tracking state, active day-log state, or local storage, and an extra-session created here is never written to the active day. Save failures are surfaced in the editor. Context state is cleared on page destruction (`EditorContextService.clearContext`).
 
 ### BR
 
@@ -52,7 +52,11 @@ The page is a **thin orchestrator** (see `documents/engineering/coding-standards
  └── TrainingHistoryDayPreview (app-training-history-day-preview) — day detail panel, CTA, edit action, detail loading/error/retry
 
 /user/history/deferred → DayDeferred (app-day-deferred) — deferred edit page
- └── DayDeferredForm (app-day-deferred-form) — read-only demo form (date, status, completed, notes, exercises, extra sessions)
+ └── WorkoutSessionEditor (app-workout-session-editor) — decoupled coordinator
+      ├── WorkoutEdition (app-workout-edition) — exercise set/rep editor
+      ├── ExerciseSelector (app-exercise-selector) — catalog picker
+      ├── ExtraSessionForm (app-extra-session-form) — add extra activity modal
+      └── ExtraSessionCard (app-extra-session-card) — list, inline edit, delete extra sessions
 ```
 
 - `TrainingHistoryCalendar` receives `days`, `year`, `month` (0-based),
@@ -72,9 +76,11 @@ The page is a **thin orchestrator** (see `documents/engineering/coding-standards
   success/error toast via the shared `app-notification`. The domain/state/
   storage layers of the day-log are **not** touched (no active container is
   changed).
-- The deferred page (FR-013) reads `date`/`id` from `ActivatedRoute` query
-  params, calls `PlanDayService.findById(id)` when `id` is present and delegates
-  rendering to `DayDeferredForm`; it has no save action.
+- The deferred page (FR-013) resolves the container from `ActivatedRoute` (`id`
+  for DL, `weekId` / `weekLogId` + `dayOrder` for WL, with query-param fallback),
+  loads it via `PlanDayService.findById` or `PlanTrackingService.findById`,
+  delegates rendering to `WorkoutSessionEditor`, and routes its save outputs to
+  the mutation for the resolved container. It uses no active state or storage.
 
 **Note:** The component class is named `History` (not `HistoryComponent` as previously spec'd). The service depends on `AuthService` and uses `handleGraphqlError` for error handling.
 
@@ -177,7 +183,7 @@ src/app/pages/user/history/day-deferred/  (day-deferred.ts, .html, .spec.ts — 
 - Deferred day creation (FR-012): the "Agregar día" button creates the day-log via `PlanDayService.createDayLogDeferred`, shows a toast, reloads the month and re-selects the created date; the empty preview opens with the placeholder and the creation CTA disappears.
 - Empty `DAY_LOG` previews (FR-008): a day-log with a `dayLogId` always opens the preview, even with zero exercises and zero extra sessions.
 - "Editar día" (FR-008): `DAY_LOG` previews with an id render a footer action to `/user/history/deferred?date=...&id=...`.
-- Deferred edit page (FR-013): `/user/history/deferred` reads `date`/`id`, loads the day-log by id and renders a read-only demo form; date-only renders an empty form.
+- Deferred edit page (FR-013): `/user/history/deferred` reads `date`/`id`, loads the day-log by id and renders `WorkoutSessionEditor` for WS/extra-session editing; date-only renders an empty editor.
 
 ### What does NOT work
 
@@ -203,8 +209,9 @@ src/app/pages/user/history/day-deferred/  (day-deferred.ts, .html, .spec.ts — 
 - **TEST-009** Day-preview widget (`day-detail-preview.spec.ts`): a preview with `extraSessions` renders them after the exercises; without extras renders none; an empty `preview.id` hides the header CTA (FR-011).
 - **TEST-010** Page (`history.spec.ts`) and calendar widget (`calendar.spec.ts`): a day with empty exercises but with extras opens the preview showing the extras only; a `REST` week-log day with extras opens it too; a `REST`/empty day without extras does not; an extras-only day-log without `dayLogId` opens a CTA-less preview (FR-007/FR-008/FR-011).
 - **TEST-011** Day-preview widget (`day-detail-preview.spec.ts`): "Editar día" is rendered for `DAY_LOG` previews with an id and links to `/user/history/deferred?date=...&id=...`; it is absent for `WEEK_LOG`; an empty day-log renders the placeholder (FR-008).
-- **TEST-012** Deferred page (`day-deferred.spec.ts`): reads `date` + `id`, loads the day-log, renders the read-only labels, handles date-only, invalid date and fetch errors with retry (FR-013).
+- **TEST-012** Deferred page (`day-deferred.spec.ts`): reads `date` + `id`, loads the day-log, renders `WorkoutSessionEditor`, handles date-only, invalid date and fetch errors with retry (FR-013).
 - **TEST-013** Deferred creation chain (`plan-day.domain.spec.ts`, `plan-day.service.spec.ts`, `day-log.wrapper.spec.ts`): `createDayLogDeferred` sends `{ date }`, does not touch state/storage/active tracking, and the wrapper keeps `yyyy-MM-dd` dates without timezone conversion (FR-012).
+- **TEST-014** Deferred edit page (`day-deferred.spec.ts` + API specs): DL saves through `UpdateDayLog` and WL through `UpdateWorkoutSession(weekLogId)`; extra-session writes target only the edited deferred container (`UpdateDayLogInput.id` for creates) and delete uses `extraSessionId` through `RemoveExtraSessionFromDeferredDayLog` (FR-013).
 
 **Note:** The previous `training-history.spec.ts` (broken import of nonexistent `./training-history`) was removed; service coverage lives in `training-history.service.spec.ts`. The page and widget specs are `history.spec.ts`, `calendar.spec.ts`, `day-detail-preview.spec.ts`.
 
@@ -215,4 +222,5 @@ src/app/pages/user/history/day-deferred/  (day-deferred.ts, .html, .spec.ts — 
 - **AC-003** Clicking a calendar day opens the corresponding detail page via the preview panel below the calendar. ✅
 - **AC-004** The preview shows each day's extra sessions read-only at the end of the workout-session list; a day with only extra sessions still opens its preview. ✅
 - **AC-005** A past empty day can be created as a deferred day-log from the calendar; the user gets feedback, the month reloads and the empty day opens in the preview. ✅
-- **AC-006** A `DAY_LOG` preview offers "Editar día", which opens the deferred page with the day's read-only data. ✅
+- **AC-006** A `DAY_LOG` preview offers "Editar día", which opens the deferred page with the day's data. ✅
+- **AC-007** Deferred edits persist through the mutation for the resolved container and leave the active day, active state and local storage unchanged.

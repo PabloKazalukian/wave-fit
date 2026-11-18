@@ -33,7 +33,7 @@ export interface WorkoutStore {
     ): Observable<unknown>;
     setRemoveAllExercises(date: LocalDate): void;
     updateWorkoutStatus(date: LocalDate, status: StatusWorkoutSession): void;
-    updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): void;
+    updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): Observable<unknown>;
     removeWorkoutSession(date: LocalDate, id: string): Observable<boolean>;
     createWorkoutWithRoutine(routineDayId: string, date: LocalDate): Observable<unknown>;
     createRoutineFromWorkout(

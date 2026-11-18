@@ -1,6 +1,7 @@
 import { Component, DestroyRef, computed, effect, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { of, Subject, switchMap, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
     LucideAngularModule,
     LucideIconData,
@@ -21,7 +22,6 @@ import {
 import { ExtraSessionApi } from '../../../../../../core/services/extra-session/api/extra-session.api';
 import { UserProfileService } from '../../../../../../core/services/user/user-profile.service';
 import { ExerciseCategoryPipe } from '../../../../../pipes/exercise-category.pipe';
-import { Loading } from '../../../../ui/loading/loading';
 
 const MET_BODYWEIGHT = 3.8;
 const MET_STRENGTH = 5.0;
@@ -35,6 +35,8 @@ const EXTRA_CATEGORY_MET: Record<ExtraSessionCategory, number> = {
     SPORT: 7.5,
     MIND_BODY: 3.5,
 };
+
+const DEBOUNCE_MS = 300;
 
 interface DayStatsRow {
     label: string;
@@ -59,9 +61,12 @@ interface DaySummary {
 @Component({
     selector: 'app-workout-day-stats',
     standalone: true,
-    imports: [CommonModule, LucideAngularModule, Loading],
+    imports: [CommonModule, LucideAngularModule],
     templateUrl: './workout-day-stats.html',
     styles: ``,
+    host: {
+        class: 'block min-h-[160px]', // Fixed minimum height to prevent layout shift
+    },
 })
 export class WorkoutDayStats {
     readonly ChevronLeftIcon = ChevronLeft;
@@ -73,12 +78,12 @@ export class WorkoutDayStats {
     private extraApi = inject(ExtraSessionApi);
     private destroyRef = inject(DestroyRef);
     private categoryPipe = new ExerciseCategoryPipe();
-    private pendingSub?: Subscription;
     private requestId = 0;
 
     isLoading = signal(true);
     currentSlide = signal(0);
     extras = signal<ExtraSession[]>([]);
+    private debounceSubject = new Subject<string[]>();
 
     sections = computed<DayStatsSection[]>(() => {
         const workout = this.workout();
@@ -105,35 +110,48 @@ export class WorkoutDayStats {
     });
 
     constructor() {
-        this.destroyRef.onDestroy(() => this.pendingSub?.unsubscribe());
+        this.destroyRef.onDestroy(() => this.debounceSubject.complete());
 
-        effect(() => {
-            const ids = this.workout()?.extras ?? [];
-            const id = ++this.requestId;
+        // Debounced effect for fetching extras
+        this.debounceSubject
+            .pipe(
+                debounceTime(DEBOUNCE_MS),
+                distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+                switchMap((ids) => {
+                    this.isLoading.set(true);
+                    this.currentSlide.set(0);
+                    const requestId = ++this.requestId;
 
-            this.isLoading.set(true);
-            this.currentSlide.set(0);
+                    if (!ids.length) {
+                        return of({ sessions: [] as ExtraSession[], requestId });
+                    }
 
-            if (!ids.length) {
-                if (id !== this.requestId) return;
-                this.extras.set([]);
-                this.isLoading.set(false);
-                return;
-            }
-
-            this.pendingSub?.unsubscribe();
-            this.pendingSub = this.extraApi.getByIds(ids).subscribe({
-                next: (sessions) => {
-                    if (id !== this.requestId) return;
+                    return this.extraApi.getByIds(ids).pipe(
+                        takeUntil(this.debounceSubject),
+                        // Map to include requestId for validation
+                        switchMap((sessions) => of({ sessions, requestId })),
+                    );
+                }),
+            )
+            .subscribe({
+                next: ({ sessions, requestId }) => {
+                    // Only update if this is the latest request
+                    if (requestId !== this.requestId) return;
                     this.extras.set(sessions);
                     this.isLoading.set(false);
                 },
                 error: () => {
-                    if (id !== this.requestId) return;
+                    // Only update if this is the latest request (errors don't carry requestId, so check current)
+                    // The takeUntil will cancel previous requests, so this error is from the latest
                     this.extras.set([]);
                     this.isLoading.set(false);
                 },
             });
+
+        // React to workout input changes
+        effect(() => {
+            const ids = this.workout()?.extras ?? [];
+            this.debounceSubject.next(ids);
         });
     }
 

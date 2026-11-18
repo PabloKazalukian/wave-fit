@@ -1,6 +1,6 @@
 import { signal, WritableSignal } from '@angular/core';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
 import {
     ExercisePerformanceVM,
@@ -297,10 +297,22 @@ describe('PlanTrackingService', () => {
                 exercises: [],
                 status: StatusWorkoutSessionEnum.COMPLETE,
             });
-            service.updateWorkoutSession('2026-05-01', updated);
+            service.updateWorkoutSession('2026-05-01', updated).subscribe();
 
             expect(domain.updateWorkoutSession).toHaveBeenCalledWith('2026-05-01', updated);
             expect(tracking?.workouts?.[0]).toEqual(updated);
+        });
+
+        it('exposes the mutation error without updating the local cache', () => {
+            domain.updateWorkoutSession.and.returnValue(throwError(() => new Error('network')));
+            const onError = jasmine.createSpy('onError');
+
+            service
+                .updateWorkoutSession('2026-05-01', buildWorkout())
+                .subscribe({ error: onError });
+
+            expect(onError).toHaveBeenCalled();
+            expect(tracking?.workouts?.[0].id).toBe('ws-1');
         });
     });
 

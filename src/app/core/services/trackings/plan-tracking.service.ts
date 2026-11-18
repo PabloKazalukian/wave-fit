@@ -1,7 +1,7 @@
 import { DestroyRef, effect, inject, Injectable } from '@angular/core';
 import { PlanTrackingDomainService } from './plan-tracking.domain';
 import { PlanTrackingStateService } from './plan-tracking.state';
-import { debounceTime, filter, finalize, map, Observable, Subject, switchMap, tap } from 'rxjs';
+import { debounceTime, filter, finalize, map, Observable, of, Subject, switchMap, tap } from 'rxjs';
 import {
     ExercisePerformanceVM,
     LocalDate,
@@ -270,6 +270,26 @@ export class PlanTrackingService {
         );
     }
 
+    /**
+     * Actualiza una extra-session de un día de week-log diferido (histórico).
+     * No toca el state activo ni storage (BR-019, BR-020).
+     */
+    updateExtraSessionDeferred(
+        weekLogId: string,
+        dayOrder: number,
+        extraSession: CreateExtraSessionForm,
+    ): Observable<unknown> {
+        return this.domain.updateExtraSessionDeferred(weekLogId, dayOrder, extraSession);
+    }
+
+    /**
+     * Elimina una extra-session de un día de week-log diferido (histórico).
+     * No toca el state activo ni storage (BR-019, BR-020).
+     */
+    removeExtraSessionDeferred(date: LocalDate, extraSessionId: string): Observable<unknown> {
+        return this.domain.removeExtraSessionDeferred(date, extraSessionId);
+    }
+
     updateWorkoutStatus(date: LocalDate, status: StatusWorkoutSession) {
         const tracking = this.state.getTrackingValue();
         if (!tracking) return;
@@ -278,18 +298,17 @@ export class PlanTrackingService {
         this._updateWorkout(date, (workout) => ({ ...workout, status }));
     }
 
-    updateWorkoutSession(date: LocalDate, workout: WorkoutSessionVM): void {
-        // Call API
-        this.domain
-            .updateWorkoutSession(date, workout)
-            ?.pipe(
-                takeUntilDestroyed(this.destroyRef),
-                finalize(() => {
-                    // Update local cache
-                    this._updateWorkout(date, () => workout);
-                }),
-            )
-            .subscribe();
+    updateWorkoutSession(
+        date: LocalDate,
+        workout: WorkoutSessionVM,
+    ): Observable<WorkoutSessionVM | null> {
+        return (this.domain.updateWorkoutSession(date, workout) ?? of(null)).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            tap((res) => {
+                if (!res) return;
+                this._updateWorkout(date, () => workout);
+            }),
+        );
     }
 
     completeTracking(complete: boolean): Observable<TrackingVMS | null> {

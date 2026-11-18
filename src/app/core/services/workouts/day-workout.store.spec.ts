@@ -72,7 +72,9 @@ describe('DayWorkoutStore', () => {
             setRestDay: jasmine.createSpy('setRestDay').and.returnValue(of(buildDayLog())),
             setRemoveAllExercises: jasmine.createSpy('setRemoveAllExercises'),
             updateWorkoutStatus: jasmine.createSpy('updateWorkoutStatus'),
-            updateWorkoutSession: jasmine.createSpy('updateWorkoutSession'),
+            updateWorkoutSession: jasmine
+                .createSpy('updateWorkoutSession')
+                .and.returnValue(of(workout)),
             removeWorkoutSession: jasmine
                 .createSpy('removeWorkoutSession')
                 .and.returnValue(of(buildDayLog())),
@@ -217,9 +219,12 @@ describe('DayWorkoutStore', () => {
         expect(planDaySvc.updateWorkoutStatus).toHaveBeenCalledWith('pending');
     });
 
-    it('updateWorkoutSession delegates to the facade', () => {
-        store.updateWorkoutSession('2026-05-01', workout);
+    it('updateWorkoutSession returns the save observable from PlanDayService', () => {
+        const saved = jasmine.createSpy('saved');
+        store.updateWorkoutSession('2026-05-01', workout).subscribe(saved);
+
         expect(planDaySvc.updateWorkoutSession).toHaveBeenCalledWith(workout);
+        expect(saved).toHaveBeenCalledWith(workout);
     });
 
     it('removeWorkoutSession maps the result to a boolean', () => {
