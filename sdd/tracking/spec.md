@@ -15,7 +15,7 @@ Week-log tracking records one executed week of training (TRACKING branch). A `Tr
 - **FR-005** Exercises are edited via `setExercises(date, exercises)` with `debounceTime(4000)` persistence; offline edits enqueue `UpdateWeekLogDay`.
 - **FR-006** Day status transitions: `setRestDay(day, workout, desiredStatus)` (REST/NOT_STARTED), `updateWorkoutStatus(date, status)` (COMPLETE/EDITED/REST). **Note:** `updateWorkoutStatus` (EDITED/COMPLETE) only updates local state + localStorage; it does NOT persist to the API. Only the REST/NOT_STARTED branch persists via `setRestDay` → `updateDayWorkoutStatus`.
 - **FR-007** Extra sessions are added/removed through `updateExtraSession(date, form)` / `removeExtraSession(date, id)` (week-log day payload).
-- **FR-008** `updateWorkoutSession(date, workout)` persists a full edited workout via `WorkoutApi`. The active week-log flow reaches it through `WORKOUT_STORE` → `PlanTrackingService`; the deferred week-log page calls `WorkoutApi.updateWorkoutSession(workout, weekLogId)` directly with the id from the route context, so no active tracking state is required.
+- **FR-008** `updateWorkoutSession(date, workout)` persists a full edited workout via `WorkoutApi` and the `UpdateWorkoutSession` mutation. The active week-log flow reaches it through `WORKOUT_STORE` → `PlanTrackingService`; the deferred week-log page calls `WorkoutApi.updateWorkoutSession(workout, weekLogId)` directly with the id from the route context, so no active tracking state is required. This mutation is **week-log-only**: day-log edits use `UpdateDayLog` (`sdd/day-log/spec.md` FR-005, FR-014).
 - **FR-009** `setRemoveAllExercises(date)` / `removeWorkoutSession(date, id)` clear the day.
 - **FR-010** `completeTracking(complete)` closes the week (`completed`, `active:false`), pads the 7 days, clears state/storage, and redirects to `/my-week/success`.
 - **FR-011** `createRoutineFromWorkout(title, exerciseIds)` creates a routine from a workout.
@@ -208,6 +208,7 @@ src/app/shared/components/widgets/tracking/  (tracking-week, tracking-day, track
 - **TEST-004** `completeTracking` deactivates + cleans state/storage. ✅ (`plan-tracking.domain.spec.ts`)
 - **TEST-005** Wrappers convert ISO → `LocalDate` per user timezone. ✅ (`tracking.wrapper.spec.ts`)
 - **TEST-006** `WorkoutStateService` satisfies the `WorkoutStore` contract (week mode). ✅ (`workout.state.spec.ts`)
+- **TEST-007** Active and deferred week-log WS edits call `UpdateWorkoutSession` with `weekLogId`; the deferred path does not write active state or storage (FR-008).
 
 ## Acceptance Criteria
 
@@ -216,3 +217,4 @@ src/app/shared/components/widgets/tracking/  (tracking-week, tracking-day, track
 - **AC-003** Extra sessions are attached to the active week-log day. ✅
 - **AC-004** Completing the week redirects to success and history reflects it. ✅
 - **AC-005** Offline modifications replay once connectivity returns. ✅ (only for `UpdateWeekLogDay`)
+- **AC-006** Workout-session edits persist in both active and deferred week-logs through `UpdateWorkoutSession` with the correct `weekLogId`.

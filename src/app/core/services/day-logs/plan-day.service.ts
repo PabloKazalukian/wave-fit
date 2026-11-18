@@ -178,9 +178,8 @@ export class PlanDayService {
     }
 
     /**
-     * Persists a full workout session. Active day-log callers keep the default
-     * state refresh; deferred callers pass `updateActiveState: false` so they
-     * never mutate active tracking state or local storage (BR-019, BR-020).
+     * Persists a full workout session in the active day-log. The mutation is
+     * UpdateDayLog with the active day-log id (D1).
      */
     updateWorkoutSession(
         workout: WorkoutSessionVM,
@@ -190,17 +189,28 @@ export class PlanDayService {
 
         this.domain
             .updateWorkoutSession(workout)
-            ?.pipe(
+            .pipe(
                 takeUntilDestroyed(this.destroyRef),
-                finalize(() => {
-                    if (!updateActiveState) return;
+                tap((res) => {
+                    if (!updateActiveState || !res) return;
                     const dayLog = this.state.getDayLogValue();
                     if (dayLog) {
-                        this.state.updateDayLog((d) => ({ ...d, exercises: workout.exercises }));
+                        this.state.updateDayLog((d) => ({ ...d, exercises: res.exercises }));
                     }
                 }),
             )
             .subscribe();
+    }
+
+    /**
+     * Persists a full workout session in a deferred day-log using the route id.
+     * It never reads or writes the active day-log state or local storage.
+     */
+    updateWorkoutSessionDeferred(
+        dayLogId: string,
+        workout: WorkoutSessionVM,
+    ): Observable<DayLogVM | null> {
+        return this.domain.updateWorkoutSessionDeferred(dayLogId, workout);
     }
 
     /**

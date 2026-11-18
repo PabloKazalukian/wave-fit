@@ -26,6 +26,7 @@ describe('PlanDayService', () => {
         setRestDay: jasmine.Spy;
         updateExercises: jasmine.Spy;
         updateWorkoutSession: jasmine.Spy;
+        updateWorkoutSessionDeferred: jasmine.Spy;
         completeDayLog: jasmine.Spy;
         removeWorkoutSession: jasmine.Spy;
         removeExtraSession: jasmine.Spy;
@@ -95,6 +96,7 @@ describe('PlanDayService', () => {
             setRestDay: jasmine.createSpy('setRestDay'),
             updateExercises: jasmine.createSpy('updateExercises'),
             updateWorkoutSession: jasmine.createSpy('updateWorkoutSession'),
+            updateWorkoutSessionDeferred: jasmine.createSpy('updateWorkoutSessionDeferred'),
             completeDayLog: jasmine.createSpy('completeDayLog'),
             removeWorkoutSession: jasmine.createSpy('removeWorkoutSession'),
             removeExtraSession: jasmine.createSpy('removeExtraSession'),
@@ -250,6 +252,20 @@ describe('PlanDayService', () => {
 
         expect(domain.updateWorkoutSession).toHaveBeenCalledWith(workout);
         expect(state.updateDayLog).not.toHaveBeenCalled();
+    });
+
+    it('updateWorkoutSessionDeferred delegates without touching active state or storage', () => {
+        state.getDayLogValue.calls.reset();
+        domain.updateWorkoutSessionDeferred.and.returnValue(
+            of(buildDayLog({ id: 'deferred-day' })),
+        );
+
+        service.updateWorkoutSessionDeferred('deferred-day', workout).subscribe();
+
+        expect(domain.updateWorkoutSessionDeferred).toHaveBeenCalledWith('deferred-day', workout);
+        expect(state.getDayLogValue).not.toHaveBeenCalled();
+        expect(state.updateDayLog).not.toHaveBeenCalled();
+        expect(storage.setDayLogStorage).not.toHaveBeenCalled();
     });
 
     it('getWorkout maps the day status to the workout status', () => {

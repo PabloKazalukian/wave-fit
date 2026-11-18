@@ -210,10 +210,23 @@ export class DayDeferred implements OnInit, OnDestroy {
         this.error.set(null);
 
         if (ctx.containerType === 'DEFERRED_DAY_LOG') {
-            // Direct day-log API mutation — bypasses active state and storage (BR-019, BR-020)
-            this.planDaySvc.updateWorkoutSession(workout, { updateActiveState: false });
-            this.workoutSession.set(workout);
-            this.exercises.set(workout.exercises || []);
+            // Explicit route id — bypasses active state and storage (BR-019, BR-020)
+            const dayLogId = this.containerId();
+            if (!dayLogId) {
+                this.error.set('No se pudo resolver el día diferido.');
+                return;
+            }
+
+            this.planDaySvc.updateWorkoutSessionDeferred(dayLogId, workout).subscribe({
+                next: () => {
+                    this.workoutSession.set(workout);
+                    this.exercises.set(workout.exercises || []);
+                },
+                error: (err) => {
+                    console.error('[DayDeferred] Error saving day-log workout session:', err);
+                    this.error.set('No se pudo guardar la sesión de entrenamiento.');
+                },
+            });
         } else if (ctx.containerType === 'WEEK_LOG_DAY') {
             // Week-log workouts require the parent week id. WorkoutApi is the WL
             // mutation (plan D5, tracking FR-008) and never touches WORKOUT_STORE.

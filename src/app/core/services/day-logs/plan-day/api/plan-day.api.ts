@@ -128,24 +128,37 @@ export class PlanDayApi {
     }
 
     updateDayLog(payload: UpdateDayLogInput): Observable<DayLogVM | null> {
-        console.log(payload);
+        return this.mutateUpdateDayLog(payload).pipe(
+            map(({ data }) =>
+                patchDayLog(this.state.getDayLogValue(), this.mapUpdateDayLogResult(data)),
+            ),
+        );
+    }
+
+    /**
+     * Same mutation as `updateDayLog`, but the result is built only from the
+     * server response. Deferred callers must never read or patch the active
+     * day-log state (BR-019, BR-020).
+     */
+    updateDayLogDeferred(payload: UpdateDayLogInput): Observable<DayLogVM | null> {
+        return this.mutateUpdateDayLog(payload).pipe(
+            map(({ data }) => patchDayLog(null, this.mapUpdateDayLogResult(data))),
+        );
+    }
+
+    private mutateUpdateDayLog(payload: UpdateDayLogInput) {
         return this.apollo
             .mutate<{ updateDayLog: UpdateDayLogResultAPI }>({
                 mutation: UPDATE_DAY_LOG,
                 variables: { input: payload },
             })
-            .pipe(
-                handleGraphqlError(this.authSvc),
-                map(({ data }) =>
-                    patchDayLog(
-                        this.state.getDayLogValue(),
-                        wrapperUpdateDayLogApiToVM(
-                            data?.updateDayLog ?? null,
-                            this.exerciseSvc.exercises(),
-                        ),
-                    ),
-                ),
-            );
+            .pipe(handleGraphqlError(this.authSvc));
+    }
+
+    private mapUpdateDayLogResult(
+        data: { updateDayLog: UpdateDayLogResultAPI } | null | undefined,
+    ) {
+        return wrapperUpdateDayLogApiToVM(data?.updateDayLog ?? null, this.exerciseSvc.exercises());
     }
 
     updateWorkoutSession(workout: WorkoutSessionVM): Observable<WorkoutSessionVM | null> {

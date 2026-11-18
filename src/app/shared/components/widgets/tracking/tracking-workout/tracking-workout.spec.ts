@@ -7,6 +7,7 @@ import { Apollo } from 'apollo-angular';
 import { TrackingWorkoutComponent } from './tracking-workout';
 import { TrackingWorkoutFacade } from './tracking-workout.facade';
 import { WorkoutEdition } from './workout-edition/workout-edition';
+import { ExtraSessionForm } from '../../extra-session/extra-session-form/extra-session-form';
 import { WorkoutSessionVM } from '../../../../interfaces/tracking.interface';
 import { apolloMock } from '../../../../../core/testing/apollo.mock';
 import { workoutStoreMock } from '../../../../../core/testing/workout-store.mock';
@@ -23,6 +24,7 @@ describe('TrackingWorkout', () => {
         exercisesSelected: ReturnType<typeof signal<any[]>>;
         showExtraSessionDialog: ReturnType<typeof signal<boolean>>;
         updateWorkoutSession: jasmine.Spy;
+        createExtraSession: jasmine.Spy;
     };
 
     const editedWorkout: WorkoutSessionVM = {
@@ -41,6 +43,7 @@ describe('TrackingWorkout', () => {
             exercisesSelected: signal([]),
             showExtraSessionDialog: signal(false),
             updateWorkoutSession: jasmine.createSpy('updateWorkoutSession'),
+            createExtraSession: jasmine.createSpy('createExtraSession'),
         };
 
         await TestBed.configureTestingModule({
@@ -87,5 +90,18 @@ describe('TrackingWorkout', () => {
         edition.componentInstance.saveWorkoutSession.emit(saved);
 
         expect(facade.updateWorkoutSession).toHaveBeenCalledOnceWith(saved);
+    });
+
+    it('routes saveExtraSession from the shared form to the active create path', () => {
+        facade.workoutVM.set({ ...editedWorkout, status: 'complete' });
+        fixture.detectChanges();
+
+        const form = fixture.debugElement.query(By.directive(ExtraSessionForm));
+        expect(form).toBeTruthy();
+
+        const payload = { discipline: 'running', duration: 30, intensityLevel: 3 };
+        form.componentInstance.saveExtraSession.emit(payload as any);
+
+        expect(facade.createExtraSession).toHaveBeenCalledOnceWith(payload as any);
     });
 });

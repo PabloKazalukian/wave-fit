@@ -1,7 +1,7 @@
 import { Component, input, output, effect } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { DayDeferred } from './day-deferred';
 import { EditorContextService } from '../../../../core/services/editor-context/editor-context.service';
 import { EditorContext } from '../../../../core/services/editor-context/editor-context.interface';
@@ -120,10 +120,12 @@ describe('DayDeferred', () => {
         planDaySvc = jasmine.createSpyObj('PlanDayService', [
             'findById',
             'updateWorkoutSession',
+            'updateWorkoutSessionDeferred',
             'updateExtraSessionDeferred',
             'removeExtraSessionDeferred',
         ]);
         planDaySvc.findById.and.returnValue(of(sampleDayLog));
+        planDaySvc.updateWorkoutSessionDeferred.and.returnValue(of(sampleDayLog));
         planDaySvc.updateExtraSessionDeferred.and.returnValue(of(sampleDayLog));
         planDaySvc.removeExtraSessionDeferred.and.returnValue(of(sampleDayLog));
 
@@ -205,7 +207,7 @@ describe('DayDeferred', () => {
         expect(ctxSvc.clearContext).toHaveBeenCalledTimes(1);
     });
 
-    it('routes onSave to PlanDayService.updateWorkoutSession for DEFERRED_DAY_LOG', async () => {
+    it('routes onSave to PlanDayService.updateWorkoutSessionDeferred for DEFERRED_DAY_LOG', async () => {
         await setup({ date: '2026-10-15', id: 'day-1' });
 
         const workout: WorkoutSessionVM = {
@@ -216,9 +218,8 @@ describe('DayDeferred', () => {
         };
         component.onSave(workout);
 
-        expect(planDaySvc.updateWorkoutSession).toHaveBeenCalledWith(workout, {
-            updateActiveState: false,
-        });
+        expect(planDaySvc.updateWorkoutSessionDeferred).toHaveBeenCalledWith('day-1', workout);
+        expect(planDaySvc.updateWorkoutSession).not.toHaveBeenCalled();
     });
 
     it('routes onSave to WorkoutApi.updateWorkoutSession for WEEK_LOG_DAY', async () => {
@@ -234,6 +235,7 @@ describe('DayDeferred', () => {
 
         expect(workoutApi.updateWorkoutSession).toHaveBeenCalledOnceWith(workout, 'week-99');
         expect(planDaySvc.updateWorkoutSession).not.toHaveBeenCalled();
+        expect(planDaySvc.updateWorkoutSessionDeferred).not.toHaveBeenCalled();
     });
 
     it('does not send a mutation when the workout session has no id', async () => {
@@ -247,6 +249,7 @@ describe('DayDeferred', () => {
         });
 
         expect(planDaySvc.updateWorkoutSession).not.toHaveBeenCalled();
+        expect(planDaySvc.updateWorkoutSessionDeferred).not.toHaveBeenCalled();
         expect(workoutApi.updateWorkoutSession).not.toHaveBeenCalled();
         expect(component.error()).toBeTruthy();
     });
@@ -290,5 +293,62 @@ describe('DayDeferred', () => {
 
         expect(planDaySvc.removeExtraSessionDeferred).toHaveBeenCalledWith('es-1');
         expect(component.extraSessions().length).toBe(0);
+    });
+
+    it('detects DEFERRED_DAY_LOG from the :id path param', async () => {
+        await setup({}, { id: 'day-1' });
+
+        expect(component.containerType()).toBe('DEFERRED_DAY_LOG');
+        expect(component.containerId()).toBe('day-1');
+        expect(planDaySvc.findById).toHaveBeenCalledWith('day-1');
+    });
+
+    it('detects WEEK_LOG_DAY from the :weekId path param alias', async () => {
+        planTrackingSvc.findById.and.returnValue(
+            of({
+                id: 'week-99',
+                workouts: [
+                    null,
+                    null,
+                    {
+                        id: 'ws-2',
+                        date: '2026-10-15',
+                        exercises: [],
+                        extras: [],
+                        status: 'complete',
+                    },
+                ],
+            } as any),
+        );
+
+        await setup({}, { weekId: 'week-99', dayOrder: '2' });
+
+        expect(component.containerType()).toBe('WEEK_LOG_DAY');
+        expect(component.weekLogId()).toBe('week-99');
+        expect(planTrackingSvc.findById).toHaveBeenCalledWith('week-99');
+    });
+
+    it('targets the loaded workout session when deleting an extra-session in a deferred day-log', async () => {
+        await setup({ date: '2026-10-15', id: 'day-1' });
+
+        component.onExtraSessionDelete('es-1');
+
+        const removeSpy = planDaySvc.removeExtraSessionDeferred as unknown as jasmine.Spy;
+        expect(removeSpy).toHaveBeenCalledWith('ws-1', 'es-1');
+    });
+
+    it('surfaces a failed day-log workout save instead of silently ignoring it', async () => {
+        await setup({ date: '2026-10-15', id: 'day-1' });
+        const updateSpy = planDaySvc.updateWorkoutSessionDeferred as unknown as jasmine.Spy;
+        updateSpy.and.returnValue(throwError(() => new Error('network')));
+
+        component.onSave({
+            id: 'ws-1',
+            date: '2026-10-15',
+            exercises: [],
+            status: 'complete',
+        });
+
+        expect(component.error()).toBeTruthy();
     });
 });

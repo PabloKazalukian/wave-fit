@@ -23,6 +23,8 @@ describe('PlanDayDomainService', () => {
         createDayLog: jasmine.Spy;
         createDayLogDeferred: jasmine.Spy;
         updateDayLog: jasmine.Spy;
+        updateDayLogDeferred: jasmine.Spy;
+        updateWorkoutSession: jasmine.Spy;
         updateDayLogStatus: jasmine.Spy;
         assignRoutineToDayLog: jasmine.Spy;
         getActiveDayLog: jasmine.Spy;
@@ -57,6 +59,8 @@ describe('PlanDayDomainService', () => {
             createDayLog: jasmine.createSpy('createDayLog'),
             createDayLogDeferred: jasmine.createSpy('createDayLogDeferred'),
             updateDayLog: jasmine.createSpy('updateDayLog'),
+            updateDayLogDeferred: jasmine.createSpy('updateDayLogDeferred'),
+            updateWorkoutSession: jasmine.createSpy('updateWorkoutSession'),
             updateDayLogStatus: jasmine.createSpy('updateDayLogStatus'),
             assignRoutineToDayLog: jasmine.createSpy('assignRoutineToDayLog'),
             getActiveDayLog: jasmine.createSpy('getActiveDayLog'),
@@ -392,6 +396,59 @@ describe('PlanDayDomainService', () => {
             service.removeWorkoutSession('ws-1').subscribe();
 
             expect(state.updateDayLog).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('full workout session edits (day-log FR-014)', () => {
+        it('persists through UpdateDayLog with the day-log id and the mapped workoutSession', () => {
+            dayLog = buildDayLog({ workoutSessionId: 'ws-1' });
+            api.updateDayLog.and.returnValue(of(dayLog));
+            api.updateWorkoutSession.and.returnValue(of(null));
+
+            const workout = {
+                id: 'ws-1',
+                date: '2026-05-01',
+                exercises: [],
+                status: StatusWorkoutSessionEnum.COMPLETE,
+            };
+
+            service.updateWorkoutSession(workout).subscribe();
+
+            expect(api.updateDayLog).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    id: 'day-1',
+                    workoutSession: jasmine.objectContaining({
+                        id: 'ws-1',
+                        status: StatusWorkoutSessionEnum.COMPLETE,
+                    }),
+                }),
+            );
+            expect(api.updateWorkoutSession).not.toHaveBeenCalled();
+        });
+
+        it('persists a deferred workout edit with the explicit day-log id and no active state read', () => {
+            api.updateDayLogDeferred.and.returnValue(
+                of(buildDayLog({ id: 'deferred-day', workoutSessionId: 'ws-1' })),
+            );
+            state.getDayLogValue.calls.reset();
+
+            const workout = {
+                id: 'ws-1',
+                date: '2026-05-01',
+                exercises: [],
+                status: StatusWorkoutSessionEnum.COMPLETE,
+            };
+
+            service.updateWorkoutSessionDeferred('deferred-day', workout).subscribe();
+
+            expect(api.updateDayLogDeferred).toHaveBeenCalledWith(
+                jasmine.objectContaining({
+                    id: 'deferred-day',
+                    workoutSession: jasmine.objectContaining({ id: 'ws-1' }),
+                }),
+            );
+            expect(api.updateWorkoutSession).not.toHaveBeenCalled();
+            expect(state.getDayLogValue).not.toHaveBeenCalled();
         });
     });
 });

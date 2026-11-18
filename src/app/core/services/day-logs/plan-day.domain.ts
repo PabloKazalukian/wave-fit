@@ -32,6 +32,7 @@ import {
     CreateDayLogInput,
     UpdateDayLogInput,
 } from '../../../shared/interfaces/api/day-log-api.interface';
+import { UpdateWorkoutSessionInput } from '../../../shared/interfaces/api/tracking-api.interface';
 import { wrapperExercisePerformanceVMToApi } from '../../../shared/wrappers/tracking.wrapper';
 
 @Injectable({
@@ -315,8 +316,54 @@ export class PlanDayDomainService {
         );
     }
 
+    private toWorkoutSessionInput(workout: WorkoutSessionVM): UpdateWorkoutSessionInput {
+        return {
+            id: workout.id,
+            date: workout.date,
+            exercises: wrapperExercisePerformanceVMToApi(workout.exercises),
+            status: workout.status,
+            notes: workout.notes,
+        };
+    }
+
+    /**
+     * Active day-log: the target id comes from the active day-log state. The
+     * mutation is UpdateDayLog because UpdateWorkoutSession requires a week-log.
+     */
     updateWorkoutSession(workout: WorkoutSessionVM): Observable<WorkoutSessionVM | null> {
-        return this.api.updateWorkoutSession(workout);
+        const dayLog = this.state.getDayLogValue();
+        if (!dayLog) return of(null);
+
+        return this.api
+            .updateDayLog({
+                id: dayLog.id,
+                workoutSession: this.toWorkoutSessionInput(workout),
+            })
+            .pipe(
+                map((res) =>
+                    res
+                        ? {
+                              ...workout,
+                              id: res.workoutSessionId ?? workout.id,
+                              exercises: res.exercises ?? workout.exercises,
+                          }
+                        : null,
+                ),
+            );
+    }
+
+    /**
+     * Deferred day-log: the target id comes from the route, never from the
+     * active state, and the result is not merged into the active day-log.
+     */
+    updateWorkoutSessionDeferred(
+        dayLogId: string,
+        workout: WorkoutSessionVM,
+    ): Observable<DayLogVM | null> {
+        return this.api.updateDayLogDeferred({
+            id: dayLogId,
+            workoutSession: this.toWorkoutSessionInput(workout),
+        });
     }
 
     /**
