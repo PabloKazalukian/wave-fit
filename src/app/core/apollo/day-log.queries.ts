@@ -172,6 +172,18 @@ export const REMOVE_EXTRA_SESSION_FROM_DAY_LOG = gql`
     }
 `;
 
+export const REMOVE_EXTRA_SESSION_FROM_DEFERRED_DAY_LOG = gql`
+    mutation RemoveExtraSessionFromDeferredDayLog($extraSessionId: String!) {
+        removeExtraSessionFromDeferredDayLog(extraSessionId: $extraSessionId) {
+            id
+            active
+            completed
+            status
+            extraSessionIds
+        }
+    }
+`;
+
 export const DAY_LOGS = gql`
     query DayLogs($limit: Float, $offset: Float) {
         dayLogFindAll(limit: $limit, offset: $offset) {

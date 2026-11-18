@@ -37,6 +37,22 @@
                 </div>
               </div>
             } @else {
+              @if (facade.saveError()) {
+                <div
+                  data-test="save-error"
+                  class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 text-red-700 text-sm"
+                >
+                  {{ facade.saveError() }}
+                </div>
+              }
+              @if (facade.saveSuccess()) {
+                <div
+                  data-test="save-success"
+                  class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 text-green-700 text-sm"
+                >
+                  Sesión de entrenamiento guardada.
+                </div>
+              }
               @switch (this.facade.workoutVM()?.status) {
                 @case (this.StatusWorkoutSessionEnum.COMPLETE) {
                   <section [@switchAnimation]="this.facade.workoutVM()">
@@ -132,6 +148,7 @@
                       >
                         <app-extra-session-form
                           (closed)="facade.showExtraSessionDialog.set(false)"
+                          (saveExtraSession)="facade.createExtraSession($event)"
                         ></app-extra-session-form>
                       </app-dialog>
                     </aside>

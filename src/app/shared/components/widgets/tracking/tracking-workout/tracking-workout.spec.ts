@@ -23,6 +23,8 @@ describe('TrackingWorkout', () => {
         loadingStatusWorkout: ReturnType<typeof signal<boolean>>;
         exercisesSelected: ReturnType<typeof signal<any[]>>;
         showExtraSessionDialog: ReturnType<typeof signal<boolean>>;
+        saveError: ReturnType<typeof signal<string | null>>;
+        saveSuccess: ReturnType<typeof signal<boolean>>;
         updateWorkoutSession: jasmine.Spy;
         createExtraSession: jasmine.Spy;
     };
@@ -42,6 +44,8 @@ describe('TrackingWorkout', () => {
             loadingStatusWorkout: signal(false),
             exercisesSelected: signal([]),
             showExtraSessionDialog: signal(false),
+            saveError: signal<string | null>(null),
+            saveSuccess: signal(false),
             updateWorkoutSession: jasmine.createSpy('updateWorkoutSession'),
             createExtraSession: jasmine.createSpy('createExtraSession'),
         };
@@ -93,7 +97,8 @@ describe('TrackingWorkout', () => {
     });
 
     it('routes saveExtraSession from the shared form to the active create path', () => {
-        facade.workoutVM.set({ ...editedWorkout, status: 'complete' });
+        facade.workoutVM.set({ ...editedWorkout, status: 'edited' });
+        facade.showExtraSessionDialog.set(true);
         fixture.detectChanges();
 
         const form = fixture.debugElement.query(By.directive(ExtraSessionForm));
@@ -103,5 +108,22 @@ describe('TrackingWorkout', () => {
         form.componentInstance.saveExtraSession.emit(payload as any);
 
         expect(facade.createExtraSession).toHaveBeenCalledOnceWith(payload as any);
+    });
+
+    it('shows the save error reported by the facade', () => {
+        facade.saveError.set('No se pudo guardar la sesión de entrenamiento.');
+        fixture.detectChanges();
+
+        const error = fixture.nativeElement.querySelector('[data-test="save-error"]');
+        expect(error).toBeTruthy();
+        expect(error.textContent).toContain('No se pudo guardar');
+    });
+
+    it('shows a success message after a completed save', () => {
+        facade.saveSuccess.set(true);
+        fixture.detectChanges();
+
+        const success = fixture.nativeElement.querySelector('[data-test="save-success"]');
+        expect(success).toBeTruthy();
     });
 });

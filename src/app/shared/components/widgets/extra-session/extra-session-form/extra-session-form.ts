@@ -3,11 +3,11 @@ import {
     Input,
     Output,
     OnInit,
+    OnChanges,
+    SimpleChanges,
     EventEmitter,
     signal,
     inject,
-    DestroyRef,
-    effect,
     output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -16,39 +16,33 @@ import {
     ExtraSessionFormType,
     ExtraSessionService,
 } from '../../../../../core/services/extra-session/extra-session.service';
-import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 import { FormSelectComponent } from '../../../ui/select/select';
 import { SelectType } from '../../../../../shared/interfaces/input.interface';
 import {
     ExtraSessionCategory,
     ExtraSessionDisciplineConfig,
+    ExtraSessionFormValue,
 } from '../../../../../shared/interfaces/extra-session.interface';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { Loading } from '../../../ui/loading/loading';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ExtraSessionCreate } from '../extra-session-create/extra-session-create';
-import { catchError, of, tap } from 'rxjs';
 
 @Component({
     selector: 'app-extra-session-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormSelectComponent, Loading, ExtraSessionCreate],
+    imports: [CommonModule, ReactiveFormsModule, FormSelectComponent, ExtraSessionCreate],
     templateUrl: './extra-session-form.html',
 })
-export class ExtraSessionForm implements OnInit {
-    private destroyRef = inject(DestroyRef);
+export class ExtraSessionForm implements OnInit, OnChanges {
     service = inject(ExtraSessionService);
-    private store = inject(WORKOUT_STORE);
 
     @Input() selectedDate?: string;
     @Input() initialExtras?: any[];
 
     closed = output<void>();
-    @Output() saveExtraSession = new EventEmitter<ExtraSessionFormType>();
+    @Output() saveExtraSession = new EventEmitter<ExtraSessionFormValue>();
     @Output() cancelExtraSession = new EventEmitter<void>();
     @Output() categoryClear = new EventEmitter<void>();
     @Output() disciplineClear = new EventEmitter<void>();
-
-    loading = signal<boolean>(false);
 
     catalog = toSignal(this.service.catalog$, { initialValue: [] });
 
@@ -63,16 +57,6 @@ export class ExtraSessionForm implements OnInit {
 
     disciplineOptions = signal<SelectType[]>([]);
 
-    constructor() {
-        effect(() => {
-            const workoutSession = this.store.workoutSession();
-            if (workoutSession?.extras?.length) {
-                this.service.loadByWorkoutSession(workoutSession.extras);
-            }
-            this.resetForm();
-        });
-    }
-
     ngOnInit() {
         this.service.loadCatalog();
 
@@ -83,6 +67,12 @@ export class ExtraSessionForm implements OnInit {
                     .map((c) => ({ name: c.label, value: c.key })),
             );
         });
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['initialExtras'] && this.initialExtras?.length) {
+            this.service.loadByWorkoutSession(this.initialExtras);
+        }
     }
 
     get categoryControl(): FormControl<string> {
@@ -119,38 +109,17 @@ export class ExtraSessionForm implements OnInit {
         this.onSave();
     }
 
+    /**
+     * Pure I/O: validate and emit the raw form value. The owning container decides
+     * where the extra-session is written (active vs deferred), so this component
+     * never triggers a mutation itself (FR-009).
+     */
     onSave(): void {
         this.extraSessionForm.markAllAsTouched();
         if (this.extraSessionForm.invalid) return;
 
-        const date = (this.selectedDate || this.store.selectedDate())!;
-
-        this.loading.set(true);
-        this.service
-            .create({
-                date,
-                discipline: this.disciplineControl.value,
-                duration: this.durationControl.value,
-                intensityLevel: this.intensityLevelControl.value,
-                calories: this.caloriesControl.value || undefined,
-                notes: this.notesControl.value,
-            })
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                tap(() => this.loading.set(true)),
-                catchError(() => {
-                    this.loading.set(false);
-                    return of(null);
-                }),
-            )
-            .subscribe({
-                next: () => {
-                    this.loading.set(false);
-                    this.closed.emit();
-                    this.saveExtraSession.emit(this.extraSessionForm.value as any);
-                },
-                error: (err) => console.error(err),
-            });
+        this.closed.emit();
+        this.saveExtraSession.emit(this.extraSessionForm.value as ExtraSessionFormValue);
     }
 
     onCategoryClear(): void {

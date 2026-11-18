@@ -2,7 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { Apollo } from 'apollo-angular';
 import { of } from 'rxjs';
 
-import { UPDATE_DAY_LOG } from '../../../../apollo/day-log.queries';
+import {
+    REMOVE_EXTRA_SESSION_FROM_DEFERRED_DAY_LOG,
+    UPDATE_DAY_LOG,
+} from '../../../../apollo/day-log.queries';
 import { AuthService } from '../../../auth/auth.service';
 import { ExercisesService } from '../../../exercises/exercises.service';
 import { StatusWorkoutSessionEnum } from '../../../../../shared/interfaces/tracking.interface';
@@ -85,11 +88,38 @@ describe('PlanDayApi', () => {
         expect(args.variables).toEqual({ input: { id: 'day-1', workoutSession } });
     });
 
-    it('sends workoutSessionId when removing an extra-session from a day-log', () => {
-        api.removeExtraSessionFromDayLog('ws-1').subscribe();
+    it('sends extraSessionId when removing an extra-session from a day-log', () => {
+        api.removeExtraSessionFromDayLog('es-1').subscribe();
 
         const args = apollo.mutate.calls.mostRecent().args[0];
-        expect(args.variables).toEqual({ workoutSessionId: 'ws-1' });
-        expect(String(args.mutation.loc?.source?.body)).toContain('workoutSessionId');
+        expect(args.variables).toEqual({ extraSessionId: 'es-1' });
+        expect(String(args.mutation.loc?.source?.body)).toContain('extraSessionId');
+    });
+
+    it('uses the deferred delete mutation without reading active day-log state', () => {
+        apollo.mutate.and.returnValue(
+            of({
+                data: {
+                    removeExtraSessionFromDeferredDayLog: {
+                        id: 'deferred-day',
+                        active: false,
+                        completed: false,
+                        status: 'pending',
+                        extraSessionIds: [],
+                    },
+                },
+            }),
+        );
+
+        const result = jasmine.createSpy('result');
+        api.removeExtraSessionFromDeferredDayLog('es-1').subscribe(result);
+
+        const args = apollo.mutate.calls.mostRecent().args[0];
+        expect(args.mutation).toBe(REMOVE_EXTRA_SESSION_FROM_DEFERRED_DAY_LOG);
+        expect(args.variables).toEqual({ extraSessionId: 'es-1' });
+        expect(state.getDayLogValue).not.toHaveBeenCalled();
+        expect(result).toHaveBeenCalledWith(
+            jasmine.objectContaining({ id: 'deferred-day', extraSessionIds: [] }),
+        );
     });
 });

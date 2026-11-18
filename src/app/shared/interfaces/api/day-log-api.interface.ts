@@ -147,3 +147,12 @@ export interface RemoveExtraSessionFromDayLogResultAPI {
     id: string;
     extraSessionIds?: string[];
 }
+
+/** Retorno de RemoveExtraSessionFromDeferredDayLog: day-log completo (sin exercises) */
+export interface RemoveExtraSessionFromDeferredDayLogResultAPI {
+    id: string;
+    active: boolean;
+    completed: boolean;
+    status: DayStatusAPI;
+    extraSessionIds: string[];
+}

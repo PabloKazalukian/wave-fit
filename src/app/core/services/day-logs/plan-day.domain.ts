@@ -392,10 +392,12 @@ export class PlanDayDomainService {
 
     /**
      * Elimina una extra-session de un day-log diferido (histórico).
-     * No toca el state activo ni storage local.
+     * Usa la mutation específica para day-logs `active: false`; el resolver de
+     * `removeExtraSessionFromDayLog` solo encuentra day-logs activos. No toca el
+     * state activo ni storage local.
      */
     removeExtraSessionDeferred(extraSessionId: string): Observable<DayLogVM | null> {
-        return this.api.removeExtraSessionFromDayLog(extraSessionId);
+        return this.api.removeExtraSessionFromDeferredDayLog(extraSessionId);
     }
 
     removeWorkoutSession(workoutSessionId: string): Observable<DayLogVM | null> {

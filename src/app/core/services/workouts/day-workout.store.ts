@@ -78,8 +78,8 @@ export class DayWorkoutStore implements WorkoutStore {
         this.planDaySvc.updateWorkoutStatus(dayStatus as StatusWorkoutSession);
     }
 
-    updateWorkoutSession(_date: LocalDate, workout: WorkoutSessionVM): void {
-        this.planDaySvc.updateWorkoutSession(workout);
+    updateWorkoutSession(_date: LocalDate, workout: WorkoutSessionVM): Observable<unknown> {
+        return this.planDaySvc.updateWorkoutSession(workout);
     }
 
     removeWorkoutSession(_date: LocalDate, id: string): Observable<boolean> {

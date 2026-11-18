@@ -11,7 +11,9 @@ The behavior is still incomplete:
 
 1. Editing a workout session (WS) does not persist in the day-log cases (active and deferred).
 2. Adding an extra-session from a deferred day also creates it on the active day.
-3. Removing an extra-session from a day-log uses the wrong GraphQL variable name.
+3. Extra-session deletion must keep using the backend's `extraSessionId` contract while the
+   deferred flow is reworked (an earlier iteration incorrectly switched it to `workoutSessionId`
+   and was reverted after a GraphQL validation error).
 
 The last commit (`4789fd8`) wired the active week-log save output and split the deferred save
 routing per container type, but it did not change the underlying mutation used for day-logs.
@@ -20,18 +22,19 @@ routing per container type, but it did not change the underlying mutation used f
 
 Provided by the product owner:
 
-| Operation                      | Contract                                                                                    | Notes                                                                                                                                              |
-| ------------------------------ | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `updateDayLog`                 | `mutation UpdateDayLog($input: UpdateDayLogInput!) { updateDayLog(input: $input) { ... } }` | Works for deferred day-logs; no active/exclusivity check. Can update the full `workoutSession`, notes, active, completed, status, exercises, sets. |
-| `removeDayLog`                 | `mutation RemoveDayLog($id: String!)`                                                       | Soft delete for deferred day-logs.                                                                                                                 |
-| `removeExtraSessionFromDayLog` | `mutation RemoveExtraSessionFromDayLog($workoutSessionId: String!)`                         | Receives a **workout session id**, not an extra-session id.                                                                                        |
-| `updateDayLogStatus`           | `mutation UpdateDayLogStatus($date: String!, $isRest: Boolean!)`                            | Day status transition.                                                                                                                             |
-| `updateWorkoutSession`         | `UpdateWorkoutSessionInput` including `weekLogId`                                           | Week-log day WS mutation (spec `sdd/tracking/spec.md` FR-008).                                                                                     |
+| Operation                              | Contract                                                                                    | Notes                                                                                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `updateDayLog`                         | `mutation UpdateDayLog($input: UpdateDayLogInput!) { updateDayLog(input: $input) { ... } }` | Works for deferred day-logs; no active/exclusivity check. Can update the full `workoutSession`, notes, active, completed, status, exercises, sets. |
+| `removeDayLog`                         | `mutation RemoveDayLog($id: String!)`                                                       | Soft delete for deferred day-logs.                                                                                                                 |
+| `removeExtraSessionFromDayLog`         | `mutation RemoveExtraSessionFromDayLog($extraSessionId: String!)`                           | Active day-logs only. Receives the **extra-session id**; `workoutSessionId` is rejected by validation.                                             |
+| `removeExtraSessionFromDeferredDayLog` | `mutation RemoveExtraSessionFromDeferredDayLog($extraSessionId: String!)`                   | Deferred (`active: false`) day-logs; returns the day-log without exercises.                                                                        |
+| `updateDayLogStatus`                   | `mutation UpdateDayLogStatus($date: String!, $isRest: Boolean!)`                            | Day status transition.                                                                                                                             |
+| `updateWorkoutSession`                 | `UpdateWorkoutSessionInput` including `weekLogId`                                           | Week-log day WS mutation (spec `sdd/tracking/spec.md` FR-008).                                                                                     |
 
-Open item: the exact field that forces the target when creating an extra-session through
-`UpdateDayLogInput.extraSession` (or whether `workoutSession: { id }` must be sent in the same
-call). To be confirmed with the backend team / schema introspection. The design below does not
-depend on that answer to eliminate the active-day write.
+Resolved: the target is forced by `UpdateDayLogInput.id` (the day-log id). The current
+`CreateExtraSessionWithoutWsInput` has no `workoutSessionId` field, so no extra field is sent;
+the explicit `id` is sufficient and keeps deferred writes away from active state. Verified at
+runtime — the deferred extra-session create succeeds with `{ id, extraSession }`.
 
 ## Findings in Current Code
 
@@ -60,10 +63,12 @@ depend on that answer to eliminate the active-day write.
   **active** container. Then `DayDeferred.onExtraSessionSave()` writes again to the deferred
   container. Double write → extra-session appears in both days. The form also injects
   `WORKOUT_STORE` and its effect reads/resets from active state (`extra-session-form.ts:66-74`).
-- **F5** `REMOVE_EXTRA_SESSION_FROM_DAY_LOG` declares `$extraSessionId` and
-  `extraSessionId: $extraSessionId` (`day-log.queries.ts:166-173`), but the backend expects
-  `$workoutSessionId`. `ExtraSessionCard.delete` emits `session.id` (`extra-session-card.ts:27,89`),
-  and `DayDeferred.onExtraSessionDelete` forwards it unchanged (`day-deferred.ts:291-317`).
+- **F5** `REMOVE_EXTRA_SESSION_FROM_DAY_LOG` already declared `$extraSessionId` correctly
+  (`day-log.queries.ts`). `ExtraSessionCard.delete` emits `session.id` (`extra-session-card.ts`),
+  and `DayDeferred.onExtraSessionDelete` forwards it unchanged. The earlier assumption that the
+  backend required `$workoutSessionId` was wrong: runtime validation rejected it with
+  `Unknown argument "workoutSessionId"` and required `extraSessionId`. The final implementation
+  keeps the original contract and adds API-level coverage for it.
 - **F6** Route/context mismatch: route is `/user/week-log-day/:weekId/:dayOrder`
   (`app.routes.ts:83`) but `ngOnInit` reads `weekLogId`; route `/user/deferred-day-log/:id`
   (`app.routes.ts:75`) but the page reads `id` from `queryParamMap`. Those contexts are never
@@ -90,10 +95,10 @@ depend on that answer to eliminate the active-day write.
   `tracking-day.html`, `tracking-week.html` and `tracking-workout.html` to an explicit call to
   `ExtraSessionService.create` (via their facades). Deferred parent (`DayDeferred`) instead routes
   to the deferred-safe service with the target id from the route.
-- **D6 — Force the target in the API layer.** All deferred ES mutations receive the explicit
-  `dayLogId` / `weekLogId` / `workoutSessionId`; nothing is inferred from `ActiveTracking`.
-  Fix `REMOVE_EXTRA_SESSION_FROM_DAY_LOG` to `$workoutSessionId` and resolve the owning
-  `workoutSessionId` from the loaded `ExtraSession` before mutating.
+- **D6 — Force the target in the API layer.** Deferred ES creates receive the explicit
+  `dayLogId` / `weekLogId`; nothing is inferred from `ActiveTracking`. ES deletes keep the
+  backend contract `REMOVE_EXTRA_SESSION_FROM_DAY_LOG($extraSessionId: String!)` and forward the
+  id emitted by `ExtraSessionCard`; the owning container is resolved server-side.
 - **D7 — Route params are read from both sources.** Accept `weekId`/`weekLogId` and `id` from
   `paramMap` with `queryParamMap` fallback.
 - **D8 — Surface success/error.** Save operations return/emit status so the UI can show feedback.
@@ -102,12 +107,12 @@ depend on that answer to eliminate the active-day write.
 
 ## Target Mutation Map
 
-| Case        | WS save                                                | ES create                                                                                                                         | ES delete                                                             |
-| ----------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Active WL   | `UpdateWorkoutSession(workout, activeWeekLogId)`       | `updateTrackingDay` via `ExtraSessionService.create` (active)                                                                     | existing active path                                                  |
-| Active DL   | `UpdateDayLog({ id: activeDayLogId, workoutSession })` | `UpdateDayLog` via `ExtraSessionService.create` (active)                                                                          | `RemoveExtraSessionFromDayLog($workoutSessionId)`                     |
-| Deferred WL | `UpdateWorkoutSession(workout, routeWeekLogId)`        | `updateTrackingDay({ id: routeWeekLogId, day })`                                                                                  | `removeExtraSession` with explicit context                            |
-| Deferred DL | `UpdateDayLog({ id: routeDayLogId, workoutSession })`  | `UpdateDayLog({ id: routeDayLogId, extraSession, workoutSession: { id: routeWsId } })` (final field pending backend confirmation) | `RemoveExtraSessionFromDayLog($workoutSessionId)` with resolved WS id |
+| Case        | WS save                                                | ES create                                                                         | ES delete                                               |
+| ----------- | ------------------------------------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Active WL   | `UpdateWorkoutSession(workout, activeWeekLogId)`       | `updateTrackingDay` via `ExtraSessionService.create` (active)                     | existing active path                                    |
+| Active DL   | `UpdateDayLog({ id: activeDayLogId, workoutSession })` | `UpdateDayLog` via `ExtraSessionService.create` (active)                          | `RemoveExtraSessionFromDayLog($extraSessionId)`         |
+| Deferred WL | `UpdateWorkoutSession(workout, routeWeekLogId)`        | `updateTrackingDay({ id: routeWeekLogId, day })`                                  | `removeExtraSession` with explicit context              |
+| Deferred DL | `UpdateDayLog({ id: routeDayLogId, workoutSession })`  | `UpdateDayLog({ id: routeDayLogId, extraSession })` (`id` is the explicit target) | `RemoveExtraSessionFromDeferredDayLog($extraSessionId)` |
 
 ## Files
 
@@ -132,14 +137,15 @@ depend on that answer to eliminate the active-day write.
 ### T1 — Spec alignment
 
 Rewrite the affected requirements so Spec and Code agree: DL WS save → `updateDayLog`;
-WL WS save → `updateWorkoutSession`; ES deferred target is explicit; ES delete uses
-`workoutSessionId`. Add acceptance criteria for "no active-day writes in deferred mode".
+WL WS save → `updateWorkoutSession`; ES deferred target is explicit (`dayLogId` /
+`weekLogId`); ES delete uses `extraSessionId`. Add acceptance criteria for "no active-day
+writes in deferred mode".
 
 ### T2 — Tests first (red)
 
 - Apollo spy specs: mutation name + variables for active DL, deferred DL, active WL, deferred WL.
 - `plan-day.api.spec.ts`: `updateDayLog` payload contains `workoutSession.id`, exercises, status.
-- `day-log.queries` / `plan-day.api`: delete mutation uses `workoutSessionId`.
+- `day-log.queries` / `plan-day.api`: delete mutation declares and sends `extraSessionId`.
 - `extra-session-form.spec.ts`: no call to `ExtraSessionService.create` / no `WORKOUT_STORE` use.
 - `day-deferred.spec.ts`: route params `weekId`/`id`; explicit ES target; feedback on error.
 - `tracking-workout.spec.ts`: `(saveExtraSession)` wired to the active create path.
@@ -164,13 +170,15 @@ three active templates to an explicit facade method that calls `ExtraSessionServ
 ### T6 — Deferred ES create with explicit target
 
 `DayDeferred.onExtraSessionSave` calls deferred service methods with `dayLogId` / `weekLogId`
-from the route. Confirm the backend field for forcing the WS target and include it in the
-`UpdateDayLogInput` when available.
+from the route. The target is forced by `UpdateDayLogInput.id`; `CreateExtraSessionWithoutWsInput`
+has no `workoutSessionId` field, so the payload is `{ id, extraSession }`.
 
 ### T7 — ES delete contract
 
-Change `REMOVE_EXTRA_SESSION_FROM_DAY_LOG` to `$workoutSessionId`; resolve the WS id from the
-loaded `ExtraSession` in `DayDeferred` and in the active DL path; update interfaces and wrappers.
+Keep `REMOVE_EXTRA_SESSION_FROM_DAY_LOG($extraSessionId: String!)` and forward the id emitted by
+`ExtraSessionCard` through `PlanDayApi` → domain → service → `DayDeferred` / `ExtraSessionService`.
+An intermediate iteration switched it to `$workoutSessionId` and failed at runtime with
+`GRAPHQL_VALIDATION_FAILED`; it was reverted and covered with API/service/page assertions.
 
 ### T8 — Route context detection
 
@@ -193,8 +201,9 @@ domain/spec notes. Do not use this plan as current documentation.
 - **AC-3** No deferred flow writes active tracking state, active day-log state or local storage.
 - **AC-4** Adding an extra-session in a deferred day creates it only in that deferred container;
   the active day remains unchanged.
-- **AC-5** Deleting an extra-session uses `workoutSessionId` and succeeds on both active and
-  deferred day-logs.
+- **AC-5** Deleting an extra-session uses `extraSessionId`: active day-logs use
+  `RemoveExtraSessionFromDayLog`, deferred day-logs use `RemoveExtraSessionFromDeferredDayLog`
+  (T11).
 - **AC-6** `/user/week-log-day/:weekId/:dayOrder` and `/user/deferred-day-log/:id` detect the
   correct editor context.
 - **AC-7** Save failures are visible in the UI.
@@ -203,5 +212,16 @@ domain/spec notes. Do not use this plan as current documentation.
 
 ## Status
 
-Draft — written on user request; ready to execute following the Spec → Clarification → Plan →
-Tasks → Tests → Implementation → Validation → Documentation workflow.
+T1–T8 implemented and validated. T7 was corrected after runtime GraphQL validation showed the
+backend requires `extraSessionId`, not `workoutSessionId`. Live-backend reproduction showed
+`removeExtraSessionFromDayLog` only resolves **active** day-logs, so the backend added
+`removeExtraSessionFromDeferredDayLog($extraSessionId: String!)`; T11 wires it into the deferred
+path. T9 (quality gates) and T10 (stable documentation) remain. Plans are historical and
+non-authoritative — see `sdd/` and `documents/engineering/` for current behavior.
+
+### T11 — Deferred ES delete mutation (backend-provided)
+
+`PlanDayApi.removeExtraSessionFromDeferredDayLog` calls the new backend mutation and maps the
+result with `patchDayLog(null, …)` so active day-log state is never read or merged.
+`PlanDayDomainService.removeExtraSessionDeferred` routes deferred deletes through it; the active
+path keeps `RemoveExtraSessionFromDayLog`.

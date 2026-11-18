@@ -62,6 +62,7 @@ export class DayDeferred implements OnInit, OnDestroy {
 
     readonly loading = signal(false);
     readonly error = signal<string | null>(null);
+    readonly saveSuccess = signal(false);
 
     // ----- EditorContext passed down to WorkoutSessionEditor -----
 
@@ -78,10 +79,17 @@ export class DayDeferred implements OnInit, OnDestroy {
         const queryParams = this.route.snapshot.queryParamMap;
         const routeParams = this.route.snapshot.paramMap;
 
-        const date = queryParams.get('date');
-        const id = queryParams.get('id');
-        const weekLogId = routeParams.get('weekLogId');
-        const dayOrderStr = routeParams.get('dayOrder');
+        // Real routes are /user/deferred-day-log/:id and
+        // /user/week-log-day/:weekId/:dayOrder. Keep query-param fallbacks for
+        // deep links that still carry the context in the query string.
+        const date = queryParams.get('date') ?? routeParams.get('date');
+        const id = routeParams.get('id') ?? queryParams.get('id');
+        const weekLogId =
+            routeParams.get('weekLogId') ??
+            routeParams.get('weekId') ??
+            queryParams.get('weekLogId') ??
+            queryParams.get('weekId');
+        const dayOrderStr = routeParams.get('dayOrder') ?? queryParams.get('dayOrder');
 
         this.date.set(date ?? null);
 
@@ -208,6 +216,7 @@ export class DayDeferred implements OnInit, OnDestroy {
 
         const ctx = this.editorContext();
         this.error.set(null);
+        this.saveSuccess.set(false);
 
         if (ctx.containerType === 'DEFERRED_DAY_LOG') {
             // Explicit route id — bypasses active state and storage (BR-019, BR-020)
@@ -221,6 +230,7 @@ export class DayDeferred implements OnInit, OnDestroy {
                 next: () => {
                     this.workoutSession.set(workout);
                     this.exercises.set(workout.exercises || []);
+                    this.saveSuccess.set(true);
                 },
                 error: (err) => {
                     console.error('[DayDeferred] Error saving day-log workout session:', err);
@@ -240,6 +250,7 @@ export class DayDeferred implements OnInit, OnDestroy {
                 next: () => {
                     this.workoutSession.set(workout);
                     this.exercises.set(workout.exercises || []);
+                    this.saveSuccess.set(true);
                 },
                 error: (err) => {
                     console.error('[DayDeferred] Error saving WL workout session:', err);

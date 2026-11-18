@@ -4,6 +4,7 @@ import {
     CreateExtraSessionForm,
     ExtraSession,
     ExtraSessionDisciplineConfig,
+    ExtraSessionFormValue,
     UpdateExtraSessionInput,
 } from '../../../shared/interfaces/extra-session.interface';
 import { BehaviorSubject, map, Observable, of, switchMap, tap } from 'rxjs';
@@ -111,6 +112,21 @@ export class ExtraSessionService {
             },
             error: (err) => console.error('ExtraSessionService error:', err),
         });
+    }
+
+    /** Pure conversion from the form's raw value to the create payload. */
+    toCreateInput(value: ExtraSessionFormValue): CreateExtraSessionForm {
+        return {
+            date:
+                value.date instanceof Date
+                    ? value.date.toISOString().split('T')[0]
+                    : String(value.date),
+            discipline: value.discipline,
+            duration: value.duration,
+            intensityLevel: value.intensityLevel,
+            calories: value.calories,
+            notes: value.notes,
+        };
     }
 
     create(input: CreateExtraSessionForm): Observable<TrackingVM | null | undefined> {

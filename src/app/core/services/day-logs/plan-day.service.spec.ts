@@ -1,6 +1,6 @@
 import { signal, Signal } from '@angular/core';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { DayLogVM } from '../../../shared/interfaces/day-log.interface';
 import { CreateExtraSessionForm } from '../../../shared/interfaces/extra-session.interface';
 import { ExerciseCategory } from '../../../shared/interfaces/exercise.interface';
@@ -238,7 +238,7 @@ describe('PlanDayService', () => {
         state.getDayLogValue.and.returnValue(day);
         domain.updateWorkoutSession.and.returnValue(of({ ...workout, exercises: [exercise] }));
 
-        service.updateWorkoutSession(workout);
+        service.updateWorkoutSession(workout).subscribe();
 
         expect(domain.updateWorkoutSession).toHaveBeenCalledWith(workout);
         expect(state.updateDayLog).toHaveBeenCalledTimes(1);
@@ -248,9 +248,20 @@ describe('PlanDayService', () => {
         state.getDayLogValue.and.returnValue(buildDayLog());
         domain.updateWorkoutSession.and.returnValue(of(workout));
 
-        service.updateWorkoutSession(workout, { updateActiveState: false });
+        service.updateWorkoutSession(workout, { updateActiveState: false }).subscribe();
 
         expect(domain.updateWorkoutSession).toHaveBeenCalledWith(workout);
+        expect(state.updateDayLog).not.toHaveBeenCalled();
+    });
+
+    it('updateWorkoutSession exposes the mutation error without refreshing the active state', () => {
+        state.getDayLogValue.and.returnValue(buildDayLog());
+        domain.updateWorkoutSession.and.returnValue(throwError(() => new Error('network')));
+        const onError = jasmine.createSpy('onError');
+
+        service.updateWorkoutSession(workout).subscribe({ error: onError });
+
+        expect(onError).toHaveBeenCalled();
         expect(state.updateDayLog).not.toHaveBeenCalled();
     });
 

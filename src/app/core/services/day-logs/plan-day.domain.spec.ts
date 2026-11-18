@@ -29,6 +29,8 @@ describe('PlanDayDomainService', () => {
         assignRoutineToDayLog: jasmine.Spy;
         getActiveDayLog: jasmine.Spy;
         removeWorkoutSessionFromDayLog: jasmine.Spy;
+        removeExtraSessionFromDayLog: jasmine.Spy;
+        removeExtraSessionFromDeferredDayLog: jasmine.Spy;
     };
     let state: {
         getDayLogValue: jasmine.Spy;
@@ -65,6 +67,10 @@ describe('PlanDayDomainService', () => {
             assignRoutineToDayLog: jasmine.createSpy('assignRoutineToDayLog'),
             getActiveDayLog: jasmine.createSpy('getActiveDayLog'),
             removeWorkoutSessionFromDayLog: jasmine.createSpy('removeWorkoutSessionFromDayLog'),
+            removeExtraSessionFromDayLog: jasmine.createSpy('removeExtraSessionFromDayLog'),
+            removeExtraSessionFromDeferredDayLog: jasmine.createSpy(
+                'removeExtraSessionFromDeferredDayLog',
+            ),
         };
         state = {
             getDayLogValue: jasmine.createSpy('getDayLogValue').and.callFake(() => dayLog),
@@ -449,6 +455,55 @@ describe('PlanDayDomainService', () => {
             );
             expect(api.updateWorkoutSession).not.toHaveBeenCalled();
             expect(state.getDayLogValue).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('updateExtraSessionDeferred', () => {
+        it('targets the deferred day-log explicitly without touching active state or storage', () => {
+            api.updateDayLog.and.returnValue(of(buildDayLog({ id: 'deferred-day' })));
+            state.getDayLogValue.calls.reset();
+
+            const extraSession = {
+                date: '2026-05-01',
+                discipline: 'running',
+                duration: 30,
+                intensityLevel: 3,
+            };
+
+            service.updateExtraSessionDeferred('deferred-day', extraSession).subscribe();
+
+            expect(api.updateDayLog).toHaveBeenCalledWith({
+                id: 'deferred-day',
+                extraSession: {
+                    date: '2026-05-01',
+                    discipline: 'running',
+                    duration: 30,
+                    intensityLevel: 3,
+                    calories: undefined,
+                    notes: undefined,
+                },
+            });
+            expect(state.getDayLogValue).not.toHaveBeenCalled();
+            expect(state.setDayLog).not.toHaveBeenCalled();
+            expect(storage.setDayLogStorage).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('removeExtraSessionDeferred', () => {
+        it('uses the deferred delete mutation without touching active state or storage', () => {
+            const removed = buildDayLog({ id: 'deferred-day', extraSessionIds: [] });
+            api.removeExtraSessionFromDeferredDayLog.and.returnValue(of(removed));
+            state.getDayLogValue.calls.reset();
+
+            let result: DayLogVM | null | undefined;
+            service.removeExtraSessionDeferred('es-1').subscribe((res) => (result = res));
+
+            expect(api.removeExtraSessionFromDeferredDayLog).toHaveBeenCalledOnceWith('es-1');
+            expect(api.removeExtraSessionFromDayLog).not.toHaveBeenCalled();
+            expect(result).toEqual(removed);
+            expect(state.getDayLogValue).not.toHaveBeenCalled();
+            expect(state.setDayLog).not.toHaveBeenCalled();
+            expect(storage.setDayLogStorage).not.toHaveBeenCalled();
         });
     });
 });

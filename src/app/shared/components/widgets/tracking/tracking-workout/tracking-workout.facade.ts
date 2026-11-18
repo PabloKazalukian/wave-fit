@@ -7,6 +7,8 @@ import {
 } from '../../../../interfaces/tracking.interface';
 import { WORKOUT_STORE } from '../../../../../core/services/workouts/workout-store.interface';
 import { ActiveTrackingService } from '../../../../../core/services/trackings/active-tracking.service';
+import { ExtraSessionService } from '../../../../../core/services/extra-session/extra-session.service';
+import { ExtraSessionFormValue } from '../../../../interfaces/extra-session.interface';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 
@@ -17,6 +19,7 @@ export class TrackingWorkoutFacade {
 
     store = inject(WORKOUT_STORE);
     private activeTrackingSvc = inject(ActiveTrackingService);
+    private extraSessionSvc = inject(ExtraSessionService);
 
     loadings = computed(() => this.store.loadingWorkoutCreation().state === true);
     /** El workout no existe hasta que el tracking activo esté resuelto y el store apunte al modo correcto. */
@@ -52,6 +55,10 @@ export class TrackingWorkoutFacade {
     exercisesTracking = signal<ExercisePerformanceVM[]>([]);
     loading = this.store.loadingWorkoutCreation;
     showExtraSessionDialog = signal(false);
+
+    // ----- Save feedback (T4) -----
+    readonly saveError = signal<string | null>(null);
+    readonly saveSuccess = signal(false);
 
     validateWorkout(): boolean {
         if (
@@ -107,7 +114,17 @@ export class TrackingWorkoutFacade {
     updateWorkoutSession(workout: WorkoutSessionVM) {
         const date = this.workoutDate();
         if (!date) return;
-        this.store.updateWorkoutSession(date, workout);
+
+        this.saveError.set(null);
+        this.saveSuccess.set(false);
+
+        this.store
+            .updateWorkoutSession(date, workout)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => this.saveSuccess.set(true),
+                error: () => this.saveError.set('No se pudo guardar la sesión de entrenamiento.'),
+            });
     }
 
     removeWorkoutSession(): Observable<boolean> {
@@ -115,5 +132,22 @@ export class TrackingWorkoutFacade {
         const workoutId = this.workoutVM()?.id;
         if (!date || !workoutId) return of(false);
         return this.store.removeWorkoutSession(date, workoutId);
+    }
+
+    /** Active-owner of extra-session creation (T5): the shared form only emits. */
+    createExtraSession(value: ExtraSessionFormValue): void {
+        this.saveError.set(null);
+        this.saveSuccess.set(false);
+
+        this.extraSessionSvc
+            .create(this.extraSessionSvc.toCreateInput(value))
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => {
+                    this.showExtraSessionDialog.set(false);
+                    this.saveSuccess.set(true);
+                },
+                error: () => this.saveError.set('No se pudo guardar la actividad extra.'),
+            });
     }
 }

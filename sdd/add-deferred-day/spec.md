@@ -28,7 +28,7 @@ The parent component `DayDeferred` (in `day-deferred.ts`) must execute the chang
 ### BR: Business Rules
 
 - **BR-019** No active-tracking state is modified when editing a deferred day. The day-log or week-log container state is not persisted or changed.
-- **BR-020** Mutations are selected by container, not by the active tracking mode: DL uses the day-log API (`PlanDayApi.updateDayLog` with `{ id, workoutSession }` for WS edits; `workoutSessionId` for extra-session deletion), WL uses the week-log API (`WorkoutApi.updateWorkoutSession(workout, weekLogId)` for WS edits and the deferred plan-tracking methods for extra sessions). DL never calls `UpdateWorkoutSession`.
+- **BR-020** Mutations are selected by container, not by the active tracking mode: DL uses the day-log API (`PlanDayApi.updateDayLog` with `{ id, workoutSession }` for WS edits and `{ id, extraSession }` for extra-session creates; `extraSessionId` for extra-session deletion), WL uses the week-log API (`WorkoutApi.updateWorkoutSession(workout, weekLogId)` for WS edits and the deferred plan-tracking methods for extra sessions). DL never calls `UpdateWorkoutSession`.
 - **BR-021** The `date` query param is always a `LocalDate` in `yyyy-MM-dd` format. The `id` param, when present, is a day-log ID. The `weekLogId` and `dayOrder` are derived from the route params for WL context.
 - **BR-022** The wrapper for API responses keeps `date` as `yyyy-MM-dd` (no timezone conversion), since the backend already sends LocalDate for deferred days.
 
@@ -67,7 +67,8 @@ Mutations:
   → PlanDayDomainService → PlanDayApi.updateDayLog({ id, workoutSession })
   - Persists the full WS (id, exercises, status); no state/storage writes
 - DL extra sessions: PlanDayService.{updateExtraSessionDeferred,removeExtraSessionDeferred}
-  → PlanDayApi with the explicit day-log / workout-session id (deletion sends `workoutSessionId`)
+  → PlanDayApi with the explicit day-log id for creates (`UpdateDayLogInput.id`) and the
+  extra-session id for deferred deletions (`RemoveExtraSessionFromDeferredDayLog($extraSessionId)`)
 - WL: PlanTrackingService.findById → resolves week → day workout session
   - onSave: WorkoutApi.updateWorkoutSession(workout, weekLogId) with the id from the route context (no store/active-state write)
   - Extra sessions: PlanTrackingService.{updateExtraSessionDeferred,removeExtraSessionDeferred} with the route week-log id
@@ -112,6 +113,6 @@ Modified (existing):
 - [ ] The `onCompleteDay` action flips the day status appropriately: DL → `completed: true, active: false`; WL → pending (TODO for backend).
 - [ ] No active-tracking state, active day-log state or local storage is modified when editing a deferred day.
 - [ ] Adding an extra-session in a deferred day creates it only in that deferred container; the active day remains unchanged.
-- [ ] Deleting an extra-session sends `workoutSessionId` and affects only the edited deferred container.
+- [x] Deleting an extra-session from a deferred day sends `extraSessionId` through `RemoveExtraSessionFromDeferredDayLog` and does not write to the active container.
 - [ ] Save failures are visible in the editor.
 - [ ] All quality gates pass: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run test:ci`, `npm run build`.

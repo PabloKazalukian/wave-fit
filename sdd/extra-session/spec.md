@@ -16,8 +16,8 @@ An **ExtraSession** is additional training beyond the planned workout (CARDIO, S
 - **FR-006** `extraSessions` signal is derived from the store's `workoutSession().extras` ids, loading via `getByIds(ids)` (auto-refresh with signals + effect).
 - **FR-007** `loadByWorkoutSession(workoutSessionId: string[])` fetches sessions for a given set of ids (delegates to `ExtraSessionApi.getByIds`).
 - **FR-008** The editable card (`extra-session-card`) displays the session `notes` when present and allows **editing them** in its edit mode; the `save` output includes `notes`, and `extra-session-content` forwards it to `ExtraSessionService.update` → `UpdateExtraSessionInput.notes`.
-- **FR-009** In the deferred flow the form is I/O-only: it never calls `ExtraSessionService.create` and never reads `WORKOUT_STORE`. The parent page performs the mutation against the explicit target (`dayLogId` / `weekLogId` / owning `workoutSessionId`), so an extra-session added while editing a deferred day is not also written to the active day. Deferred writes do not modify active tracking state, active day-log state or local storage.
-- **FR-010** Removing an extra-session from a day-log sends the owning `workoutSessionId` (backend contract `RemoveExtraSessionFromDayLog($workoutSessionId: String!)`), not the extra-session id.
+- **FR-009** In the deferred flow the form is I/O-only: it never calls `ExtraSessionService.create` and never reads `WORKOUT_STORE`. The parent page performs the mutation against the explicit container (`dayLogId` for `DEFERRED_DAY_LOG`, `weekLogId`/`dayOrder` for `WEEK_LOG_DAY`), so an extra-session added while editing a deferred day is not also written to the active day. Deferred writes do not modify active tracking state, active day-log state or local storage.
+- **FR-010** Removing an extra-session sends the **extra-session id**; no `workoutSessionId` argument is accepted or needed. Active day-logs use `RemoveExtraSessionFromDayLog($extraSessionId: String!)`; deferred (`active: false`) day-logs use `RemoveExtraSessionFromDeferredDayLog($extraSessionId: String!)`, because the active-only resolver cannot find a deferred day-log. Week-log days keep `RemoveExtraSessionFromWeekDay(date, extraSessionId)`. `remove(id)` delegates to `PlanDayService.removeExtraSession(id)` (day) or `PlanTrackingService.removeExtraSession(date, id)` (week); `PlanDayService.removeExtraSessionDeferred(id)` routes to the deferred mutation without touching active state or storage.
 
 ### BR
 
@@ -31,7 +31,7 @@ An **ExtraSession** is additional training beyond the planned workout (CARDIO, S
 ## Constraints
 
 - **No storage layer**: state lives in the `WorkoutStore` (week: `WorkoutStateService`, day: `DayWorkoutStore`) — do not add a storage service.
-- The `workoutSessionId` field is **not part of `CreateExtraSessionForm`**; the owner fills it from the active session in the active flow, or from the loaded deferred container in the deferred flow (FR-009).
+- The `workoutSessionId` field is **not part of `CreateExtraSessionForm`**: `toCreateInput` drops it from the raw form value. Active creates are routed by `ExtraSessionService.create` by active container; deferred creates force the target with the explicit `UpdateDayLogInput.id` / week-log id supplied by the page (FR-009).
 - The form's `date` control is a JS `Date` but is not sent; the payload `date` is the active day's `LocalDate` from the store (`selectedDate`).
 - `CreateExtraSessionContext` and `mapToUpdateWeekLogExtraSessionInput` (`extra-session.wrapper.ts`, which hardcodes `workoutSessionId: '1'`) are currently unused — legacy retained.
 
@@ -128,7 +128,7 @@ src/app/shared/components/widgets/extra-session/  (extra-session-form, extra-ses
 - **TEST-007** `extra-session-content` forwards the edited notes to `ExtraSessionService.update` (FR-008). ✅ (`extra-session-content.spec.ts`)
 - **TEST-008** The create widget renders a notes field bound to the shared form, and `extra-session-form.save()` sends the control's value instead of hardcoding `''` (FR-002). ✅ (`extra-session-create.spec.ts`, `extra-session-form.spec.ts`)
 - **TEST-009** In the deferred flow the form emits `saveExtraSession` without calling `ExtraSessionService.create` or reading `WORKOUT_STORE`; the target is supplied by the page (FR-009).
-- **TEST-010** Day-log extra-session deletion sends `workoutSessionId` (FR-010).
+- **TEST-010** Active day-log deletion uses `RemoveExtraSessionFromDayLog($extraSessionId)`, deferred deletion uses `RemoveExtraSessionFromDeferredDayLog($extraSessionId)` without reading active state, and the domain routes `removeExtraSessionDeferred` to that mutation (FR-010). ✅ (`plan-day.api.spec.ts`, `plan-day.domain.spec.ts`, `extra-session.service.spec.ts`, `day-deferred.spec.ts`)
 
 ## Acceptance Criteria
 
@@ -137,3 +137,4 @@ src/app/shared/components/widgets/extra-session/  (extra-session-form, extra-ses
 - **AC-003** Lists stay consistent after create/update/remove without manual reload.
 - **AC-004** Notes captured at creation are visible and editable on the tracking card, and persist on update. ✅
 - **AC-005** An extra-session added from a deferred day exists only in that deferred container; the active day is unchanged.
+- **AC-006** Deleting an extra-session works on active day-logs, deferred day-logs and week-log days, each through its own mutation (FR-010).

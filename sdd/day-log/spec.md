@@ -16,12 +16,12 @@ The day-log is the **single-day** tracking container (TRACKING branch). Unlike t
 - **FR-006** `PlanDayApi.updateDayLogStatus(date, isRest)` transitions day status and returns `{ id, status, workoutSessionId, active }`; the facade wraps it as `setRestDay`. `DayWorkoutStore.createWorkout` (the "Completar el día" flow) instead goes through `PlanDayService.createWorkout` → FR-005: it sends `status: 'complete'` + `workoutSession.status: 'complete'` (with the day exercises) and **leaves `completed` untouched**, so the workout becomes editable while the day stays open. In `updateDayLog`, day-log `status` is a **display-only** value persisted as-is (no side effects on `completed`, `active` or the WS) and is never inferred by the backend; `completed: true` is the **only** day-closing action (`completeDayLog` → `active = false` → `/my-day/success`).
 - **FR-007** `PlanDayApi.assignRoutineToDayLog(routineDayId, date)` seeds the day from a routine day; the facade exposes it as `createWorkoutWithRoutine`.
 - **FR-008** `PlanDayApi.removeWorkoutSessionFromDayLog(workoutSessionId)` clears the global session; the facade exposes it as `removeWorkoutSession`.
-- **FR-009** `PlanDayApi.removeExtraSessionFromDayLog(workoutSessionId)` detaches an extra session from the day-log's global workout session. The GraphQL variable is `workoutSessionId`, **not** the extra-session id. The facade exposes it as `removeExtraSession`.
+- **FR-009** `PlanDayApi.removeExtraSessionFromDayLog(extraSessionId)` detaches an extra session from an **active** day-log via `RemoveExtraSessionFromDayLog($extraSessionId: String!)`; the backend rejects `workoutSessionId` with a validation error. For deferred (`active: false`) day-logs, `PlanDayApi.removeExtraSessionFromDeferredDayLog(extraSessionId)` uses `RemoveExtraSessionFromDeferredDayLog($extraSessionId: String!)` and never merges into active state. The facade exposes both as `removeExtraSession` / `removeExtraSessionDeferred`.
 - **FR-010** Offline updates run through the `UpdateDayLog` sync operation registered in `plan-day.domain.ts` (enqueued by `updateExercises`); there is no offline path for create/status/assign/remove (no `CreateDayLog` sync op).
 - **FR-011** Day exercises/session are driven through the **`WorkoutStore`** contract with the day implementation = `DayWorkoutStore` (`core/services/workouts/day-workout.store.ts`), selected via `ActiveTracking.isDayLogActive()`.
 - **FR-012** History: day-logs appear as `DayLogSummaryVM[]` via the `DayLogs` query (`dayLogFindAll`) consumed by the `DailyTracking` widget on `/user`; a completed day-log is rendered read-only at `/user/tracking/day/:id` (`pages/tracking-day/show`). `/user/trackings` lists week-logs only.
 - **FR-014** Editing a day-log workout session — active or deferred — persists the complete WS through `updateDayLog({ id, workoutSession })`, with the existing WS id carried in `workoutSession.id`. No day-log edit calls `UpdateWorkoutSession`. Deferred calls keep `updateActiveState: false`: they do not write active day-log state, active tracking state or local storage.
-- **FR-015** Deferred extra-session writes target the day-log explicitly: the owning page supplies the `id` / `workoutSessionId` from the loaded deferred container instead of deriving it from `ActiveTracking`. The shared form only validates and emits; the container owner performs the mutation. Deleting an extra-session sends the owning `workoutSessionId` (FR-009).
+- **FR-015** Deferred extra-session writes target the day-log explicitly: creates use `UpdateDayLogInput.id` from the loaded deferred container instead of deriving it from `ActiveTracking`; deletions send the extra-session id (FR-009). The shared form only validates and emits; the container owner performs the mutation. Neither path writes active state or local storage.
 
 ### BR
 
@@ -204,7 +204,7 @@ src/app/shared/components/widgets/users/daily-tracking/   (DayLog summary list)
 - **TEST-008** `createDayLogDeferred` sends `{ date }` through domain → API and does **not** call `setDayLog`, `setDayLogStorage` or `markDayActive`; the wrapper keeps `yyyy-MM-dd` without timezone conversion and normalizes optional fields. ✅
 - **TEST-009** The deferred page loads the day-log by `id` and renders the demo labels; `date`-only renders the empty form; missing/invalid date, null result and fetch errors are handled. ✅
 - **TEST-010** Active and deferred day-log WS edits call `UpdateDayLog` with `id` and the mapped `workoutSession` (including `id`, exercises and status); they never call `UpdateWorkoutSession` (FR-005, FR-014).
-- **TEST-011** `removeExtraSessionFromDayLog` sends `workoutSessionId`; deferred extra-session writes do not touch active state/storage and target the loaded day-log explicitly (FR-009, FR-015).
+- **TEST-011** `removeExtraSessionFromDayLog` declares and sends `extraSessionId`; deferred extra-session writes do not touch active state/storage and target the loaded day-log explicitly (FR-009, FR-015).
 
 ## Acceptance Criteria
 
@@ -213,4 +213,4 @@ src/app/shared/components/widgets/users/daily-tracking/   (DayLog summary list)
 - **AC-003** Day sessions, extra sessions and status are editable and survive offline.
 - **AC-004** Completed day-logs appear in history and render read-only on the show page.
 - **AC-005** Workout-session edits persist in both active and deferred day-logs through `UpdateDayLog`.
-- **AC-006** Extra-session deletion from a day-log uses `workoutSessionId`; deferred extra-session writes affect only the edited deferred day.
+- **AC-006** Extra-session deletion from a day-log uses `extraSessionId`: active day-logs use `RemoveExtraSessionFromDayLog`, deferred day-logs use `RemoveExtraSessionFromDeferredDayLog`, and deferred writes affect only the edited deferred day (FR-009, FR-015).

@@ -184,22 +184,19 @@ export class PlanDayService {
     updateWorkoutSession(
         workout: WorkoutSessionVM,
         options: { updateActiveState?: boolean } = {},
-    ): void {
+    ): Observable<WorkoutSessionVM | null> {
         const updateActiveState = options.updateActiveState ?? true;
 
-        this.domain
-            .updateWorkoutSession(workout)
-            .pipe(
-                takeUntilDestroyed(this.destroyRef),
-                tap((res) => {
-                    if (!updateActiveState || !res) return;
-                    const dayLog = this.state.getDayLogValue();
-                    if (dayLog) {
-                        this.state.updateDayLog((d) => ({ ...d, exercises: res.exercises }));
-                    }
-                }),
-            )
-            .subscribe();
+        return this.domain.updateWorkoutSession(workout).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            tap((res) => {
+                if (!updateActiveState || !res) return;
+                const dayLog = this.state.getDayLogValue();
+                if (dayLog) {
+                    this.state.updateDayLog((d) => ({ ...d, exercises: res.exercises }));
+                }
+            }),
+        );
     }
 
     /**
