@@ -64,7 +64,7 @@ Mutations:
 - DL: PlanDayService → PlanDayDomainService → PlanDayApi.updateWorkoutSession (WorkoutSessionVM)
   - Returns updated WorkoutSessionVM; no state/storage writes
 - WL: PlanTrackingService.findById → resolves week → day workout session
-  - onSave: facade update via store (local-only, no parent week-log mutation needed unless backend supports it)
+  - onSave: WorkoutApi.updateWorkoutSession(workout, weekLogId) with the id from the route context (no store/active-state write)
   - onCompleteDay: TODO for backend completion of WL day
 ```
 

@@ -8,6 +8,7 @@ import { PlanDayService } from '../../../../core/services/day-logs/plan-day.serv
 import { PlanTrackingService } from '../../../../core/services/trackings/plan-tracking.service';
 import { ExtraSessionService } from '../../../../core/services/extra-session/extra-session.service';
 import { ExtraSessionApi } from '../../../../core/services/extra-session/api/extra-session.api';
+import { WorkoutApi } from '../../../../core/services/workouts/api/workout.api';
 import { TextLink } from '../../../../shared/components/ui/text-link/text-link';
 import { Calendar, LucideAngularModule } from 'lucide-angular';
 import { WorkoutSessionEditor } from '../../../../shared/components/widgets/tracking/workout-session-editor/workout-session-editor';
@@ -38,6 +39,7 @@ export class DayDeferred implements OnInit, OnDestroy {
     private readonly planTrackingSvc = inject(PlanTrackingService);
     private readonly extraSessionSvc = inject(ExtraSessionService);
     private readonly extraSessionApi = inject(ExtraSessionApi);
+    private readonly workoutApi = inject(WorkoutApi);
 
     // ----- Route-driven context signals -----
 
@@ -199,18 +201,38 @@ export class DayDeferred implements OnInit, OnDestroy {
     // ----- Save routing (D5): routes to correct mutation per container type -----
 
     onSave(workout: WorkoutSessionVM): void {
+        if (!workout.id) {
+            this.error.set('No hay una sesión de entrenamiento para actualizar.');
+            return;
+        }
+
         const ctx = this.editorContext();
+        this.error.set(null);
 
         if (ctx.containerType === 'DEFERRED_DAY_LOG') {
-            // Direct API mutation — bypasses active state and storage (BR-019, BR-020)
-            this.planDaySvc.updateWorkoutSession(workout);
+            // Direct day-log API mutation — bypasses active state and storage (BR-019, BR-020)
+            this.planDaySvc.updateWorkoutSession(workout, { updateActiveState: false });
             this.workoutSession.set(workout);
             this.exercises.set(workout.exercises || []);
         } else if (ctx.containerType === 'WEEK_LOG_DAY') {
-            // Direct API mutation for week-log day
-            this.planDaySvc.updateWorkoutSession(workout);
-            this.workoutSession.set(workout);
-            this.exercises.set(workout.exercises || []);
+            // Week-log workouts require the parent week id. WorkoutApi is the WL
+            // mutation (plan D5, tracking FR-008) and never touches WORKOUT_STORE.
+            const weekLogId = this.weekLogId();
+            if (!weekLogId) {
+                this.error.set('No se pudo resolver la semana de entrenamiento.');
+                return;
+            }
+
+            this.workoutApi.updateWorkoutSession(workout, weekLogId).subscribe({
+                next: () => {
+                    this.workoutSession.set(workout);
+                    this.exercises.set(workout.exercises || []);
+                },
+                error: (err) => {
+                    console.error('[DayDeferred] Error saving WL workout session:', err);
+                    this.error.set('No se pudo guardar la sesión de entrenamiento.');
+                },
+            });
         }
     }
 

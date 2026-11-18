@@ -15,7 +15,7 @@ Week-log tracking records one executed week of training (TRACKING branch). A `Tr
 - **FR-005** Exercises are edited via `setExercises(date, exercises)` with `debounceTime(4000)` persistence; offline edits enqueue `UpdateWeekLogDay`.
 - **FR-006** Day status transitions: `setRestDay(day, workout, desiredStatus)` (REST/NOT_STARTED), `updateWorkoutStatus(date, status)` (COMPLETE/EDITED/REST). **Note:** `updateWorkoutStatus` (EDITED/COMPLETE) only updates local state + localStorage; it does NOT persist to the API. Only the REST/NOT_STARTED branch persists via `setRestDay` → `updateDayWorkoutStatus`.
 - **FR-007** Extra sessions are added/removed through `updateExtraSession(date, form)` / `removeExtraSession(date, id)` (week-log day payload).
-- **FR-008** `updateWorkoutSession(date, workout)` persists a full edited workout via `WorkoutApi`.
+- **FR-008** `updateWorkoutSession(date, workout)` persists a full edited workout via `WorkoutApi`. The active week-log flow reaches it through `WORKOUT_STORE` → `PlanTrackingService`; the deferred week-log page calls `WorkoutApi.updateWorkoutSession(workout, weekLogId)` directly with the id from the route context, so no active tracking state is required.
 - **FR-009** `setRemoveAllExercises(date)` / `removeWorkoutSession(date, id)` clear the day.
 - **FR-010** `completeTracking(complete)` closes the week (`completed`, `active:false`), pads the 7 days, clears state/storage, and redirects to `/my-week/success`.
 - **FR-011** `createRoutineFromWorkout(title, exerciseIds)` creates a routine from a workout.

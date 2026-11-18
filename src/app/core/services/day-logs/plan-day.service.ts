@@ -177,12 +177,23 @@ export class PlanDayService {
         this.state.updateDayLog((d) => ({ ...d, status: status as DayLogVM['status'] }));
     }
 
-    updateWorkoutSession(workout: WorkoutSessionVM): void {
+    /**
+     * Persists a full workout session. Active day-log callers keep the default
+     * state refresh; deferred callers pass `updateActiveState: false` so they
+     * never mutate active tracking state or local storage (BR-019, BR-020).
+     */
+    updateWorkoutSession(
+        workout: WorkoutSessionVM,
+        options: { updateActiveState?: boolean } = {},
+    ): void {
+        const updateActiveState = options.updateActiveState ?? true;
+
         this.domain
             .updateWorkoutSession(workout)
             ?.pipe(
                 takeUntilDestroyed(this.destroyRef),
                 finalize(() => {
+                    if (!updateActiveState) return;
                     const dayLog = this.state.getDayLogValue();
                     if (dayLog) {
                         this.state.updateDayLog((d) => ({ ...d, exercises: workout.exercises }));

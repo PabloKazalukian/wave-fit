@@ -48,6 +48,7 @@
                     <app-workout-edition
                       [workoutSession]="facade.workoutVM()!"
                       [exercises]="facade.exercisesSelected()"
+                      (saveWorkoutSession)="facade.updateWorkoutSession($event)"
                     ></app-workout-edition>
                     <aside class="mt-4 space-y-2">
                       <app-btn

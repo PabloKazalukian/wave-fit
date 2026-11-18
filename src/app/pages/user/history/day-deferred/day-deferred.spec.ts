@@ -9,6 +9,7 @@ import { PlanDayService } from '../../../../core/services/day-logs/plan-day.serv
 import { PlanTrackingService } from '../../../../core/services/trackings/plan-tracking.service';
 import { ExtraSessionService } from '../../../../core/services/extra-session/extra-session.service';
 import { ExtraSessionApi } from '../../../../core/services/extra-session/api/extra-session.api';
+import { WorkoutApi } from '../../../../core/services/workouts/api/workout.api';
 import { WorkoutSessionVM } from '../../../../shared/interfaces/tracking.interface';
 import { ExtraSession } from '../../../../shared/interfaces/extra-session.interface';
 import { WorkoutSessionEditor } from '../../../../shared/components/widgets/tracking/workout-session-editor/workout-session-editor';
@@ -50,6 +51,7 @@ describe('DayDeferred', () => {
     let planTrackingSvc: jasmine.SpyObj<PlanTrackingService>;
     let extraSessionSvc: jasmine.SpyObj<ExtraSessionService>;
     let extraSessionApi: jasmine.SpyObj<ExtraSessionApi>;
+    let workoutApi: jasmine.SpyObj<WorkoutApi>;
 
     const sampleDayLog: any = {
         id: 'day-1',
@@ -95,6 +97,7 @@ describe('DayDeferred', () => {
                 { provide: PlanTrackingService, useValue: planTrackingSvc },
                 { provide: ExtraSessionService, useValue: extraSessionSvc },
                 { provide: ExtraSessionApi, useValue: extraSessionApi },
+                { provide: WorkoutApi, useValue: workoutApi },
             ],
         })
             .overrideComponent(DayDeferred, {
@@ -140,6 +143,9 @@ describe('DayDeferred', () => {
         extraSessionApi = jasmine.createSpyObj('ExtraSessionApi', ['getByIds', 'update']);
         extraSessionApi.getByIds.and.returnValue(of([sampleExtra]));
         extraSessionApi.update.and.returnValue(of(sampleExtra));
+
+        workoutApi = jasmine.createSpyObj('WorkoutApi', ['updateWorkoutSession']);
+        workoutApi.updateWorkoutSession.and.returnValue(of(null));
     });
 
     it('initializes DEFERRED_DAY_LOG context, loads day-log and extra sessions', async () => {
@@ -210,7 +216,39 @@ describe('DayDeferred', () => {
         };
         component.onSave(workout);
 
-        expect(planDaySvc.updateWorkoutSession).toHaveBeenCalledWith(workout);
+        expect(planDaySvc.updateWorkoutSession).toHaveBeenCalledWith(workout, {
+            updateActiveState: false,
+        });
+    });
+
+    it('routes onSave to WorkoutApi.updateWorkoutSession for WEEK_LOG_DAY', async () => {
+        await setup({ date: '2026-10-15' }, { weekLogId: 'week-99', dayOrder: '2' });
+
+        const workout: WorkoutSessionVM = {
+            id: 'ws-2',
+            date: '2026-10-15',
+            exercises: [],
+            status: 'complete',
+        };
+        component.onSave(workout);
+
+        expect(workoutApi.updateWorkoutSession).toHaveBeenCalledOnceWith(workout, 'week-99');
+        expect(planDaySvc.updateWorkoutSession).not.toHaveBeenCalled();
+    });
+
+    it('does not send a mutation when the workout session has no id', async () => {
+        await setup({ date: '2026-10-15', id: 'day-1' });
+
+        component.onSave({
+            id: '',
+            date: '2026-10-15',
+            exercises: [],
+            status: 'complete',
+        });
+
+        expect(planDaySvc.updateWorkoutSession).not.toHaveBeenCalled();
+        expect(workoutApi.updateWorkoutSession).not.toHaveBeenCalled();
+        expect(component.error()).toBeTruthy();
     });
 
     it('routes onExtraSessionSave to updateExtraSessionDeferred for DEFERRED_DAY_LOG', async () => {

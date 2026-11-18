@@ -242,6 +242,16 @@ describe('PlanDayService', () => {
         expect(state.updateDayLog).toHaveBeenCalledTimes(1);
     });
 
+    it('updateWorkoutSession skips the active state refresh when updateActiveState is false', () => {
+        state.getDayLogValue.and.returnValue(buildDayLog());
+        domain.updateWorkoutSession.and.returnValue(of(workout));
+
+        service.updateWorkoutSession(workout, { updateActiveState: false });
+
+        expect(domain.updateWorkoutSession).toHaveBeenCalledWith(workout);
+        expect(state.updateDayLog).not.toHaveBeenCalled();
+    });
+
     it('getWorkout maps the day status to the workout status', () => {
         const statuses: [DayLogVM['status'], StatusWorkoutSessionEnum][] = [
             ['skipped', StatusWorkoutSessionEnum.REST],
